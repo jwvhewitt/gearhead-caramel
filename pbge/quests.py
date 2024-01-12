@@ -1,9 +1,8 @@
 # A Quest is the opposite of a story- it is a randomly generated narrative with a defined ending.
 
-from . import plots, dialogue
+from . import plots, widgets, my_state, frects, image, wait_event, TIMEREVENT
+import pygame
 import random
-import collections
-from types import MethodType
 
 VERB_DEFEAT = "DEFEAT"
 
@@ -26,6 +25,7 @@ TEXT_LORE_HINT = "[QUEST_LORE_HINT]"    # May be used as a rumor for learning th
 TEXT_LORE_INFO = "[QUEST_LORE_INFO]"    # The lore is revealed to the PC; independent clause
 TEXT_LORE_TOPIC = "[QUEST_LORE_TOPIC]"  # The topic for the PC's inquiry into the lore; noun phrase
 TEXT_LORE_SELFDISCOVERY = "[QUEST_LORE_SELFDISCOVERY]"  # A sentence for when the PC discovers the info themselves
+TEXT_LORE_MEMO = "[TEXT_LORE_MEMO]"     # A sentence for use in the lore browser.
 
 # Optional Lore
 TEXT_LORE_TARGET_TOPIC = "[QUEST_LORE_TARGET_TOPIC]"    # Why are the lore keys formatted like grammar tokens?
@@ -156,10 +156,13 @@ class Quest:
     # the provided maximum chain length which connects all the outcomes to a single beginning state.
     # The plot creating the quest needs to call the build function.
     # The quest plots need to call the extend function.
+    # *** A single plot can only build a single quest. This is because the quest modifies the plot. If you need more
+    #  than one quest, use more than one plot.
     def __init__(
-        self, outcomes, task_ident=DEFAULT_QUEST_TASK, conclusion_series=DEFAULT_QUEST_CONCLUSION_SERIES,
+        self, desc, outcomes, task_ident=DEFAULT_QUEST_TASK, conclusion_series=DEFAULT_QUEST_CONCLUSION_SERIES,
         course_length=3, end_on_loss=True, lore_handler=DEFAULT_QUEST_LORE_HANDLER
     ):
+        self.desc = desc.capitalize()
         self.outcomes = list(outcomes)
         self.task_ident = task_ident
         if not isinstance(conclusion_series, (list, tuple)):
@@ -176,6 +179,7 @@ class Quest:
 
     def build(self, nart, root_plot: plots.Plot):
         # Start constructing a quest starting with root_plot as the main controller.
+        root_plot.extensions.append(self)
         random.shuffle(self.outcomes)
         for numa, outc in enumerate(self.outcomes):
             primary_conclusion = None
@@ -214,6 +218,7 @@ class Quest:
 
         self.add_quest_lore_handler(root_plot, nart)
         del self._not_lockable_lore
+        print(self.all_plots)
 
     def add_quest_lore_handler(self, root_plot, nart):
         lore_set = set()
@@ -313,14 +318,41 @@ class Quest:
                 break
 
         # I did not mean the final line of this function to sound like something you'd hear a mansplainer say, but...
-        #if all_plots:
-        #    print("LOre Blockage: {} {}".format([str(l) for l in new_rec.needed_lore], [str(l) for l in new_rec.lore_to_reveal]))
         return not all_plots
 
     @property
     # People might want to look at the revealed lore set, but no touching.
     def revealed_lore(self):
         return tuple(self._revealed_lore)
+
+    # ***   MEMO  FUNCTIONS   ***
+    def get_memo(self):
+        if self._revealed_lore:
+            return self
+
+    def open_lore(self, wid, ev):
+        # Open the Hypothesis Widget.
+        memob, camp = wid.data
+        memob.active = False
+        BrowseLoreWidget(self._revealed_lore, camp)()
+        memob.regen_memo()
+        memob.active = True
+
+    def get_widget(self, memobrowser, camp):
+        mylabel = widgets.LabelWidget(
+            memobrowser.dx, memobrowser.dy, memobrowser.w, memobrowser.h, text=str(self),
+            data=memobrowser, justify=0, font=my_state.medium_font
+        )
+        mybutton = widgets.LabelWidget(
+            -75, 20, 150, 24, text="Review Lore", draw_border=True, justify=0, border=widgets.widget_border_on,
+            on_click=self.open_lore, data=(memobrowser,camp), parent=mylabel, anchor=frects.ANCHOR_BOTTOM,
+            font=my_state.big_font
+        )
+        mylabel.children.append(mybutton)
+        return mylabel
+
+    def __str__(self):
+        return self.desc
 
 
 class LoreBlockRecord:
@@ -390,3 +422,50 @@ class QuestRecord:
             self._needed_lore.add(new_lore)
         else:
             raise plots.PlotError("Lore {} will cause lore blockage if claimed by {}.".format(new_lore, myplot))
+
+
+class BrowseLoreWidget(widgets.ScrollColumnWidget):
+    def __init__(self, revealed_lore, camp, **kwargs):
+        up_arrow = widgets.ButtonWidget(-64, -232, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),
+                                        on_frame=0, off_frame=1)
+        down_arrow = widgets.ButtonWidget(-64, 216, 128, 16, sprite=image.Image("sys_updownbuttons.png", 128, 16),
+                                          on_frame=2, off_frame=3)
+        super().__init__(-250, -200, 500, 400, center_interior=True, padding=16, up_button=up_arrow, down_button=down_arrow, draw_border=True, **kwargs)
+        self.revealed_lore = revealed_lore
+        self.camp = camp
+
+        self.children.append(up_arrow)
+        self.children.append(down_arrow)
+
+        self.keep_going = True
+        closebuttonsprite = image.Image('sys_closeicon.png')
+
+        self.close_button = widgets.ButtonWidget(
+            -closebuttonsprite.frame_width // 2, -closebuttonsprite.frame_height // 2, closebuttonsprite.frame_width,
+            closebuttonsprite.frame_height, closebuttonsprite, 0, on_click=self.close_browser, parent=self,
+            anchor=frects.ANCHOR_UPPERRIGHT)
+        self.children.append(self.close_button)
+
+        for rl in revealed_lore:
+            if TEXT_LORE_MEMO in rl.texts:
+                msg = rl.texts[TEXT_LORE_MEMO]
+                msg.capitalize()
+                self.add_interior(widgets.LabelWidget(0,0,self.w,0,msg, font=my_state.medium_font))
+
+    def close_browser(self, button=None, ev=None):
+        self.keep_going = False
+        my_state.widgets.remove(self)
+
+    def __call__(self):
+        # Run the UI. Clean up after you leave.
+        my_state.widgets.append(self)
+        while self.keep_going and not my_state.got_quit:
+            ev = wait_event()
+            if ev.type == TIMEREVENT:
+                my_state.render_and_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    self.keep_going = False
+
+        if self in my_state.widgets:
+            my_state.widgets.remove(self)

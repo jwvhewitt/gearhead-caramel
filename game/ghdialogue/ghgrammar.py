@@ -1181,6 +1181,13 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[DISCOVERY_AFTER_MECHA_COMBAT]": {
+        Default: [
+            "After the battle, you make an interesting discovery.",
+            "You find some useful information from the navcomp of one of the defeated mecha."
+        ],
+    },
+
     "[DISTRACTION]": {
         Default: ["[LOOK_AT_THIS] A [adjective] [noun]!"
                   ],

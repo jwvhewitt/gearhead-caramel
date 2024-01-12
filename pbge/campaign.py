@@ -214,7 +214,15 @@ class Campaign(object):
                             yield tt
 
     def get_memos(self):
-        mymemos = [p.memo for p in self.active_plots() if p.memo]
+        mymemos = list()
+        for p in self.active_plots():
+            if p.memo:
+                mymemos.append(p.memo)
+            for ex in p.extensions:
+                if hasattr(ex, "get_memo"):
+                    exmemo = ex.get_memo()
+                    if exmemo:
+                        mymemos.append(exmemo)
         for c in self.get_active_challenges():
             cmemo = c.get_memo()
             if cmemo:

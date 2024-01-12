@@ -188,6 +188,14 @@ class SimpleMonologueDisplay( object ):
         pbge.alert_display(myviz.render)
 
 
+def alert_with_grammar(camp, text):
+    # Do an alert display, but with grammar tokens correctly converted.
+    mygrammar = pbge.dialogue.grammar.Grammar()
+    pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,camp.pc,camp.pc)
+    altered_text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)
+    pbge.alert(altered_text)
+
+
 class SimpleMonologueMenu(pbge.rpgmenu.Menu):
     # Useful for times when you don't want or need to invoke the full conversation thingamajig.
     def __init__(self,text,npc,camp):
@@ -219,6 +227,7 @@ def AddTagBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp, ne
         true_msg = pbge.dialogue.grammar.convert_tokens(msg, mygrammar)
         mymenu.items.append(ghdialogue.ghdview.LancemateConvoItem(true_msg, value, desc=None, menu=mymenu, npc=mylm))
         return mylm
+
 
 def AddSkillBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp: gears.GearHeadCampaign, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE, pc_msg=None, no_random=False):
     # Add an item to this menu where a lancemate suggests something. Designed to be used with the above

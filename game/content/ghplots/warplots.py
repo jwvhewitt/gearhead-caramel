@@ -68,6 +68,7 @@ class OccupationFortify(Plot):
                         quests.TEXT_LORE_TOPIC: "the state of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} is working against {OCCUPIER} in {METROSCENE}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "{OCCUPIER} is fortifying their position in {METROSCENE}.".format(**self.elements),
                     }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
@@ -87,6 +88,7 @@ class OccupationFortify(Plot):
                         quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that there is a resistance dedicated to ousting {OCCUPIER} from {METROSCENE}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "There is a resistance opposing {OCCUPIER}'s occupation of {METROSCENE}.".format(**self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
@@ -95,6 +97,7 @@ class OccupationFortify(Plot):
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
+            "{OCCUPIER} is attempting to fortify its position in {METROSCENE}.".format(**self.elements),
             outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)
@@ -141,6 +144,7 @@ class OccupationCrushDissent(Plot):
                         quests.TEXT_LORE_TOPIC: "the state of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} is working against {OCCUPIER} in {METROSCENE}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "{OCCUPIER} is attempting to crush all dissent in {METROSCENE}.".format(**self.elements),
                     }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
@@ -160,6 +164,7 @@ class OccupationCrushDissent(Plot):
                         quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that the people of {METROSCENE} must unite to oust {OCCUPIER}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "There is a resistance opposing {OCCUPIER}'s occupation of {METROSCENE}.".format(**self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
@@ -168,6 +173,7 @@ class OccupationCrushDissent(Plot):
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
+            "{OCCUPIER} is attempting to crush all dissent in {METROSCENE}.".format(**self.elements),
             outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)
@@ -219,6 +225,7 @@ class OccupationRestoreOrder(Plot):
                         quests.TEXT_LORE_TOPIC: "the state of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} is working against {OCCUPIER} in {METROSCENE}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "{OCCUPIER} has placed {METROSCENE} under martial law.".format(**self.elements),
                     }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
@@ -238,6 +245,7 @@ class OccupationRestoreOrder(Plot):
                         quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that there is a resistance dedicated to ousting {OCCUPIER} from {METROSCENE}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "There is a resistance opposing {OCCUPIER}'s occupation of {METROSCENE}.".format(**self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
@@ -246,6 +254,7 @@ class OccupationRestoreOrder(Plot):
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
+            "{OCCUPIER} has imposed martial law in {METROSCENE}.".format(**self.elements),
             outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)

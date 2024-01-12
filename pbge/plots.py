@@ -173,12 +173,14 @@ class Plot(object):
         """Initialize + install this plot, or raise PlotError"""
         # nart = The Narrative object
         # pstate = The current plot state
+        # New in v0.960: extensions! A list of extra bits that can add memos and other stuff.
 
         # Inherit the plot state.
         self.adv = pstate.adv
         self.rank = pstate.rank or self.rank
         self.elements = pstate.elements.copy()
         self.subplots = dict()
+        self.extensions = list()
         self.memo = None
 
         # Increment the usage count, for getting info on plot numbers!
@@ -500,6 +502,8 @@ class Plot(object):
         self.__dict__.update(state)
         if "_rumor_memo_delivered" not in state:
             self._rumor_memo_delivered = False
+        if "extensions" not in state:
+            self.extensions = list()
 
 
 class NarrativeRequest(object):

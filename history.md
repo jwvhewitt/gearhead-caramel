@@ -1,3 +1,7 @@
+* Plots can contain extensions
+* Added lore browser to memo system
+* Refactored quest system to be entirely QuestLore based
+* Okapi puzzle memo now uses same font (medium) as other memos
 * Fixed world map encounters bug
 * Burst fire weapons have increased thrill power
 * Intercept weapons have their thrill power lowered

@@ -376,7 +376,7 @@ class MysteryMemo(object):
     def get_widget(self, memobrowser, camp):
         mylabel = widgets.LabelWidget(
             memobrowser.dx, memobrowser.dy, memobrowser.w, memobrowser.h, text=str(self),
-            data=memobrowser, justify=0)
+            data=memobrowser, justify=0, font=my_state.medium_font)
         if not self.challenge.is_won():
             mybutton = widgets.LabelWidget(
                 -75, 20, 150, 24, text="Examine Clues", draw_border=True, justify=0, border=widgets.widget_border_on,
