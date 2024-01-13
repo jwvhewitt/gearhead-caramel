@@ -30,6 +30,7 @@ LORECAT_LOCATION = "LOCATION"
 L_LOCATION_NAME = "L_LOCATION_NAME"
 
 LORECAT_MOTIVE = "MOTIVE"
+L_MOTIVE_CONFESSION = "[MOTIVE_CONFESSION]"     # Independent clause; a member of target faction admits their motive
 
 LORETAG_ENEMY = "LORETAG_ENEMY"
 LORETAG_HIDDEN = "LORETAG_HIDDEN"
@@ -564,7 +565,7 @@ class DefendThePowerStation(quests.QuestPlot):
 
     @staticmethod
     def get_matching_lore(quest: quests.Quest, lores):
-        candidates = [l for l in lores if quest.lore_is_unlocked(l) and l.category == LORECAT_MOTIVE]
+        candidates = [l for l in lores if quest.lore_is_unlocked(l) and LORETAG_ENEMY in l.tags and l.category == LORECAT_MOTIVE]
         if candidates:
             return random.choice(candidates)
 
@@ -790,7 +791,7 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
 
     @staticmethod
     def get_matching_lore(quest: quests.Quest, lores):
-        candidates = [l for l in lores if quest.lore_is_unlocked(l) and l.category == LORECAT_EMERGENCY and LORETAG_ENEMY in l.tags and LORETAG_HIDDEN not in l.tags]
+        candidates = [l for l in lores if quest.lore_is_unlocked(l) and l.category == LORECAT_MOTIVE and LORETAG_ENEMY in l.tags and LORETAG_HIDDEN not in l.tags]
         if candidates:
             return random.choice(candidates)
 
@@ -802,7 +803,7 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
 
         new_lore = quests.QuestLore(
             LORECAT_EMERGENCY, texts={
-                quests.TEXT_LORE_HINT: "I am worried about {_ENEMY_FACTION}".format(**self.elements),
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} has been causing trouble".format(**self.elements),
                 quests.TEXT_LORE_INFO: "{_ENEMY_FACTION} mecha have been spotted near {METROSCENE}".format(**self.elements),
                 quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION} forces".format(**self.elements),
                 quests.TEXT_LORE_SELFDISCOVERY: "You find evidence that {_ENEMY_FACTION} has been conducting operations near {METROSCENE}.".format(**self.elements),

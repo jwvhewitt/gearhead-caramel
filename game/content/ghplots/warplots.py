@@ -180,9 +180,12 @@ class OccupationCrushDissent(Plot):
                         quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
                         quests.TEXT_LORE_MEMO: "{OCCUPIER} is attempting to crush all resistance to their occupation of {METROSCENE}.".format(
                             **self.elements),
+                        ghquests.L_MOTIVE_CONFESSION: "{OCCUPIER} will destroy any who defy our rulership of {METROSCENE}".format(
+                            **self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
-                    )
+                    ),
+                    tags=(ghquests.LORETAG_ENEMY, ghquests.LORETAG_PRIMARY),
                 )
 
             ]
