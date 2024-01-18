@@ -6122,6 +6122,42 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[YOU_WILL_NEVER_DEFEAT_US]": {
+        # A final cry of defiance. Or a promise to be kept.
+        Default: ["You will never defeat us!",
+                  "We cannot be defeated so easily!"
+                  ],
+        personality.Cheerful: [
+            "You look pretty smug for someone who doesn't realize the tacnuke of worms you've just unleashed!",
+        ],
+        personality.Grim: [
+            "Some of us may die, but we will never be defeated!",
+        ],
+        personality.Easygoing: [
+            "Yeah, you know we don't give up easy, right?",
+        ],
+        personality.Passionate: [
+            "I pledge with my burning heart that we will never be defeated!",
+        ],
+        personality.Sociable: [
+            "Our allegiance is unshakable; so long as one of us lives, we can never be defeated!",
+        ],
+        personality.Shy: ["We aren't going to be defeated.",
+                          ],
+        personality.Peace: [
+            "We will never admit defeat to barbarians like you."
+        ],
+        personality.Duty: [
+            "As long as I draw breath, I will not admit defeat."
+        ],
+        personality.Fellowship: [
+            "We stand together, and together we will be victorious!"
+        ],
+        personality.Glory: [
+            "You are not worthy of defeating us."
+        ]
+    },
+
     "[FORMAL_MECHA_DUEL]": {
         Default: ["May your armor break, may your cockpit shatter, may who deserves to win, be who destroys the other."
                   ],

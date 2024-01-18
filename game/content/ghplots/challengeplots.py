@@ -11,6 +11,7 @@ from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed, GHNarrativeRequest
 from . import missionbuilder, rwme_objectives, campfeatures, randomplots
+import collections
 
 
 class TimeAndChallengeExpiration(object):
@@ -824,16 +825,19 @@ class BasicMissionChallenge(Plot):
             self.register_element("ENEMY_FACTION", mychallenge.key[0])
             self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
 
-            rumor_text = random.choice(mychallenge.data["challenge_rumors"])
+            self.rumor_text = random.choice(mychallenge.data["challenge_rumors"])
             self.RUMOR = Rumor(
-                rumor_text,
+                self.rumor_text,
                 offer_msg="{NPC} at {NPC_SCENE} is looking for someone to " + random.choice(mychallenge.data["challenge_summaries"])+". [IF_YOU_WANT_MISSION_GO_ASK_ABOUT_IT]",
-                offer_subject=rumor_text,
+                offer_subject=self.rumor_text,
                 offer_subject_data=random.choice(mychallenge.data["challenge_subject"]),
                 memo="{NPC} at {NPC_SCENE} is looking for someone to " + random.choice(mychallenge.data["challenge_summaries"])+".",
                 prohibited_npcs=("NPC",),
                 npc_is_prohibited_fun=plotutility.ProhibitFactionAndPCIfAllied("ENEMY_FACTION")
             )
+
+            # See whether to prioritize this mission.
+            self.prioritize = mychallenge.data.get("priority_mission", False)
 
             # Create the mission seed.
             self.mission_seed = mychallenge.data["mission_builder"](nart.camp, npc)
@@ -883,6 +887,16 @@ class BasicMissionChallenge(Plot):
             ))
 
         return mylist
+
+    def _get_dialogue_grammar(self, npc, camp):
+        # The secret private function that returns custom grammar.
+        mygram = collections.defaultdict(list)
+        if self.prioritize and not self._rumor_memo_delivered:
+            plot_npc = self.elements["NPC"]
+            my_challenge = self.elements["CHALLENGE"]
+            if npc is not plot_npc and camp.is_not_lancemate(npc) and my_challenge.is_involved(camp, npc):
+                mygram["[CURRENT_EVENTS]"].append("[chat_lead_in] {}.".format(self.rumor_text))
+        return mygram
 
     def t_UPDATE(self,camp):
         if self.mission_seed.ended:

@@ -73,7 +73,7 @@ class OccupationFortify(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 ),
-            ]
+            ], prioritize_lore=True
         )
 
         oc2 = quests.QuestOutcome(
@@ -93,7 +93,7 @@ class OccupationFortify(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
-            ]
+            ], prioritize_lore=False
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
@@ -148,8 +148,27 @@ class OccupationCrushDissent(Plot):
                     }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
+                ),
+                quests.QuestLore(
+                    ghquests.LORECAT_MOTIVE, texts={
+                        quests.TEXT_LORE_HINT: "{RESISTANCE_FACTION} must be destroyed".format(
+                            **self.elements),
+                        quests.TEXT_LORE_INFO: "{OCCUPIER}'s control of {METROSCENE} will never be complete as long as {RESISTANCE_FACTION} exists".format(
+                            **self.elements),
+                        quests.TEXT_LORE_TOPIC: "the {RESISTANCE_FACTION} resistance".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} has been trying to drive {OCCUPIER} from {METROSCENE}.".format(
+                            **self.elements),
+                        quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s control of {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "{RESISTANCE_FACTION} is attempting to drive {OCCUPIER} out of {METROSCENE}.".format(
+                            **self.elements),
+                        ghquests.L_MOTIVE_CONFESSION: "{RESISTANCE_FACTION} will free {METROSCENE} from {OCCUPIER}".format(
+                            **self.elements),
+                    }, involvement=ghchallenges.InvolvedMetroFactionNPCs(
+                        self.elements["METROSCENE"], self.elements["OCCUPIER"]
+                    ),
+                    tags=(ghquests.LORETAG_ENEMY, ghquests.LORETAG_PRIMARY),
                 )
-            ]
+            ], prioritize_lore=True
         )
 
         oc2 = quests.QuestOutcome(
@@ -188,7 +207,7 @@ class OccupationCrushDissent(Plot):
                     tags=(ghquests.LORETAG_ENEMY, ghquests.LORETAG_PRIMARY),
                 )
 
-            ]
+            ], prioritize_lore=False
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
@@ -249,7 +268,7 @@ class OccupationRestoreOrder(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
-            ]
+            ], prioritize_lore=True
         )
 
         oc2 = quests.QuestOutcome(
@@ -269,7 +288,7 @@ class OccupationRestoreOrder(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
-            ]
+            ], prioritize_lore=False
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(

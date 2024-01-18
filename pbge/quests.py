@@ -107,7 +107,7 @@ class LoreRevealer:
 
 
 class QuestOutcome:
-    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, win_effect=None, loss_effect=None, lore=()):
+    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, win_effect=None, loss_effect=None, lore=(), prioritize_lore=True):
         # verb is what's gonna happen in this outcome.
         # target is the Quest Element ID of the object of the verb. Except you can't say object in Python because that
         #   word has a different meaning here than it does in English grammar.
@@ -117,6 +117,9 @@ class QuestOutcome:
         # loss_effect is a callable of form "loss_effect(camp)" which is called if/when this outcome fails or
         #   bcomes unwinnable.
         # lore is a list of lore that may be selected by a conclusion leading to this outcome.
+        # prioritize_lore is True if the lore should be pushed at the player as strongly as possible.
+        #   Set this to True if you have a quest with narrow involvement and don't want the player to be chasing down
+        #   rumors for a long time.
         self.verb = verb
         self.target = target
         self.involvement = involvement
@@ -126,6 +129,7 @@ class QuestOutcome:
         for l in self.lore:
             if not l.outcome:
                 l.outcome = self
+        self.prioritize_lore = prioritize_lore
 
     def is_involved(self, camp, npc):
         if not self.involvement:

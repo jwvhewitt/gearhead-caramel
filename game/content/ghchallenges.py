@@ -155,6 +155,7 @@ MISSION_CHALLENGE = "MISSION_CHALLENGE"
 #   challenge_subject = A list of subjects to be used when asking about the rumor; noun phrase
 #   mission_intros = A list of rough descriptions of mission for mission-giver to give; primary clause
 #   mission_builder = A function with signature (camp, npc) that builds the mission
+#   priority_mission = Mission rumors will be delivered more directly than normal if this value is truthy.
 #
 
 
