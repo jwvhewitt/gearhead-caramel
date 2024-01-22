@@ -597,37 +597,68 @@ DEFAULT_GRAMMAR = {
 
     "[CHALLENGE]": {
         # NOTE: This grammar tag is for opponent NPC use only! It calls on the [objective_ep] tag.
-        Default: ["[THREATEN]", "To [objective_ep] I will [defeat_you]!"
-                  ],
-        personality.Cheerful: ["Time to party.", "You can't stop me now; I will [objective_ep]!"
-                               ],
-        personality.Grim: ["Prepare for death.", "You don't stand a chance.",
-                           "If I have to kill you to [objective_ep], I will!"
-                           ],
-        personality.Easygoing: ["Shall we get started? Alright.", "You might not like it, but I will [objective_ep]."
-                                ],
-        personality.Passionate: ["Show me what you have.", "I will unleash my full power to [objective_ep]!"
-                                 ],
+        Default: [
+            "[THREATEN]", "To [objective_ep] I will [defeat_you]!",
+            "This will be payback for the time [MEM_LoseToPC]!"
+            "Before [MEM_LoseToPC], but this time I will [defeat_you]!",
+            "Remember when [MEM_DefeatPC]? I'm going to [defeat_you] again."
+        ],
+        personality.Cheerful: [
+            "Time to party.", "You can't stop me now; I will [objective_ep]!",
+            "Remember when [MEM_LoseToPC]? I've been waiting for payback!"
+            "Remember when [MEM_DefeatPC]? I'll enjoy doing that again."
+        ],
+        personality.Grim: [
+            "Prepare for death.", "You don't stand a chance.",
+            "If I have to kill you to [objective_ep], I will!",
+            "I will [defeat_you] or die trying!",
+            "I haven't forgiven you for [MEM_LoseToPC]..."
+        ],
+        personality.Easygoing: [
+            "Shall we get started? Alright.",
+            "You might not like it, but I will [objective_ep]."
+            "You know, [speaker_faction] gave me a hard time when [MEM_LoseToPC]. This time I'll [defeat_you]."
+        ],
+        personality.Passionate: [
+            "Show me what you have.",
+            "I will unleash my full power to [objective_ep]!",
+            "While you were wandering around, I was studying the [weapon]!",
+            "My purpose in life is to flip out and [defeat_you]!"
+        ],
         personality.Sociable: [
             "That's big talk. Prove it to me.",
             "You know what I'm going to do? [THREATEN]",
             "You think you can defeat me, but I will [objective_ep]. Would I waste time talking to you if I thought you had a chance of winning?",
             "[THREATEN] That's right, I said it.",
+            "[chat_lead_in] you're about to get your arse kicked."
         ],
-        personality.Shy: ["Shut up and fight.",
-                          ],
-        personality.Justice: ["For great justice!",
-                              ],
-        personality.Glory: ["May the best fighter win!",
-                            ],
+        personality.Shy: [
+            "Shut up and fight.",
+            "I'll [defeat_you]."
+        ],
+        personality.Justice: [
+            "For great justice!",
+            "You deserve a thwomping for that time [MEM_LoseToPC]!"
+        ],
+        personality.Glory: [
+            "May the best fighter win!",
+            "I've been practicing since [MEM_LoseToPC]; this time I'll come out on top!",
+            "Have you improved since [MEM_DefeatPC]? Let's find out."
+        ],
         personality.Duty: [
-            "I will [objective_ep], as is my duty!"
+            "I will [objective_ep], as is my duty!",
+            "In the name of [speaker_faction], I will not be defeated!"
+        ],
+        personality.Fellowship: [
+            "I cannot disappoint [speaker_faction]; I must [defeat_you]."
         ],
         LIKE: [
             "It's sad that we're on differtent sides, but I must [objective_ep].",
+            "I like you, but [speaker_faction] pays the bills, so... [THREATEN]"
         ],
         DISLIKE: [
             "It'll be my pleasure to [defeat_you].",
+            "I want to [defeat_you] for that time [MEM_LoseToPC]."
         ]
     },
 
@@ -3538,6 +3569,34 @@ DEFAULT_GRAMMAR = {
                ]
     },
 
+    "[LEAVE_THIS_BATTLE]": {
+        Default: [
+            "Leave now while you're still alive.",
+            "You have two choices- get out of here or die.",
+        ],
+        personality.Cheerful: [
+            "Luckily enough, you can save yourself if you just turn around and go.",
+        ],
+        personality.Grim: [
+            "To remain in this [territory] would mean certain death.",
+        ],
+        personality.Easygoing: [
+            "If I were you, I'd get out while I still can.",
+        ],
+        personality.Passionate: [
+            "I won't give another warning; turn around now or feel my wrath!",
+        ],
+        personality.Sociable: [
+            "",
+        ],
+        personality.Shy: [
+            "Leave this [territory] now.",
+        ],
+        LIKE: [
+            "I like you, but that's not going to stop me from [defeating_you].",
+        ]
+    },
+
     "[LET_ME_KNOW_IF_YOU_HEAR_ANYTHING]": {
         Default: ["Let me know if you hear anything about this.",
                   ],
@@ -4864,6 +4923,25 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[territory]": {
+        # Another word for land that belongs to us, from the speaker's point of view.
+        Default: [
+            "territory", "land", "area", "region"
+        ],
+        tags.Criminal: [
+            "turf",
+        ],
+        tags.CorporateWorker: [
+            "property",
+        ],
+        personality.DeadZone: [
+            "stomping ground",
+        ],
+        tags.Academic: [
+            "zone",
+        ]
+    },
+
     "[THANK_YOU]": {
         # A simple thank you is appropriate.
         Default: ["Thank you.", "Thanks."
@@ -5310,6 +5388,36 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["Let me think.",
                           ],
+    },
+
+    "[THIS_AREA_IS_UNDER_OUR_CONTROL]": {
+        Default: [
+            "This [territory] is under our control.",
+            "This [territory] is controlled by [speaker_faction].",
+            "You have intruded on the [territory] of [speaker_faction]."
+        ],
+        personality.Cheerful: [
+            "I don't have the signs up yet, but this is our [territory].",
+            "I know our name's not marked on it, but this [territory] belongs to [speaker_faction]."
+        ],
+        personality.Grim: [
+            "You have crossed into a forbidden area.",
+            "This [territory] belongs to [speaker_faction]; you are an intruder."
+        ],
+        personality.Easygoing: [
+            "I don't think you belong here.",
+            "So [speaker_faction] told me to keep folks like you out."
+        ],
+        personality.Passionate: [
+            "How dare you intrude unto our [territory]?!",
+            "You are not of [speaker_faction]; this [territory] is ours!"
+        ],
+        personality.Sociable: [
+            "It's my job to keep unauthorized people like you out of our [territory].",
+        ],
+        personality.Shy: [
+            "You should not be here.",
+        ],
     },
 
     "[THIS_CANNOT_BE_ALLOWED]": {

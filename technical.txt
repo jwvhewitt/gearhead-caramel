@@ -10,6 +10,7 @@ Non-Element Triggers:
 "UPDATE"        When the status of any plot changes
 "EXIT"          When the PC is about to leave a scene
 "PCMOVE"        When the party position is updated
+"FORCE_EXIT"    End a combat mission immediately*
 
 With-Element Triggers:
 "ACTIVATE"      When a combatant is activated

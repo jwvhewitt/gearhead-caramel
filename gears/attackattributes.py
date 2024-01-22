@@ -37,7 +37,7 @@ class Accurate(Singleton):
     def get_attacks(self, weapon):
         base = weapon.get_basic_attack(name='Aim +20', attack_icon=12)
         base.price.append(geffects.MentalPrice(4))
-        base.data.thrill_power = int(base.data.thrill_power * 1.25)
+        base.data.thrill_power = base.data.thrill_power + 10
         replace_attack_roll(base)
         base.fx.modifiers.append(geffects.GenericBonus('Aim', 20))
         return [base]
@@ -115,7 +115,7 @@ class BonusStrike1(Singleton):
     def replace_primary_attack(self, weapon):
         base = weapon.get_basic_attack(name='Bonus Strike +{}'.format(self.STRIKE_NUMBER),
                                        attack_icon=9, bonus_strike=self.STRIKE_NUMBER)
-        base.data.thrill_power = int(base.data.thrill_power * (0.5 + self.STRIKE_NUMBER))
+        base.data.thrill_power = base.data.thrill_power + 5 * self.STRIKE_NUMBER
         return [base, ]
 
 
@@ -182,7 +182,7 @@ class BurstFire2(Singleton):
             defenses=old_fx.defenses,
             apply_hit_modifier=False,
         )
-        base.data.thrill_power = int(base.data.thrill_power * (2 + self.BURST_VALUE)//3)
+        base.data.thrill_power = base.data.thrill_power + 3 * self.BURST_VALUE
         return [base, ]
 
 
@@ -234,7 +234,7 @@ class ChargeAttack(Singleton):
         aa.fx.modifiers.append(geffects.GenericBonus('Charge', 10))
         aa.fx.children[0].damage_d = round(aa.fx.children[0].damage_d * 5 / 3)
         aa.area = geffects.DashTarget(weapon.get_root())
-        aa.data.thrill_power = int(aa.data.thrill_power * 2)
+        aa.data.thrill_power = aa.data.thrill_power + 15
         aa.shot_anim = geffects.DashFactory(weapon.get_root())
         return [aa]
 
@@ -459,7 +459,7 @@ class LinkedFire(Singleton):
                 myattack.data.active_frame = 18
                 myattack.data.inactive_frame = 19
                 myattack.data.disabled_frame = 20
-                myattack.data.thrill_power = (myattack.data.thrill_power * (myattack.targets + 1))//2
+                myattack.data.thrill_power = myattack.data.thrill_power + (myattack.targets + 1) * 4
                 mylist.append(myattack)
         return mylist
 
@@ -614,7 +614,6 @@ class VariableFire2(Singleton):
     @classmethod
     def get_attacks(self, weapon):
         base = BurstFire2.replace_primary_attack(weapon)[0]
-        base.data.thrill_power = (base.data.thrill_power * 3) // 2
         return [base]
 
 
@@ -629,7 +628,6 @@ class VariableFire3(Singleton):
     @classmethod
     def get_attacks(self, weapon):
         base = BurstFire3.replace_primary_attack(weapon)[0]
-        base.data.thrill_power = (base.data.thrill_power * 4) // 2
         return [base]
 
 
@@ -644,7 +642,6 @@ class VariableFire4(Singleton):
     @classmethod
     def get_attacks(self, weapon):
         base = BurstFire4.replace_primary_attack(weapon)[0]
-        base.data.thrill_power = (base.data.thrill_power * 5) // 2
         return [base]
 
 
@@ -659,5 +656,4 @@ class VariableFire5(Singleton):
     @classmethod
     def get_attacks(self, weapon):
         base = BurstFire5.replace_primary_attack(weapon)[0]
-        base.data.thrill_power = (base.data.thrill_power * 6) // 2
         return [base]

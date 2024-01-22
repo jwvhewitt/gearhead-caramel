@@ -38,6 +38,21 @@ class ToxicSludgeRoom(ClumpyRoom):
     CLUMP_FLOOR = ghterrain.ToxicSludge
 
 
+class IndicatedRoom(OpenRoom):
+    def build(self, gb: gears.GearHeadScene, archi):
+        super().build(gb, archi)
+        for x in range(self.area.x+1, self.area.x + self.area.width-1):
+            gb.set_decor(x, self.area.y, ghterrain.BorderMarkerN)
+            gb.set_decor(x, self.area.y + self.area.height - 1, ghterrain.BorderMarkerS)
+        for y in range(self.area.y+1, self.area.y + self.area.height-1):
+            gb.set_decor(self.area.x, y, ghterrain.BorderMarkerW)
+            gb.set_decor(self.area.x + self.area.width - 1, y, ghterrain.BorderMarkerE)
+        gb.set_decor(self.area.x, self.area.y, ghterrain.BorderMarkerNW)
+        gb.set_decor(self.area.x, self.area.y+self.area.height-1, ghterrain.BorderMarkerSW)
+        gb.set_decor(self.area.x+self.area.width-1, self.area.y, ghterrain.BorderMarkerNE)
+        gb.set_decor(self.area.x+self.area.width-1, self.area.y+self.area.height-1, ghterrain.BorderMarkerSE)
+
+
 class LakeRoom(FuzzyRoom):
     def build(self, gb, archi):
         super().build(gb, archi)

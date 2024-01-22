@@ -32,6 +32,7 @@ from . import lancemates
 from . import localproblems
 from . import military_places
 from . import missionbuilder
+from . import mission_bigobs
 from . import mission_conversations
 from . import mission_stubs
 from . import mission_teamups
@@ -100,6 +101,7 @@ harvest(lancemates)
 harvest(localproblems)
 harvest(military_places)
 harvest(missionbuilder)
+harvest(mission_bigobs)
 harvest(mission_conversations)
 harvest(mission_stubs)
 harvest(mission_teamups)

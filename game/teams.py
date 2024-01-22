@@ -46,6 +46,13 @@ class Team(object):
                 c = self.contents.pop()
                 room.contents.append(c)
 
+    def deploy_in_room(self, gb, room, members):
+        # Deploy the provided members in the provided room without setting the room as the home for this team.
+        while members:
+            m = members.pop()
+            gb.local_teams[m] = self
+            room.contents.append(m)
+
     def retreat(self, camp):
         for npc in list(camp.scene.contents):
             if camp.scene.local_teams.get(npc, None) == self:

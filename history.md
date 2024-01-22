@@ -1,3 +1,4 @@
+* Weapon thrill power now _actually_ based on rank, ha ha ha
 * Plots can contain extensions
 * Added lore browser to memo system
 * Refactored quest system to be entirely QuestLore based

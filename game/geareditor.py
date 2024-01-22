@@ -256,6 +256,8 @@ class WeaponEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
 
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            self.add_interior(pbge.widgets.LabelWidget(0,0,0,0,text_fun=self._get_shop_rank))
         self.add_interior(PlusMinusWidget(mygear,"reach",mygear.MIN_REACH,mygear.MAX_REACH,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"damage",mygear.MIN_DAMAGE,mygear.MAX_DAMAGE,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"accuracy",mygear.MIN_ACCURACY,mygear.MAX_ACCURACY,active=editor.mode==MODE_CREATIVE))
@@ -272,6 +274,9 @@ class WeaponEditWidget(ComponentEditWidget):
         self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
         self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
+
+    def _get_shop_rank(self, *args, **kwargs):
+        return str(self.mygear.shop_rank())
 
     def _set_attack_stat(self,result):
         if result:

@@ -27,6 +27,62 @@ class Water(pbge.scenes.terrain.AnimTerrain):
     border_priority = 1000
 
 
+class BorderMarkerSW(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerW(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerNW(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerN(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (30, 31, 32, 33, 34, 35, 36, 37, 38, 39)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerNE(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (40, 41, 42, 43, 44, 45, 46, 47, 48, 49)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerE(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (50, 51, 52, 53, 54, 55, 56, 57, 58, 59)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerSE(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69)
+    anim_delay = 1
+    position_dependent = False
+
+
+class BorderMarkerS(pbge.scenes.terrain.AnimTerrain):
+    image_bottom = 'terrain_decor_areaborder.png'
+    frames = (70, 71, 72, 73, 74, 75, 76, 77, 78, 79)
+    anim_delay = 1
+    position_dependent = False
+
+
 class ToxicSludge(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_sludge.png'
     blocks = (Walking, Rolling)

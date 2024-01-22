@@ -7,7 +7,7 @@ TAG_FEMME = "Feminine"
 class Gender(object):
     def __init__(self, noun="person", adjective="nonbinary", subject_pronoun="ze", object_pronoun="zem",
                  possessive_determiner="zir", absolute_pronoun="zirs", reflexive_pronoun="zirself", card_pattern="card_*_*.png",
-                 tags={TAG_MASC, TAG_FEMME}):
+                 tags=(TAG_MASC, TAG_FEMME)):
         self.noun = noun
         self.adjective = adjective
         self.subject_pronoun = subject_pronoun

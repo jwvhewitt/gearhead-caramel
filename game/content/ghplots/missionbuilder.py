@@ -318,6 +318,10 @@ class BuildAMissionPlot(Plot):
         if not camp.first_active_pc():
             self.exit_the_mission(camp)
 
+    def t_FORCE_EXIT(self, camp):
+        # If the player leaves the scene for whatever reason, end the mission.
+        self.exit_the_mission(camp)
+
     def t_EXIT(self, camp):
         # If the player leaves the scene for whatever reason, end the mission.
         self.exit_the_mission(camp)

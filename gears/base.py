@@ -1857,7 +1857,7 @@ class MeleeWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 3
-    DAMAGE_EXPONENT = 2.5
+    DAMAGE_EXPONENT = 3
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
                         attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.ChargeAttack,
@@ -1904,7 +1904,7 @@ class MeleeWeapon(Weapon):
             shot_anim=self.shot_anim,
             price=[geffects.RevealPositionPrice(self.damage - 1)],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=(self.damage * 2 + self.penetration) * targets),
+                                     thrill_power=self.shop_rank()),
             targets=targets)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
@@ -1972,7 +1972,7 @@ class EnergyWeapon(Weapon):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     COST_FACTOR = 12
-    DAMAGE_EXPONENT = 2.7
+    DAMAGE_EXPONENT = 3.5
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
                         attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.BurnAttack,
                         attackattributes.ChargeAttack,
@@ -2021,7 +2021,7 @@ class EnergyWeapon(Weapon):
             shot_anim=self.shot_anim,
             price=[geffects.PowerPrice(self.get_basic_power_cost()), geffects.RevealPositionPrice(self.damage)],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=self.damage * 2 + self.penetration + 3),
+                                     thrill_power=self.shop_rank()),
             targets=1)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
@@ -2279,7 +2279,7 @@ class BallisticWeapon(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=((self.damage * 2 + self.penetration) * (targets + 1)) // 2),
+                                     thrill_power=self.shop_rank()),
             price=[geffects.AmmoPrice(my_ammo, ammo_cost), geffects.RevealPositionPrice(self.damage)],
             targets=targets)
 
@@ -2397,7 +2397,7 @@ class BeamWeapon(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
-                                     thrill_power=((self.damage * 2 + self.penetration) * (targets + 1)) // 2),
+                                     thrill_power=self.shop_rank()),
             price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost),
                    geffects.RevealPositionPrice(self.damage)],
             targets=targets)
@@ -2642,7 +2642,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 shot_anim=geffects.Missile1,
                 price=[geffects.AmmoPrice(ammo, 1), geffects.RevealPositionPrice(ammo.damage)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png', 32, 32), 0,
-                                         thrill_power=ammo.damage + ammo.penetration),
+                                         thrill_power=self.shop_rank()),
                 targets=1)
             for aa in self.get_attributes():
                 if hasattr(aa, 'modify_basic_attack'):
@@ -2675,7 +2675,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 shot_anim=geffects.MissileFactory(num_missiles),
                 price=[geffects.AmmoPrice(ammo, num_missiles), geffects.RevealPositionPrice(ammo.damage * 2)],
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_missiles.png', 32, 32), frame,
-                                         thrill_power=ammo.damage * 2 + ammo.penetration),
+                                         thrill_power=self.shop_rank()),
                 targets=1)
             for aa in self.get_attributes():
                 if hasattr(aa, 'modify_basic_attack'):
@@ -2878,7 +2878,7 @@ class ChemThrower(Weapon):
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.get_shot_anim(),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
-                                     thrill_power=((self.damage * 2 + self.penetration) * (targets + 1)) // 2),
+                                     thrill_power=self.shop_rank()),
             price=[geffects.AmmoPrice(my_ammo, ammo_cost * self.get_chem_cost()),
                    geffects.RevealPositionPrice(self.damage)],
             targets=targets)

@@ -75,7 +75,7 @@ Mecha
                             reach=1
                             damage=3
                             accuracy=2
-                            penetration=3
+                            penetration=4
                             attributes = (Flail,Brutal)
                     END
                 Mount
@@ -83,7 +83,7 @@ Mecha
                     INV
                         BallisticWeapon
                             name = "Arena Cannon"
-                            reach = 6
+                            reach = 5
                             damage = 3
                             accuracy = 2
                             penetration = 2
