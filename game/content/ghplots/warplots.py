@@ -45,7 +45,7 @@ class OccupationFortify(Plot):
 
     def custom_init(self, nart):
         # The invading faction is going to fortify their position.
-        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements[OCCUPIER])
         if RESISTANCE_FACTION not in self.elements:
             candidates = self.elements.get(RIVAL_FACTIONS)
             if candidates:
@@ -73,7 +73,11 @@ class OccupationFortify(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 ),
-            ], prioritize_lore=True
+            ], prioritize_lore=True,
+            element_map={
+                ghquests.OCE_AllyFaction: OCCUPIER,
+                ghquests.OCE_EnemyFaction: RESISTANCE_FACTION
+            }
         )
 
         oc2 = quests.QuestOutcome(
@@ -93,7 +97,11 @@ class OccupationFortify(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
-            ], prioritize_lore=False
+            ], prioritize_lore=False,
+            element_map={
+                ghquests.OCE_AllyFaction: RESISTANCE_FACTION,
+                ghquests.OCE_EnemyFaction: OCCUPIER
+            }
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
@@ -101,6 +109,8 @@ class OccupationFortify(Plot):
             outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)
+
+        self.add_sub_plot(nart, "ENSURE_LOCAL_OPERATIVES", elements={"FACTION": self.elements["OCCUPIER"]})
 
         return True
 
@@ -126,7 +136,7 @@ class OccupationCrushDissent(Plot):
     def custom_init(self, nart):
         # The invading faction is going to try and crush dissent in this region. The locals are going to try to resist
         # this as well as they can.
-        #self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
+        self.expiration = plotutility.RulingFactionExpiration(self.elements["METROSCENE"], self.elements["OCCUPIER"])
         if RESISTANCE_FACTION not in self.elements:
             self.elements[RESISTANCE_FACTION] = gears.factions.Circle(
                 nart.camp, parent_faction=self.elements.get(ORIGINAL_FACTION)
@@ -168,7 +178,11 @@ class OccupationCrushDissent(Plot):
                     ),
                     tags=(ghquests.LORETAG_ENEMY, ghquests.LORETAG_PRIMARY),
                 )
-            ], prioritize_lore=True
+            ], prioritize_lore=True,
+            element_map={
+                ghquests.OCE_AllyFaction: OCCUPIER,
+                ghquests.OCE_EnemyFaction: RESISTANCE_FACTION
+            }
         )
 
         oc2 = quests.QuestOutcome(
@@ -207,7 +221,11 @@ class OccupationCrushDissent(Plot):
                     tags=(ghquests.LORETAG_ENEMY, ghquests.LORETAG_PRIMARY),
                 )
 
-            ], prioritize_lore=False
+            ], prioritize_lore=False,
+            element_map={
+                ghquests.OCE_AllyFaction: RESISTANCE_FACTION,
+                ghquests.OCE_EnemyFaction: OCCUPIER
+            }
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
@@ -215,6 +233,8 @@ class OccupationCrushDissent(Plot):
             outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)
+
+        self.add_sub_plot(nart, "ENSURE_LOCAL_OPERATIVES", elements={"FACTION": self.elements["OCCUPIER"]})
 
         return True
 
@@ -268,7 +288,11 @@ class OccupationRestoreOrder(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
-            ], prioritize_lore=True
+            ], prioritize_lore=True,
+            element_map={
+                ghquests.OCE_AllyFaction: OCCUPIER,
+                ghquests.OCE_EnemyFaction: RESISTANCE_FACTION
+            }
         )
 
         oc2 = quests.QuestOutcome(
@@ -288,7 +312,11 @@ class OccupationRestoreOrder(Plot):
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
-            ], prioritize_lore=False
+            ], prioritize_lore=False,
+            element_map={
+                ghquests.OCE_AllyFaction: RESISTANCE_FACTION,
+                ghquests.OCE_EnemyFaction: OCCUPIER
+            }
         )
 
         myquest = self.register_element(quests.QUEST_ELEMENT_ID, quests.Quest(
@@ -296,6 +324,8 @@ class OccupationRestoreOrder(Plot):
             outcomes=(oc1, oc2), end_on_loss=True
         ))
         myquest.build(nart, self)
+
+        self.add_sub_plot(nart, "ENSURE_LOCAL_OPERATIVES", elements={"FACTION": self.elements["OCCUPIER"]})
 
         return True
 

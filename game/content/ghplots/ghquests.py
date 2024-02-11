@@ -14,8 +14,11 @@ from . import missionbuilder, ghquest_objectives
 
 #VERB_CONTACT = "CONTACT"  # You need to make contact with the target NPC
 VERB_EXPEL = "EXPEL"  # Like DEFEAT, but the enemy is an outside power of some type
-VERB_FORTIFY = "FORTIFY"    # The involved NPCs will try to improve their defenses against the target faction
+VERB_FORTIFY = "FORTIFY"    # The target is the faction improving its defenses.
 VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
+
+OCE_AllyFaction = "OCE_ALLYFACTION"
+OCE_EnemyFaction = "OCE_ENEMYFACTION"
 
 LORECAT_OUTCOME = "OUTCOME"
 
@@ -33,33 +36,19 @@ L_LOCATION_NAME = "L_LOCATION_NAME"
 LORECAT_MOTIVE = "MOTIVE"
 L_MOTIVE_CONFESSION = "[MOTIVE_CONFESSION]"     # Independent clause; a member of target faction admits their motive
 
+LORETAG_ALLY = "LORETAG_ALLY"
 LORETAG_ENEMY = "LORETAG_ENEMY"
 LORETAG_HIDDEN = "LORETAG_HIDDEN"
 LORETAG_PRIMARY = "LORETAG_PRIMARY"     # An important lore; usually something straight from the conclusion.
 LORETAG_PROTECTED = "LORETAG_PROTECTED"
 
 AGGRESSIVE_VERBS = (
-    quests.VERB_DEFEAT, VERB_EXPEL, VERB_FORTIFY, VERB_REPRESS
+    quests.VERB_DEFEAT, VERB_EXPEL, VERB_REPRESS
 )
 
-
-QUEST_TASK_ACE_DEFENSE = "QUEST_TASK_ACE_DEFENSE"
-# The parent task has some kind of protection. This task ***MUST*** provide a get_ace_mission_mod function with
-# signature (camp) which will return (rank bonus, extra objectives).
-
-QUEST_TASK_HIDDEN_IDENTITY = "QUEST_TASK_HIDDEN_IDENTITY"
-# Someone is in hiding. The QE_TASK_NPC element can be used to send the NPC, QE_LORE_TO_LOCK can be used for lore
-# linked to that NPC, and QE_NPC_ALIAS can be used for the NPC's alias if their identity is unknown.
-QE_NPC_ALIAS = "QE_NPC_ALIAS"
-
-QUEST_TASK_IMMEDIATE_ACTION = "QUEST_TASK_IMMEDIATE_ACTION"
-# The enemy faction is doing something that requires immediate attention. This task may lock the LORECAT_OUTCOME lore,
-# serving as an introduction to the quest.
-
-QUEST_TASK_INVESTIGATE_ENEMY = "QUEST_TASK_INVESTIGATE_ENEMY"
-# If given a lore to lock, the lore should be something the enemy is keeping secret. It will be revealed when this task
-# is won.
-
+BENEVOLENT_VERBS = (
+    VERB_FORTIFY,
+)
 
 
 #     **********************
@@ -82,6 +71,83 @@ QUEST_TASK_INVESTIGATE_ENEMY = "QUEST_TASK_INVESTIGATE_ENEMY"
 #  ******************************
 #  ***   QUEST  CONCLUSIONS   ***
 #  ******************************
+
+
+class DefendNewFortification(quests.QuestPlot):
+    LABEL = quests.DEFAULT_QUEST_CONCLUSION
+    scope = "METRO"
+
+    @classmethod
+    def matches(cls, pstate):
+        outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
+        target = pstate.elements.get(outc.target)
+        return outc.verb in (VERB_FORTIFY,) and gears.factions.is_a_faction(
+            target) and not pstate.elements.get(quests.LORE_SET_ELEMENT_ID, None)
+
+    def custom_init(self, nart):
+        self.elements["_BASE_NAME"] = "Fortress"
+        my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
+        self.elements["_ALLIED_FACTION"] = self.elements[my_outcome.target]
+        self.mission_name = "Defend {_ALLIED_FACTION}'s new {_BASE_NAME}".format(**self.elements)
+        self.memo = plots.Memo(
+            "You know the location of {_ENEMY_FACTION}'s {_BASE_NAME} and can attack at any time.".format(**self.elements),
+            self.elements["METROSCENE"]
+        )
+
+        base_lore = quests.QuestLore(
+            LORECAT_LOCATION, texts={
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} has been working on a large project near {METROSCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "they've built a {_BASE_NAME}".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s project".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You have learned about {_ENEMY_FACTION}'s {_BASE_NAME}.".format(**self.elements),
+                quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s {_BASE_NAME}".format(**self.elements),
+                L_LOCATION_NAME: "{_BASE_NAME}".format(**self.elements),
+                quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has a {_BASE_NAME} in {METROSCENE}.".format(
+                    **self.elements),
+
+            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            tags=(
+                LORETAG_ALLY, LORETAG_PRIMARY
+            ),
+        )
+        self.quest_record._needed_lore.add(base_lore)
+
+        return True
+
+    def _get_mission(self, camp):
+        # Return a mission seed for the current state of this mission. The state may be altered by unfinished tasks-
+        # For instance, if the fortress is defended by artillery, that gets added into the mission.
+        objectives = [missionbuilder.BAMO_STORM_THE_CASTLE,]
+        rank = self.rank
+
+        #ace_task = self.quest_record.get_task(QUEST_TASK_ACE_DEFENSE)
+        #if ace_task:
+        #    drank, dobjs = ace_task.get_ace_mission_mods(camp)
+        #    rank += drank
+        #    objectives += dobjs
+
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+
+        el_seed = missionbuilder.BuildAMissionSeed(
+                camp, self.mission_name,
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                enemy_faction=self.elements["_ENEMY_FACTION"], rank=rank,
+                objectives=objectives,
+                one_chance=True,
+                scenegen=sgen, architecture=archi,
+                cash_reward=100, on_win=self._win_outcome, on_loss=self._lose_outcome
+            )
+
+        return el_seed
+
+    def _win_outcome(self, camp):
+        self.quest_record.win_task(self, camp)
+
+    def _lose_outcome(self, camp):
+        self.quest_record.lose_task(self, camp)
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        thingmenu.add_item(self.mission_name, self._get_mission(camp))
 
 
 class StrikeTheLeader(quests.QuestPlot):
@@ -161,7 +227,6 @@ class StrikeTheLeader(quests.QuestPlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         thingmenu.add_item(self.mission_name, self._get_mission(camp))
-
 
 
 class TheyHaveAFortress(quests.QuestPlot):
@@ -1384,8 +1449,11 @@ class GearHeadLoreHandler(plots.Plot):
         # The Outcome lore for a quest line won't be revealed to the PC if it's an aggressive verb and the PC is allied
         # with the target. But what if you want to offer the PC the choice to betray their current faction? Then don't
         # give this lore the LORECAT_OUTCOME category, and all will be well.
-        if lore.outcome and lore.outcome.target and lore.outcome.verb in AGGRESSIVE_VERBS and camp.is_favorable_to_pc(lore.outcome.target):
-            return False
+        if lore.outcome and lore.outcome.target:
+            if lore.outcome.verb in AGGRESSIVE_VERBS and camp.is_favorable_to_pc(lore.outcome.target):
+                return False
+            elif lore.outcome.verb in BENEVOLENT_VERBS and camp.is_unfavorable_to_pc(lore.outcome.target):
+                return False
         return lore.is_involved(camp, npc)
 
     def _get_dialogue_grammar(self, npc, camp):

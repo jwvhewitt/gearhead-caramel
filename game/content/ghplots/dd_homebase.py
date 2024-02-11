@@ -110,7 +110,7 @@ class DZD_Wujung(Plot):
         )
 
         self.add_sub_plot(nart, "DZD_SKIPPYSNIGHTOUT")
-        self.add_sub_plot(nart, "WMWO_IRON_FIST", elements={"OCCUPIER": gears.factions.TerranFederation, "RESISTANCE_FACTION": gears.factions.BioCorp})
+        #self.add_sub_plot(nart, "WMWO_IRON_FIST", elements={"OCCUPIER": gears.factions.TerranFederation, "RESISTANCE_FACTION": gears.factions.BioCorp})
 
         self.intro_ready = True
 

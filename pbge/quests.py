@@ -107,7 +107,7 @@ class LoreRevealer:
 
 
 class QuestOutcome:
-    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, win_effect=None, loss_effect=None, lore=(), prioritize_lore=True):
+    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, win_effect=None, loss_effect=None, lore=(), prioritize_lore=True, element_map=None):
         # verb is what's gonna happen in this outcome.
         # target is the Quest Element ID of the object of the verb. Except you can't say object in Python because that
         #   word has a different meaning here than it does in English grammar.
@@ -120,6 +120,8 @@ class QuestOutcome:
         # prioritize_lore is True if the lore should be pushed at the player as strongly as possible.
         #   Set this to True if you have a quest with narrow involvement and don't want the player to be chasing down
         #   rumors for a long time.
+        # element_map is a dictionary of descriptive labels to element IDs. Might be important for some
+        #   games. Like GearHead Caramel. Quite important there.
         self.verb = verb
         self.target = target
         self.involvement = involvement
@@ -130,6 +132,9 @@ class QuestOutcome:
             if not l.outcome:
                 l.outcome = self
         self.prioritize_lore = prioritize_lore
+        self.element_map = dict()
+        if element_map:
+            self.element_map.update(element_map)
 
     def is_involved(self, camp, npc):
         if not self.involvement:

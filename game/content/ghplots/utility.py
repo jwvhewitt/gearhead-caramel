@@ -226,6 +226,68 @@ class EnsureJobHaver(Plot):
         return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
+#  ***********************************
+#  ***   ENSURE_LOCAL_OPERATIVES   ***
+#  ***********************************
+#
+#   Make sure there's always at least X members of the provided faction in town. Always.
+#
+#  FACTION: The Faction to add
+#  METROSCENE: The city to add the character to
+#  METRO: The METRO data block for the city
+#
+#  Optional parameter: NUM_OPERATIVES; defaults to 3.
+
+class EnsureLocalOperatives(Plot):
+    LABEL = "ENSURE_LOCAL_OPERATIVES"
+    scope = "METRO"
+    active = True
+
+    def custom_init(self, nart):
+        myscene = self.elements["METROSCENE"]
+        self.seek_element(
+            nart, "_DEST", self._is_best_scene, scope=myscene, backup_seek_func=self._is_good_scene
+        )
+        return True
+
+    def t_START(self, camp):
+        # Perform the check upon starting any scene within the city.
+        n = self.elements.get("NUM_OPERATIVES", 3) - self.num_members_in_metro(camp)
+        while n > 0:
+            self.add_local_operative(camp)
+            n -= 1
+
+    def add_local_operative(self, camp: gears.GearHeadCampaign):
+        myscene = self.elements["METROSCENE"]
+        mydest = self.elements["_DEST"]
+        myrank = self.rank + random.randint(0, 30)
+        if random.randint(1,3) == 1:
+            mynpc = gears.selector.random_character(
+                rank=myrank, local_tags=myscene.attributes,
+                faction=self.elements["FACTION"]
+            )
+        else:
+            mynpc = camp.cast_a_combatant(self.elements["FACTION"], rank=myrank)
+        mynpc.place(mydest, team=mydest.civilian_team)
+
+    def num_members_in_metro(self, camp):
+        total = 0
+        scope = self.elements["METROSCENE"]
+        fac = self.elements["FACTION"]
+        for e in camp.all_contents(scope, True):
+            if isinstance(e, gears.base.Character) and e.faction is fac:
+                total += 1
+        return total
+
+    def _is_best_scene(self, nart, candidate):
+        return (isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+                gears.tags.SCENE_BASE in candidate.attributes and
+                candidate.faction and nart.camp.are_faction_allies(candidate.faction, self.elements["FACTION"]))
+
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
 #  ***************************************
 #  ***   ENSURE_LOCAL_REPRESENTATION   ***
 #  ***************************************

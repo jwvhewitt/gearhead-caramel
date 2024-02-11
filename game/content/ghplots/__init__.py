@@ -42,6 +42,7 @@ from . import randomplots
 from . import recovery
 from . import romance
 from . import ropp_main
+from . import ropp_metroplots
 from . import ropp_utils
 from . import rwme_default
 from . import rwme_objectives
@@ -111,6 +112,7 @@ harvest(randomplots)
 harvest(recovery)
 harvest(romance)
 harvest(ropp_main)
+harvest(ropp_metroplots)
 harvest(ropp_utils)
 harvest(rwme_default)
 harvest(rwme_objectives)
