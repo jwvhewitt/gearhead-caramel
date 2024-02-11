@@ -499,11 +499,11 @@ class Plot(object):
 
     def __setstate__(self, state):
         # For saves from V0.800 or earlier, make sure there's a _rumor_memo_delivered var.
-        self.__dict__.update(state)
         if "_rumor_memo_delivered" not in state:
             self._rumor_memo_delivered = False
         if "extensions" not in state:
             self.extensions = list()
+        self.__dict__.update(state)
 
 
 class NarrativeRequest(object):

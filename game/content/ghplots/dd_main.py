@@ -111,7 +111,7 @@ class DeadzoneDrifterStub(Plot):
 
     def __setstate__(self, state):
         # For saves from V0.930 or earlier, make sure there's memo state info.
-        self.__dict__.update(state)
+        super().__setstate__(state)
         if "current_memo" not in state:
             self.current_memo = 1
             self.memo = self.MEMO_MESSAGES[0].format(**self.elements)

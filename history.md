@@ -1,4 +1,5 @@
 v0.960 February 11, 2024
+* Fixed bug in DeadZone Drifter stub
 * Certain weapons and mecha have been rebalanced; existing instances will be unaffected
 * Weapon thrill power now _actually_ based on rank, ha ha ha
 * Plots can contain extensions
