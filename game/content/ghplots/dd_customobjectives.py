@@ -500,7 +500,7 @@ class DDBAMO_FightKerberos(Plot):
             mymon = gears.selector.get_design_by_full_name("DZD Kerberos")
             camp.scene.deploy_team([mymon, ], myteam)
             pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=mymon.pos))
-            camp.fight.activate_foe(mymon)
+            game.combat.enter_combat(mymon)
             heads.append(mymon)
 
         # See if a head will kidnap anyone.

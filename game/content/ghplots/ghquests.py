@@ -33,7 +33,8 @@ LORECAT_KNOWLEDGE = "KNOWLEDGE"
 LORECAT_LOCATION = "LOCATION"
 L_LOCATION_NAME = "L_LOCATION_NAME"
 
-LORECAT_MOTIVE = "MOTIVE"
+LORECAT_MOTIVE = "MOTIVE"                       # A motive. May belong to the enemy faction or the allied faction or
+    # somone else entirely. Use the LORETAGs to indicate whose motive this is.
 L_MOTIVE_CONFESSION = "[MOTIVE_CONFESSION]"     # Independent clause; a member of target faction admits their motive
 
 LORETAG_ALLY = "LORETAG_ALLY"
@@ -90,19 +91,19 @@ class DefendNewFortification(quests.QuestPlot):
         self.elements["_ALLIED_FACTION"] = self.elements[my_outcome.target]
         self.mission_name = "Defend {_ALLIED_FACTION}'s new {_BASE_NAME}".format(**self.elements)
         self.memo = plots.Memo(
-            "You know the location of {_ENEMY_FACTION}'s {_BASE_NAME} and can attack at any time.".format(**self.elements),
+            "{_ALLIED_FACTION}'s {_BASE_NAME} has been completed, but must be protected until its defenses are in place. You can do this at {MISSION_GATE}.".format(**self.elements),
             self.elements["METROSCENE"]
         )
 
         base_lore = quests.QuestLore(
             LORECAT_LOCATION, texts={
-                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} has been working on a large project near {METROSCENE}".format(**self.elements),
-                quests.TEXT_LORE_INFO: "they've built a {_BASE_NAME}".format(**self.elements),
-                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s project".format(**self.elements),
-                quests.TEXT_LORE_SELFDISCOVERY: "You have learned about {_ENEMY_FACTION}'s {_BASE_NAME}.".format(**self.elements),
-                quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s {_BASE_NAME}".format(**self.elements),
+                quests.TEXT_LORE_HINT: "{_ALLIED_FACTION} has been working on a large project near {METROSCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "they've built a {_BASE_NAME}, but its defenses are not fully operational yet".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ALLIED_FACTION}'s project".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You have learned about {_ALLIED_FACTION}'s {_BASE_NAME}.".format(**self.elements),
+                quests.TEXT_LORE_TARGET_TOPIC: "{_ALLIED_FACTION}'s {_BASE_NAME}".format(**self.elements),
                 L_LOCATION_NAME: "{_BASE_NAME}".format(**self.elements),
-                quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has a {_BASE_NAME} in {METROSCENE}.".format(
+                quests.TEXT_LORE_MEMO: "{_ALLIED_FACTION} has a {_BASE_NAME} in {METROSCENE}.".format(
                     **self.elements),
 
             }, involvement=my_outcome.involvement, outcome=my_outcome,

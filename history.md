@@ -1,3 +1,8 @@
+* Fixed terrain indicator appearing under terrain border bug
+* Added new eyecatch by Marjorie Gaber
+* Fixed error in documentation of COMBATROUND trigger
+* Combatant activation now handled by combat package
+
 v0.960 February 11, 2024
 * Fixed bug in DeadZone Drifter stub
 * Certain weapons and mecha have been rebalanced; existing instances will be unaffected

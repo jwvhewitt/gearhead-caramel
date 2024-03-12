@@ -514,14 +514,15 @@ class SceneView(object):
 
                         self.scene._map[x][y].render_biddle(dest, self, x, y)
 
-                        self.scene._map[x][y].render_middle(dest, self, x, y)
-
                         # Draw any floor borders at this point.
                         myfloor = self.scene.get_floor(x, y)
                         if myfloor:
                             borders = self.get_floor_borders(x, y, myfloor)
                             for b in borders:
                                 b.border.render(dest, self, x, y)
+
+                        self.scene._map[x][y].render_middle(dest, self, x, y)
+
 
             if current_line > 1 and line_cache[current_line - 2]:
                 # After drawing the terrain last time, draw any objects in the previous cell.

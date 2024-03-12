@@ -373,13 +373,13 @@ class GearHeadScene(pbge.scenes.Scene):
                     else:
                         print("Warning: {} could not be placed in {}".format(npc, self))
 
-    def deploy_team(self, members, team):
+    def deploy_team(self, members, team, area=None):
         if team.home:
             good_spots = list(self.list_empty_spots(team.home))
             if not good_spots:
                 good_spots = list(self.list_empty_spots())
         else:
-            good_spots = list(self.list_empty_spots())
+            good_spots = list(self.list_empty_spots(area))
         random.shuffle(good_spots)
         for m in members:
             if good_spots:
@@ -388,12 +388,12 @@ class GearHeadScene(pbge.scenes.Scene):
             else:
                 print("Warning: {} could not be deployed in {}".format(m, self))
 
-    def deploy_actor(self, actor):
+    def deploy_actor(self, actor, area=None):
         myteam = self.local_teams.get(actor) or self.civilian_team
         if myteam:
             self.deploy_team([actor, ], myteam)
         else:
-            good_spots = list(self.list_empty_spots())
+            good_spots = list(self.list_empty_spots(area))
             if good_spots:
                 p = random.choice(good_spots)
                 actor.place(self, pos=p)

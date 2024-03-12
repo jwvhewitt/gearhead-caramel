@@ -421,14 +421,6 @@ class Explorer(object):
     def npc_inactive(self, mon):
         return mon not in self.camp.party and ((not self.camp.fight) or mon not in self.camp.fight.active)
 
-    def activate_foe(self, npc):
-        # Activate this foe, starting combat if it hasn't already started.
-        if self.camp.fight:
-            self.camp.fight.activate_foe(npc)
-        else:
-            self.camp.fight = combat.Combat(self.camp)
-            self.camp.fight.activate_foe(npc)
-
     CASUAL_SEARCH_CHECK = geffects.OpposedSkillRoll(stats.Perception, stats.Scouting, stats.Speed, stats.Stealth,
                                                     on_success=[True], on_failure=[], min_chance=10, max_chance=90)
 
@@ -471,7 +463,7 @@ class Explorer(object):
                                 in_sight = True
                                 break
                     if in_sight:
-                        self.activate_foe(npc)
+                        combat.enter_combat(self.camp, npc)
                     else:
                         self.threat_tiles.update(pov.tiles)
 
@@ -497,7 +489,7 @@ class Explorer(object):
             if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
                 npteam = self.scene.local_teams.get(npc[0])
                 if npteam and self.scene.player_team.is_enemy(npteam):
-                    self.activate_foe(npc[0])
+                    combat.enter_combat(self.camp, npc[0])
                 elif not isinstance(npc[0], (gears.base.Prop, gears.base.Monster)):
                     self.order = TalkTo(self, npc[0])
                     self.view.overlays.clear()

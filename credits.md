@@ -5,6 +5,7 @@ a CC-BY-4.0 license.
 ARTWORK
 =======
 
+* eyecatch_marjoriegaber_*.png screens by Marjorie Gaber, CC-BY-4.0
 * eyecatch_radou_*.png screens by Radou, https://tapas.io/episode/615068, CC-BY-4.0
 * eyecatch_sierrabravo_*.png screens by Sierra Bravo, https://www.sierrabravoart.com/, CC-BY-4.0
 * eyecatch_nickyrodriguez_*.png screens by Nicky Rodriguez, https://www.artofnickyrodriguez.com/, CC-BY-4.0

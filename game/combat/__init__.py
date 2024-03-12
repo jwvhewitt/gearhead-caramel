@@ -27,6 +27,15 @@ ALT_AIS = {
 }
 
 
+def enter_combat(camp, npc):
+    # Activate this foe, starting combat if it hasn't already started.
+    if camp.fight:
+        camp.fight.activate_foe(npc)
+    else:
+        camp.fight = Combat(camp)
+        camp.fight.activate_foe(npc)
+
+
 class CombatStat(object):
     """Keep track of some stats that only matter during combat."""
 

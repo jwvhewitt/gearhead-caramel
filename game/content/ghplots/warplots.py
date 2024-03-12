@@ -161,7 +161,7 @@ class OccupationCrushDissent(Plot):
                 ),
                 quests.QuestLore(
                     ghquests.LORECAT_MOTIVE, texts={
-                        quests.TEXT_LORE_HINT: "{RESISTANCE_FACTION} must be destroyed".format(
+                        quests.TEXT_LORE_HINT: "{RESISTANCE_FACTION} is plotting a rebellion".format(
                             **self.elements),
                         quests.TEXT_LORE_INFO: "{OCCUPIER}'s control of {METROSCENE} will never be complete as long as {RESISTANCE_FACTION} exists".format(
                             **self.elements),

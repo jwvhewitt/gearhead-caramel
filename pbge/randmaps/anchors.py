@@ -68,3 +68,8 @@ OPPOSING_PAIRS = ((northwest,southeast), (north,south), (northeast,southwest),
     (west,east), (east,west), (southwest,northeast), (south,north),
     (southeast, northwest))
 
+OPPOSITE_EDGE = {
+    north: south, northeast: southwest, east: west, southeast: northwest,
+    south: north, southwest: northeast, west: east, northwest: southeast
+}
+

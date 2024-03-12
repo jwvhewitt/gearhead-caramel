@@ -1,3 +1,4 @@
+import gears
 from pbge import container
 
 ARE_ENEMIES = -1
