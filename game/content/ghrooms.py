@@ -16,6 +16,7 @@ class MSWreckageDecor(OmniDec):
 class DragonToothDecor(OmniDec):
     FLOOR_DECOR = (ghterrain.DragonTeethWall, ghterrain.DragonTeethWall, ghterrain.Forest)
     FLOOR_FILL_FACTOR = 0.25
+    PLACE_FLOOR_DECOR_AS_WALL = True
 
 
 class ForestRoom(ClumpyRoom):
@@ -36,6 +37,14 @@ class FlagstoneRoom(ClumpyRoom):
 
 class ToxicSludgeRoom(ClumpyRoom):
     CLUMP_FLOOR = ghterrain.ToxicSludge
+
+
+class MechaScaleResidentialArea(pbge.randmaps.rooms.MiniCityRoom):
+    ROAD_TERRAIN = ghterrain.Pavement
+    ROADSIDE_TERRAIN = (
+        ghterrain.Forest, ghterrain.MSResidentialBuildings, ghterrain.MSResidentialBuildings,
+        ghterrain.MSResidentialBuildings, ghterrain.MSResidentialBuildings, ghterrain.MSResidentialBuildings
+    )
 
 
 class IndicatedRoom(OpenRoom):

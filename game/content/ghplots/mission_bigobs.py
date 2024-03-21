@@ -226,10 +226,14 @@ class BAM_TimedDefense(Plot):
         team2: teams.Team = self.register_element("_eteam", teams.Team(faction=myfac, enemies=(myscene.player_team,)))
 
         myroom = self.register_element("CENTER_ROOM",
-                                       ghrooms.IndicatedRoom(10, 10, anchor=pbge.randmaps.anchors.middle),
+                                       ghrooms.IndicatedRoom(16, 16, anchor=pbge.randmaps.anchors.middle),
                                        dident="LOCALE")
 
-        bunker_team = self.register_element("_bunkerteam", teams.Team(faction=allyfac, enemies=(team2,), allies=(myscene.player_team,)), dident="CENTER_ROOM")
+        myroom2 = self.register_element("URBAN_ROOM",
+                                       ghrooms.MechaScaleResidentialArea(12, 12, anchor=pbge.randmaps.anchors.middle),
+                                       dident="CENTER_ROOM")
+
+        bunker_team = self.register_element("_bunkerteam", teams.Team(faction=allyfac, enemies=(team2,), allies=(myscene.player_team,)), dident="URBAN_ROOM")
         myfort = self.register_element("_bunker", gears.selector.generate_fortification(self.rank, myfac, myscene.environment))
         bunker_team.contents.append(myfort)
 

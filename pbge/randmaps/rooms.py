@@ -631,3 +631,113 @@ class ClumpyRoom(FuzzyRoom):
             mydest = pygame.Rect(0,0,3,3)
             mydest.center = self.area.center
             gb.fill(mydest,floor=self.CLUMP_FLOOR, wall=self.CLUMP_WALL, decor=self.CLUMP_DECOR)
+
+
+class MiniCityRoom(FuzzyRoom):
+    ROAD_TERRAIN = -1
+    ROADSIDE_TERRAIN = ()
+
+    NODE_SIZE = 3
+
+    MONKEY_HALL_WIDTH = 1
+    CONNECTION_TARGET = 0.75
+
+    ROADSIDE_FILL_TARGET = 0.6
+
+    DIRS = ((1,0), (-1,0), (0,1), (0,-1))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._connected_monkey_nodes = set()
+
+    # Once again, I am implementing the Dungeon Monkey map generator.
+    def mnode_to_map(self, x, y):
+        x = x * self.NODE_SIZE + (self.NODE_SIZE - self.MONKEY_HALL_WIDTH)//2 + self.area.left
+        y = y * self.NODE_SIZE + (self.NODE_SIZE - self.MONKEY_HALL_WIDTH)//2 + self.area.top
+        return x, y
+
+    @property
+    def mnode_width(self):
+        return self.area.width // self.NODE_SIZE
+
+    @property
+    def mnode_height(self):
+        return self.area.height // self.NODE_SIZE
+
+    def get_random_mnode(self):
+        return random.randint(0, self.mnode_width - 1), random.randint(0, self.mnode_height - 1)
+
+    def draw_mline(self, gb, mx1, my1, mx2, my2):
+        # Draw a monkey line connecting the two monkey nodes.
+        x1, y1 = self.mnode_to_map(mx1, my1)
+        x2, y2 = self.mnode_to_map(mx2, my2)
+        gb.fill(pygame.Rect(x1 - self.MONKEY_HALL_WIDTH//2, y1 - self.MONKEY_HALL_WIDTH//2, x2-x1+self.MONKEY_HALL_WIDTH, y2-y1+self.MONKEY_HALL_WIDTH), floor=self.ROAD_TERRAIN, wall=None)
+        for x in range(mx1, mx2+1):
+            for y in range(my1, my2+1):
+                self._connected_monkey_nodes.add((x,y))
+
+    def draw_random_l(self, gb):
+        ox, oy = self.get_random_mnode()
+        if (ox > 0 and random.randint(1,2) == 1) or ox == self.mnode_width - 1:
+            x1 = max((ox - random.randint(1,4)), 0)
+            x2 = ox
+        else:
+            x1 = ox
+            x2 = min((ox + random.randint(1,4)), self.mnode_width - 1)
+        self.draw_mline(gb, x1, oy, x2, oy)
+
+        if (oy > 0 and random.randint(1,2) == 1) or oy == self.mnode_height - 1:
+            y1 = max((oy - random.randint(1,4)), 0)
+            y2 = oy
+        else:
+            y1 = oy
+            y2 = min((oy + random.randint(1,4)), self.mnode_height - 1)
+        self.draw_mline(gb, ox, y1, ox, y2)
+
+    def is_valid_monkey_node(self, mx, my):
+        return mx >= 0 and mx < self.mnode_width and my >= 0 and my < self.mnode_height
+
+    def draw_random_line(self, gb, ox, oy):
+        dirs = list(self.DIRS)
+        random.shuffle(dirs)
+        while dirs:
+            dx, dy = dirs.pop()
+            x2 = ox + dx
+            y2 = oy + dy
+            if (x2, y2) not in self._connected_monkey_nodes and self.is_valid_monkey_node(x2, y2):
+                goal_length = random.randint(1,5)
+                while goal_length > 0 and (x2,y2) not in self._connected_monkey_nodes and self.is_valid_monkey_node(x2 + dx, y2 + dy):
+                    x2 += dx
+                    y2 += dy
+                    goal_length -= 1
+                self.draw_mline(gb, min(ox,x2), min(oy,y2), max(ox,x2), max(oy,y2))
+
+    def build(self, gb, archi):
+        super().build(gb, archi)
+        self._connected_monkey_nodes.clear()
+        self.draw_random_l(gb)
+        target = int(self.CONNECTION_TARGET * self.mnode_height * self.mnode_width)
+        tries = 500
+        while tries > 0 and len(self._connected_monkey_nodes) < target:
+            origin = random.choice(list(self._connected_monkey_nodes))
+            self.draw_random_line(gb, *origin)
+            tries -= 1
+
+        if self.ROADSIDE_TERRAIN:
+            roadside_tiles = list()
+            for x in range(self.area.left, self.area.left + self.area.width):
+                for y in range(self.area.top, self.area.top + self.area.height):
+                    if gb.get_floor(x,y) is not self.ROAD_TERRAIN:
+                        for d in self.DIRS:
+                            if gb.get_floor(x+d[0], y+d[1]) is self.ROAD_TERRAIN:
+                                roadside_tiles.append((x, y))
+                                break
+
+            random.shuffle(roadside_tiles)
+            target = int(self.ROADSIDE_FILL_TARGET * len(roadside_tiles))
+            while target > 0 and roadside_tiles:
+                x,y = roadside_tiles.pop()
+                if gb.wall_wont_block(x, y, archi.mmode):
+                    gb.set_wall(x, y, random.choice(self.ROADSIDE_TERRAIN))
+                    target -= 1
+

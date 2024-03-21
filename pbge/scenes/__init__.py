@@ -306,7 +306,17 @@ class Scene(object):
                     # We've gone from wall to space or vice versa.
                     was_a_space = is_a_space
                     n += 1
-            return n <= 2
+            if n > 2:
+                # So we have a case where the path might be blocked, but then again maybe not...
+                # Time to bring out the big guns. I'm calling the pathfinding unit to figure this crap out.
+                navmap = None
+                for a in self.ANGDIR:
+                    if not self.tile_blocks_movement(x + a[0], y + a[1], mmode):
+                        if navmap and (x + a[0], y + a[1]) not in navmap.cost_to_tile:
+                            return False
+                        else:
+                            navmap = pathfinding.NavigationGuide(self, (x + a[0], y + a[1]), 20, mmode, [(x,y)])
+            return True
 
     def fill(self, dest, floor=-1, wall=-1, decor=-1):
         # Fill the provided area with the provided terrain.

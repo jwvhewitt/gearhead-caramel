@@ -18,6 +18,7 @@ class OmniDec(object):
     FLOOR_FILL_FACTOR = 0.007
     ALTERNATE_FLOOR = ()
     ALT_FLOOR_FACTOR = 0.1
+    PLACE_FLOOR_DECOR_AS_WALL = False
 
     def __init__(self, win=True, wall_fill_factor=None, floor_fill_factor=None):
         if win is not True:
@@ -36,7 +37,10 @@ class OmniDec(object):
         gb._map[x][y].decor = random.choice(self.WALL_DECOR)
 
     def draw_floor_decor(self, gb, x, y):
-        gb._map[x][y].decor = random.choice(self.FLOOR_DECOR)
+        if self.PLACE_FLOOR_DECOR_AS_WALL:
+            gb._map[x][y].wall = random.choice(self.FLOOR_DECOR)
+        else:
+            gb._map[x][y].decor = random.choice(self.FLOOR_DECOR)
 
     def __call__(self, gb, room, archi):
         good_wall_spots = list()

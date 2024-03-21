@@ -1,3 +1,4 @@
+* Scenes now use a more robust method to make sure areas are traversable
 * Fixed terrain indicator appearing under terrain border bug
 * Added new eyecatch by Marjorie Gaber
 * Fixed error in documentation of COMBATROUND trigger

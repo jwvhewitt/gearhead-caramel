@@ -97,6 +97,13 @@ class MSWreckage(pbge.scenes.terrain.VariableTerrain):
     movement_cost = {pbge.scenes.movement.Vision: 10}
 
 
+class MSResidentialBuildings(pbge.scenes.terrain.VariableTerrain):
+    image_top = 'terrain_buildings_residential.png'
+    frames = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
 class Smoke(pbge.scenes.terrain.AnimTerrain):
     image_top = 'terrain_decor_smoke.png'
     anim_delay = 5
@@ -152,6 +159,7 @@ class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
 class TechnoRubble(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_technorubble.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_technoedge.png')
+    border_priority = 55
 
 
 class OldTilesFloor(pbge.scenes.terrain.VariableTerrain):
