@@ -329,7 +329,6 @@ class EdgeTravel:
         if self.edge.architecture and camp.has_mecha_party(enviro=self.edge.architecture.ENV):
             wmehandler = camp.campdata.get(WORLD_MAP_ENCOUNTERS)
             if wmehandler:
-                print("World map edge handler found.")
                 wme = wmehandler(
                     camp, self.start_point.destination, self.start_point.entrance, self.edge.encounter_chance,
                     dest_node.destination, dest_node.entrance, camp.renown,
@@ -337,7 +336,6 @@ class EdgeTravel:
                     architecture=self.edge.architecture,
                 )
                 if wme:
-                    print("World map encounter: {}".format(wme))
                     if not wme(camp):
                         camp.go(dest_node.entrance)
                 else:

@@ -33,6 +33,8 @@ class MultiMissionNodePlot(Plot):
     OBJECTIVES = (missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_CAPTURE_BUILDINGS)
     CASH_REWARD = 20
 
+    AUTO_RESTORE_AT_END = False
+
     def custom_init(self, nart):
         if "SCENE_GENERATOR" not in self.elements or "ARCHITECTURE" not in self.elements:
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
@@ -52,7 +54,7 @@ class MultiMissionNodePlot(Plot):
             combat_music=self.elements.get("COMBAT_MUSIC"), exploration_music=self.elements.get("EXPLORATION_MUSIC"),
             data=self.elements.get("MISSION_DATA", {}),
             mission_grammar=self.elements.get("MISSION_GRAMMAR", {}),
-            restore_at_end=not self.elements.get("ONE_SHOT", True),
+            restore_at_end=self.AUTO_RESTORE_AT_END or not self.elements.get("ONE_SHOT", True),
             call_win_loss_funs_after_card=True,
             cash_reward=self.CASH_REWARD
         )
@@ -213,6 +215,9 @@ class MultiMissionStagePlot(Plot):
         mymenu.sort()
         if mmission.mission_number > 0:
             mymenu.add_item("Abort the mission", None)
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            mymenu.add_item("Win da mission (cheater!)", self._win_mission_wrapper)
+
         return mymenu
 
     def call_stage(self, camp, mmission):

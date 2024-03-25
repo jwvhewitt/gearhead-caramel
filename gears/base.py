@@ -4340,7 +4340,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         return super(Being, self).restore()
 
     def dole_experience(self, xp, xp_type=TOTAL_XP):
-        self.experience[xp_type or self.TOTAL_XP] += xp
+        self.experience[xp_type or self.TOTAL_XP] = int(self.experience[xp_type or self.TOTAL_XP] + xp)
         if xp_type in stats.ALL_SKILLS and xp_type in self.statline:
             while xp_type.improvement_cost(self, self.statline[xp_type]) <= self.experience[xp_type]:
                 self.experience[xp_type] -= xp_type.improvement_cost(self, self.statline[xp_type])

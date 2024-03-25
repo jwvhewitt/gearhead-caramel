@@ -380,7 +380,10 @@ class WorldMapWarTurn:
 
     def prepare_for_war(self):
         self.show_turn_progress("{} prepares for war.".format(self.fac))
-        self.world_map_war.war_teams[self.fac].boosted = True
+        if not self.world_map_war.war_teams[self.fac].boosted:
+            self.world_map_war.war_teams[self.fac].boosted = True
+        elif self.world_map_war.player_team and self.camp.are_faction_enemies(self.fac, self.world_map_war.player_team):
+            self.world_map_war.war_teams[self.world_map_war.player_team].boosted = False
 
     def attack_desirability(self, target_node: campfeatures.WorldMapNode):
         fac = target_node.destination.faction
@@ -501,7 +504,7 @@ class WorldMapWarTurn:
             for edge in self.world_map.edges:
                 if edge.connects_to_node(hqnode):
                     far_node = edge.get_link(hqnode)
-                    if self.camp.are_faction_enemies(hqnode.destination, far_node.destination):
+                    if self.camp.are_faction_enemies(hqnode.destination, far_node.destination) and far_node.destination is not self.world_map_war.just_captured:
                         attack_candidates.add(far_node)
         # If no mortal danger, check other nodes to possibly invade.
         if not attack_candidates:

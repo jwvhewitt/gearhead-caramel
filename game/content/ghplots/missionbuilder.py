@@ -713,6 +713,7 @@ class BAM_DefeatCommander(Plot):
         ), lock=True)
         plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
         myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
+        self.elements["CONVO_CANT_RETREAT"] = True
         self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
 
         #mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True,

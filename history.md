@@ -1,3 +1,7 @@
+v0.961 March 25, 2024
+* Enemy teams can't attack a territory captured this turn in World Map War
+* Commander will not retreat from Defeat Enemy Commander mission
+* Fixed error with Raid on Pirate's Point unpickling
 * Scenes now use a more robust method to make sure areas are traversable
 * Fixed terrain indicator appearing under terrain border bug
 * Added new eyecatch by Marjorie Gaber

@@ -374,7 +374,7 @@ class CharacterMover(object):
         self.is_lancemate = character in camp.party
         if self.is_lancemate:
             AutoLeaver(character)(camp)
-        elif plot.rank > character.renown:
+        elif plot.rank + random.randint(-10,20) > character.renown:
             # Level up this pilot a bit.
             character.renown = min(character.renown + random.randint(1,6), plot.rank)
             character.job.scale_skills(character, character.renown)

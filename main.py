@@ -30,7 +30,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.960"
+VERSION = "v0.961"
 
 class TitleScreenRedraw(object):
 
@@ -82,6 +82,7 @@ class TitleScreenRedraw(object):
 
 TITLE_THEME = 'A wintertale.ogg'
 
+
 class StartGameMenu:
     PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
     MENU_COLUMN = pbge.frects.Frect(20,-100,280,350)
@@ -122,6 +123,7 @@ class StartGameMenu:
         if menu_item and menu_item.value:
             myimage = self.myportraits[menu_item.value]
             myimage.render(self.PORTRAIT_AREA.get_rect())
+
 
 class TestStartGame:
     PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)

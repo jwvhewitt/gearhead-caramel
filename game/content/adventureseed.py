@@ -344,9 +344,9 @@ class ExperienceReward(object):
         """
         # Size of XP award depends on if the adventure is won.
         if adv.is_won():
-            xp = max(self.size,adv.get_completion() * self.size // 100)
+            xp = int(max(self.size,adv.get_completion() * self.size // 100))
         else:
-            xp = (self.size * min(adv.get_completion(),50))//100
+            xp = int(self.size * min(adv.get_completion(),50))//100
 
         if xp > 0:
             camp.dole_xp(xp)

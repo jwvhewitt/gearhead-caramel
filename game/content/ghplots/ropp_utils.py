@@ -74,6 +74,7 @@ class ROPP_WarStarter(Plot):
 
     def __setstate__(self, state):
         # For v0.947 and earlier: set occtype for the war teams.
+        self.__dict__.update(state)
         wardict = self.elements[worldmapwar.WORLD_MAP_TEAMS]
         wardict[gears.factions.TheSolarNavy].occtype = warplots.WMWO_MARTIAL_LAW
         wardict[gears.factions.AegisOverlord].occtype = warplots.WMWO_IRON_FIST

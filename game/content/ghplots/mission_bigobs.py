@@ -91,7 +91,7 @@ class BAM_ToTheOtherSide(Plot):
             myroom = self.register_element("CORNER_ROOM_{}".format(t), roomtype(10, 10, anchor=dest_anchors[t]),
                                            dident="LOCALE")
             self.reinforcement_rooms.append(myroom)
-            myunit = gears.selector.RandomMechaUnit(self.rank, 100, myfac, myscene.environment, add_commander=False)
+            myunit = gears.selector.RandomMechaUnit(self.rank, 50, myfac, myscene.environment, add_commander=False)
             team2.deploy_in_room(myscene, myroom, myunit.mecha_list)
 
         if random.randint(1, 3) != 3:
@@ -99,7 +99,7 @@ class BAM_ToTheOtherSide(Plot):
                 roomtype = self.elements["ARCHITECTURE"].get_a_room()
                 self.register_element("DUD_ROOM_{}".format(t), roomtype(5, 5), dident="LOCALE")
 
-        myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+        myunit = gears.selector.RandomMechaUnit(self.rank, 75, myfac, myscene.environment, add_commander=True)
         myroom = self.register_element("CENTER_ROOM",
                                        pbge.randmaps.rooms.FuzzyRoom(10, 10, anchor=pbge.randmaps.anchors.middle),
                                        dident="LOCALE")
@@ -181,11 +181,11 @@ class BAM_ToTheOtherSide(Plot):
         if self.reinforcements_counter > 0:
             self.reinforcements_counter -= 1
         else:
-            myunit = gears.selector.RandomMechaUnit(self.rank, 50, self.elements.get("ENEMY_FACTION"),
+            myunit = gears.selector.RandomMechaUnit(self.rank, 100, self.elements.get("ENEMY_FACTION"),
                                                     camp.scene.environment, add_commander=False)
             team2 = self.elements["_eteam"]
-            camp.scene.deploy_team(myunit.mecha_list, team2, random.choice(self.reinforcement_rooms))
-            #team2.deploy_in_room(camp.scene, random.choice(self.reinforcement_rooms), myunit.mecha_list)
+            camp.scene.deploy_team(myunit.mecha_list, team2, random.choice(self.reinforcement_rooms).area)
+            # team2.deploy_in_room(camp.scene, random.choice(self.reinforcement_rooms), myunit.mecha_list)
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -198,7 +198,6 @@ class BAM_ToTheOtherSide(Plot):
 
 class BAM_TimedDefense(Plot):
     LABEL = BAMO_DEFEND_FORTRESS
-    LABEL = BAMO_TEST_MISSION
     active = True
     scope = "LOCALE"
 
