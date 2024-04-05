@@ -1,3 +1,6 @@
+v0.962 April 5, 2024
+* Fixed crash during Kerberos battle
+
 v0.961 March 25, 2024
 * Enemy teams can't attack a territory captured this turn in World Map War
 * Commander will not retreat from Defeat Enemy Commander mission
