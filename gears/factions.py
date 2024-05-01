@@ -341,6 +341,32 @@ class Circle(object):
     def __str__(self):
         return self.name
 
+    ADJECTIVE = ("Brutal", "Cruel", "Deadly", "Frenzied", "Angry", "Golden", "Honored", "Veteran", "Ace", "Green",
+               "Glorious", "Invincible", "Jolly", "Killer", "Lucky", "Larcenous", "Black", "White", "Unyielding",
+               "Merciless", "Thunder", "Steel", "Mantis", "Lion", "Eagle", "Hornet", "Bear", "Cobra", "Tiger",
+                 "Sacred", "Burning", "Super", "Cyber", "Fusion", "Dragon", "Laser", "Mighty", "Mercenary",
+                 "Amazing", "Fantastic", "Incredible", "Uncanny", "Punk", "Foolish", "Cool", "Hot", "Fighting",
+               "Unbeatable", "Vicious", "Violent", "Red", )
+    NOUN = (
+        "Warriors", "Demons", "Gang", "Talons", "Destroyers", "Raiders", "Legion", "Modez", "Angels", "Hearts",
+        "Breakers", "Bruisers", "Crashers", "Executors", "Platoon", "Squad", "Hammers", "Spears", "Emperors",
+        "Queens", "Princes", "Ladies", "Barons", "Raptors", "Titans", "Unicorns", "Hawks", "Sharks", "Guild",
+        "Scouts", "League", "Wing", "Aces", "Champions" )
+
+    @classmethod
+    def _generate_random_name(cls):
+        return "the {} {}".format(random.choice(cls.ADJECTIVE), random.choice(cls.NOUN))
+
+    @classmethod
+    def random_circle(cls, camp, allies=(), enemies=()):
+        return cls(
+            camp, mecha_colors=color.random_mecha_colors(), name=cls._generate_random_name(), careers={
+                tags.Trooper: ("Mecha Pilot", "Soldier"),
+                tags.Commander: ("Commander",),
+                tags.Support: ("Recon Pilot", "Field Medic"),
+            }, factags=(tags.Adventurer, tags.Military), allies=allies, enemies=enemies
+        )
+
 
 def is_a_faction(maybe_fac):
     return hasattr(maybe_fac, "get_faction_tag")

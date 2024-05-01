@@ -110,7 +110,10 @@ class DZD_Wujung(Plot):
         )
 
         self.add_sub_plot(nart, "DZD_SKIPPYSNIGHTOUT")
-        #self.add_sub_plot(nart, "WMWO_IRON_FIST", elements={"OCCUPIER": gears.factions.TerranFederation, "RESISTANCE_FACTION": gears.factions.BioCorp})
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            mysp = self.add_sub_plot(nart, "TEST_WAR_PLOT", elements={"OCCUPIER": gears.factions.TerranFederation, "RESISTANCE_FACTION": gears.factions.BioCorp}, necessary=False)
+            if mysp:
+                print("War plot test in progress")
 
         self.intro_ready = True
 

@@ -23,6 +23,65 @@ class TimeAndChallengeExpiration(object):
         return camp.time > self.time_limit or not self.chal.active
 
 
+class ChallengePlot(Plot):
+    candidates = None
+    CHALLENGE_TYPE = None
+
+    def is_good_challenge(self, candidate):
+        if candidate.involvement and hasattr(candidate.involvement, "is_in_scope") and not candidate.involvement.is_in_scope(self):
+            return False
+        return candidate.chaltype == self.CHALLENGE_TYPE
+
+    def get_challenge_giver_and_never_fail(
+            self, nart: GHNarrativeRequest, ident, seek_func, lock=True, backup_seek_func=None, allied_faction=None,
+            enemy_faction=None
+    ):
+        candidates = self.seek_element_candidates(nart, seek_func, backup_seek_func=backup_seek_func,
+                                                    scope=self.elements["METROSCENE"])
+        if candidates:
+            best_can = list(candidates)
+            if allied_faction and random.randint(1,5) != 3:
+                best_can = [c for c in best_can if nart.camp.are_faction_allies(c, allied_faction)]
+                better_can = [c for c in best_can if c.faction is allied_faction]
+                if better_can:
+                    best_can = better_can
+            if enemy_faction:
+                better_can = [c for c in best_can if nart.camp.are_faction_enemies(c, enemy_faction) or random.randint(1,10) == 5]
+                if better_can:
+                    best_can = better_can
+            if best_can:
+                candidates = best_can
+            npc = random.choice(candidates)
+            self.register_element(ident, npc, lock=lock)
+        else:
+            mymetro = self.elements["METROSCENE"]
+            if enemy_faction and random.randint(1,10) != 7 and not allied_faction:
+                af_can = [f for f in nart.camp.faction_relations.keys() if nart.camp.are_faction_enemies(f, enemy_faction) and not nart.camp.are_faction_enemies(f, mymetro)]
+                if af_can:
+                    best_af_can = [f for f in af_can if nart.camp.are_faction_allies(f, mymetro)]
+                    if best_af_can:
+                        af_can = best_af_can
+                    allied_faction = random.choice(af_can)
+            npc = gears.selector.random_character(self.rank + random.randint(-10,20), local_tags=mymetro.attributes,
+                                                  camp=nart.camp, faction=allied_faction)
+            self.elements["_gcganf_allied_faction"] = allied_faction
+            scene_ident = "_autogcganfelement_{0}_{1}".format(len(self.elements), hash(npc))
+            self.seek_element(nart, scene_ident, self.__challenge_npc_best_scene, scope=mymetro,
+                              backup_seek_func=self.__challenge_npc_next_best_scene)
+            self.register_element(ident, npc, dident=scene_ident, lock=lock)
+            print(npc, self.elements[scene_ident], allied_faction, enemy_faction)
+        return npc
+
+    def __challenge_npc_best_scene(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+            nart.camp.are_faction_allies(candidate, self.elements["_gcganf_allied_faction"])
+        )
+
+    def __challenge_npc_next_best_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
+
+
 # All CHALLENGE_PLOTs should store their Challenge as element "CHALLENGE"!!! At least, they should if they want to use
 # the no_plots_for_this_challenge function above.
 
@@ -30,7 +89,7 @@ class TimeAndChallengeExpiration(object):
 #   ***  DETHRONE_CHALLENGE  ***
 #   ****************************
 
-class DethroneByDuelingSupporter(Plot):
+class DethroneByDuelingSupporter(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
@@ -41,12 +100,14 @@ class DethroneByDuelingSupporter(Plot):
         prohibited_npcs=("NPC",)
     )
 
+    CHALLENGE_TYPE = ghchallenges.DETHRONE_CHALLENGE
+
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.DETHRONE_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
             npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
             mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
@@ -166,17 +227,19 @@ class DethroneByDuelingSupporter(Plot):
 #   ***  DIPLOMACY_CHALLENGE  ***
 #   *****************************
 
-class BasicDiplomaticChallenge(Plot):
+class BasicDiplomaticChallenge(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
+
+    CHALLENGE_TYPE = ghchallenges.DIPLOMACY_CHALLENGE
 
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.DIPLOMACY_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
             npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
             mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
@@ -266,10 +329,12 @@ class BasicDiplomaticChallenge(Plot):
 #   ***  EPIDEMIC_CHALLENGE  ***
 #   ****************************
 
-class ObviouslyIllPerson(Plot):
+class ObviouslyIllPerson(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
+
+    CHALLENGE_TYPE = ghchallenges.EPIDEMIC_CHALLENGE
 
     RUMOR = Rumor(
         "{NPC} has been looking sick",
@@ -283,7 +348,7 @@ class ObviouslyIllPerson(Plot):
         return "METROSCENE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.EPIDEMIC_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
             npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
             mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
@@ -346,7 +411,7 @@ class ObviouslyIllPerson(Plot):
 #   ***  FIGHT_CHALLENGE  ***
 #   *************************
 
-class BasicFightChallenge(Plot):
+class BasicFightChallenge(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
@@ -356,6 +421,8 @@ class BasicFightChallenge(Plot):
         memo="{NPC} is looking for a pilot to fight {ENEMY_FACTION}.",
         prohibited_npcs=("NPC",)
     )
+
+    CHALLENGE_TYPE = ghchallenges.FIGHT_CHALLENGE
 
     DEFAULT_OBJECTIVES = (
         ghchallenges.DescribedObjective(
@@ -371,13 +438,15 @@ class BasicFightChallenge(Plot):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.FIGHT_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
-            #mychallenge = self.register_element("CHALLENGE", random.choice(self.candidates))
-            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
-            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
-            self.register_element("NPC_SCENE", npc.scene)
+            mychallenge = self.register_element("CHALLENGE", random.choice(self.candidates))
             self.register_element("ENEMY_FACTION", mychallenge.key[0])
+            npc: gears.base.Character = self.get_challenge_giver_and_never_fail(
+                nart, "NPC", self._is_good_npc, lock=True, enemy_faction=self.elements["ENEMY_FACTION"]
+            )
+
+            self.register_element("NPC_SCENE", npc.scene)
             self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
 
             my_dobjectives = random.sample(list(self.DEFAULT_OBJECTIVES) + mychallenge.data.get("mission_objectives", []), 2)
@@ -410,16 +479,10 @@ class BasicFightChallenge(Plot):
             del self.candidates
             return True
 
-    def _get_challenge_for_npc(self, nart, npc):
-        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
-        if candidates:
-            return random.choice(candidates)
-
     def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
         return (
-            isinstance(candidate, gears.base.Character) and candidate not in nart.camp.party and
-            (not candidate.relationship or gears.relationships.RT_LANCEMATE not in candidate.relationship.tags) and
-            self._get_challenge_for_npc(nart, candidate)
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+            self.elements["CHALLENGE"].is_involved(nart, candidate)
         )
 
     def _win_the_mission(self, camp):
@@ -484,7 +547,7 @@ class BasicFightChallenge(Plot):
 #   ***  GATHER_INTEL_CHALLENGE  ***
 #   ********************************
 
-class GatherIntelByConversation(Plot):
+class GatherIntelByConversation(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
@@ -498,12 +561,14 @@ class GatherIntelByConversation(Plot):
         prohibited_npcs=("NPC",)
     )
 
+    CHALLENGE_TYPE =  ghchallenges.GATHER_INTEL_CHALLENGE
+
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.GATHER_INTEL_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
             npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
             self.elements["NPC_SCENE"] = npc.scene
@@ -559,7 +624,7 @@ class GatherIntelByConversation(Plot):
 #   ***  LOCATE_ENEMY_BASE_CHALLENGE  ***
 #   *************************************
 
-class ReconMissionToFindBase(Plot):
+class ReconMissionToFindBase(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
@@ -571,6 +636,8 @@ class ReconMissionToFindBase(Plot):
         prohibited_npcs=("NPC",), npc_is_prohibited_fun=plotutility.ProhibitFactionMembers("ENEMY_FACTION")
     )
 
+    CHALLENGE_TYPE = ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE
+
     EXTRA_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL)
 
     @classmethod
@@ -578,12 +645,15 @@ class ReconMissionToFindBase(Plot):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
-            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
-            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
-            self.register_element("NPC_SCENE", npc.scene)
+            mychallenge = self.register_element("CHALLENGE", random.choice(self.candidates))
             self.register_element("ENEMY_FACTION", mychallenge.key[0])
+            npc: gears.base.Character = self.get_challenge_giver_and_never_fail(
+                nart, "NPC", self._is_good_npc, lock=True, enemy_faction=self.elements["ENEMY_FACTION"]
+            )
+
+            self.register_element("NPC_SCENE", npc.scene)
             self.register_element("BASE_NAME", mychallenge.data["base_name"])
             self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
 
@@ -604,15 +674,10 @@ class ReconMissionToFindBase(Plot):
             del self.candidates
             return True
 
-    def _get_challenge_for_npc(self, nart, npc):
-        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
-        if candidates:
-            return random.choice(candidates)
-
     def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
         return (
             isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
-            self._get_challenge_for_npc(nart, candidate)
+            self.elements["CHALLENGE"].is_involved(nart, candidate)
         )
 
     def _win_the_mission(self, camp: gears.GearHeadCampaign):
@@ -688,7 +753,7 @@ class ReconMissionToFindBase(Plot):
 #   ***  MAKE_CHALLENGE  ***
 #   ************************
 
-class RecoverTheSupplies(Plot):
+class RecoverTheSupplies(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
@@ -699,12 +764,14 @@ class RecoverTheSupplies(Plot):
         prohibited_npcs=("NPC",)
     )
 
+    CHALLENGE_TYPE = ghchallenges.MAKE_CHALLENGE
+
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.MAKE_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
             npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
             mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
@@ -805,24 +872,24 @@ class RecoverTheSupplies(Plot):
 #   ***  MISSION_CHALLENGE  ***
 #   ***************************
 
-class BasicMissionChallenge(Plot):
+class BasicMissionChallenge(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
+
+    CHALLENGE_TYPE = ghchallenges.MISSION_CHALLENGE
 
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.MISSION_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
-            #mychallenge = self.register_element("CHALLENGE", random.choice(self.candidates))
-            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
-            self.elements["NPC_SCENE"] = npc.scene
-            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            mychallenge = self.register_element("CHALLENGE", random.choice(self.candidates))
+            efac = self.register_element("ENEMY_FACTION", mychallenge.key[0])
+            npc = self.get_challenge_giver_and_never_fail(nart, "NPC", self._is_good_npc, lock=True, enemy_faction=efac)
             self.register_element("NPC_SCENE", npc.scene)
-            self.register_element("ENEMY_FACTION", mychallenge.key[0])
             self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
 
             self.rumor_text = random.choice(mychallenge.data["challenge_rumors"])
@@ -846,15 +913,10 @@ class BasicMissionChallenge(Plot):
             del self.candidates
             return True
 
-    def _get_challenge_for_npc(self, nart, npc):
-        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
-        if candidates:
-            return random.choice(candidates)
-
     def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
         return (
             isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
-            self._get_challenge_for_npc(nart, candidate)
+            self.elements["CHALLENGE"].is_involved(nart.camp, candidate)
         )
 
     def NPC_offers(self, camp: gears.GearHeadCampaign):
@@ -916,7 +978,7 @@ class BasicMissionChallenge(Plot):
 #   ***  RAISE_ARMY_CHALLENGE  ***
 #   ******************************
 
-class RaiseArmyChallenge(Plot):
+class RaiseArmyChallenge(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
     scope = "METRO"
@@ -928,12 +990,14 @@ class RaiseArmyChallenge(Plot):
         prohibited_npcs=("NPC",)
     )
 
+    CHALLENGE_TYPE = ghchallenges.RAISE_ARMY_CHALLENGE
+
     @classmethod
     def matches(cls, pstate: PlotState):
         return "METROSCENE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
-        self.candidates = [c for c in nart.challenges if c.chaltype == ghchallenges.RAISE_ARMY_CHALLENGE]
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
         if self.candidates:
             npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
             mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))

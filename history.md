@@ -1,3 +1,8 @@
+* Challenge plots can create a mission giver if one cannot be found
+* Plots have new method to return a list of element candidates, allowing manual selection or sorting
+* QuestOutcome involvement function replaced with player_can_fun
+* More quest refactoring; verbs now objects, outcomes have elements
+
 v0.962 April 5, 2024
 * Fixed crash during Kerberos battle
 

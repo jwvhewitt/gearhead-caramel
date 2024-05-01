@@ -268,9 +268,7 @@ class Plot(object):
             self.locked_elements.add(ident)
         return ele
 
-    def seek_element(self, nart, ident, seek_func, scope=None, must_find=True, check_subscenes=True, lock=False,
-                     backup_seek_func=None):
-        """Check scope and all children for a gear that seek_func returns True"""
+    def seek_element_candidates(self, nart, seek_func, scope=None, check_subscenes=True, backup_seek_func=None):
         if not scope:
             scope = nart.camp
         candidates = list()
@@ -287,12 +285,14 @@ class Plot(object):
                     candidates.remove(le)
                 elif le and le in bu_candidates:
                     bu_candidates.remove(le)
+        return candidates or bu_candidates
+
+    def seek_element(self, nart, ident, seek_func, scope=None, must_find=True, check_subscenes=True, lock=False,
+                     backup_seek_func=None):
+        """Check scope and all children for a gear that seek_func returns True"""
+        candidates = self.seek_element_candidates(nart, seek_func, scope, check_subscenes, backup_seek_func)
         if candidates:
             e = random.choice(candidates)
-            self.register_element(ident, e, lock=lock)
-            return e
-        elif bu_candidates:
-            e = random.choice(bu_candidates)
             self.register_element(ident, e, lock=lock)
             return e
         elif must_find:

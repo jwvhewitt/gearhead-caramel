@@ -6,6 +6,12 @@ import random
 #   ************************************
 import pbge.okapipuzzle
 
+class BaseInvolvement(object):
+    metroscene = None
+    def is_in_scope(self, plot):
+        return plot.elements.get("METROSCENE") is self.metroscene
+
+
 DETHRONE_CHALLENGE = "DETHRONE_CHALLENGE"
 # The involvement for a dethrone challenge identifies the NPCs protecting/supporting the NPC to be dethroned
 # The key for a diplomacy challenge is (NPC_to_be_dethroned,)
@@ -45,7 +51,7 @@ EPIDEMIC_CHALLENGE = "EPIDEMIC_CHALLENGE"
 # No particular data required beyond the key.
 #
 
-class InvolvedIfInfected(object):
+class InvolvedIfInfected(BaseInvolvement):
     # This Involvement is used for the epidemic autooffer. Returns True if this NPC's "secret number" matches.
     def __init__(self, metroscene):
         self.metroscene = metroscene
@@ -191,6 +197,12 @@ class InvolvedIfCluesRemainAnd(object):
         else:
             return self.puzzle.unknown_clues
 
+    def is_in_scope(self, plot):
+        if self.other_involvement:
+            return self.other_involvement.is_in_scope(plot)
+        else:
+            return True
+
 
 class InvolvedIfAssociatedCluesRemainAnd(object):
     # This Involvement returns True if there are unknown clue cards remaining which involve ob and some other
@@ -207,6 +219,12 @@ class InvolvedIfAssociatedCluesRemainAnd(object):
         else:
             return (self.puzzle.unknown_clues and any([c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
                     any([c.gameob is ob for c in self.deck_to_check.cards]))
+
+    def is_in_scope(self, plot):
+        if self.other_involvement:
+            return self.other_involvement.is_in_scope(plot)
+        else:
+            return True
 
 
 class InvolvedIfUnassociatedCluesRemainAnd(object):
@@ -225,6 +243,11 @@ class InvolvedIfUnassociatedCluesRemainAnd(object):
             return (self.puzzle.unknown_clues and any([not c.is_involved(ob) for c in self.puzzle.unknown_clues]) and
                     any([c.gameob is ob for c in self.deck_to_check.cards]))
 
+    def is_in_scope(self, plot):
+        if self.other_involvement:
+            return self.other_involvement.is_in_scope(plot)
+        else:
+            return True
 
 #   ***************************************
 #   ***  RAISE  ARMY  CHALLENGE  STUFF  ***
@@ -243,7 +266,7 @@ RAISE_ARMY_CHALLENGE = "RAISE_ARMY_CHALLENGE"
 #   ***  INVOLVEMENTS  ***
 #   **********************
 
-class InvolvedMetroFactionNPCs(object):
+class InvolvedMetroFactionNPCs(BaseInvolvement):
     # Return True if ob is an NPC allied with the given faction and in the same Metro area.
     def __init__(self, metroscene, faction=None, exclude=()):
         self.metroscene = metroscene
@@ -256,7 +279,7 @@ class InvolvedMetroFactionNPCs(object):
                 camp.are_faction_allies(ob, self.faction) and camp.is_not_lancemate(ob) and ob not in self.exclude)
 
 
-class InvolvedMetroNoFriendToFactionNPCs(object):
+class InvolvedMetroNoFriendToFactionNPCs(BaseInvolvement):
     # Return True if ob is an NPC _not_ allied with the given faction and in the same Metro area.
     def __init__(self, metroscene, faction=None, exclude=()):
         self.metroscene = metroscene
@@ -271,7 +294,22 @@ class InvolvedMetroNoFriendToFactionNPCs(object):
         )
 
 
-class InvolvedMetroResidentNPCs(object):
+class InvolvedMetroNoEnemyToFactionNPCs(BaseInvolvement):
+    # Return True if ob is an NPC _not_ allied with the given faction and in the same Metro area.
+    def __init__(self, metroscene, faction=None, exclude=()):
+        self.metroscene = metroscene
+        self.faction = faction or metroscene.faction
+        self.exclude = set()
+        self.exclude.update(exclude)
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (
+            isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
+            not camp.are_faction_enemies(ob, self.faction) and camp.is_not_lancemate(ob) and ob not in self.exclude
+        )
+
+
+class InvolvedMetroResidentNPCs(BaseInvolvement):
     # Return True if ob is a non-lancemate NPC in the provided Metro area.
     def __init__(self, metroscene, exclude=()):
         self.metroscene = metroscene
@@ -283,7 +321,7 @@ class InvolvedMetroResidentNPCs(object):
                 camp.is_not_lancemate(ob) and ob not in self.exclude)
 
 
-class InvolvedMetroTaggedNPCs(object):
+class InvolvedMetroTaggedNPCs(BaseInvolvement):
     # Return True if ob is a non-lancemate NPC with the required tags in the provided Metro area.
     def __init__(self, metroscene, tags=()):
         self.metroscene = metroscene

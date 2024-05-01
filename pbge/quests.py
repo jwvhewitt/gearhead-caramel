@@ -1,10 +1,8 @@
 # A Quest is the opposite of a story- it is a randomly generated narrative with a defined ending.
 
-from . import plots, widgets, my_state, frects, image, wait_event, TIMEREVENT, util
+from . import plots, widgets, my_state, frects, image, wait_event, TIMEREVENT, util, Singleton
 import pygame
 import random
-
-VERB_DEFEAT = "DEFEAT"
 
 DEFAULT_QUEST_BAD_CONCLUSION = "QUEST_BAD_CONCLUSION"
 DEFAULT_QUEST_CONCLUSION = "QUEST_CONCLUSION"
@@ -106,13 +104,17 @@ class LoreRevealer:
                 self.loreset.remove(l)
 
 
+class OutcomeVerb(Singleton):
+    name = "Succeed"
+    needed_elements = ()
+    tags = ()
+
+
 class QuestOutcome:
-    def __init__(self, verb=VERB_DEFEAT, target=None, involvement=None, win_effect=None, loss_effect=None, lore=(), prioritize_lore=True, element_map=None):
+    def __init__(self, verb=OutcomeVerb, player_can_fun=None, win_effect=None, loss_effect=None, lore=(), prioritize_lore=True, o_elements=None):
         # verb is what's gonna happen in this outcome.
-        # target is the Quest Element ID of the object of the verb. Except you can't say object in Python because that
-        #   word has a different meaning here than it does in English grammar.
-        # involvement is a challenge involvement checker which checks to see what factions/NPCs might offer missions
-        #   leading to this outcome.
+        # player_can_fun is a callable of signature (camp, outcome) which returns True if the player can pursue this
+        #    outcome.
         # win_effect is a callable of form "effect(camp)" which is called if/when this outcome comes to pass
         # loss_effect is a callable of form "loss_effect(camp)" which is called if/when this outcome fails or
         #   bcomes unwinnable.
@@ -120,11 +122,9 @@ class QuestOutcome:
         # prioritize_lore is True if the lore should be pushed at the player as strongly as possible.
         #   Set this to True if you have a quest with narrow involvement and don't want the player to be chasing down
         #   rumors for a long time.
-        # element_map is a dictionary of descriptive labels to element IDs. Might be important for some
-        #   games. Like GearHead Caramel. Quite important there.
+        # o_elements is a dictionary of game objects that works basically the same as elements in plots.
         self.verb = verb
-        self.target = target
-        self.involvement = involvement
+        self.player_can_fun = player_can_fun
         self.win_effect = win_effect
         self.loss_effect = loss_effect
         self.lore = list(lore)
@@ -132,9 +132,12 @@ class QuestOutcome:
             if not l.outcome:
                 l.outcome = self
         self.prioritize_lore = prioritize_lore
-        self.element_map = dict()
-        if element_map:
-            self.element_map.update(element_map)
+        self.o_elements = dict()
+        if o_elements:
+            self.o_elements.update(o_elements)
+        for needed in self.verb.needed_elements:
+            if needed not in self.o_elements:
+                plots.PlotError("Element {} not found for outcome {}".format(needed, verb))
 
     def is_involved(self, camp, npc):
         if not self.involvement:
@@ -143,7 +146,7 @@ class QuestOutcome:
             return self.involvement(camp, npc)
 
     def __str__(self):
-        return "{}: {}".format(self.verb, self.target)
+        return "{}: {}".format(self.verb, self.o_elements)
 
 
 class QuestConclusionMethodWrapper:
@@ -254,7 +257,7 @@ class Quest:
 
     def check_quest_plot_activation(self, camp=None):
         for oc_plot in list(self.all_plots):
-            if oc_plot.quest_record.should_be_active():
+            if oc_plot.quest_record.should_be_active(camp):
                 oc_plot.active = True
             elif camp and oc_plot.active:
                 oc_plot.end_quest_task(camp)
@@ -296,6 +299,13 @@ class Quest:
 
     def lore_is_revealed(self, lore):
         return lore in self._revealed_lore
+
+    def lore_is_usable_by_pc(self, camp, lore: QuestLore):
+        if self.lore_is_revealed(lore):
+            if lore.outcome and lore.outcome.player_can_fun and camp:
+                return lore.outcome.player_can_fun(camp, lore.outcome)
+            else:
+                return True
 
     def lore_is_unlocked(self, lore):
         return lore not in self._locked_lore
@@ -414,6 +424,11 @@ class QuestRecord:
             # Copy all the lore from the outcome.
             self._needed_lore.update(pstate.elements.get(OUTCOME_ELEMENT_ID).lore)
         self.started = False
+        # Reminder is a message that can be given by the quest giver or other involved NPCs reminding the player
+        # what they're supposed to do next. For any given quest, they might have a number of reminders, so keep that
+        # in mind. Reminder_prompt is the info the PC can ask about; may be blank.
+        self.reminder = ""
+        self.reminder_prompt = ""
 
     def win_task(self, myplot: QuestPlot, camp):
         if self.completion != self.WIN:
@@ -433,11 +448,11 @@ class QuestRecord:
         myplot.deactivate(camp)
         self.quest.check_quest_plot_activation(camp)
 
-    def should_be_active(self):
+    def should_be_active(self, camp=None):
         if self.started and self.completion != self.IN_PROGRESS:
             return False
         for lore in self._needed_lore:
-            if not self.quest.lore_is_revealed(lore):
+            if not self.quest.lore_is_usable_by_pc(camp, lore):
                 return False
         if self.lore_to_reveal and all(self.quest.lore_is_revealed(l) for l in self.lore_to_reveal):
             return False

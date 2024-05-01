@@ -32,12 +32,15 @@ RESISTANCE_FACTION = "RESISTANCE_FACTION"
 # During a world map war, different factions may have different effects on the territories they conquer. This may give
 # special opportunities to the player character, depending on which side of the conflict the PC is working for (if any).
 
+TEST_WAR_PLOT = "TEST_WAR_PLOT"
+
 WMWO_DEFENDER = "WMWO_DEFENDER"  # The faction will attempt to defend this location.
 # Plots may involve shoring up defenses, evacuating civilians, and repairing damage done during the attack.
 # This plot type will usually be associated with the original owner of a given territory, but not necessarily.
 
 class OccupationFortify(Plot):
     LABEL = WMWO_DEFENDER
+    LABEL = TEST_WAR_PLOT
     scope = "METRO"
     active = True
 
@@ -57,50 +60,48 @@ class OccupationFortify(Plot):
             self.elements[RESISTANCE_FACTION] = rival
 
         oc1 = quests.QuestOutcome(
-            ghquests.VERB_FORTIFY, target=self.elements[RESISTANCE_FACTION],
-            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
+            ghquests.FortifyVerb, ghquests.default_player_can_do_outcome,
             win_effect=self._occupier_wins, loss_effect=self._occupier_loses,
             lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
-                        quests.TEXT_LORE_HINT: "{OCCUPIER} must bring order to {METROSCENE}".format(**self.elements),
-                        quests.TEXT_LORE_INFO: "{RESISTANCE_FACTION} are dissidents who resist {OCCUPIER} and must be crushed".format(**self.elements),
+                        quests.TEXT_LORE_HINT: "{OCCUPIER} plans to hold onto {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_INFO: "{OCCUPIER} is working to improve {METROSCENE}'s defenses".format(**self.elements),
                         quests.TEXT_LORE_TOPIC: "the state of {METROSCENE}".format(**self.elements),
-                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} is working against {OCCUPIER} in {METROSCENE}.".format(**self.elements),
-                        quests.TEXT_LORE_TARGET_TOPIC: "{RESISTANCE_FACTION}'s rebellion".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that {OCCUPIER} is working to consolidate its position in {METROSCENE}.".format(**self.elements),
+                        quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s plans".format(**self.elements),
                         quests.TEXT_LORE_MEMO: "{OCCUPIER} is fortifying their position in {METROSCENE}.".format(**self.elements),
-                    }, involvement = ghchallenges.InvolvedMetroFactionNPCs(
+                    }, involvement=ghchallenges.InvolvedMetroNoEnemyToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 ),
             ], prioritize_lore=True,
-            element_map={
-                ghquests.OCE_AllyFaction: OCCUPIER,
-                ghquests.OCE_EnemyFaction: RESISTANCE_FACTION
+            o_elements={
+                ghquests.OE_ALLYFACTION: self.elements[OCCUPIER],
+                ghquests.OE_ENEMYFACTION: self.elements[RESISTANCE_FACTION],
+                ghquests.OE_OBJECT: self.elements["METROSCENE"],
             }
         )
 
         oc2 = quests.QuestOutcome(
-            ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
-            involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
-                                                                        self.elements["OCCUPIER"]),
+            ghquests.ExpelVerb, ghquests.default_player_can_do_outcome,
             win_effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
-                        quests.TEXT_LORE_HINT: "life under {OCCUPIER} has been unbearable".format(**self.elements),
-                        quests.TEXT_LORE_INFO: "a resistance has formed to get rid of {OCCUPIER}".format(**self.elements),
+                        quests.TEXT_LORE_HINT: "{OCCUPIER} is not entirely welcome here".format(**self.elements),
+                        quests.TEXT_LORE_INFO: "{RESISTANCE_FACTION} seek to force {OCCUPIER} out of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
-                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that there is a resistance dedicated to ousting {OCCUPIER} from {METROSCENE}.".format(**self.elements),
+                        quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} plans to drive {OCCUPIER} from {METROSCENE}.".format(**self.elements),
                         quests.TEXT_LORE_TARGET_TOPIC: "{OCCUPIER}'s occupation of {METROSCENE}".format(**self.elements),
-                        quests.TEXT_LORE_MEMO: "There is a resistance opposing {OCCUPIER}'s occupation of {METROSCENE}.".format(**self.elements),
+                        quests.TEXT_LORE_MEMO: "{RESISTANCE_FACTION} opposes {OCCUPIER}'s occupation of {METROSCENE}.".format(**self.elements),
                     }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(
                         self.elements["METROSCENE"], self.elements["OCCUPIER"]
                     ), priority=True
                 )
             ], prioritize_lore=False,
-            element_map={
-                ghquests.OCE_AllyFaction: RESISTANCE_FACTION,
-                ghquests.OCE_EnemyFaction: OCCUPIER
+            o_elements={
+                ghquests.OE_ALLYFACTION: self.elements[RESISTANCE_FACTION],
+                ghquests.OE_ENEMYFACTION: self.elements[OCCUPIER]
             }
         )
 
@@ -143,8 +144,7 @@ class OccupationCrushDissent(Plot):
             )
 
         oc1 = quests.QuestOutcome(
-            ghquests.VERB_REPRESS, target=RESISTANCE_FACTION,
-            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
+            ghquests.RepressVerb, ghquests.default_player_can_do_outcome,
             win_effect=self._occupier_wins, loss_effect=self._resistance_wins,
             lore=[
                 quests.QuestLore(
@@ -179,16 +179,14 @@ class OccupationCrushDissent(Plot):
                     tags=(ghquests.LORETAG_ENEMY, ghquests.LORETAG_PRIMARY),
                 )
             ], prioritize_lore=True,
-            element_map={
-                ghquests.OCE_AllyFaction: OCCUPIER,
-                ghquests.OCE_EnemyFaction: RESISTANCE_FACTION
+            o_elements={
+                ghquests.OE_ALLYFACTION: self.elements[OCCUPIER],
+                ghquests.OE_ENEMYFACTION: self.elements[RESISTANCE_FACTION]
             }
         )
 
         oc2 = quests.QuestOutcome(
-            ghquests.VERB_EXPEL, target=OCCUPIER,
-            involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
-                                                                        self.elements["OCCUPIER"]),
+            ghquests.ExpelVerb, ghquests.default_player_can_do_outcome,
             win_effect=self._resistance_wins, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
@@ -222,9 +220,9 @@ class OccupationCrushDissent(Plot):
                 )
 
             ], prioritize_lore=False,
-            element_map={
-                ghquests.OCE_AllyFaction: RESISTANCE_FACTION,
-                ghquests.OCE_EnemyFaction: OCCUPIER
+            o_elements={
+                ghquests.OE_ALLYFACTION: self.elements[RESISTANCE_FACTION],
+                ghquests.OE_ENEMYFACTION: self.elements[OCCUPIER]
             }
         )
 
@@ -272,8 +270,7 @@ class OccupationRestoreOrder(Plot):
             self.elements[RESISTANCE_FACTION] = rival
 
         oc1 = quests.QuestOutcome(
-            ghquests.VERB_FORTIFY, target=self.elements[RESISTANCE_FACTION],
-            involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["OCCUPIER"]),
+            ghquests.FortifyVerb, ghquests.default_player_can_do_outcome,
             win_effect=self._occupier_wins, loss_effect=self._occupier_loses,
             lore=[
                 quests.QuestLore(
@@ -289,16 +286,14 @@ class OccupationRestoreOrder(Plot):
                     ), priority=True
                 )
             ], prioritize_lore=True,
-            element_map={
-                ghquests.OCE_AllyFaction: OCCUPIER,
-                ghquests.OCE_EnemyFaction: RESISTANCE_FACTION
+            o_elements={
+                ghquests.OE_ALLYFACTION: self.elements[OCCUPIER],
+                ghquests.OE_ENEMYFACTION: self.elements[RESISTANCE_FACTION],
             }
         )
 
         oc2 = quests.QuestOutcome(
-            ghquests.VERB_EXPEL, target=self.elements[OCCUPIER],
-            involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
-                                                                        self.elements["OCCUPIER"]),
+            ghquests.ExpelVerb, ghquests.default_player_can_do_outcome,
             win_effect=self._occupier_loses, loss_effect=self._occupier_wins, lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
@@ -313,9 +308,9 @@ class OccupationRestoreOrder(Plot):
                     ), priority=True
                 )
             ], prioritize_lore=False,
-            element_map={
-                ghquests.OCE_AllyFaction: RESISTANCE_FACTION,
-                ghquests.OCE_EnemyFaction: OCCUPIER
+            o_elements={
+                ghquests.OE_ALLYFACTION: self.elements[RESISTANCE_FACTION],
+                ghquests.OE_ENEMYFACTION: self.elements[OCCUPIER],
             }
         )
 

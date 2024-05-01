@@ -10,15 +10,35 @@ from game.content import ghchallenges, plotutility, gharchitecture, ghcutscene
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from pbge.challenges import Challenge, AutoOffer, ChallengeMemo
-from . import missionbuilder, ghquest_objectives
+from pbge.quests import OutcomeVerb
+from . import missionbuilder, ghquest_objectives, mission_bigobs
 
 #VERB_CONTACT = "CONTACT"  # You need to make contact with the target NPC
-VERB_EXPEL = "EXPEL"  # Like DEFEAT, but the enemy is an outside power of some type
-VERB_FORTIFY = "FORTIFY"    # The target is the faction improving its defenses.
-VERB_REPRESS = "REPRESS"  # Like DEFEAT, but the enemy has to be located first
 
-OCE_AllyFaction = "OCE_ALLYFACTION"
-OCE_EnemyFaction = "OCE_ENEMYFACTION"
+OE_ALLYFACTION = "OE_ALLYFACTION"
+OE_ENEMYFACTION = "OE_ENEMYFACTION"
+OE_OBJECT = "OE_OBJECT"
+OE_QUEST_GIVER = "OE_QUEST_GIVER"   # Note: the death or disappearance of the quest giver is a valid reason to lose a quest!
+
+OTAG_AGGRESSIVE = "OTAG_AGGRESSIVE"
+
+
+class ExpelVerb(OutcomeVerb):
+    name = "Expel"
+    needed_elements = (OE_ENEMYFACTION,)
+    tags = (OTAG_AGGRESSIVE,)
+
+
+class FortifyVerb(OutcomeVerb):
+    name = "Fortify"
+    needed_elements = (OE_OBJECT,)
+
+
+class RepressVerb(OutcomeVerb):
+    name = "Repress"
+    needed_elements = (OE_ALLYFACTION, OE_ENEMYFACTION,)
+    tags = (OTAG_AGGRESSIVE,)
+
 
 LORECAT_OUTCOME = "OUTCOME"
 
@@ -43,13 +63,16 @@ LORETAG_HIDDEN = "LORETAG_HIDDEN"
 LORETAG_PRIMARY = "LORETAG_PRIMARY"     # An important lore; usually something straight from the conclusion.
 LORETAG_PROTECTED = "LORETAG_PROTECTED"
 
-AGGRESSIVE_VERBS = (
-    quests.VERB_DEFEAT, VERB_EXPEL, VERB_REPRESS
-)
 
-BENEVOLENT_VERBS = (
-    VERB_FORTIFY,
-)
+def default_player_can_do_outcome(camp, outcome: quests.QuestOutcome):
+    # Generally, a PC can take part in a quest outcome if the player isn't an enemy of the allied faction and isn't
+    # an ally of the enemy faction.
+    if camp:
+        if OE_ALLYFACTION in outcome.o_elements and camp.is_unfavorable_to_pc(outcome.o_elements[OE_ALLYFACTION]):
+            return False
+        elif OE_ENEMYFACTION in outcome.o_elements and camp.is_favorable_to_pc(outcome.o_elements[OE_ENEMYFACTION]):
+            return False
+    return True
 
 
 #     **********************
@@ -81,15 +104,26 @@ class DefendNewFortification(quests.QuestPlot):
     @classmethod
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        target = pstate.elements.get(outc.target)
-        return outc.verb in (VERB_FORTIFY,) and gears.factions.is_a_faction(
-            target) and not pstate.elements.get(quests.LORE_SET_ELEMENT_ID, None)
+        if outc.verb in (FortifyVerb,):
+            ob = outc.o_elements.get(OE_OBJECT)
+            return isinstance(ob, gears.GearHeadScene)
 
     def custom_init(self, nart):
         self.elements["_BASE_NAME"] = "Fortress"
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ALLIED_FACTION"] = self.elements[my_outcome.target]
-        self.mission_name = "Defend {_ALLIED_FACTION}'s new {_BASE_NAME}".format(**self.elements)
+        my_scene = my_outcome.o_elements.get(OE_OBJECT)
+        self.elements["_FORT_SCENE"] = my_scene
+        my_ally = my_outcome.o_elements.get(OE_ALLYFACTION)
+        if not my_ally:
+            my_ally = nart.camp.get_ally_faction(my_scene)
+            my_outcome.o_elements[OE_ALLYFACTION] = my_ally
+        self.elements["_ALLIED_FACTION"] = my_ally
+        my_enemy = my_outcome.o_elements.get(OE_ENEMYFACTION)
+        if not my_enemy:
+            my_enemy = nart.camp.get_enemy_faction(self.elements["_ALLIED_FACTION"])
+            my_outcome.o_elements[OE_ENEMYFACTION] = my_enemy
+        self.elements["_ENEMY_FACTION"] = my_enemy
+        self.mission_name = "Defend {_ALLIED_FACTION}'s new {_BASE_NAME} in {_FORT_SCENE}".format(**self.elements)
         self.memo = plots.Memo(
             "{_ALLIED_FACTION}'s {_BASE_NAME} has been completed, but must be protected until its defenses are in place. You can do this at {MISSION_GATE}.".format(**self.elements),
             self.elements["METROSCENE"]
@@ -97,28 +131,46 @@ class DefendNewFortification(quests.QuestPlot):
 
         base_lore = quests.QuestLore(
             LORECAT_LOCATION, texts={
-                quests.TEXT_LORE_HINT: "{_ALLIED_FACTION} has been working on a large project near {METROSCENE}".format(**self.elements),
-                quests.TEXT_LORE_INFO: "they've built a {_BASE_NAME}, but its defenses are not fully operational yet".format(**self.elements),
+                quests.TEXT_LORE_HINT: "{_ALLIED_FACTION} has been working on something to defend {_FORT_SCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "they've built a {_BASE_NAME} to defend {_FORT_SCENE}, but its defenses are not fully operational yet".format(**self.elements),
                 quests.TEXT_LORE_TOPIC: "{_ALLIED_FACTION}'s project".format(**self.elements),
                 quests.TEXT_LORE_SELFDISCOVERY: "You have learned about {_ALLIED_FACTION}'s {_BASE_NAME}.".format(**self.elements),
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ALLIED_FACTION}'s {_BASE_NAME}".format(**self.elements),
                 L_LOCATION_NAME: "{_BASE_NAME}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ALLIED_FACTION} has a {_BASE_NAME} in {METROSCENE}.".format(
                     **self.elements),
-
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoEnemyToFactionNPCs(self.elements["METROSCENE"], my_ally),
+            outcome=my_outcome,
             tags=(
                 LORETAG_ALLY, LORETAG_PRIMARY
             ),
         )
         self.quest_record._needed_lore.add(base_lore)
 
+        enemy_lore = quests.QuestLore(
+            LORECAT_MOTIVE, texts={
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} is planning to strike {_FORT_SCENE}".format(**self.elements),
+                quests.TEXT_LORE_INFO: "I'm not sure {_FORT_SCENE}'s defenses are ready for an attack yet".format(**self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION}'s plans".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You have learned that {_ENEMY_FACTION} plans to strike {_FORT_SCENE}.".format(**self.elements),
+                quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s planned attack on {_FORT_SCENE}".format(**self.elements),
+                L_MOTIVE_CONFESSION: "{_ENEMY_FACTION} will take {_FORT_SCENE}, and no-one can stop us",
+                quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} plans to attack {_FORT_SCENE}.".format(
+                    **self.elements),
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], my_enemy),
+            outcome=my_outcome,
+            tags=(
+                LORETAG_ENEMY, LORETAG_PRIMARY
+            ),
+        )
+        self.quest_record._needed_lore.add(enemy_lore)
+
         return True
 
     def _get_mission(self, camp):
         # Return a mission seed for the current state of this mission. The state may be altered by unfinished tasks-
         # For instance, if the fortress is defended by artillery, that gets added into the mission.
-        objectives = [missionbuilder.BAMO_STORM_THE_CASTLE,]
+        objectives = [mission_bigobs.BAMO_DEFEND_FORTRESS,]
         rank = self.rank
 
         #ace_task = self.quest_record.get_task(QUEST_TASK_ACE_DEFENSE)
@@ -159,12 +211,12 @@ class StrikeTheLeader(quests.QuestPlot):
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
         if outc:
-            target = pstate.elements.get(outc.target)
-            return outc.verb in (quests.VERB_DEFEAT, VERB_REPRESS) and gears.factions.is_a_faction(target) and not pstate.elements.get(quests.LORE_SET_ELEMENT_ID, None)
+            return outc.verb in (RepressVerb,) and gears.factions.is_a_faction(outc.o_elements.get(OE_ENEMYFACTION))
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        my_enemy = my_outcome.o_elements.get(OE_ENEMYFACTION)
+        self.elements["_ENEMY_FACTION"] = my_enemy
         npc = self.register_element("_ENEMY_COMMANDER", nart.camp.cast_a_combatant(self.elements["_ENEMY_FACTION"], rank=self.rank+15, myplot=self), lock=True)
 
         self.mission_name = "Defeat {_ENEMY_COMMANDER} of {_ENEMY_FACTION}".format(**self.elements)
@@ -183,7 +235,8 @@ class StrikeTheLeader(quests.QuestPlot):
                 L_CHARACTER_ALIAS: "{}'s leader".format(self.elements["_ENEMY_FACTION"]),
                 L_CHARACTER_IDENTITY: npc,
                 quests.TEXT_LORE_MEMO: "The leader of {_ENEMY_FACTION} in {METROSCENE} is {_ENEMY_COMMANDER}.".format(**self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], my_enemy),
+            outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_PRIMARY)
         )
         self.quest_record._needed_lore.add(task_lore)
@@ -237,14 +290,13 @@ class TheyHaveAFortress(quests.QuestPlot):
     @classmethod
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        target = pstate.elements.get(outc.target)
-        return outc.verb in (quests.VERB_DEFEAT, VERB_EXPEL) and gears.factions.is_a_faction(
-            target) and not pstate.elements.get(quests.LORE_SET_ELEMENT_ID, None)
+        return outc.verb in (ExpelVerb,) and gears.factions.is_a_faction(outc.o_elements.get(OE_ENEMYFACTION))
 
     def custom_init(self, nart):
         self.elements["_BASE_NAME"] = "Fortress"
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        my_enemy = my_outcome.o_elements.get(OE_ENEMYFACTION)
+        self.elements["_ENEMY_FACTION"] = my_enemy
         self.mission_name = "Attack {_ENEMY_FACTION}'s {_BASE_NAME}".format(**self.elements)
         self.memo = plots.Memo(
             "You know the location of {_ENEMY_FACTION}'s {_BASE_NAME} and can attack at any time.".format(**self.elements),
@@ -262,7 +314,8 @@ class TheyHaveAFortress(quests.QuestPlot):
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has a {_BASE_NAME} in {METROSCENE}.".format(
                     **self.elements),
 
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], my_enemy),
+            outcome=my_outcome,
             tags=(
                 LORETAG_ENEMY, LORETAG_PRIMARY
             ),
@@ -325,7 +378,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         quest = pstate.elements.get(quests.QUEST_ELEMENT_ID)
         lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
         conc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        return conc and conc.verb == VERB_EXPEL and cls.get_matching_lore(quest, lores)
+        return conc and conc.verb is ExpelVerb and cls.get_matching_lore(quest, lores) and conc.o_elements.get(OE_ENEMYFACTION)
 
     @staticmethod
     def get_matching_lore(quest: quests.Quest, lores):
@@ -385,7 +438,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         mylore = self.get_matching_lore(quest, lores)
         quest.lock_lore(self, mylore)
         base_name = self.register_element("_BASE_NAME", mylore.texts.get(L_LOCATION_NAME, "base"))
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
 
         suspect_cards = list()
         solution = list()
@@ -495,7 +548,8 @@ class BaseKnownByCollaborator(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "the secret {_BASE_NAME}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has a collaborator in {METROSCENE} who knows the location of their {_BASE_NAME}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), 
+            outcome=my_outcome
         )
         self.quest_record._needed_lore.add(base_lore)
 
@@ -503,7 +557,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
 
     def _is_good_npc(self, nart, candidate):
         if isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate):
-            faction_ok = candidate.faction and not nart.camp.are_faction_allies(candidate, self.elements[quests.OUTCOME_ELEMENT_ID].target)
+            faction_ok = candidate.faction and not nart.camp.are_faction_allies(candidate, self.elements["_ENEMY_FACTION"])
             scene_ok = candidate.scene and gears.tags.SCENE_PUBLIC in candidate.scene.attributes
             return faction_ok and scene_ok and candidate not in self.suspects
 
@@ -613,8 +667,8 @@ class CommanderKnowsMotive(quests.QuestPlot):
         lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
         return (
-            outc and outc.target and gears.factions.is_a_faction(pstate.elements.get(outc.target)) and
-            cls.get_matching_lore(quest, lores) and outc.verb in AGGRESSIVE_VERBS and
+            outc and gears.factions.is_a_faction(outc.o_elements.get(OE_ENEMYFACTION)) and
+            cls.get_matching_lore(quest, lores) and OTAG_AGGRESSIVE in outc.verb.tags and
             "MISSION_GATE" in pstate.elements
         )
 
@@ -638,7 +692,7 @@ class CommanderKnowsMotive(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
 
         quest = self.elements.get(quests.QUEST_ELEMENT_ID)
         lores = self.elements.get(quests.LORE_SET_ELEMENT_ID)
@@ -655,7 +709,9 @@ class CommanderKnowsMotive(quests.QuestPlot):
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has secret plans for {METROSCENE}.".format(
                     **self.elements),
                 L_MOTIVE_CONFESSION: "I could tell you what we're planning, but I think it'd be better if I didn't"
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, 
+            involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]),
+            outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_HIDDEN)
         )
         self.quest_record.add_needed_lore(quest, self, new_lore)
@@ -680,7 +736,7 @@ class CommanderKnowsMotive(quests.QuestPlot):
                     **self.elements),
                 L_CHARACTER_ALIAS: "the {_ENEMY_FACTION} commander".format(**self.elements),
                 L_CHARACTER_IDENTITY: mynpc,
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome,
             tags=(LORETAG_ENEMY,)
         )
         self.quest_record.add_needed_lore(quest, self, new_lore)
@@ -689,7 +745,7 @@ class CommanderKnowsMotive(quests.QuestPlot):
             "_CHALLENGE", Challenge(
                 "Fight {_ENEMY_COMMANDER} to learn {_ENEMY_FACTION}'s plans for {METROSCENE},".format(**self.elements),
                 ghchallenges.MISSION_CHALLENGE,
-                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
+                key=(self.elements["_ENEMY_FACTION"],), involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]),
                 data={
                     "challenge_objectives": [
                         "prevent {_ENEMY_COMMANDER} from threatening {METROSCENE}".format(**self.elements),
@@ -788,7 +844,8 @@ class DefendThePowerStation(quests.QuestPlot):
         lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
         return (
-            outc and outc.target and cls.get_matching_lore(quest, lores) and outc.verb in AGGRESSIVE_VERBS and
+            outc and outc.o_elements.get(OE_ENEMYFACTION) and
+            cls.get_matching_lore(quest, lores) and OTAG_AGGRESSIVE in outc.verb.tags and
             pstate.elements["METROSCENE"].attributes.intersection({gears.personality.GreenZone,
                                                                    gears.personality.DeadZone}) and
             "MISSION_GATE" in pstate.elements
@@ -802,7 +859,7 @@ class DefendThePowerStation(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
         self.elements["PUBLIC_UTILITY"] = random.choice(self.PUBLIC_UTILITIES)
 
         if not nart.camp.are_faction_enemies(self.elements["_ENEMY_FACTION"], self.elements["METROSCENE"]):
@@ -817,7 +874,7 @@ class DefendThePowerStation(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s plans for {METROSCENE}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} is planning an attack on {METROSCENE}'s {PUBLIC_UTILITY}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome,
             tags=(LORETAG_ENEMY,)
         )
         self.quest_record._needed_lore.add(new_lore)
@@ -831,7 +888,7 @@ class DefendThePowerStation(quests.QuestPlot):
             "_CHALLENGE", Challenge(
                 "Defend the {_PUBLIC_UTILITY} from {_ENEMY_FACTION}".format(**self.elements),
                 ghchallenges.MISSION_CHALLENGE,
-                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
+                key=(self.elements["_ENEMY_FACTION"],), involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]),
                 data={
                     "challenge_objectives": [
                         "save {METROSCENE}'s {PUBLIC_UTILITY} from {_ENEMY_FACTION}".format(**self.elements),
@@ -920,7 +977,7 @@ class FindEnemyBaseTask(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
         quest = self.elements.get(quests.QUEST_ELEMENT_ID)
         lores = self.elements.get(quests.LORE_SET_ELEMENT_ID)
         mylore = self.get_matching_lore(quest, lores)
@@ -929,7 +986,7 @@ class FindEnemyBaseTask(quests.QuestPlot):
         mychallenge: Challenge = self.register_element(
             "_CHALLENGE", Challenge(
                 "Locate {}'s {}".format(self.elements["_ENEMY_FACTION"], base_name), ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE,
-                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
+                key=(self.elements["_ENEMY_FACTION"],), involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]),
                 data={"base_name": base_name},
                 oppoffers=(
                     AutoOffer(
@@ -980,7 +1037,7 @@ class FindEnemyBaseTask(quests.QuestPlot):
                 L_LOCATION_NAME: base_name,
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} must have a {_BASE_NAME} near {METROSCENE}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome
         )
         self.quest_record._needed_lore.add(base_lore)
 
@@ -1013,7 +1070,11 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
         quest = pstate.elements.get(quests.QUEST_ELEMENT_ID)
         lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
         my_outcome: quests.QuestOutcome = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        return my_outcome and my_outcome.target and my_outcome.verb in AGGRESSIVE_VERBS and "MISSION_GATE" in pstate.elements and cls.get_matching_lore(quest, lores)
+        return (
+                my_outcome and my_outcome.o_elements.get(OE_ENEMYFACTION) and
+                "MISSION_GATE" in pstate.elements and
+                cls.get_matching_lore(quest, lores)
+        )
 
     @staticmethod
     def get_matching_lore(quest: quests.Quest, lores):
@@ -1023,9 +1084,17 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
+
+        if not nart.camp.are_faction_enemies(self.elements["_ENEMY_FACTION"], self.elements["METROSCENE"]):
+            return False
 
         quest = self.elements.get(quests.QUEST_ELEMENT_ID)
+
+        allied_faction = my_outcome.o_elements.get(OE_ALLYFACTION)
+        if not allied_faction:
+            allied_faction = self.elements["METROSCENE"].faction
+        self.elements["_ALLIED_FACTION"] = allied_faction
 
         new_lore = quests.QuestLore(
             LORECAT_EMERGENCY, texts={
@@ -1036,7 +1105,7 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s forces in {METROSCENE}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION} has been conducting operations near {METROSCENE}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_HIDDEN)
         )
         self.quest_record.add_needed_lore(quest, self, new_lore)
@@ -1045,10 +1114,18 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
         self.locked_lore = self.get_matching_lore(quest, lores)
         quest.lock_lore(self, self.locked_lore)
 
+        if allied_faction:
+            my_involvement = ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], allied_faction)
+            self.add_sub_plot(nart, "ENSURE_LOCAL_OPERATIVES", elements={"FACTION": allied_faction}, ident="LOCAL_REPS")
+            self.subplots["LOCAL_REPS"].active = False
+        else:
+            my_involvement = ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"])
+
         mychallenge: Challenge = self.register_element(
             "_CHALLENGE", Challenge(
                 "Investigate {}".format(self.elements["_ENEMY_FACTION"]), ghchallenges.MISSION_CHALLENGE,
-                key=(self.elements["_ENEMY_FACTION"],), involvement=my_outcome.involvement,
+                key=(self.elements["_ENEMY_FACTION"],),
+                involvement=my_involvement,
                 data={
                     "challenge_objectives": [
                         "investigate {_ENEMY_FACTION}'s activities near {METROSCENE}".format(**self.elements),
@@ -1094,9 +1171,9 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
     def _build_mission(self, camp, npc):
         # Find some text hints to build the mission grammar.
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        candidates = [my_outcome.target]
+        candidates = [str(self.elements["_ENEMY_FACTION"])]
         for known_lore in self.quest_record.quest.revealed_lore:
-            if known_lore.outcome and known_lore.outcome.target is my_outcome.target and quests.TEXT_LORE_TARGET_TOPIC in known_lore.texts:
+            if known_lore.outcome is my_outcome and quests.TEXT_LORE_TARGET_TOPIC in known_lore.texts:
                 candidates.append(known_lore.texts[quests.TEXT_LORE_TARGET_TOPIC])
 
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
@@ -1118,6 +1195,14 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
             )
         )
 
+    def start_quest_task(self, camp):
+        if "LOCAL_REPS" in self.subplots:
+            self.subplots["LOCAL_REPS"].activate(camp)
+
+    def end_quest_task(self, camp):
+        if "LOCAL_REPS" in self.subplots:
+            self.subplots["LOCAL_REPS"].deactivate(camp)
+
     def _win_the_mission(self, camp: gears.GearHeadCampaign):
         learning_is_half_the_battle = camp.make_skill_roll(gears.stats.Perception, gears.stats.Scouting,
                                                            untrained_ok=True)
@@ -1126,6 +1211,165 @@ class InvestigateEnemyThroughCombatTask(quests.QuestPlot):
 
     def _CHALLENGE_WIN(self, camp):
         ghcutscene.alert_with_grammar(camp, "[DISCOVERY_AFTER_MECHA_COMBAT] {}".format(self.locked_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]))
+        self.quest_record.win_task(self, camp)
+
+
+class SecretWarInvestigation(quests.QuestPlot):
+    LABEL = quests.DEFAULT_QUEST_TASK
+    scope = "METRO"
+
+    @classmethod
+    def matches(cls, pstate):
+        quest = pstate.elements.get(quests.QUEST_ELEMENT_ID)
+        lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
+        my_outcome: quests.QuestOutcome = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
+        return (
+                my_outcome and my_outcome.o_elements.get(OE_ENEMYFACTION) and
+                "MISSION_GATE" in pstate.elements and
+                cls.get_matching_lore(quest, lores)
+        )
+
+    @staticmethod
+    def get_matching_lore(quest: quests.Quest, lores):
+        candidates = [l for l in lores if quest.lore_is_unlocked(
+            l) and l.category == LORECAT_MOTIVE and LORETAG_ENEMY in l.tags and LORETAG_HIDDEN not in l.tags]
+        if candidates:
+            return random.choice(candidates)
+
+    def custom_init(self, nart):
+        my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
+
+        if nart.camp.are_faction_enemies(self.elements["_ENEMY_FACTION"], self.elements["METROSCENE"]):
+            return False
+
+        quest = self.elements.get(quests.QUEST_ELEMENT_ID)
+
+        new_lore = quests.QuestLore(
+            LORECAT_EMERGENCY, texts={
+                quests.TEXT_LORE_HINT: "{_ENEMY_FACTION} is up to something".format(**self.elements),
+                quests.TEXT_LORE_INFO: "people coming into {METROSCENE} have seen a lot of {_ENEMY_FACTION} mecha around".format(
+                    **self.elements),
+                quests.TEXT_LORE_TOPIC: "{_ENEMY_FACTION} mecha".format(**self.elements),
+                quests.TEXT_LORE_SELFDISCOVERY: "You find evidence that {_ENEMY_FACTION} is performing secret operations near {METROSCENE}.".format(
+                    **self.elements),
+                quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s forces in {METROSCENE}".format(**self.elements),
+                quests.TEXT_LORE_MEMO: "Mecha belonging to {_ENEMY_FACTION} have been spotted near {METROSCENE}.".format(
+                    **self.elements),
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"],
+                                                                           self.elements["_ENEMY_FACTION"]),
+            outcome=my_outcome,
+            tags=(LORETAG_ENEMY, LORETAG_HIDDEN)
+        )
+        self.quest_record.add_needed_lore(quest, self, new_lore)
+
+        lores = self.elements.get(quests.LORE_SET_ELEMENT_ID)
+        self.locked_lore = self.get_matching_lore(quest, lores)
+        quest.lock_lore(self, self.locked_lore)
+
+        allied_faction = my_outcome.o_elements.get(OE_ALLYFACTION)
+        if allied_faction:
+            self.elements["_ALLIED_FACTION"] = allied_faction
+            my_involvement = ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], allied_faction)
+            self.add_sub_plot(nart, "ENSURE_LOCAL_OPERATIVES", elements={"FACTION": allied_faction}, ident="LOCAL_REPS")
+            self.subplots["LOCAL_REPS"].active = False
+        else:
+            my_involvement = ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"])
+
+
+        mychallenge: Challenge = self.register_element(
+            "_CHALLENGE", Challenge(
+                "Investigate {}".format(self.elements["_ENEMY_FACTION"]), ghchallenges.MISSION_CHALLENGE,
+                key=(self.elements["_ENEMY_FACTION"],),
+                involvement=my_involvement,
+                data={
+                    "challenge_objectives": [
+                        "investigate {_ENEMY_FACTION}'s activities near {METROSCENE}".format(**self.elements),
+                        "find out what {_ENEMY_FACTION} is doing in {METROSCENE}".format(**self.elements),
+                        "see what {_ENEMY_FACTION} has been doing here".format(**self.elements),
+                        "intercept {_ENEMY_FACTION}'s forces and gather as much information as possible".format(
+                            **self.elements),
+                        "seek out {_ENEMY_FACTION} and figure out what they're doing".format(**self.elements),
+                    ],
+                    "challenge_summaries": [
+                        "investigate {_ENEMY_FACTION}'s operations in {METROSCENE}".format(**self.elements),
+                        "gather information on {_ENEMY_FACTION}".format(**self.elements),
+                    ],
+                    "challenge_rumors": [
+                        "nobody knows what {_ENEMY_FACTION} has been doing in {METROSCENE}".format(**self.elements),
+                        "someone needs to find out why {_ENEMY_FACTION} is suddenly active".format(**self.elements),
+                    ],
+                    "challenge_subject": [
+                        "{_ENEMY_FACTION}'s activities".format(**self.elements),
+                    ],
+                    "mission_intros": [
+                        "track down a lance belonging to {_ENEMY_FACTION} and see what they're up to".format(
+                            **self.elements),
+                        "we are gathering info on {_ENEMY_FACTION}".format(**self.elements),
+                        "I need someone to find out why {_ENEMY_FACTION} has come to {METROSCENE}".format(
+                            **self.elements),
+                    ],
+                    "mission_builder": self._build_mission,
+                    "priority_mission": my_outcome.prioritize_lore
+                },
+                memo=ChallengeMemo(
+                    "You are investigating {} activity near {}.".format(self.elements["_ENEMY_FACTION"],
+                                                                        self.elements["METROSCENE"])
+                ), memo_active=True, points_target=10, num_simultaneous_plots=1
+            )
+        )
+
+        return True
+
+    OBJECTIVES = (
+        missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DEFEAT_COMMANDER,
+        missionbuilder.BAMO_EXTRACT_ALLIED_FORCES, missionbuilder.BAMO_RECOVER_CARGO
+    )
+
+    def _build_mission(self, camp, npc):
+        # Find some text hints to build the mission grammar.
+        my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
+        candidates = [str(self.elements["_ENEMY_FACTION"])]
+        for known_lore in self.quest_record.quest.revealed_lore:
+            if known_lore.outcome is my_outcome and quests.TEXT_LORE_TARGET_TOPIC in known_lore.texts:
+                candidates.append(known_lore.texts[quests.TEXT_LORE_TARGET_TOPIC])
+
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+        return missionbuilder.BuildAMissionSeed(
+            camp, "{}'s Mission".format(npc),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            allied_faction=self.elements.get("_ALLIED_FACTION"),
+            enemy_faction=self.elements["_ENEMY_FACTION"], rank=self.rank,
+            objectives=random.sample(self.OBJECTIVES, 2),
+            scenegen=sgen, architecture=archi,
+            cash_reward=100, on_win=self._win_the_mission,
+            mission_grammar=missionbuilder.MissionGrammar(
+                "learn more about {}".format(random.choice(candidates)),
+                "ensure the success of {}".format(random.choice(candidates)),
+                "I uncovered {}'s secrets".format(self.elements["_ENEMY_FACTION"]),
+                "you learned too much about {}".format(self.elements["_ENEMY_FACTION"]),
+                "I was defeated by {}".format(self.elements["_ENEMY_FACTION"]),
+                "I defeated you in the name of {}".format(self.elements["_ENEMY_FACTION"]),
+            )
+        )
+
+    def _win_the_mission(self, camp: gears.GearHeadCampaign):
+        learning_is_half_the_battle = camp.make_skill_roll(gears.stats.Perception, gears.stats.Scouting,
+                                                           untrained_ok=True)
+        points = max((learning_is_half_the_battle - 30) // 20, 1)
+        self.elements["_CHALLENGE"].advance(camp, points)
+
+    def start_quest_task(self, camp):
+        if "LOCAL_REPS" in self.subplots:
+            self.subplots["LOCAL_REPS"].activate(camp)
+
+    def end_quest_task(self, camp):
+        if "LOCAL_REPS" in self.subplots:
+            self.subplots["LOCAL_REPS"].deactivate(camp)
+
+    def _CHALLENGE_WIN(self, camp):
+        ghcutscene.alert_with_grammar(camp, "[DISCOVERY_AFTER_MECHA_COMBAT] {}".format(
+            self.locked_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]))
         self.quest_record.win_task(self, camp)
 
 
@@ -1147,7 +1391,7 @@ class ProtectedByArtillery(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
 
         quest = self.elements.get(quests.QUEST_ELEMENT_ID)
 
@@ -1156,7 +1400,7 @@ class ProtectedByArtillery(quests.QuestPlot):
         quest.lock_lore(self, self.locked_lore)
 
         primary_lore = quests.QuestLore(
-            LORECAT_LOCATION, involvement=my_outcome.involvement, outcome=my_outcome,
+            LORECAT_LOCATION, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_PROTECTED, LORETAG_PRIMARY)
         )
         self.elements["_PRIMARY_NAME"] = primary_lore.texts.get(L_LOCATION_NAME, "Base")
@@ -1174,7 +1418,7 @@ class ProtectedByArtillery(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ENEMY_FACTION}'s {_BASE_NAME}".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "{_ENEMY_FACTION}'s {_PRIMARY_NAME} is protected by {_BASE_NAME}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome,
             tags=(LORETAG_ENEMY, LORETAG_PROTECTED)
         )
         self.quest_record.add_needed_lore(quest, self, new_lore)
@@ -1234,10 +1478,14 @@ class UnknownMechaNearTown(quests.QuestPlot):
     @classmethod
     def matches(cls, pstate):
         outc = pstate.elements.get(quests.OUTCOME_ELEMENT_ID)
-        target = pstate.elements.get(outc.target)
+        target = outc.o_elements.get(OE_ENEMYFACTION)
         quest = pstate.elements.get(quests.QUEST_ELEMENT_ID)
         lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
-        return outc.verb in AGGRESSIVE_VERBS and gears.factions.is_a_faction(target) and cls.get_matching_lore(quest, lores) and "MISSION_GATE" in pstate.elements
+        return (
+            OTAG_AGGRESSIVE in outc.verb.tags
+            and gears.factions.is_a_faction(target) and cls.get_matching_lore(quest, lores) and
+            "MISSION_GATE" in pstate.elements
+        )
 
     @staticmethod
     def get_matching_lore(quest: quests.Quest, lores):
@@ -1251,7 +1499,7 @@ class UnknownMechaNearTown(quests.QuestPlot):
 
     def custom_init(self, nart):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        self.elements["_ENEMY_FACTION"] = self.elements[my_outcome.target]
+        self.elements["_ENEMY_FACTION"] = my_outcome.o_elements.get(OE_ENEMYFACTION)
         if nart.camp.are_faction_allies(self.elements["_ENEMY_FACTION"], self.elements["METROSCENE"]):
             return False
 
@@ -1275,7 +1523,7 @@ class UnknownMechaNearTown(quests.QuestPlot):
                 quests.TEXT_LORE_TARGET_TOPIC: "the unknown hostile mecha".format(**self.elements),
                 quests.TEXT_LORE_MEMO: "Unknown hostile mecha have been sighted near {METROSCENE}.".format(
                     **self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome,
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome,
             tags=(
                 LORETAG_ENEMY, LORETAG_HIDDEN
             ),
@@ -1364,8 +1612,8 @@ class WhoIsHiddenIdentity(quests.QuestPlot):
         quest.lock_lore(self, self.locked_lore)
 
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
-        if my_outcome.verb in AGGRESSIVE_VERBS and my_outcome.target in self.elements and gears.factions.is_a_faction(self.elements[my_outcome.target]):
-            enemy_faction = self.elements[my_outcome.target]
+        if OTAG_AGGRESSIVE in my_outcome.verb.tags and gears.factions.is_a_faction(my_outcome.o_elements.get(OE_ENEMYFACTION)):
+            enemy_faction = my_outcome.o_elements.get(OE_ENEMYFACTION)
         else:
             enemy_faction = None
 
@@ -1412,7 +1660,7 @@ class WhoIsHiddenIdentity(quests.QuestPlot):
                 quests.TEXT_LORE_TOPIC: "{_ALIAS}".format(**self.elements),
                 quests.TEXT_LORE_SELFDISCOVERY: "You realize that you have have no idea who {_ALIAS} is.".format(**self.elements),
                 quests.TEXT_LORE_TARGET_TOPIC: "{_ALIAS}".format(**self.elements),
-            }, involvement=my_outcome.involvement, outcome=my_outcome
+            }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome
         )
         self.quest_record.add_needed_lore(quest, self, task_lore)
         print("Plot loaded")
@@ -1447,13 +1695,10 @@ class GearHeadLoreHandler(plots.Plot):
             self.end_plot(camp)
 
     def _can_reveal_lore(self, camp: gears.GearHeadCampaign, lore: quests.QuestLore, npc: gears.base.Character):
-        # The Outcome lore for a quest line won't be revealed to the PC if it's an aggressive verb and the PC is allied
-        # with the target. But what if you want to offer the PC the choice to betray their current faction? Then don't
-        # give this lore the LORECAT_OUTCOME category, and all will be well.
-        if lore.outcome and lore.outcome.target:
-            if lore.outcome.verb in AGGRESSIVE_VERBS and camp.is_favorable_to_pc(lore.outcome.target):
-                return False
-            elif lore.outcome.verb in BENEVOLENT_VERBS and camp.is_unfavorable_to_pc(lore.outcome.target):
+        # The Outcome lore for a quest line won't be revealed to the PC if the Outcome itself can't be pursued by the
+        # PC, as disctated by the player_can_fun function in the outcome.
+        if lore.outcome and lore.outcome.player_can_fun:
+            if not lore.outcome.player_can_fun(camp, lore.outcome):
                 return False
         return lore.is_involved(camp, npc)
 

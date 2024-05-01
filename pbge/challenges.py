@@ -24,6 +24,7 @@ class ChallengeMemo(object):
 
 # Involvement Checker
 #   A callable that takes (Campaign, Object) and returns True if the object can be involved in this Challenge.
+
 class InvolvedSet(object):
     # This checker just has a list of things that are involved, returning True if the provided object is in the list.
     def __init__(self, things):

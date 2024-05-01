@@ -212,7 +212,7 @@ def get_random_loot(rank, amount, allowed_tags):
 def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, can_cyberize=None, camp=None, age=None, **kwargs):
     # Build the creation matrix, aka the dict.
     possible_origins = [o for o in local_tags if o in personality.ORIGINS]
-    if "faction" in kwargs and "job" not in kwargs:
+    if "faction" in kwargs and kwargs["faction"] and "job" not in kwargs:
         job = kwargs["faction"].choose_job(random.choice((tags.Commander,tags.Support,tags.Support,tags.Trooper,tags.Trooper,tags.Trooper)))
     else:
         job = kwargs.get("job",None) or jobs.choose_random_job(needed_tags, local_tags)

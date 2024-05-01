@@ -963,12 +963,29 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def get_enemy_faction(self, a):
         a_fac = self.get_faction(a)
+        if not a_fac:
+            return factions.Circle.random_circle(self)
         candidates = list()
         for b in self.faction_relations.keys():
             if self.are_faction_enemies(a_fac, b):
                 candidates.append(b)
         if candidates:
             return random.choice(candidates)
+        else:
+            return factions.Circle.random_circle(self, enemies=(a_fac,))
+
+    def get_ally_faction(self, a):
+        a_fac = self.get_faction(a)
+        if not a_fac:
+            return factions.Circle.random_circle(self)
+        candidates = list()
+        for b in self.faction_relations.keys():
+            if self.are_faction_allies(a_fac, b):
+                candidates.append(b)
+        if candidates:
+            return random.choice(candidates)
+        else:
+            return a_fac
 
     def is_favorable_to_pc(self, other_thing):
         """ is the other_thing- an NPC, faction, scene, whatever- likely to want to aid the PC?
