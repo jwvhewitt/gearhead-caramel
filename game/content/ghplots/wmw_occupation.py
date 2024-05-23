@@ -21,13 +21,20 @@ import collections
 # Required Elements:
 # METRO, METROSCENE, WORLD_MAP_WAR
 # OCCUPIER: The faction that has occupied this metro area.
-# RIVAL_FACTIONS: A list of other factions that also want this metro area. Optional.
-# ORIGINAL_FACTION: The faction that originally controlled this area. Optional.
+# RIVAL_FACTIONS: A list of other factions that also want this metro area. May be falsy.
+# ORIGINAL_FACTION: The faction that originally controlled this area. May be "None".
 # RESISTANCE_FACTION: A faction that may attempt to oust the occupier. May be the same as ORIGINAL_FACTION. Optional.
 OCCUPIER = "OCCUPIER"
 RIVAL_FACTIONS = "RIVAL_FACTIONS"
 ORIGINAL_FACTION = "ORIGINAL_FACTION"
 RESISTANCE_FACTION = "RESISTANCE_FACTION"
+
+
+class OccupationPlot(Plot):
+    # Subclassing an Occupation Plot. The only change from regular plots is a property confirming that this is an
+    # OccupationPlot. Why? Because only one OccupationPlot can be active in a city at once; if there are any more,
+    # they get deleted.
+    IS_OCCUPATION_PLOT = True
 
 # During a world map war, different factions may have different effects on the territories they conquer. This may give
 # special opportunities to the player character, depending on which side of the conflict the PC is working for (if any).
@@ -40,7 +47,6 @@ WMWO_DEFENDER = "WMWO_DEFENDER"  # The faction will attempt to defend this locat
 
 class OccupationFortify(Plot):
     LABEL = WMWO_DEFENDER
-    LABEL = TEST_WAR_PLOT
     scope = "METRO"
     active = True
 
@@ -149,7 +155,7 @@ class OccupationCrushDissent(Plot):
             lore=[
                 quests.QuestLore(
                     ghquests.LORECAT_OUTCOME, texts={
-                        quests.TEXT_LORE_HINT: "{OCCUPIER} must bring order to {METROSCENE}".format(**self.elements),
+                        quests.TEXT_LORE_HINT: "{OCCUPIER} will bring {METROSCENE} under our complete control".format(**self.elements),
                         quests.TEXT_LORE_INFO: "{RESISTANCE_FACTION} are dissidents who resist {OCCUPIER} and must be crushed".format(**self.elements),
                         quests.TEXT_LORE_TOPIC: "the state of {METROSCENE}".format(**self.elements),
                         quests.TEXT_LORE_SELFDISCOVERY: "You learned that {RESISTANCE_FACTION} is working against {OCCUPIER} in {METROSCENE}.".format(**self.elements),
@@ -251,6 +257,7 @@ WMWO_MARTIAL_LAW = "WMWO_MARTIAL_LAW"  # The faction will attempt to impose law 
 
 class OccupationRestoreOrder(Plot):
     LABEL = WMWO_MARTIAL_LAW
+    LABEL = TEST_WAR_PLOT
     scope = "METRO"
     active = True
 

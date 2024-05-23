@@ -279,6 +279,18 @@ class InvolvedMetroFactionNPCs(BaseInvolvement):
                 camp.are_faction_allies(ob, self.faction) and camp.is_not_lancemate(ob) and ob not in self.exclude)
 
 
+class InvolvedMetroFactionlessCombatant(BaseInvolvement):
+    # Return True if ob is an NPC allied with the given faction and in the same Metro area.
+    def __init__(self, metroscene, exclude=()):
+        self.metroscene = metroscene
+        self.exclude = set()
+        self.exclude.update(exclude)
+
+    def __call__(self, camp: gears.GearHeadCampaign, ob):
+        return (isinstance(ob, gears.base.Character) and ob.scene.get_metro_scene() is self.metroscene and
+                ob.faction is None and ob.combatant and camp.is_not_lancemate(ob) and ob not in self.exclude)
+
+
 class InvolvedMetroNoFriendToFactionNPCs(BaseInvolvement):
     # Return True if ob is an NPC _not_ allied with the given faction and in the same Metro area.
     def __init__(self, metroscene, faction=None, exclude=()):

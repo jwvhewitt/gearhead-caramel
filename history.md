@@ -1,3 +1,4 @@
+* Random NPC generator reacts appropriately if faction=None passed as parameter
 * Challenge plots can create a mission giver if one cannot be found
 * Plots have new method to return a list of element candidates, allowing manual selection or sorting
 * QuestOutcome involvement function replaced with player_can_fun

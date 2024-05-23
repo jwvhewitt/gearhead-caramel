@@ -22,6 +22,8 @@ With-Element Triggers:
 "ENTER"         When a scene entered or reloaded from disk
 "ENTER"         When a scene.script_room rect is entered by a party member
 "GET"       When an item is picked up
+"NEXT"          When an element is ready to be used again; for instance, when consolidation is complete and the PC can
+                start the next WorldMapWar turn.
 "WIN"           When a subplot is won*
 "SEMIVICTORIOUS"    When a subplot is sorta won, kinda. Use this trigger if it makes sense in context.*
 "LOSE"		When a subplot is lost*

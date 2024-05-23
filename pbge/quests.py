@@ -56,6 +56,19 @@ class QuestPlot(plots.Plot):
         # See above, but for ending this task.
         pass
 
+    def get_oelement_or_new(self, nart, oeident, new_fun):
+        # nart is the narrative object
+        # oeident is the identifier of an outcome element that we want
+        # new_fun is a function that will find or create that element if it doesn't currently exist; sig (nart)
+        #   The new object will be recorded as an outcome element
+        my_outcome = self.elements[quests.OUTCOME_ELEMENT_ID]
+        if oeident in my_outcome.o_elements and my_outcome.o_elements[oeident]:
+            return my_outcome.o_elements[oeident]
+        else:
+            my_thing = new_fun(nart)
+            my_outcome.o_elements[oeident] = my_thing
+            return my_thing
+
 
 class QuestLore:
     # Lore is information about a quest that is used to unlock quest tasks and different branches of a quest.
@@ -125,8 +138,8 @@ class QuestOutcome:
         # o_elements is a dictionary of game objects that works basically the same as elements in plots.
         self.verb = verb
         self.player_can_fun = player_can_fun
-        self.win_effect = win_effect
-        self.loss_effect = loss_effect
+        self._win_effect = win_effect
+        self._loss_effect = loss_effect
         self.lore = list(lore)
         for l in self.lore:
             if not l.outcome:
@@ -138,12 +151,23 @@ class QuestOutcome:
         for needed in self.verb.needed_elements:
             if needed not in self.o_elements:
                 plots.PlotError("Element {} not found for outcome {}".format(needed, verb))
+        self.finished = False
 
-    def is_involved(self, camp, npc):
-        if not self.involvement:
-            return True
-        else:
-            return self.involvement(camp, npc)
+    def win_effect(self, camp):
+        if self._win_effect:
+            self._win_effect(camp)
+        self.finished = True
+
+    def loss_effect(self, camp):
+        if self._loss_effect:
+            self._loss_effect(camp)
+        self.finished = True
+
+    #def is_involved(self, camp, npc):
+    #    if not self.involvement:
+    #        return True
+    #    else:
+    #        return self.involvement(camp, npc)
 
     def __str__(self):
         return "{}: {}".format(self.verb, self.o_elements)
@@ -277,6 +301,11 @@ class Quest:
 
         return nuplot
 
+    def get_active_plots(self):
+        for qplot in list(self.all_plots):
+            if qplot.active:
+                yield qplot
+
     def lock_lore(self, myplot: QuestPlot, mylore: QuestLore):
         # Attempt to lock the requested lore. You have to request locking the lore to prevent a loreblock, in which
         # case the quest is made inaccessible by conflicting lore requirements between different branches.
@@ -352,7 +381,7 @@ class Quest:
             return self
 
     def open_lore(self, wid, ev):
-        # Open the Hypothesis Widget.
+        # Open the lore Widget.
         memob, camp = wid.data
         memob.active = False
         BrowseLoreWidget(self._revealed_lore, camp)()
@@ -360,7 +389,7 @@ class Quest:
         memob.active = True
 
     def open_debug(self, wid, ev):
-        # Open the Hypothesis Widget.
+        # Open the quest debugging Widget.
         memob, camp = wid.data
         memob.active = False
         QuestDebugInfoWidget(self, camp)()
@@ -424,7 +453,7 @@ class QuestRecord:
             # Copy all the lore from the outcome.
             self._needed_lore.update(pstate.elements.get(OUTCOME_ELEMENT_ID).lore)
         self.started = False
-        # Reminder is a message that can be given by the quest giver or other involved NPCs reminding the player
+        # Reminder is a sentence that can be given by the quest giver or other involved NPCs reminding the player
         # what they're supposed to do next. For any given quest, they might have a number of reminders, so keep that
         # in mind. Reminder_prompt is the info the PC can ask about; may be blank.
         self.reminder = ""

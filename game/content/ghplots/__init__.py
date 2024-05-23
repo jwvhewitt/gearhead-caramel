@@ -55,8 +55,9 @@ from . import townhall
 from . import treasures
 from . import utility
 from . import worldmapwar
-from . import warplots
+from . import wmw_occupation
 from . import wmw_battles
+from . import wmw_consolidation
 from game.content import PLOT_LIST, UNSORTED_PLOT_LIST
 from pbge.plots import Plot
 
@@ -125,8 +126,9 @@ harvest(townhall)
 harvest(treasures)
 harvest(utility)
 harvest(worldmapwar)
-harvest(warplots)
+harvest(wmw_occupation)
 harvest(wmw_battles)
+harvest(wmw_consolidation)
 
 # Load the DLC.
 import importlib.util

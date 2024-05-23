@@ -8,7 +8,7 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures, warplots
+from . import missionbuilder, rwme_objectives, campfeatures, wmw_occupation
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -21,7 +21,7 @@ WORLD_MAP_WAR = "WORLD_MAP_WAR"
 
 
 class WarStats:
-    def __init__(self, home_base=None, aggression=75, loyalty=95, color=0, unpopular=False, occtype=warplots.WMWO_DEFENDER):
+    def __init__(self, home_base=None, aggression=75, loyalty=95, color=0, unpopular=False, occtype=wmw_occupation.WMWO_DEFENDER):
         # home_base is the city where this team's HQ is located. Capture it, and that team is eliminated.
         # aggression is how likely they are to attack instead of turtle
         # loyalty is the % chance this faction will honor a peace treaty. Lower loyalty = more backstabbing.
@@ -43,7 +43,7 @@ class WarStats:
         if "boosted" not in state:
             state["boosted"] = False
         if "occtype" not in state:
-            state["occtype"] = warplots.WMWO_DEFENDER
+            state["occtype"] = wmw_occupation.WMWO_DEFENDER
         self.__dict__.update(state)
 
 
@@ -102,7 +102,6 @@ class AttackerWinsEffect:
         self.world_map_war.capture(camp, self.attack_team, self.target_node)
         if self.attacker_is_pc:
             camp.go(self.target_node.entrance)
-            self.world_map_war.just_captured = self.target_node.destination
 
 
 class DefenderWinsEffect:
@@ -126,6 +125,7 @@ class WorldMapWar:
         if war_teams:
             self.war_teams.update(war_teams)
         self.node_stats = collections.defaultdict(NodeStats)
+        self.player_can_act = True
 
         # All home bases start out fortified.
         for wt in self.war_teams.values():
@@ -223,6 +223,14 @@ class WorldMapWar:
         if node.destination.faction:
             node.destination.purge_faction(camp, node.destination.faction)
         node.destination.faction = attacking_fac
+
+        metroscene: gears.GearHeadScene = node.destination.get_metro_scene()
+        if metroscene:
+            # Purge any occupation plots in this metro area.
+            for myplot in metroscene.metrodat.scripts:
+                if hasattr(myplot, "IS_OCCUPATION_PLOT") and myplot.IS_OCCUPATION_PLOT:
+                    myplot.end_plot(camp, True)
+
         for fac in self.war_teams.keys():
             if self.war_teams[fac].home_base is node.destination:
                 # If your home base is captured, you are eliminated from the game.
@@ -233,6 +241,10 @@ class WorldMapWar:
             self.legend.set_color(node, self.war_teams[attacking_fac].color)
         else:
             self.legend.set_color(node, 0)
+
+        if attacking_fac is self.player_team:
+            self.just_captured = node.destination
+            self.player_can_act = False
 
 
     ATTACK_OBJECTIVES = (
@@ -271,6 +283,9 @@ class WorldMapWar:
         self.__dict__.update(state)
         if "just_captured" not in state:
             self.just_captured = None
+        # For saves from v0.962 or earlier, make sure there's a player_can_act property.
+        if "player_can_act" not in state:
+            self.player_can_act = True
 
 
 
@@ -662,10 +677,13 @@ class WorldMapWarHandler(Plot):
             if not self.adventure_seed:
                 self.handle_war_round(camp)
 
+    def WORLD_MAP_WAR_NEXT(self, camp: gears.GearHeadCampaign):
+        self.elements[WORLD_MAP_WAR].player_can_act = True
+
     def modify_puzzle_menu(self, camp: gears.GearHeadCampaign, thing, thingmenu):
         """Modify the thingmenu based on this plot."""
         super().modify_puzzle_menu(camp, thing, thingmenu)
-        if self.world_map_war.player_team and camp.scene.faction is self.world_map_war.player_team:
+        if self.world_map_war.player_team and camp.scene.faction is self.world_map_war.player_team and self.elements[WORLD_MAP_WAR].player_can_act:
             for node in self.world_map.nodes:
                 if node.entrance is thing:
                     my_edges = [e for e in self.world_map.edges if
@@ -681,7 +699,7 @@ class WorldMapWarHandler(Plot):
                             )
                         elif camp.are_faction_enemies(mydest.destination, self.world_map_war.player_team):
                             thingmenu.add_item(
-                                "Capture {} for {}".format(mydest, self.world_map_war.player_team),
+                                "Invade {} for {}".format(mydest, self.world_map_war.player_team),
                                 EdgeAttack(camp, e, node, self.world_map_war), e
                             )
                     break

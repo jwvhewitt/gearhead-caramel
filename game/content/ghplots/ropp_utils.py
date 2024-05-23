@@ -10,7 +10,7 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures, worldmapwar, warplots
+from . import missionbuilder, rwme_objectives, campfeatures, worldmapwar, wmw_occupation
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -30,17 +30,17 @@ class ROPP_WarStarter(Plot):
         war_teams = dict()
         war_teams[gears.factions.TheSolarNavy] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'],
-            color=1, unpopular=True, occtype=warplots.WMWO_MARTIAL_LAW
+            color=1, unpopular=True, occtype=wmw_occupation.WMWO_MARTIAL_LAW
         )
 
         war_teams[gears.factions.TreasureHunters] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000003'],
-            color=2, unpopular=False, occtype=warplots.WMWO_DEFENDER
+            color=2, unpopular=False, occtype=wmw_occupation.WMWO_DEFENDER
         )
 
         war_teams[gears.factions.AegisOverlord] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000005'],
-            color=3, unpopular=True, loyalty=50, occtype=warplots.WMWO_IRON_FIST
+            color=3, unpopular=True, loyalty=50, occtype=wmw_occupation.WMWO_IRON_FIST
         )
 
         nart.camp.set_faction_allies(gears.factions.TreasureHunters, gears.factions.AegisOverlord)
@@ -76,8 +76,8 @@ class ROPP_WarStarter(Plot):
         # For v0.947 and earlier: set occtype for the war teams.
         self.__dict__.update(state)
         wardict = self.elements[worldmapwar.WORLD_MAP_TEAMS]
-        wardict[gears.factions.TheSolarNavy].occtype = warplots.WMWO_MARTIAL_LAW
-        wardict[gears.factions.AegisOverlord].occtype = warplots.WMWO_IRON_FIST
+        wardict[gears.factions.TheSolarNavy].occtype = wmw_occupation.WMWO_MARTIAL_LAW
+        wardict[gears.factions.AegisOverlord].occtype = wmw_occupation.WMWO_IRON_FIST
 
     def ROPPWAR_WIN(self, camp: gears.GearHeadCampaign):
         pbge.alert("Congratulations, you have won the war! Thank you for playing the early access version of Raid on Pirate's Point.")

@@ -1300,6 +1300,25 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[DOYOUWANTAJOB]": {
+        Default: ["Are you looking for work?",
+                  "Do you want a job?"
+                  ],
+        personality.Cheerful: ["Looking for some easy money? It's your lucky day!",
+                               ],
+        personality.Grim: ["I have a task for you; it will not be easy.",
+                           ],
+        personality.Easygoing: ["Hey, are you busy right now?",
+                                ],
+        personality.Passionate: ["I need you for a very important task!",
+                                 ],
+        personality.Sociable: ["How'd you like to help me out with something?",
+                               ],
+        personality.Shy: ["I have a job available.",
+                          ],
+
+    },
+
     "[DOYOUWANTTOBELANCEMATE]": {
         Default: ["I'm looking for a new lancemate.",
                   "Would you like to be my lancemate?"
@@ -5830,6 +5849,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Sorry to say that I'm not in the mood for visitors right now.",
                                ],
         personality.Shy: ["An intruder!",
+                          ],
+    },
+
+    "[WHAT_SHOULD_I_DO_NEXT]": {
+        # The PC seeks guidance on what they are supposed to be doing.
+        Default: ["What should I do next?",
+                  ],
+        personality.Cheerful: ["This is fun! So what's the next part of my quest?",
+                               ],
+        personality.Grim: ["What's the next thing I have to blow up?",
+                           ],
+        personality.Easygoing: ["Could you remind me what I'm supposed to be doing?",
+                                ],
+        personality.Passionate: ["I seek guidance in what to do next...",
+                                 ],
+        personality.Sociable: ["Sorry, but what am I supposed to be doing now, exactly?",
+                               ],
+        personality.Shy: ["What's my next task?",
                           ],
     },
 
