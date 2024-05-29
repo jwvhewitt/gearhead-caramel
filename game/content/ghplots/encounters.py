@@ -5,6 +5,7 @@ import pbge
 import random
 from game import teams
 from gears import champions
+from game.content import dungeonmaker
 
 
 #  ***************************
@@ -114,9 +115,11 @@ class RandoMonsterEncounter(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         myteam: game.teams.Team = self.elements["_eteam"]
-        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 3) != 2:
-            camp.scene.deploy_team(
-                gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
-                                                 self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam
-            )
-            self.last_update = camp.time
+        if camp.time > self.last_update:
+            dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])
+            if len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 3) != 2:
+                camp.scene.deploy_team(
+                    gears.selector.RandomMonsterUnit(self.rank, random.randint(80, 120), camp.scene.environment,
+                                                     self.elements["TYPE_TAGS"], camp.scene.scale).contents, myteam
+                )
+                self.last_update = camp.time

@@ -1,3 +1,8 @@
+* Former lancemates who show up in buildings where they've been before will not be indicated as current members of the lance.
+* A captured territory must be consolidated before another territory can be invaded in WorldMapWar
+* PCs dying in a city scene should now be handled properly
+* ExpelFaction will now get rid of the town leader if the town leader is of the expelled faction
+* Encounter plots will now clean up their own mess
 * Random NPC generator reacts appropriately if faction=None passed as parameter
 * Challenge plots can create a mission giver if one cannot be found
 * Plots have new method to return a list of element candidates, allowing manual selection or sorting

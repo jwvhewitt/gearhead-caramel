@@ -974,6 +974,124 @@ class BasicMissionChallenge(ChallengePlot):
             thingmenu.add_item(self.mission_seed.name, self.mission_seed)
 
 
+#   **********************
+#   ***  PR_CHALLENGE  ***
+#   **********************
+
+class YouCanDoSomethingForMePRChallenge(ChallengePlot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} has a problem that {FACTION} may be able to solve",
+        offer_msg="You'll have to speak to {NPC} about the problem yourself; {NPC.gender.subject_pronoun} is usually at {NPC_SCENE}.",
+        memo="{NPC} hopes that {FACTION} can solve {NPC.gender.possessive_determiner} problem. This might be a good chance to earn some good publicity.",
+        prohibited_npcs=("NPC",)
+    )
+
+    CHALLENGE_TYPE = ghchallenges.PR_CHALLENGE
+
+    @classmethod
+    def matches(cls, pstate: PlotState):
+        metroscene = pstate.elements.get("METROSCENE")
+        return metroscene and metroscene.attributes.intersection(
+            {gears.personality.DeadZone, gears.personality.GreenZone}
+        ) and "MISSION_GATE" in pstate.elements
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            myfaction = self.register_element("FACTION", nart.camp.get_faction(mychallenge.key[0]))
+            if not myfaction:
+                return False
+
+            self.register_element("NPC_SCENE", npc.scene)
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            # Create the mission seed.
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                nart.camp, "Exterminate Vermin for {NPC}".format(**self.elements),
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                allied_faction=npc.faction, rank=self.rank,
+                objectives=(missionbuilder.BAMOP_EXTERMINATE_MONSTERS,),
+                one_chance=True, scale=gears.scale.HumanScale,
+                architecture=gharchitecture.HumanScaleJunkyard(), cash_reward=50,
+                custom_elements={
+                    "SCENE_ATTRIBUTES": (gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_RUINS),
+                    missionbuilder.BAMEP_MONSTER_TYPE: ("VERMIN", "SYNTH", "MUTANT", "DARK")
+                },
+                combat_music="Komiku_-_32_-_Boss_2_-_Too_powerful_for_you_run_.ogg",
+                exploration_music="horror-atmosphere-trip-56060.ogg",
+                on_win=self._win_the_mission
+            )
+
+            self.mission_active = False
+            del self.candidates
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+                isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+                self._get_challenge_for_npc(nart, candidate)
+        )
+
+    def _win_the_mission(self, camp):
+        comp = self.mission_seed.get_completion(True)
+        self.elements["CHALLENGE"].advance(camp, max((comp - 50) // 10, 1))
+        self.elements["METRO"].local_reputation += random.randint(1,6)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[LOOKING_FOR_CAVALIER] There's a problem in {METROSCENE} that {FACTION} might be able to solve.".format(
+                    **self.elements),
+                ContextTag([context.HELLO, context.MISSION])
+            ))
+
+            mylist.append(Offer(
+                "There's a garbage dump near town that's infested with mutants, synths, and other dangerous creatures. Someone needs to get rid of them. [DOYOUACCEPTMISSION]",
+                ContextTag([context.CUSTOM]), data={"reply": "[CHAT:INFO]", "subject": "this problem"},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "You can find the dump at these coordinates. [GOODLUCK]",
+                ContextTag([context.CUSTOMREPLY]), effect=self.activate_mission,
+                subject=self, data={"reply": "[MISSION:ACCEPT]"}
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] [GOODBYE]",
+                ContextTag([context.CUSTOMREPLY]), effect=self.end_plot,
+                subject=self, data={"reply": "[MISSION:DENY]"}
+            ))
+
+        return mylist
+
+    def t_START(self, camp):
+        if self.LABEL == "DZRE_TEST" and not self.mission_active:
+            self.mission_active = True
+
+    def activate_mission(self, camp):
+        self.mission_active = True
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
 #   ******************************
 #   ***  RAISE_ARMY_CHALLENGE  ***
 #   ******************************

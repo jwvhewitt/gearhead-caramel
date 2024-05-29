@@ -249,6 +249,25 @@ class InvolvedIfUnassociatedCluesRemainAnd(object):
         else:
             return True
 
+#   ******************************
+#   ***  PR  CHALLENGE  STUFF  ***
+#   ******************************
+
+PR_CHALLENGE = "PR_CHALLENGE"
+
+# You are doing public relations for a faction, NPC, or noun string.
+# The involvement for a PR challenge identifies the NPCs whose opinion you want to sway
+# The key for a PR challenge is the game object being promoted
+# The data for a PR challenge should include:
+#   challenge_subject: A string identifying the challenge
+#   pc_promotions = A list of statements the PC can say in favor of the key object
+#   npc_opinions = A list of neutral to negative opinions that may be given by the NPC, inviting PC response;
+#       independent clauses
+#   npc_agreement = A list of positive replies to the PC's promotion; independent clauses
+#   npc_disagreement = A list of negative replies to the PC's promotion; independent clauses
+#
+
+
 #   ***************************************
 #   ***  RAISE  ARMY  CHALLENGE  STUFF  ***
 #   ***************************************

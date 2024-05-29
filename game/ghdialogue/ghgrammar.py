@@ -3351,8 +3351,79 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
-    # The data block should include "mission"
+    "[IT_IS_GOOD]": {
+        # That thing we're talking about? It's good.
+        # The data block should include "it"
+        Default: ["It's good.", "I like {it}."
+                  ],
+        personality.Cheerful: [
+            "I really like it.", "I think it's fantastic!", "{it} is wonderful."
+        ],
+        personality.Grim: [
+            "I hate to admit, {it} is alright.",
+            "It is far better than I expected.",
+            "Well, {it} has been good so far, but we'll see how things go."
+        ],
+        personality.Easygoing: [
+            "Yeah, I guess {it} is pretty good.",
+            "It's alright. Maybe better than alright.",
+            "Haven't really thought about it... I guess it's good?"
+        ],
+        personality.Passionate: [
+            "I love {it}!", "It's the best!", "{it} is awesome!"
+        ],
+        personality.Sociable: [
+            "In my opinion, {it} is good.",
+            "I was talking with [foaf] recently, and we both agree it's good."
+            "As far as I'm concerned, it's good."
+        ],
+        personality.Shy: [
+            "It's good.", "{it} is good."
+        ],
+    },
+
+    "[IT_IS_OK]": {
+        # That thing we're talking about? It's good.
+        # The data block should include "it"
+        Default: ["It's ok.", "{it} is ok."
+                  ],
+        personality.Cheerful: [
+            "It's not bad.", "{it} is alright.",
+        ],
+        personality.Grim: [
+            "{it} is bad, but better than some of the alternatives.",
+            "I don't like {it}, but things could be worse.",
+            "I guess it's the best we could hope for."
+        ],
+        personality.Easygoing: [
+            "I don't have much of an opinion about {it}.",
+            "{it} could be better, but could be worse.",
+            "I don't know... I guess {it} doesn't bother me much?"
+        ],
+        personality.Passionate: [
+            "I have no strong feelings about {it}, which is odd.",
+            "It's bland. Boring. Neither this way nor the other."
+        ],
+        personality.Sociable: [
+            "In my opinion, it's mediocre.",
+            "According to [foaf], people don't care about {it} much."
+            "As far as I'm concerned, {it} is acceptable."
+        ],
+        personality.Shy: [
+            "{it} is what it is."
+        ],
+    },
+
+    "[IT_IS_OK_OR_BETTER]": {
+        # The data block should include "it"
+        Default: ["[IT_IS_OK]", "[IT_IS_GOOD]"
+                  ],
+        personality.Cheerful: ["[IT_IS_GOOD]",],
+        personality.Grim: ["[IT_IS_OK]",],
+    },
+
     "[IWILLDOMISSION]": {
+        # The data block should include "mission", which is a verb phrase
         Default: ["I'll get to work.",
                   "I'll {mission}.", "[ICANDOTHAT]"
                   ],

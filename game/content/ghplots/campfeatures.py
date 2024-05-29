@@ -87,6 +87,11 @@ class MetrosceneRecoveryHandler(Plot):
                     if nart.story:
                         nart.build()
 
+    def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
+        # Combat happens right here in the city? Do recovery right away.
+        camp.bring_out_your_dead(True, True)
+        self.METROSCENE_ENTER(camp)
+
 
 class WorldMapEncounterHandler(Plot):
     LABEL = "CF_WORLD_MAP_ENCOUNTER_HANDLER"

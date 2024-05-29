@@ -512,6 +512,12 @@ class Explorer(object):
         self.update_scene()
         # self.scene.update_party_position(self.camp)
 
+        # Remove any NPCs that are not part of the lance from the player team.
+        if self.scene.player_team:
+            for npc, npcteam in list(self.scene.local_teams.items()):
+                if npcteam is self.scene.player_team and npc not in self.camp.party:
+                    self.scene.local_teams[npc] = self.scene.civilian_team
+
         # Clear the event queue, in case switching scenes took a long time.
         pygame.event.clear([pbge.TIMEREVENT, pygame.KEYDOWN])
 

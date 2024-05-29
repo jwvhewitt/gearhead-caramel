@@ -54,6 +54,7 @@ CONVO_CANT_WITHDRAW = "CONVO_CANT_WITHDRAW"
 BAMOP_FIND_HERBS = "BAMOP_FIND_HERBS"
 BAMOP_DUNGEONLIKE = "BAMOP_DUNGEONLIKE"
 BAMEP_MONSTER_TYPE = "BAMEP_MONSTER_TYPE"
+BAMOP_EXTERMINATE_MONSTERS = "BAMOP_EXTERMINATE_MONSTERS"
 BAMOP_RESCUE_VICTIM = "BAMOP_RESCUE_VICTIM"
 BAMEP_VICTIM_NAME = "BAMEP_VICTIM_NAME"
 
@@ -1839,6 +1840,34 @@ class BAM_Dungeonlike(Plot):
             self.add_sub_plot(nart, "DUNGEON_EXTRA", necessary=False)
 
         return True
+
+
+class BAMP_ExterminateMonsters(Plot):
+    LABEL = BAMOP_EXTERMINATE_MONSTERS
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(20, 20), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        myunit = gears.selector.RandomMonsterUnit(self.rank, random.randint(120, 150), myscene.environment,
+                                                  self.elements.get(BAMEP_MONSTER_TYPE), myscene.scale)
+        team2.contents += myunit.contents
+
+        self.obj = adventureseed.MissionObjective("Exterminate the monsters", MAIN_OBJECTIVE_VALUE)
+        self.adv.objectives.append(self.obj)
+
+        return True
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
 
 
 class BAM_RescueVictim(Plot):

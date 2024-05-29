@@ -324,6 +324,9 @@ class GearHeadScene(pbge.scenes.Scene):
         for npc in list(self.contents):
             if hasattr(npc, "faction") and npc.faction is fac and camp.is_not_lancemate(npc):
                 camp.freeze(npc)
+        if hasattr(self, "metrodat") and self.metrodat:
+            if self.metrodat.city_leader and self.metrodat.city_leader.faction is fac:
+                self.metrodat.city_leader = None
         for subscene in self.sub_scenes:
             subscene.purge_faction(camp, fac)
 

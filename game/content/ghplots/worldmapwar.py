@@ -1,4 +1,6 @@
 import random
+
+import game.content
 from game import content, services, teams, ghdialogue
 import gears
 import pbge
@@ -126,6 +128,7 @@ class WorldMapWar:
             self.war_teams.update(war_teams)
         self.node_stats = collections.defaultdict(NodeStats)
         self.player_can_act = True
+        self.consolidation_scene = None
 
         # All home bases start out fortified.
         for wt in self.war_teams.values():
@@ -220,7 +223,9 @@ class WorldMapWar:
             return self.WAR_WON
 
     def capture(self, camp, attacking_fac, node):
+        former_faction = None
         if node.destination.faction:
+            former_faction = node.destination.faction
             node.destination.purge_faction(camp, node.destination.faction)
         node.destination.faction = attacking_fac
 
@@ -244,8 +249,15 @@ class WorldMapWar:
 
         if attacking_fac is self.player_team:
             self.just_captured = node.destination
-            self.player_can_act = False
-
+            if metroscene and game.content.load_dynamic_plot(
+                camp, "WMW_CONSOLIDATION", PlotState(elements={
+                        "METROSCENE": node.destination, "METRO": metroscene.metrodat,
+                        WORLD_MAP_WAR: self, "FORMER_FACTION": former_faction
+                    }
+                )
+            ):
+                self.player_can_act = False
+                self.consolidation_scene = node.destination
 
     ATTACK_OBJECTIVES = (
         missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_AID_ALLIED_FORCES,
@@ -278,6 +290,13 @@ class WorldMapWar:
 
         return mybattle
 
+    def get_memo(self):
+        if self.player_team:
+            if self.player_can_act:
+                return "You are fighting for {} in the current conflict. Attempt to capture territories for them on the world map.".format(self.player_team)
+            else:
+                return "You must consolidate your victory in {} before attempting to capture another territory for {}.".format(self.consolidation_scene, self.player_team)
+
     def __setstate__(self, state):
         # For saves from V0.946 or earlier, make sure there's a just_captured property.
         self.__dict__.update(state)
@@ -286,6 +305,8 @@ class WorldMapWar:
         # For saves from v0.962 or earlier, make sure there's a player_can_act property.
         if "player_can_act" not in state:
             self.player_can_act = True
+        if "consolidation_scene" not in state:
+            self.consolidation_scene = None
 
 
 
@@ -626,6 +647,12 @@ class WorldMapWarHandler(Plot):
     LABEL = "WORLD_MAP_WAR"
     scope = True
     active = True
+
+    @property
+    def memo(self):
+        wmw = self.elements.get(WORLD_MAP_WAR)
+        if wmw:
+            return wmw.get_memo()
 
     def custom_init(self, nart):
         self.world_map = nart.camp.campdata[self.elements[WORLD_MAP_IDENTIFIER]]
