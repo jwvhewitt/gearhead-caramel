@@ -169,6 +169,8 @@ class Plot(object):
     # be ended.
     expiration = None
 
+    memo = None
+
     def __init__(self, nart, pstate):
         """Initialize + install this plot, or raise PlotError"""
         # nart = The Narrative object
@@ -181,7 +183,6 @@ class Plot(object):
         self.elements = pstate.elements.copy()
         self.subplots = dict()
         self.extensions = list()
-        self.memo = None
 
         # Increment the usage count, for getting info on plot numbers!
         self.__class__._used += 1

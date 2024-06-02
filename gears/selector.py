@@ -35,8 +35,16 @@ def calc_threat_points(level, percent=50):
         it = 20 * level * level - 900 * level + 19040
     return it * percent
 
-def calc_mission_reward(level, percent=100):
-    return max(calc_threat_points(level, percent) // 5, 10000)
+
+def calc_mission_reward(level, percent=100, round_it_off=False):
+    reward = max(calc_threat_points(level, percent) // 5, 10000)
+    if round_it_off:
+        if reward > 100000:
+            reward = (reward//10000) * 10000
+        else:
+            reward = (reward//1000) * 1000
+    return reward
+
 
 def check_design_list(echo_on=False):
     for mek in list(DESIGN_LIST):

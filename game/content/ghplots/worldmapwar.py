@@ -247,7 +247,7 @@ class WorldMapWar:
         else:
             self.legend.set_color(node, 0)
 
-        if attacking_fac is self.player_team:
+        if attacking_fac is self.player_team and not self.get_war_status(camp):
             self.just_captured = node.destination
             if metroscene and game.content.load_dynamic_plot(
                 camp, "WMW_CONSOLIDATION", PlotState(elements={

@@ -38,6 +38,7 @@ class ChallengePlot(Plot):
     ):
         candidates = self.seek_element_candidates(nart, seek_func, backup_seek_func=backup_seek_func,
                                                     scope=self.elements["METROSCENE"])
+
         if candidates:
             best_can = list(candidates)
             if allied_faction and random.randint(1,5) != 3:
@@ -69,7 +70,7 @@ class ChallengePlot(Plot):
             self.seek_element(nart, scene_ident, self.__challenge_npc_best_scene, scope=mymetro,
                               backup_seek_func=self.__challenge_npc_next_best_scene)
             self.register_element(ident, npc, dident=scene_ident, lock=lock)
-            print(npc, self.elements[scene_ident], allied_faction, enemy_faction)
+            #print(npc, self.elements[scene_ident], allied_faction, enemy_faction)
         return npc
 
     def __challenge_npc_best_scene(self, nart, candidate):
@@ -624,6 +625,197 @@ class GatherIntelByConversation(ChallengePlot):
 #   ***  LOCATE_ENEMY_BASE_CHALLENGE  ***
 #   *************************************
 
+class EBInformationBroker(ChallengePlot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} is a local information broker",
+        offer_msg="{NPC} is a {NPC.job} who can usually be found at {NPC_SCENE}. They say {NPC.gender.subject_pronoun} knows something about {ENEMY_FACTION}.",
+        memo="The {NPC.job} {NPC} may have information about {ENEMY_FACTION}'s {BASE_NAME}.", memo_location="{NPC_SCENE}",
+        offer_subject="{NPC} is a local information broker",
+        offer_subject_data="{NPC}'s information'",
+        prohibited_npcs=("NPC",)
+    )
+
+    CHALLENGE_TYPE = ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
+        if candidates:
+            mychallenge = self.register_element("CHALLENGE", random.choice(candidates))
+            self.elements["ENEMY_FACTION"] = mychallenge.key[0]
+            self.elements["BASE_NAME"] = mychallenge.data["base_name"]
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            self.elements["NPC_SCENE"] = npc.scene
+            self.register_element("NPC_SCENE", npc.scene)
+
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            self.elements["DONATION"] = gears.selector.calc_mission_reward(
+                self.rank, random.randint(250,300) - 2 * npc.get_reaction_score(nart.camp.pc, nart.camp),
+                round_it_off=True
+            )
+
+            return True
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate)
+            and randomplots.npc_is_ready_for_plot(candidate, nart.camp)
+            and gears.tags.Criminal in candidate.get_tags()
+            and not nart.camp.are_faction_allies(candidate, self.elements["ENEMY_FACTION"])
+        )
+
+    def _win_the_mission(self, camp: gears.GearHeadCampaign):
+        self.elements["CHALLENGE"].advance(camp, self.elements["CHALLENGE"].points_target)
+        camp.credits -= self.elements["DONATION"]
+        randomplots.set_npc_recharge(self.elements["NPC"], camp)
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.reaction_mod += random.randint(1,10)
+        self.end_plot(camp)
+
+    def _win_by_intimidation(self, camp: gears.GearHeadCampaign):
+        self.elements["CHALLENGE"].advance(camp, random.randint(1,6))
+        randomplots.set_npc_recharge(self.elements["NPC"], camp, time=25)
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.history.append(gears.relationships.Memory(
+            "you threatened my life to get some information about {ENEMY_FACTION}".format(**self.elements),
+            "you gave me some helpful information about {ENEMY_FACTION}".format(**self.elements),
+            -20, (gears.relationships.MEM_LoseToPC, gears.relationships.MEM_Ideological)
+        ))
+        self.end_plot(camp)
+
+    def _win_by_police(self, camp: gears.GearHeadCampaign):
+        self.elements["CHALLENGE"].advance(camp, random.randint(1,4))
+        randomplots.set_npc_recharge(self.elements["NPC"], camp, time=25)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mychallenge: pbge.challenges.Challenge = self.elements["CHALLENGE"]
+        mysubject = "asking about {ENEMY_FACTION}'s {BASE_NAME}".format(**self.elements)
+
+        mylist.append(Offer(
+            "[HELLO] I hear you're asking about {ENEMY_FACTION}'s {BASE_NAME}; I may have some info for you.".format(
+                **self.elements),
+            ContextTag([context.HELLO,])
+        ))
+
+        if self._rumor_memo_delivered:
+            mylist.append(Offer(
+                "I know where to find {ENEMY_FACTION}'s {BASE_NAME}, and for just ${DONATION:,} that info could be yours.".format(**self.elements),
+                ContextTag([context.CUSTOM]), data={"reply": "Tell me what you know about {ENEMY_FACTION}'s {BASE_NAME}.",},
+                subject=mysubject, subject_start=True
+            ))
+        else:
+            mylist.append(Offer(
+                "I know where {ENEMY_FACTION}'s {BASE_NAME} is, and for just ${DONATION:,} that info could be yours.".format(**self.elements),
+                ContextTag([context.CUSTOM]), data={"reply": "Tell me what you know abut it.",},
+                subject=mysubject
+            ))
+
+        if camp.credits >= self.elements["DONATION"]:
+            mylist.append(Offer(
+                "[PLEASURE_DOING_BUSINESS] These coordinates will take you straight to {ENEMY_FACTION}'s {BASE_NAME}, and this code will get you through their security scan.".format(
+                    **self.elements
+                ),
+                ContextTag([context.CUSTOMREPLY]), effect=self._win_the_mission,
+                subject=mysubject,
+                data={"reply": "[ICANDOTHAT] (pay ${DONATION:,})".format(**self.elements)}
+            ))
+
+        ghdialogue.SkillBasedPartyReply(Offer(
+            "[HOLD_ON] I'll tell you everything I know... {ENEMY_FACTION}'s {BASE_NAME} is somewhere near these coordinates. You'll need to find out the exact location on your own.".format(**self.elements),
+            ContextTag([context.CUSTOMREPLY]), effect=self._win_by_intimidation,
+            subject=mysubject,
+            data={"reply": "Why don't you just tell me and [intimidation_concession]?".format(**self.elements)}
+        ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, self.rank, difficulty=gears.stats.DIFFICULTY_HARD)
+
+        ghdialogue.TagBasedPartyReply(Offer(
+            "It's a fair cop. [LISTEN_TO_MY_INFO] {ENEMY_FACTION}'s {BASE_NAME} is somewhere near these coordinates. You'll need to find out the exact location on your own.".format(**self.elements),
+            ContextTag([context.CUSTOMREPLY]), effect=self._win_by_police,
+            subject=mysubject,
+            data={"reply": "Or I could arrest you right now and question you at the lockup.".format(**self.elements)}
+        ), camp, mylist, {gears.tags.Police,})
+
+        mylist.append(Offer(
+            "[UNDERSTOOD] [GOODBYE]",
+            ContextTag([context.CUSTOMREPLY]), effect=self.end_plot, dead_end=True,
+            subject="maybe you could do something to help us", data={"reply": "[SORRY_I_CANT]"}
+        ))
+
+        mylist.append(Offer(
+            "[GOODBYE]",
+            ContextTag([context.CUSTOMREPLY]), dead_end=True,
+            subject="maybe you could do something to help us", data={"reply": "[I_WILL_COME_BACK_LATER]"}
+        ))
+
+        return mylist
+
+
+class InnocentNPCKnowsSomething(ChallengePlot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} has seen some {ENEMY_FACTION} mecha nearby",
+        offer_msg="if you want to know more, you should go talk to {NPC.gender.object_pronoun} at {NPC_SCENE}.",
+        memo="{NPC} may have information about {ENEMY_FACTION}'s {BASE_NAME}.", memo_location="{NPC_SCENE}",
+        offer_subject="{NPC} has seen some {ENEMY_FACTION} mecha nearby",
+        offer_subject_data="{NPC} and {ENEMY_FACTION}",
+        prohibited_npcs=("NPC",)
+    )
+
+    CHALLENGE_TYPE = ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
+        if candidates:
+            mychallenge = self.register_element("CHALLENGE", random.choice(candidates))
+            self.elements["ENEMY_FACTION"] = mychallenge.key[0]
+            self.elements["BASE_NAME"] = mychallenge.data["base_name"]
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+            self.elements["NPC_SCENE"] = npc.scene
+            self.register_element("NPC_SCENE", npc.scene)
+
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            return True
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate)
+            and randomplots.npc_is_ready_for_plot(candidate, nart.camp)
+            and not candidate.faction
+        )
+
+    def _win_the_mission(self, camp):
+        self.elements["CHALLENGE"].advance(camp, 1)
+        randomplots.set_npc_recharge(self.elements["NPC"], camp)
+        self.end_plot(camp)
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mychallenge: pbge.challenges.Challenge = self.elements["CHALLENGE"]
+
+        myoffer = Offer(
+            "[I_KNOW_THINGS_ABOUT_STUFF] Here are the coordinates where I saw {ENEMY_FACTION}. [I_HOPE_THIS_HELPS]".format(**self.elements),
+            ContextTag([context.INFO,]), data={
+                "subject": "{ENEMY_FACTION} in {METROSCENE}".format(**self.elements),
+                "stuff": "{ENEMY_FACTION} in {METROSCENE}".format(**self.elements)
+            },
+            effect=self._win_the_mission, no_repeats=True, subject=str(self.elements["ENEMY_FACTION"])
+        )
+        if self._rumor_memo_delivered:
+            myoffer.subject = None
+        mylist.append(myoffer)
+
+        return mylist
+
+
 class ReconMissionToFindBase(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
@@ -639,10 +831,6 @@ class ReconMissionToFindBase(ChallengePlot):
     CHALLENGE_TYPE = ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE
 
     EXTRA_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL)
-
-    @classmethod
-    def matches(cls, pstate: PlotState):
-        return "METROSCENE" in pstate.elements and "MISSION_GATE" in pstate.elements
 
     def custom_init(self, nart: GHNarrativeRequest):
         self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
@@ -677,7 +865,7 @@ class ReconMissionToFindBase(ChallengePlot):
     def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
         return (
             isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
-            self.elements["CHALLENGE"].is_involved(nart, candidate)
+            self.elements["CHALLENGE"].is_involved(nart.camp, candidate)
         )
 
     def _win_the_mission(self, camp: gears.GearHeadCampaign):
@@ -978,6 +1166,174 @@ class BasicMissionChallenge(ChallengePlot):
 #   ***  PR_CHALLENGE  ***
 #   **********************
 
+class DonationPRChallenge(ChallengePlot):
+    LABEL = "CHALLENGE_PLOT"
+    active = True
+    scope = "METRO"
+
+    RUMOR = Rumor(
+        "{NPC} might be able to improve the public image of {KEY}",
+        offer_msg="{NPC} is a {NPC.job} who does a lot of good work in {METROSCENE}. You can find {NPC.gender.object_pronoun} at {NPC_SCENE}.",
+        memo="{NPC} might be able to help improve the public image of {KEY}.",
+        offer_subject="{NPC} might be able to improve the public image of {KEY}",
+        offer_subject_data="{NPC}'s influence",
+        prohibited_npcs=("NPC",)
+    )
+
+    CHALLENGE_TYPE = ghchallenges.PR_CHALLENGE
+
+    def custom_init(self, nart: GHNarrativeRequest):
+        self.candidates = [c for c in nart.challenges if self.is_good_challenge(c)]
+        if self.candidates:
+            npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"],
+                                    must_find=False)
+            if not npc:
+                sp = self.add_sub_plot(nart, "ADD_FAITHWORKER")
+                npc = self.register_element("NPC", sp.elements["NPC"], lock=True)
+
+            self.register_element("NPC_SCENE", npc.scene)
+            mychallenge = self.register_element("CHALLENGE", self._get_challenge_for_npc(nart, npc))
+            if not mychallenge:
+                return False
+            self.register_element("KEY", nart.camp.get_faction(mychallenge.key[0]))
+            self.expiration = TimeAndChallengeExpiration(nart.camp, mychallenge, time_limit=5)
+
+            self.elements["DONATION"] = gears.selector.calc_mission_reward(self.rank, random.randint(150,250), round_it_off=True)
+            self.completion_points = 4
+
+            places = ["community center", "food bank", "mutual aid center"]
+            mytags = npc.get_tags()
+            if gears.tags.Faithworker in mytags:
+                places += ["graveyard", "shrine"]
+            if gears.tags.Medic in mytags:
+                places += ["hospital", "clinic"]
+            if gears.tags.Academic in mytags:
+                places += ["library", "school"]
+            self.elements["PLACE_TO_IMPROVE"] = random.choice(places)
+
+            del self.candidates
+
+            return True
+
+    def _get_challenge_for_npc(self, nart, npc):
+        candidates = [c for c in self.candidates if c.is_involved(nart.camp, npc)]
+        if candidates:
+            return random.choice(candidates)
+
+    def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
+        return (
+                isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
+                self._get_challenge_for_npc(nart, candidate) and
+                candidate.get_tags().intersection({gears.tags.Faithworker, gears.tags.Medic, gears.tags.Academic})
+        )
+
+    def _win_the_mission(self, camp: gears.GearHeadCampaign):
+        self.elements["CHALLENGE"].advance(camp, self.completion_points)
+        camp.credits -= self.elements["DONATION"]
+        self.elements["METRO"].local_reputation += self.completion_points
+        self.end_plot(camp, True)
+
+    def _double_the_offer(self, camp):
+        self.completion_points *= 2
+        self.elements["METRO"].local_reputation += random.randint(1,10)
+        self.elements["DONATION"] = self.elements["DONATION"] * 2
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship.history.append(gears.relationships.Memory(
+            "you helped me to fully restore {METROSCENE}'s {PLACE_TO_IMPROVE}".format(**self.elements),
+            "my lance helped you with {METROSCENE}'s {PLACE_TO_IMPROVE}".format(**self.elements),
+            10, (gears.relationships.MEM_AidedByPC, gears.relationships.MEM_Debt)
+        ))
+        self._win_the_mission(camp)
+
+    def _manual_labor(self, camp: gears.GearHeadCampaign):
+        self.elements["DONATION"] = self.elements["DONATION"] // 2
+        for pc in camp.party:
+            if hasattr(pc, "dole_experience"):
+                pc.dole_experience(random.randint(2,5) * 100, gears.stats.Athletics)
+        self._win_the_mission(camp)
+
+    def _no_pay_option(self, camp: gears.GearHeadCampaign):
+        self.elements["DONATION"] = 0
+        self._win_the_mission(camp)
+
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] If you want to improve public sentiment about {KEY}, maybe you could do something to help us.".format(
+                **self.elements),
+            ContextTag([context.HELLO,])
+        ))
+
+        if self._rumor_memo_delivered:
+            mylist.append(Offer(
+                "{METROSCENE}'s {PLACE_TO_IMPROVE} is in dire need of upkeep. I expect it will cost ${DONATION:,} to fix things. [WILL_YOU_HELP]".format(**self.elements),
+                ContextTag([context.CUSTOM]), data={"reply": "I heard that you could help me.",},
+                subject="maybe you could do something to help us", subject_start=True
+            ))
+        else:
+            mylist.append(Offer(
+                "{METROSCENE}'s {PLACE_TO_IMPROVE} is falling apart. They say it will cost ${DONATION:,} to fix things. [WILL_YOU_HELP]".format(**self.elements),
+                ContextTag([context.CUSTOM]), data={"reply": "What kind of help do you need?",},
+                subject="maybe you could do something to help us"
+            ))
+
+        if camp.credits >= self.elements["DONATION"]:
+            mylist.append(Offer(
+                "[THANKS_FOR_HELP] Everyone will know that the new {PLACE_TO_IMPROVE} is because of {KEY}!".format(
+                    **self.elements
+                ),
+                ContextTag([context.CUSTOMREPLY]), effect=self._win_the_mission,
+                subject="maybe you could do something to help us",
+                data={"reply": "[ICANDOTHAT] (pay ${DONATION:,})".format(**self.elements)}
+            ))
+            if camp.credits >= self.elements["DONATION"] * 2:
+                ghdialogue.TagBasedPartyReply(Offer(
+                        "I can't believe your generosity! Everyone in {METROSCENE} knows that the new {PLACE_TO_IMPROVE} is because of {KEY}!".format(**self.elements),
+                        ContextTag([context.CUSTOMREPLY]), effect=self._double_the_offer,
+                        subject="maybe you could do something to help us",
+                        data={"reply": "[HAGOODONE] We can give you twice that much!".format(**self.elements)}
+                    ), camp, mylist, {gears.personality.Passionate,},
+                    allow_pc=False,
+                    message_format="{} says \"{}\" " + "(pay ${:,})".format(self.elements["DONATION"] * 2)
+                )
+
+        if camp.credits >= self.elements["DONATION"] // 2:
+            ghdialogue.TagBasedPartyReply(Offer(
+                    "You'd be willing to do that? Everyone in {METROSCENE} will be impressed by your hard work!".format(**self.elements),
+                    ContextTag([context.CUSTOMREPLY]), effect=self._manual_labor,
+                    subject="maybe you could do something to help us",
+                    data={"reply": "We can cut that cost in half if our lance does the labor ourselves.".format(**self.elements)}
+                ), camp, mylist, {gears.tags.Laborer,}, forbidden_tags={gears.personality.Passionate,},
+                allow_pc=False,
+                message_format="{} says \"{}\" " + "(pay ${:,})".format(self.elements["DONATION"] // 2)
+            )
+
+        key_fac = camp.get_faction(self.elements["KEY"])
+        if key_fac:
+            ghdialogue.TagBasedPartyReply(Offer(
+                    "[THANKS_FOR_HELP] Everyone will know that the new {PLACE_TO_IMPROVE} is because of {KEY}'s direct involvement!".format(**self.elements),
+                    ContextTag([context.CUSTOMREPLY]), effect=self._no_pay_option,
+                    subject="maybe you could do something to help us",
+                    data={"reply": "I'll contact {} and get the money sent straight to you.".format(key_fac)}
+                ), camp, mylist, {key_fac.get_faction_tag(),}
+            )
+
+        mylist.append(Offer(
+            "[UNDERSTOOD] [GOODBYE]",
+            ContextTag([context.CUSTOMREPLY]), effect=self.end_plot, dead_end=True,
+            subject="maybe you could do something to help us", data={"reply": "[SORRY_I_CANT]"}
+        ))
+
+        mylist.append(Offer(
+            "[GOODBYE]",
+            ContextTag([context.CUSTOMREPLY]), dead_end=True,
+            subject="maybe you could do something to help us", data={"reply": "[I_WILL_COME_BACK_LATER]"}
+        ))
+
+        return mylist
+
+
 class YouCanDoSomethingForMePRChallenge(ChallengePlot):
     LABEL = "CHALLENGE_PLOT"
     active = True
@@ -1047,7 +1403,7 @@ class YouCanDoSomethingForMePRChallenge(ChallengePlot):
         comp = self.mission_seed.get_completion(True)
         self.elements["CHALLENGE"].advance(camp, max((comp - 50) // 10, 1))
         self.elements["METRO"].local_reputation += random.randint(1,6)
-        self.end_plot(camp)
+        self.end_plot(camp, True)
 
     def NPC_offers(self, camp):
         mylist = list()
@@ -1082,6 +1438,10 @@ class YouCanDoSomethingForMePRChallenge(ChallengePlot):
     def t_START(self, camp):
         if self.LABEL == "DZRE_TEST" and not self.mission_active:
             self.mission_active = True
+
+    def METROSCENE_ENTER(self, camp):
+        if self.mission_seed.ended:
+            self.end_plot(camp)
 
     def activate_mission(self, camp):
         self.mission_active = True

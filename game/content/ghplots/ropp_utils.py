@@ -30,7 +30,7 @@ class ROPP_WarStarter(Plot):
         war_teams = dict()
         war_teams[gears.factions.TheSolarNavy] = worldmapwar.WarStats(
             nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'],
-            color=1, unpopular=True, occtype=wmw_occupation.WMWO_MARTIAL_LAW
+            color=1, unpopular=False, occtype=wmw_occupation.WMWO_MARTIAL_LAW
         )
 
         war_teams[gears.factions.TreasureHunters] = worldmapwar.WarStats(
@@ -77,6 +77,7 @@ class ROPP_WarStarter(Plot):
         self.__dict__.update(state)
         wardict = self.elements[worldmapwar.WORLD_MAP_TEAMS]
         wardict[gears.factions.TheSolarNavy].occtype = wmw_occupation.WMWO_MARTIAL_LAW
+        wardict[gears.factions.TheSolarNavy].unpopular = False
         wardict[gears.factions.AegisOverlord].occtype = wmw_occupation.WMWO_IRON_FIST
 
     def ROPPWAR_WIN(self, camp: gears.GearHeadCampaign):

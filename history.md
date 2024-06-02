@@ -1,3 +1,4 @@
+* calc_mission_reward can automatically round the reward to an round number
 * Former lancemates who show up in buildings where they've been before will not be indicated as current members of the lance.
 * A captured territory must be consolidated before another territory can be invaded in WorldMapWar
 * PCs dying in a city scene should now be handled properly

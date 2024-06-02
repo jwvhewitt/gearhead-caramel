@@ -85,8 +85,8 @@ ATTACK_STARTER = pbge.dialogue.Cue(pbge.dialogue.ContextTag((context.ATTACK,)))
 
 class SkillBasedPartyReply(object):
     def __init__(
-            self, myoffer: Offer, camp, mylist, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_EASY,
-            no_random=True,
+            self, myoffer: Offer, camp: gears.GearHeadCampaign, mylist, stat_id, skill_id, rank,
+            difficulty=gears.stats.DIFFICULTY_EASY, no_random=True,
             message_format='{} says "{}"', **kwargs
     ):
         # Check the skill of each party member against a target number. If any party member can
@@ -135,7 +135,7 @@ class SkillBasedPartyReply(object):
 
 
 class TagBasedPartyReply(SkillBasedPartyReply):
-    def __init__(self, myoffer, camp, mylist, needed_tags, message_format='{} says "{}"'):
+    def __init__(self, myoffer, camp: gears.GearHeadCampaign, mylist, needed_tags, forbidden_tags=(), message_format='{} says "{}"', allow_pc=True):
         # Check the skill of each party member against a target number. If any party member can
         # make the test, they get to say the line of dialogue.
         # If nobody makes the test, don't add myoffer to mylist.
@@ -143,11 +143,13 @@ class TagBasedPartyReply(SkillBasedPartyReply):
         self.offer = myoffer
         self.message_format = message_format
         self.needed_tags = set(needed_tags)
-        winners = [pc for pc in camp.get_active_party() if self.needed_tags.issubset(pc.get_pilot().get_tags())]
+        winners = [pc.get_pilot() for pc in camp.get_active_party() if self.needed_tags.issubset(pc.get_pilot().get_tags())]
+        if camp.pc in winners and not allow_pc:
+            winners.remove(camp.pc)
         self.pc = None
         if winners:
             pc = random.choice(winners)
-            if pc.get_pilot() is camp.pc:
+            if pc is camp.pc:
                 mylist.append(myoffer)
             else:
                 mylist.append(myoffer)

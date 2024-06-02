@@ -928,7 +928,7 @@ class CreditsBlock(object):
 
     def update(self):
         self.image = pbge.render_text(
-            self.font, '${}'.format(self.camp.credits), self.width, justify=0, color=pbge.INFO_GREEN
+            self.font, '${:,}'.format(self.camp.credits), self.width, justify=0, color=pbge.INFO_GREEN
         )
 
     def render(self, x, y):

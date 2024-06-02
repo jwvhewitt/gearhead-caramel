@@ -1754,7 +1754,7 @@ DEFAULT_GRAMMAR = {
             "Loyal Atan", "Atan"
         ],
         personality.Duty: [
-            "Lord"
+            "the Lord"
         ],
         personality.Peace: [
             "the Protector"
@@ -1769,7 +1769,7 @@ DEFAULT_GRAMMAR = {
             "Heaven"
         ],
         personality.Grim: [
-            "the devil"
+            "Crom"
         ],
         tags.Faithworker: [
             "the Almighty", "the All-knowing", "the Creator", "the Teacher"
@@ -1975,6 +1975,37 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Stop.",
                           ],
+    },
+
+    "[harm_you]": {
+        Default: [
+            "[defeat_you]", "harm you", "hurt you"
+        ],
+        personality.Cheerful: [
+            "make you cry", "stick your head up your own butt"
+        ],
+        personality.Grim: [
+            "teach you the true meaning of agony",
+            "make you suffer", "obliterate you",
+        ],
+        personality.Easygoing: [
+            "do some unpleasant stuff to you",
+            "ruin your day, and possibly your face too"
+        ],
+        personality.Passionate: [
+            "unleash my full power",
+            "give you a lesson in pain",
+        ],
+        personality.Sociable: [
+            "show you what I can do with a [weapon]",
+            "show you how I earned my brutal reputation",
+        ],
+        personality.Shy: [
+            "get violent",
+        ],
+        tags.Faithworker: [
+            "send you to meet [God]"
+        ],
     },
 
     "[HAVE_YOU_CONSIDERED]": {
@@ -2888,6 +2919,31 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[I_HOPE_THIS_HELPS]": {
+        # Expressing hope that the performed action has been helpful.
+        Default: ["I hope this helps.",
+                  "[GOODLUCK]"
+                  ],
+        personality.Cheerful: [
+            "I'm sure this will be a great help to you!",
+        ],
+        personality.Grim: [
+            "I know it's not much, but it's the best I can do.",
+        ],
+        personality.Easygoing: [
+            "Maybe this'll help you out.",
+        ],
+        personality.Passionate: [
+            "I am glad to have solved your problem!",
+        ],
+        personality.Sociable: [
+            "I really hope that this will be helpful for you.",
+        ],
+        personality.Shy: [
+            "Hopefully this will help."
+        ]
+    },
+
     "[I_KNOW_THINGS_ABOUT_STUFF]": {
         # Data must include "stuff"
         Default: [
@@ -3245,6 +3301,35 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[intimidation_concession]": {
+        # An attempt at intimidation is being made. The speaker lets the listener know what WON'T happen if they
+        # agree to the speaker's demands.
+        Default: [
+            "you can leave here with all your teeth",
+            "I won't have to [harm_you]",
+            "there doesn't have to be any violence"
+        ],
+        personality.Cheerful: [
+            "we can both leave here happy and alive",
+        ],
+        personality.Grim: [
+            "you get to see another day",
+            "I won't [harm_you]"
+        ],
+        personality.Easygoing: [
+            "nobody has to get hurt",
+        ],
+        personality.Passionate: [
+            "I won't do what I'm thinking right now",
+        ],
+        personality.Sociable: [
+            "I won't have to tell your family what happened to you",
+        ],
+        personality.Shy: [
+            "you can live",
+        ],
+    },
+
     "[IP_NEWS]": {
         Default: ["[IP_GoodNews].", "[IP_BadNews].", "[IP_Business].", "[IP_Pleasure]."
                   ],
@@ -3456,6 +3541,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["I would personally appreciate it if you could go see what you can find out.",
                                ],
         personality.Shy: ["I want you to investigate.",
+                          ],
+    },
+
+    "[I_WILL_COME_BACK_LATER]": {
+        # Speaker cannot deal with this right now, but will come back later.
+        Default: ["I'll come back later.",
+                  ],
+        personality.Cheerful: ["No hard feelings, but I'm going to have to get back to you on that.",
+                               ],
+        personality.Grim: ["Hmmm... I am going to need some time to deal with this.",
+                           ],
+        personality.Easygoing: ["Do you mind if I get back to you on that?",
+                                ],
+        personality.Passionate: ["I will return later!",
+                                 ],
+        personality.Sociable: ["You're going to have to give me some time to think about this.",
+                               ],
+        personality.Shy: ["I'll be back.",
                           ],
     },
 
@@ -4947,6 +5050,24 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[SORRY_I_CANT]": {
+        # Speaker is responding in the negative to a request.
+        Default: ["Sorry, I can't.",
+                  ],
+        personality.Cheerful: ["Sadly, I can't do that.",
+                               ],
+        personality.Grim: ["I hate to admit that I can't.",
+                           ],
+        personality.Easygoing: ["I don't think I can do that.",
+                                ],
+        personality.Passionate: ["No, I can't!",
+                                 ],
+        personality.Sociable: ["I'm afraid that I can't do that right now.",
+                               ],
+        personality.Shy: ["No, I can't.",
+                          ],
+    },
+
     "[STILL_WORKING_ON_IT]": {
         # The PC has not completed their task yet.
         Default: ["I'm still working on it."
@@ -5976,6 +6097,27 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["Please avenge me.",
                           ],
+    },
+
+    "[WILL_YOU_HELP]": {
+        Default: ["Will you help me?", "Can you help out?"
+                  ],
+        personality.Cheerful: ["It's be super if you could help with this."
+                               ],
+        personality.Grim: ["I know you have your own problems, but I need your help.",
+                           ],
+        personality.Easygoing: ["No pressure, but it'd be a big deal if you could help.",
+                                ],
+        personality.Passionate: ["You are the only one who can do this! Will you aid me?!",
+                                 ],
+        personality.Sociable: [
+            "I'd really appreciate it if you could help us.", "Would you consider helping us?"
+        ],
+        personality.Shy: ["Please help.",
+                          ],
+        tags.Faithworker: [
+            "It would please [God] if you could help.",
+        ],
     },
 
     "[WITHDRAW]": {

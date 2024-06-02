@@ -554,5 +554,44 @@
       "MechaFighting": -1
     },
     "local_requirements": ["DeadZone"]
+  },
+  {
+    "name": "Priest",
+    "skills": ["Negotiation"],
+    "tags": ["Faithworker"]
+  },
+  {
+    "name": "Monk",
+    "skills": ["Concentration"],
+    "tags": ["Faithworker"],
+    "skill_modifiers": {
+      "Concentration": 1
+    }
+  },
+  {
+    "name": "Neodruid",
+    "skills": ["Wildcraft"],
+    "tags": ["Faithworker"],
+    "local_requirements": ["DeadZone"]
+  },
+  {
+    "name": "Technoshaman",
+    "skills": ["Science", "Computers"],
+    "tags": ["Faithworker", "Academic"]
+  },
+  {
+    "name": "Warrior Monk",
+    "tags": ["Faithworker", "Adventurer"],
+    "always_combatant": true,
+    "skill_modifiers": {
+      "MechaGunnery": -1,
+      "MechaPiloting": -1,
+      "CloseCombat": 3,
+      "RangedCombat": -1,
+      "Athletics": 2,
+      "Vitality": 2,
+      "Concentration": 1
+    }
   }
+
 ]

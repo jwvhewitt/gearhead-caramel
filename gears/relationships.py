@@ -79,6 +79,7 @@ MEM_Clash = "MEM_Clash"         # This memory is about the NPC and PC fighting
 MEM_AidedByPC = "MEM_AidedByPC" # NPC got help from the PC
 MEM_Romantic = "MEM_Romantic"
 MEM_Ideological = "MEM_Ideological"     # An ideological event
+MEM_Debt = "MEM_Debt"           # The NPC owes a debt to the PC, formally or informally
 
 
 MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash,MEM_AidedByPC, MEM_Romantic, MEM_Ideological)
