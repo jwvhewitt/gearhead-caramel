@@ -206,6 +206,13 @@ class WorldMapWar:
                 self.legend.set_color(node, 0)
         del self.war_teams[losing_fac]
 
+    def get_enemy_faction(self, camp:gears.GearHeadCampaign, faca):
+        candidates = [fac for fac in self.war_teams.keys() if fac is not faca and camp.are_faction_enemies(faca, fac)]
+        if candidates:
+            return random.choice(candidates)
+        else:
+            return camp.get_enemy_faction(faca)
+
     WAR_WON = "WIN!"
     WAR_LOST = "LOSE!"
 
@@ -251,7 +258,7 @@ class WorldMapWar:
             self.just_captured = node.destination
             if metroscene and game.content.load_dynamic_plot(
                 camp, "WMW_CONSOLIDATION", PlotState(elements={
-                        "METROSCENE": node.destination, "METRO": metroscene.metrodat,
+                        "METROSCENE": node.destination, "METRO": metroscene.metrodat, "MISSION_GATE": node.entrance,
                         WORLD_MAP_WAR: self, "FORMER_FACTION": former_faction
                     }
                 )

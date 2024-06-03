@@ -4010,20 +4010,74 @@ DEFAULT_GRAMMAR = {
 
     "[LOOKING_FOR_CAVALIER]": {
         # The NPC has a mission for a cavalier.
-        Default: ["I need a cavalier for an upcoming mission.",
-                  ],
-        personality.Cheerful: ["This could be your lucky day; I'm looking to hire a cavalier...",
-                               ],
-        personality.Grim: ["I need to find a cavalier for this mission, since the last one I hired died...",
-                           ],
-        personality.Easygoing: ["Hey, are you looking for work?",
-                                ],
-        personality.Passionate: ["I need a hot-blooded pilot for an urgent mission!"
-                                 ],
-        personality.Sociable: ["I suppose you've heard that I'm looking for a pilot.",
-                               ],
-        personality.Shy: ["I'm looking for a pilot.",
-                          ],
+        Default: [
+            "I need a cavalier for an upcoming mission.",
+            "I'm looking for a mecha pilot to do a mission.",
+            "I have a job available for a cavalier."
+        ],
+        personality.Cheerful: [
+            "This could be your lucky day; I'm looking to hire a cavalier...",
+            "Do you want more money? Of course, we all do. Why not try this mission?",
+            "Good news! I have a job opening for a pilot just like you."
+        ],
+        personality.Grim: [
+            "I need to find a cavalier for this mission, since the last one I hired died...",
+            "I need a highly skilled cavalier for a dangerous mission.",
+            "I have a job available, but there's no guarantee you'll come back alive."
+        ],
+        personality.Easygoing: [
+            "Hey, are you looking for work?",
+            "I gotta find a cavalier to do a mission for me...",
+            "Wanna do a mission for me?"
+        ],
+        personality.Passionate: [
+            "I need a hot-blooded pilot for an urgent mission!",
+            "There's an emergency, and I need to find a cavalier immediately!",
+            "Hey, do you want to prove yourself by doing this mission?"
+        ],
+        personality.Sociable: [
+            "I suppose you've heard that I'm looking for a pilot.",
+            "I've been going through my contacts to find a skilled pilot for an upcoming mission.",
+            "I should tell you that I need a pilot for an upcoming mission, if you're interested."
+        ],
+        personality.Shy: [
+            "I'm looking for a pilot.",
+            "I need a pilot to do a mission.",
+            "Are you looking for a job?",
+        ],
+        MET_BEFORE: [
+            "I know you're not someone to turn down a mission, and I have one available.",
+        ],
+        LOVE: [
+            "I've got a mission contract and you'd be the perfect cavalier for the job."
+        ],
+        LIKE: [
+            "I think you'd be an ideal pilot for the mission I have."
+        ],
+        DISLIKE: [
+            "I've been searching for a competent mecha pilot but I guess you could do this mission too.",
+        ],
+        personality.Glory: [
+            "Fame and riches await any cavalier who can complete my mission!",
+            "You look like you're up for a challenge; I have a mission available...",
+        ],
+        personality.Duty: [
+            "I need a responsible pilot to carry out this mission.",
+            "I have a mission for a dependable cavalier.",
+        ],
+        personality.Fellowship: [
+            "Could you help me out by doing a mission?",
+            "It'd be a great help to me if you could do this job..."
+        ],
+        personality.Peace: [
+            "Are you willing to fight for peace?",
+        ],
+        tags.Adventurer: [
+            "Looking for adventure? Do I have a job for you!",
+        ],
+        tags.Military: [
+            "I need a soldier for an upcoming operation.",
+        ],
     },
 
     "[Luna]": {

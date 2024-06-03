@@ -483,7 +483,7 @@ class BasicFightChallenge(ChallengePlot):
     def _is_good_npc(self, nart: GHNarrativeRequest, candidate):
         return (
             isinstance(candidate, gears.base.Character) and nart.camp.is_not_lancemate(candidate) and
-            self.elements["CHALLENGE"].is_involved(nart, candidate)
+            self.elements["CHALLENGE"].is_involved(nart.camp, candidate)
         )
 
     def _win_the_mission(self, camp):
@@ -635,7 +635,7 @@ class EBInformationBroker(ChallengePlot):
         offer_msg="{NPC} is a {NPC.job} who can usually be found at {NPC_SCENE}. They say {NPC.gender.subject_pronoun} knows something about {ENEMY_FACTION}.",
         memo="The {NPC.job} {NPC} may have information about {ENEMY_FACTION}'s {BASE_NAME}.", memo_location="{NPC_SCENE}",
         offer_subject="{NPC} is a local information broker",
-        offer_subject_data="{NPC}'s information'",
+        offer_subject_data="{NPC}'s information",
         prohibited_npcs=("NPC",)
     )
 
@@ -706,7 +706,7 @@ class EBInformationBroker(ChallengePlot):
         if self._rumor_memo_delivered:
             mylist.append(Offer(
                 "I know where to find {ENEMY_FACTION}'s {BASE_NAME}, and for just ${DONATION:,} that info could be yours.".format(**self.elements),
-                ContextTag([context.CUSTOM]), data={"reply": "Tell me what you know about {ENEMY_FACTION}'s {BASE_NAME}.",},
+                ContextTag([context.CUSTOM]), data={"reply": "Tell me what you know about {ENEMY_FACTION}'s {BASE_NAME}.".format(**self.elements),},
                 subject=mysubject, subject_start=True
             ))
         else:
