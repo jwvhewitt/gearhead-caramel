@@ -36,7 +36,7 @@ class MoveTo(object):
         pc = self.first_living_pc()
         # blocked_tiles = set( m.pos for m in explo.scene.contents )
         self.pmm = self._get_party_mmode(explo)
-        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self.pmm)
+        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self.pmm, blocked_tiles=explo.scene.get_immovable_positions())
         if self.EXCLUDE_LAST_STEP:
             self.path.results.pop(-1)
             #self.dest = self.path.results[-1]
@@ -101,7 +101,9 @@ class MoveTo(object):
         else:
             move_ok = True
             for t in targets:
-                if not self.is_earlier_model(self.party, pc, t):
+                if t.IMMOVABLE:
+                    move_ok = False
+                elif not self.is_earlier_model(self.party, pc, t):
                     t.pos = pc.pos
                 else:
                     move_ok = False
@@ -131,7 +133,7 @@ class MoveTo(object):
                         f_pos = pc.pos
                         first = False
                     elif not isinstance(pc, gears.base.Monster):
-                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm)
+                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm, blocked_tiles=exp.scene.get_immovable_positions())
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
 
@@ -178,7 +180,7 @@ class TalkTo(MoveTo):
             f_pos = self.npc.pos
             for pc in self.party:
                 if pc.is_operational() and exp.scene.on_the_map(*pc.pos):
-                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm)
+                    path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm, blocked_tiles=exp.scene.get_immovable_positions())
                     if len(path.results) > 1:
                         self.move_pc(exp, pc, path.results[1])
                         f_pos = pc.pos
@@ -212,7 +214,7 @@ class DoInvocation(MoveTo):
         """Move the pc to pos, then invoke the invocation."""
         self.party = [pc, ]
         self.pos = pos
-        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self._get_party_mmode(explo))
+        self.path = scenes.pathfinding.AStarPath(explo.scene, pc.pos, pos, self._get_party_mmode(explo), blocked_tiles=explo.scene.get_immovable_positions())
         self.step = 0
         self.record = record
         self.invo = invo
@@ -240,7 +242,7 @@ class DoInvocation(MoveTo):
                         f_pos = pc.pos
                         first = False
                     else:
-                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp))
+                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp), blocked_tiles=exp.scene.get_immovable_positions())
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
 

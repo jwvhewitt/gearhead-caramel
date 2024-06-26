@@ -251,9 +251,24 @@ class Room(object):
                     good_walls.remove(p)
                     i.place(gb, p)
                 elif good_spots:
-                    p = random.choice(good_spots)
-                    good_spots.remove(p)
-                    i.place(gb, p)
+                    i.pos = None
+                    if hasattr(i, "IMMOVABLE") and i.IMMOVABLE:
+                        candidates = list(good_spots)
+                        while candidates and not i.pos:
+                            p = random.choice(candidates)
+                            candidates.remove(p)
+                            if gb.wall_wont_block(*p, mmode=archi.mmode):
+                                i.place(gb, p)
+                                good_spots.remove(p)
+                        if not i.pos:
+                            p = random.choice(good_spots)
+                            good_spots.remove(p)
+                            i.place(gb, p)
+
+                    else:
+                        p = random.choice(good_spots)
+                        good_spots.remove(p)
+                        i.place(gb, p)
 
     def fill(self, gb, dest, floor=-1, wall=-1, decor=-1):
         # Fill the provided area with the provided terrain.

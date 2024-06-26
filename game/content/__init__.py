@@ -1,6 +1,5 @@
 
 import collections
-from pbge.plots import PlotError
 import pbge
 import gears
 from .. import exploration
@@ -8,10 +7,10 @@ from .. import exploration
 from . import ghterrain
 from . import ghwaypoints
 from . import ghcutscene
-import uuid
 from . import backstory
 from . import ghrooms
 from . import ghchallenges
+from . import megaprops
 
 
 # The list of plots will be stored as a dictionary based on label.

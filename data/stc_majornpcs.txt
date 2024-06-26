@@ -189,4 +189,33 @@ Character
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
 
+Character
+    name = "Buma Yolos"
+    mnpcid = "BumaYolos"
+    statline = {Reflexes=22, Body=16, Speed=24, Perception=18, Knowledge=12, Craft=11, Ego=18, Charm=16}
+    colors = (HeavyPurple, MediumSkin, Beige, Saffron, PirateSunrise)
+    personality=[Shy, Easygoing, Glory, GreenZone]
+    portrait='card_m_jjangbogo.png'
+    gender=Female
+    job=MechaPilot
+    renown=80
+    birth_year=128
+    combatant=True
+    mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
+    mecha_pref="SAN-D1 Daum"
+
+Character
+    name = "Carnelio"
+    mnpcid = "Carnelio"
+    statline = {Reflexes=15, Body=16, Speed=17, Perception=12, Knowledge=14, Craft=6, Ego=13, Charm=13}
+    colors = (HeavyPurple, MediumSkin, Beige, Saffron, PirateSunrise)
+    personality=[Cheerful, Sociable, Glory, L5DustyRing]
+    portrait='card_m_jjangbogo.png'
+    gender=Nonbinary
+    job=Pirate
+    renown=45
+    birth_year=128
+    combatant=True
+    mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
+    mecha_pref="SAN-D1 Daum"
 

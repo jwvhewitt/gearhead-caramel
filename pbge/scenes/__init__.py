@@ -119,6 +119,7 @@ class PlaceableThing(KeyObject):
     frame = 0
     altitude = None
     sort_priority = 0
+    IMMOVABLE = False
 
     def get_sprite(self):
         """Generate the sprite for this thing."""
@@ -448,6 +449,9 @@ class Scene(object):
             elif pos[1] >= self.height:
                 nupos[1] = self.height-1
         return tuple(nupos)
+
+    def get_immovable_positions(self):
+        return [thing.pos for thing in self.contents if hasattr(thing, "pos") and hasattr(thing, "IMMOVABLE") and thing.IMMOVABLE]
 
     def __setstate__(self, state):
         # For saves from V0.921 or earlier, make sure there's wrap attributes.

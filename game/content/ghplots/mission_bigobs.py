@@ -21,6 +21,7 @@ import copy
 
 BAMO_BREAK_THROUGH = "BAMO_BREAK_THROUGH"
 BAMO_DEFEND_FORTRESS = "BAMO_DEFEND_FORTRESS"
+BAMO_ESCORT_SHIP = "BAMO_ESCORT_SHIP"
 
 class BAM_ToTheOtherSide(Plot):
     LABEL = BAMO_BREAK_THROUGH
@@ -221,6 +222,122 @@ class BAM_TimedDefense(Plot):
 
         if not self.first_room:
             self.first_room = random.choice(self.reinforcement_rooms)
+
+        team2: teams.Team = self.register_element("_eteam", teams.Team(faction=myfac, enemies=(myscene.player_team,)))
+
+        myroom = self.register_element("CENTER_ROOM",
+                                       ghrooms.IndicatedRoom(16, 16, anchor=pbge.randmaps.anchors.middle),
+                                       dident="LOCALE")
+
+        myroom2 = self.register_element("URBAN_ROOM",
+                                       ghrooms.MechaScaleResidentialArea(12, 12, anchor=pbge.randmaps.anchors.middle),
+                                       dident="CENTER_ROOM")
+
+        bunker_team = self.register_element("_bunkerteam", teams.Team(faction=allyfac, enemies=(team2,), allies=(myscene.player_team,)), dident="URBAN_ROOM")
+        myfort = self.register_element("_bunker", gears.selector.generate_fortification(self.rank, myfac, myscene.environment))
+        bunker_team.contents.append(myfort)
+
+        self.round_counter = 0
+        self.round_target = max(5, self.rank//10 + 2)
+
+        self.obj0 = adventureseed.MissionObjective("Proceed to indicated area", 1)
+        self.adv.objectives.append(self.obj0)
+        self.obj = adventureseed.MissionObjective("Defend buildings for {} rounds".format(self.round_target), MAIN_OBJECTIVE_VALUE * 3)
+        self.adv.objectives.append(self.obj)
+
+        self.init_ready = True
+        self.combat_started = False
+
+        return True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        if self.init_ready:
+            myroom = self.elements["CENTER_ROOM"]
+            for x in range(myroom.area.x, myroom.area.x + myroom.area.width):
+                for y in range(myroom.area.y, myroom.area.y + myroom.area.height):
+                    camp.scene.set_visible(x, y, True)
+
+            self.init_ready = False
+
+    def t_PCMOVE(self, camp: gears.GearHeadCampaign):
+        if not self.combat_started:
+            in_dest_zone = list()
+            outta_dest_zone = list()
+            dest_zone: pygame.Rect = self.elements["CENTER_ROOM"].area
+            for pc in camp.get_active_party():
+                if dest_zone.collidepoint(*pc.pos):
+                    in_dest_zone.append(pc)
+                else:
+                    outta_dest_zone.append(pc)
+            # Remove mobility kills from the list of mecha that haven't made it to the end zone. They aren't making it.
+            # Because this check is expensive, only do it if at least some mecha are in the end zone.
+            if in_dest_zone:
+                for pc in list(outta_dest_zone):
+                    if pc.get_current_speed() < 10:
+                        pc.gear_up(camp.scene)
+                        if pc.get_current_speed() < 10:
+                            outta_dest_zone.remove(pc)
+
+            if in_dest_zone and not outta_dest_zone:
+                self.obj0.win(camp, 100)
+                self.combat_started = True
+                self._add_reinforcements(camp)
+
+    def _add_reinforcements(self, camp: gears.GearHeadCampaign):
+        myunit = gears.selector.RandomMechaUnit(self.rank, 75, self.elements.get("ENEMY_FACTION"),
+                                                camp.scene.environment, add_commander=False)
+        team2 = self.elements["_eteam"]
+        #print(myunit.mecha_list)
+        mek1 = myunit.mecha_list[0]
+        camp.scene.deploy_team(myunit.mecha_list, team2, random.choice(self.reinforcement_rooms).area)
+        game.combat.enter_combat(camp, mek1)
+        game.combat.enter_combat(camp, self.elements["_bunker"])
+
+    def t_COMBATROUND(self, camp):
+        if self.combat_started:
+            myteam = self.elements["_bunkerteam"]
+            if len(myteam.get_members_in_play(camp)) < 1:
+                pbge.alert("Buildings Destroyed".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
+                self.obj.failed = True
+                camp.check_trigger("FORCE_EXIT")
+
+            else:
+                self.round_counter += 1
+                pbge.alert("Survived Round {}".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
+                if self.round_counter >= self.round_target:
+                    # Victory!
+                    self.obj.win(camp, 100)
+                    camp.check_trigger("FORCE_EXIT")
+                else:
+                    self._add_reinforcements(camp)
+
+    def t_ENDCOMBAT(self, camp):
+        if self.combat_started:
+            myteam = self.elements["_eteam"]
+            if len(myteam.get_members_in_play(camp)) < 1:
+                self.round_counter += 1
+                self._add_reinforcements(camp)
+
+
+class BAM_EscortShip(Plot):
+    LABEL = BAMO_ESCORT_SHIP
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        allyfac = self.elements.get("ALLIED_FACTION")
+        myfac = self.elements.get("ENEMY_FACTION")
+        entry_room: pbge.randmaps.rooms.Room = self.elements.get("ENTRANCE_ROOM")
+        entry_anchor = entry_room.anchor
+
+        self.reinforcement_rooms = list()
+        for t, anc in enumerate(pbge.randmaps.anchors.EDGES):
+            if anc is not entry_anchor:
+                roomtype = self.elements["ARCHITECTURE"].get_a_room()
+                myroom = self.register_element("CORNER_ROOM_{}".format(t), roomtype(10, 10, anchor=anc), dident="LOCALE")
+                self.reinforcement_rooms.append(myroom)
+
 
         team2: teams.Team = self.register_element("_eteam", teams.Team(faction=myfac, enemies=(myscene.player_team,)))
 

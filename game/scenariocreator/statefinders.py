@@ -222,6 +222,7 @@ SINGULAR_TYPES = {
         "RegExLogoTerrain", "HospitalSign", "TownBanner", "GoldTownHallSign", "MilitarySign", "GeneralStoreSign1",
         "TavernSign1", "CafeSign1", "MechaModelSign", "SkullWallSign", "JollyRogerSign", "AegisLogoSign",
         "SolarNavyLogoSign", "DragonSign", "None", "KirasTattoosSign", "GunShopSign", "YeOldeShopSign", "ShieldSign",
+        "BladesOfCrihnaSign"
     ),
     "shop_type": (
         "game.services.GENERAL_STORE", "game.services.GENERAL_STORE_PLUS_MECHA", "game.services.MECHA_STORE",

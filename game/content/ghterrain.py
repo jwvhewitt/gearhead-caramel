@@ -686,6 +686,20 @@ class AlliedArmorSignEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_alliedarmor.png'
 
 
+class BladesOfCrihnaSign(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_bladesofcrihna.png'
+
+
+class BladesOfCrihnaSignSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_bladesofcrihna.png'
+
+
+class BladesOfCrihnaSignEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_bladesofcrihna.png'
+
+
 class FixitShopSign(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_fixitsign.png'
 

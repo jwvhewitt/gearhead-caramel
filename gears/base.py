@@ -4564,6 +4564,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     DEFAULT_MATERIAL = materials.Metal
     DODGE_SKILL = stats.MechaPiloting
     sort_priority = 1
+    IMMOVABLE = True
 
     def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, action_points=3, **keywords):
         self.statline = collections.defaultdict(int)

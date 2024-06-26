@@ -60,6 +60,7 @@ class ropp_Scenario(Plot):
                               WM_IMAGE_FILE="wm_map_piratespoint.png",
                               WM_IDENTIFIER="WORLDMAP_6"))
         nart.camp.campdata['lets_get_tattoos'] = 0
+        nart.camp.campdata['hero_points'] = 0
         #:scenario_init
         self.build_world(nart)
         unique_id = "ropp"
@@ -1042,6 +1043,14 @@ class ropp_Scenario(Plot):
 
         the_world['00000075'] = the_world['00000071'].entry_level
         the_world['00000078'] = the_world['00000071'].goal_level
+
+        the_world['000000A2'] = pbge.randmaps.rooms.FuzzyRoom(
+            name='Engineering Room', anchor=None, decorate=None)
+        the_world['00000078'].contents.append(the_world['000000A2'])
+
+        the_world['000000A3'] = ghwaypoints.OldMainframe(
+            name='Fusion Control Core', desc='', anchor=None)
+        the_world['000000A2'].contents.append(the_world['000000A3'])
         # Build the city here, store it in the_world
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1, ))
@@ -1435,12 +1444,15 @@ class ropp_Scenario(Plot):
             faction=None,
             attributes=[
                 gears.tags.SCENE_OUTDOORS, gears.tags.City,
-                personality.GreenZone, gears.tags.SCENE_PUBLIC
+                personality.GreenZone, gears.tags.SCENE_PUBLIC,
+                gears.tags.CITY_NAUTICAL
             ],
             exploration_music='Anthem of Rain - Adaptation (Instrumental).ogg',
             combat_music='HoliznaCC0 - Punk.ogg')
         # Create a scene generator
-        myroom = pbge.randmaps.rooms.Room(40, 25, anchor=pbge.randmaps.anchors.north)
+        myroom = pbge.randmaps.rooms.Room(40,
+                                          25,
+                                          anchor=pbge.randmaps.anchors.north)
         myscenegen = pbge.randmaps.PartlyUrbanGenerator(
             myscene,
             game.content.gharchitecture.HumanScaleGreenzone(
@@ -1528,6 +1540,31 @@ class ropp_Scenario(Plot):
             faction=None,
             combatant=True)
         the_world['00000084'].contents.append(the_world['00000089'])
+        splot = self.add_sub_plot(
+            nart,
+            "EMPTY_BUILDING",
+            elements=dict(
+                LOCALE=the_world['00000011'],
+                METROSCENE=the_world['00000011'],
+                METRO=the_world['00000011'].metrodat,
+                MISSION_GATE=the_world['00000013'],
+                CITY_COLORS=(gears.color.Burlywood, gears.color.FreedomBlue,
+                             gears.color.LunarGrey, gears.color.Cobalt,
+                             gears.color.OrangeRed),
+                INTERIOR_NAME='The House of Blades',
+                INTERIOR_TAGS=[
+                    gears.tags.SCENE_PUBLIC, gears.tags.SCENE_GARAGE,
+                    gears.tags.SCENE_SHOP
+                ],
+                DOOR_SIGN=(ghterrain.BladesOfCrihnaSignEast,
+                           ghterrain.BladesOfCrihnaSignSouth),
+                DOOR_TYPE=ghwaypoints.ScrapIronDoor,
+                INTERIOR_FACTION=gears.factions.BladesOfCrihna,
+                EXTERIOR_TERRSET=ghterrain.ScrapIronBuilding,
+                INTERIOR_ARCHITECTURE=gharchitecture.FortressBuilding,
+                INTERIOR_DECOR=gharchitecture.FactoryDecor()))
+        the_world['000000A7'] = splot.elements["INTERIOR"]
+        the_world['000000A8'] = splot.elements["FOYER"]
         # Build the city here, store it in the_world
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1, ))
@@ -3829,6 +3866,52 @@ class DungeonGoal_ropp_131(Plot):
 
         #: plot_init
         #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'ROOM_ropp_177',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+    #: plot_methods
+
+
+class Room_ropp_177(Plot):
+    LABEL = "ROOM_ropp_177"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['ROOM'] = nart.camp.campdata[THE_WORLD]['000000A2']
+        element_alias_list = []
+
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'WAYPOINT_ropp_178',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+    #: plot_methods
+
+
+class Waypoint_ropp_178(Plot):
+    LABEL = "WAYPOINT_ropp_178"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['WAYPOINT'] = nart.camp.campdata[THE_WORLD]['000000A3']
+        element_alias_list = []
+
+        #: plot_init
+        #: plot_actions
         #: plot_subplots
         return True
 
@@ -4396,8 +4479,14 @@ class City_ropp_13(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'EMPTYBUILDING_ropp_180',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         #: plot_actions
-        #: plot_subplots
+
+        self.add_sub_plot(nart, 'ROPP_DOCKYARDS_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -4545,6 +4634,24 @@ class NonPlayerCharacter_ropp_147(Plot):
         return mylist
 
 
+class EmptyBuilding_ropp_180(Plot):
+    LABEL = "EMPTYBUILDING_ropp_180"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['ROOM'] = nart.camp.campdata[THE_WORLD]['000000A8']
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000A7']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+
+    #: plot_methods
 class City_ropp_14(Plot):
     LABEL = "CITY_ropp_14"
     active = True
