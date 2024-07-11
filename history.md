@@ -1,3 +1,5 @@
+* Combat can be set to keep going even if there are no active enemies on map
+* Room contents with fixed positions will now be placed on map
 * Props are immovable even after they are destroyed
 * Props will not be placed somewhere they can block movement
 * calc_mission_reward can automatically round the reward to an round number

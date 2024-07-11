@@ -1231,7 +1231,6 @@ class FindEnemyBaseTask(quests.QuestPlot):
             }, involvement=ghchallenges.InvolvedMetroNoFriendToFactionNPCs(self.elements["METROSCENE"], self.elements["_ENEMY_FACTION"]), outcome=my_outcome
         )
         self.quest_record._needed_lore.add(base_lore)
-        print("Find Enemy Base Task Active")
 
         return True
 

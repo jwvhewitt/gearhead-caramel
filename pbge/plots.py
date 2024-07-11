@@ -171,7 +171,7 @@ class Plot(object):
 
     memo = None
 
-    def __init__(self, nart, pstate):
+    def __init__(self, nart, pstate: PlotState):
         """Initialize + install this plot, or raise PlotError"""
         # nart = The Narrative object
         # pstate = The current plot state

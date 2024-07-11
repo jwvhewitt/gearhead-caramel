@@ -59,8 +59,9 @@ def southeast(par,chi):
         return par.bottomright
 
 
-
 EDGES = (west,northwest,north,northeast,east,southeast,south,southwest)
+
+CARDINALS = (west,north,east,south)
 
 OPPOSING_CARDINALS = ((north,south),(east,west),(south,north),(west,east))
 
@@ -73,3 +74,9 @@ OPPOSITE_EDGE = {
     south: north, southwest: northeast, west: east, northwest: southeast
 }
 
+ADJACENT_ANCHORS = {
+    north: (northwest, northeast), northeast: (north, east),
+    east: (northeast, southeast), southeast: (south, east),
+    south: (southeast, southwest), southwest: (south, west),
+    west: (southwest, northwest), northwest: (north, west)
+}

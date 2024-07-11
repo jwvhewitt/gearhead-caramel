@@ -228,8 +228,12 @@ class Room(object):
         for i in list(self.contents):
             if hasattr(i, "predeploy"):
                 i.predeploy(gb, self)
+
+        for i in list(self.contents):
             # Remove the spaces occupied by map contents from the good spots lists.
             if hasattr(i, "pos") and i.pos:
+                if hasattr(i, "place"):
+                    i.place(gb, i.pos)
                 if i.pos in good_walls:
                     good_walls.remove(i.pos)
                 if i.pos in good_spots:
@@ -237,38 +241,40 @@ class Room(object):
 
         for i in list(self.contents):
             # Only place contents which can be placed, but haven't yet.
-            if hasattr(i, "place") and not (hasattr(i, "pos") and i.pos):
-                if hasattr(i, "anchor"):
-                    myrect = pygame.Rect(0, 0, 1, 1)
-                    i.anchor(self.area, myrect)
-                    i.place(gb, (myrect.x, myrect.y))
-                    if (myrect.x, myrect.y) in good_walls:
-                        good_walls.remove((myrect.x, myrect.y))
-                    if (myrect.x, myrect.y) in good_spots:
-                        good_spots.remove((myrect.x, myrect.y))
-                elif hasattr(i, "ATTACH_TO_WALL") and i.ATTACH_TO_WALL and good_walls:
-                    p = random.choice(good_walls)
-                    good_walls.remove(p)
-                    i.place(gb, p)
-                elif good_spots:
-                    i.pos = None
-                    if hasattr(i, "IMMOVABLE") and i.IMMOVABLE:
-                        candidates = list(good_spots)
-                        while candidates and not i.pos:
-                            p = random.choice(candidates)
-                            candidates.remove(p)
-                            if gb.wall_wont_block(*p, mmode=archi.mmode):
-                                i.place(gb, p)
+            if hasattr(i, "place"):
+                if not (hasattr(i, "pos") and i.pos):
+                    if hasattr(i, "anchor"):
+                        myrect = pygame.Rect(0, 0, 1, 1)
+                        i.anchor(self.area, myrect)
+                        i.place(gb, (myrect.x, myrect.y))
+                        if (myrect.x, myrect.y) in good_walls:
+                            good_walls.remove((myrect.x, myrect.y))
+                        if (myrect.x, myrect.y) in good_spots:
+                            good_spots.remove((myrect.x, myrect.y))
+                    elif hasattr(i, "ATTACH_TO_WALL") and i.ATTACH_TO_WALL and good_walls:
+                        p = random.choice(good_walls)
+                        good_walls.remove(p)
+                        i.place(gb, p)
+                    elif good_spots:
+                        i.pos = None
+                        if hasattr(i, "IMMOVABLE") and i.IMMOVABLE:
+                            candidates = list(good_spots)
+                            while candidates and not i.pos:
+                                p = random.choice(candidates)
+                                candidates.remove(p)
+                                if gb.wall_wont_block(*p, mmode=archi.mmode):
+                                    i.place(gb, p)
+                                    good_spots.remove(p)
+                            if not i.pos:
+                                p = random.choice(good_spots)
                                 good_spots.remove(p)
-                        if not i.pos:
+                                i.place(gb, p)
+
+                        else:
                             p = random.choice(good_spots)
                             good_spots.remove(p)
                             i.place(gb, p)
 
-                    else:
-                        p = random.choice(good_spots)
-                        good_spots.remove(p)
-                        i.place(gb, p)
 
     def fill(self, gb, dest, floor=-1, wall=-1, decor=-1):
         # Fill the provided area with the provided terrain.

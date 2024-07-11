@@ -257,7 +257,6 @@ WMWO_MARTIAL_LAW = "WMWO_MARTIAL_LAW"  # The faction will attempt to impose law 
 
 class OccupationRestoreOrder(Plot):
     LABEL = WMWO_MARTIAL_LAW
-    LABEL = TEST_WAR_PLOT
     scope = "METRO"
     active = True
 

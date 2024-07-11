@@ -36,6 +36,15 @@ def enter_combat(camp, npc):
         camp.fight.activate_foe(npc)
 
 
+def start_continuous_combat(camp):
+    # Start a combat that will not end even if there are no active enemies. In this case, it's up to the script
+    # controlling the combat to end combat.
+    if camp.fight:
+        camp.fight.keep_going_without_enemies = True
+    else:
+        camp.fight = Combat(camp, keep_going_without_enemies=True)
+
+
 class CombatStat(object):
     """Keep track of some stats that only matter during combat."""
 
@@ -588,8 +597,8 @@ class PostCombatCleanup:
 
 
 class Combat(object):
-    def __init__(self, camp: gears.GearHeadCampaign):
-        self.active = []
+    def __init__(self, camp: gears.GearHeadCampaign, keep_going_without_enemies=False):
+        self.active = list(camp.get_active_party())
         self.scene: gears.GearHeadScene = camp.scene
         self.camp = camp
         self.ap_spent = collections.defaultdict(int)
@@ -597,6 +606,7 @@ class Combat(object):
         self.ai_brains = dict()
         self.no_quit = True
         self.n = 0
+        self.keep_going_without_enemies = keep_going_without_enemies
 
     def roll_initiative(self):
         # Sort based on initiative roll.
@@ -659,7 +669,11 @@ class Combat(object):
 
     def still_fighting(self):
         """Keep playing as long as there are enemies, players, and no quit."""
-        return self.num_enemies() and self.camp.first_active_pc() and self.no_quit and self.camp.scene is self.scene and not pbge.my_state.got_quit and self.camp.keep_playing_scene() and self.camp.egg
+        return (
+            (self.num_enemies() or self.keep_going_without_enemies) and
+            self.camp.first_active_pc() and self.no_quit and self.camp.scene is self.scene
+            and not pbge.my_state.got_quit and self.camp.keep_playing_scene() and self.camp.egg
+        )
 
     def step(self, chara, dest):
         """Move chara according to hmap, return True if movement ended."""
@@ -878,3 +892,5 @@ class Combat(object):
         if not isinstance(mydict, CombatDict):
             state["cstat"] = CombatDict.from_dict(mydict)
         self.__dict__.update(state)
+        if "keep_going_without_enemies" not in state:
+            self.keep_going_without_enemies = False

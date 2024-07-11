@@ -136,8 +136,10 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             cms_pstate.elements["WIN_MESSAGE"] = win_message
         if loss_message:
             cms_pstate.elements["LOSS_MESSAGE"] = loss_message
-        cms_pstate.elements["COMBAT_MUSIC"] = combat_music or camp.campdata.get(gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC) or "Komiku_-_03_-_Battle_Theme.ogg"
-        cms_pstate.elements["EXPLO_MUSIC"] = exploration_music or camp.campdata.get(gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC) or "Chronos.ogg"
+        cms_pstate.elements["COMBAT_MUSIC"] = combat_music or camp.campdata.get(
+            gears.CAMPDATA_DEFAULT_MISSION_COMBAT_MUSIC) or "Komiku_-_03_-_Battle_Theme.ogg"
+        cms_pstate.elements["EXPLO_MUSIC"] = exploration_music or camp.campdata.get(
+            gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC) or "Chronos.ogg"
         self.solo_mission = solo_mission
         if not mission_grammar:
             mission_grammar = MissionGrammar()
@@ -282,16 +284,11 @@ class BuildAMissionPlot(Plot):
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE", temporary=True, dident="METROSCENE")
         self.adv.world = myscene
 
-        myanchor = self.elements.get("ENTRANCE_ANCHOR", None) or random.choice(pbge.randmaps.anchors.EDGES)
-        self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=myanchor), dident="LOCALE")
-        myent = self.register_element("_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
-                                                                                 plot_locked=True),
-                                      dident="ENTRANCE_ROOM")
+        self._generate_entrance_room()
 
         for ob in self.elements["OBJECTIVES"]:
             self.add_sub_plot(nart, ob)
 
-        self.mission_entrance = myent
         self.started_mission = False
         self.gave_mission_reminder = False
         self.gave_ending_message = False
@@ -301,8 +298,16 @@ class BuildAMissionPlot(Plot):
 
         return True
 
+    def _generate_entrance_room(self):
+        # Set ENTRANCE_ANCHOR, ENTRANCE_ROOM, and _ENTRANCE
+        myanchor = self.elements.setdefault("ENTRANCE_ANCHOR", random.choice(pbge.randmaps.anchors.EDGES))
+        self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=myanchor), dident="LOCALE")
+        self.register_element("_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
+                                                                         plot_locked=True),
+                              dident="ENTRANCE_ROOM")
+
     def start_mission(self, camp):
-        camp.go(self.mission_entrance)
+        camp.go(self.elements["_ENTRANCE"])
         if not self.started_mission:
             self.started_mission = True
 
@@ -343,7 +348,8 @@ class BuildAMissionPlot(Plot):
 
     def _ENTRANCE_menu(self, camp, thingmenu):
         if self.adv.is_completed():
-            thingmenu.desc = "Your mission is finished. Are you ready to return to {}?".format(self.elements["METROSCENE"])
+            thingmenu.desc = "Your mission is finished. Are you ready to return to {}?".format(
+                self.elements["METROSCENE"])
             thingmenu.add_item("End Mission", self.exit_the_mission)
             thingmenu.add_item("Stay Here Longer", None)
         else:
@@ -351,7 +357,6 @@ class BuildAMissionPlot(Plot):
                 self.elements["METROSCENE"])
             thingmenu.add_item("Cancel Mission", self.exit_the_mission)
             thingmenu.add_item("Continue Mission", None)
-
 
     def exit_the_mission(self, camp: gears.GearHeadCampaign):
         camp.go(self.elements["ADVENTURE_RETURN"])
@@ -391,6 +396,7 @@ class RoadMissionPlot(BuildAMissionPlot):
 
     def t_ENDCOMBAT(self, camp):
         # If the player team gets wiped out, end the mission.
+        # If the player team wins, also end the mission.
         if not camp.first_active_pc():
             self.exit_the_mission(camp)
         elif self.adv.is_completed():
@@ -408,6 +414,32 @@ class RoadMissionPlot(BuildAMissionPlot):
         else:
             camp.go(self.elements["ADVENTURE_RETURN"])
         self.adv.end_adventure(camp)
+
+
+class EscortMissionPlot(BuildAMissionPlot):
+    # Kinda like the road mission, but we've got a ESCORT_ROOM in which to deploy whatever we're escorting and a
+    # clear path to the other side of the map.
+    LABEL = "BAM_ESCORT_MISSION"
+
+    def _generate_entrance_room(self):
+        # Set ENTRANCE_ANCHOR, ENTRANCE_ROOM, and _ENTRANCE
+        myanchor = self.elements.setdefault("ENTRANCE_ANCHOR", random.choice(pbge.randmaps.anchors.CARDINALS))
+        if myanchor not in pbge.randmaps.anchors.CARDINALS:
+            myanchor = random.choice(pbge.randmaps.anchors.CARDINALS)
+            self.elements["ENTRANCE_ANCHOR"] = myanchor
+        myscene: gears.GearHeadScene = self.elements["LOCALE"]
+        if myanchor in (pbge.randmaps.anchors.east, pbge.randmaps.anchors.west):
+            corridor = pbge.randmaps.rooms.OpenRoom(width=myscene.width, height=14, anchor=pbge.randmaps.anchors.west)
+        else:
+            corridor = pbge.randmaps.rooms.OpenRoom(width=14, height=myscene.height, anchor=pbge.randmaps.anchors.north)
+        self.register_element("ESCORT_PATH", corridor, dident="LOCALE")
+        interior_anchors = list(pbge.randmaps.anchors.ADJACENT_ANCHORS[myanchor])
+        random.shuffle(interior_anchors)
+        self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(5, 5, anchor=interior_anchors[0]), dident="ESCORT_PATH")
+        self.register_element("_ENTRANCE",
+                              game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True),
+                              dident="ENTRANCE_ROOM")
+        self.register_element("ESCORT_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=interior_anchors[1]), dident="ESCORT_PATH")
 
 
 #   ****************************
@@ -717,13 +749,13 @@ class BAM_DefeatCommander(Plot):
         self.elements["CONVO_CANT_RETREAT"] = True
         self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
 
-        #mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True,
+        # mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True,
         #                          backup_seek_func=self.adv.is_good_backup_enemy)
-        #if mynpc:
+        # if mynpc:
         #    plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
         #    myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
         #    self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
-        #else:
+        # else:
         #    myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
         #    self.register_element("_commander", myunit.commander, lock=True)
         #    self.add_sub_plot(nart, "MC_NDBCONVERSATION", elements={"NPC": myunit.commander.get_pilot()})
@@ -1031,8 +1063,8 @@ class BAM_ExtractAllies(Plot):
 
     def _npc_is_good(self, nart, candidate):
         return isinstance(candidate, gears.base.Character) and candidate.combatant and \
-               nart.camp.are_faction_allies(candidate.faction, self.elements["ALLIED_FACTION"]) and \
-               candidate not in nart.camp.party
+            nart.camp.are_faction_allies(candidate.faction, self.elements["ALLIED_FACTION"]) and \
+            candidate not in nart.camp.party
 
     def PILOT_offers(self, camp):
         mylist = list()
@@ -1132,8 +1164,8 @@ class BAM_ExtractAlliesVsDinosaurs(Plot):
 
     def _npc_is_good(self, nart, candidate):
         return isinstance(candidate, gears.base.Character) and candidate.combatant and \
-               nart.camp.are_faction_allies(candidate.faction, self.elements["ALLIED_FACTION"]) and \
-               candidate not in nart.camp.party
+            nart.camp.are_faction_allies(candidate.faction, self.elements["ALLIED_FACTION"]) and \
+            candidate not in nart.camp.party
 
     def PILOT_offers(self, camp):
         mylist = list()
@@ -1328,8 +1360,8 @@ class BAM_ProtectBuildings(Plot):
         myscene = self.elements["LOCALE"]
         roomtype = self.elements["ARCHITECTURE"].get_a_room()
         myroom = self.register_element("ROOM", roomtype(15, 15), dident="LOCALE")
-        eroom = self.register_element("EROOM", pbge.randmaps.rooms.Room(6,6), dident="ROOM")
-        b_room = self.register_element("BROOM", pbge.randmaps.rooms.FuzzyRoom(4,4), dident="ROOM")
+        eroom = self.register_element("EROOM", pbge.randmaps.rooms.Room(6, 6), dident="ROOM")
+        b_room = self.register_element("BROOM", pbge.randmaps.rooms.FuzzyRoom(4, 4), dident="ROOM")
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="EROOM")
         myfac = self.elements.get("ENEMY_FACTION")
 
@@ -1635,7 +1667,7 @@ class BAM_ExtractTrucker(Plot):
 
     def _npc_is_good(self, nart, candidate):
         return isinstance(candidate, gears.base.Character) and candidate.combatant and candidate.faction != \
-               self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party and candidate.job.name == "Trucker"
+            self.elements["ENEMY_FACTION"] and candidate not in nart.camp.party and candidate.job.name == "Trucker"
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
@@ -1924,9 +1956,9 @@ class BAM_TestMissionStub(Plot):
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
         team3 = self.register_element("_ateam", teams.Team(enemies=(team2,), allies=(myscene.player_team,)),
                                       dident="ROOM")
-        #myunit = gears.selector.RandomMechaUnit(self.rank, 200, self.elements.get("ENEMY_FACTION"), myscene.environment,
+        # myunit = gears.selector.RandomMechaUnit(self.rank, 200, self.elements.get("ENEMY_FACTION"), myscene.environment,
         #                                        add_commander=False)
-        #team2.contents += myunit.mecha_list
+        # team2.contents += myunit.mecha_list
 
         mysurvivor = self.register_element("SURVIVOR", gears.selector.generate_ace(25, None, myscene.environment))
         mynpc = mysurvivor.get_pilot()
@@ -1961,7 +1993,7 @@ class BAM_TestMissionStub(Plot):
         npc = self.elements["PILOT"]
         mek = self.elements["SURVIVOR"]
         camp.freeze(npc)
-        #ghdialogue.start_conversation(camp, camp.pc, self.adv, cue=ghdialogue.ATTACK_STARTER)
+        # ghdialogue.start_conversation(camp, camp.pc, self.adv, cue=ghdialogue.ATTACK_STARTER)
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:

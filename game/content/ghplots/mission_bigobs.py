@@ -8,7 +8,7 @@ import pbge
 import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility
+from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, megaprops
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -214,7 +214,7 @@ class BAM_TimedDefense(Plot):
         self.reinforcement_rooms = list()
         for t, anc in enumerate(pbge.randmaps.anchors.EDGES):
             if anc is not entry_anchor:
-                roomtype = self.elements["ARCHITECTURE"].get_a_room()
+                roomtype = self.elements["ARCHITECTURBAME_ME"].get_a_room()
                 myroom = self.register_element("CORNER_ROOM_{}".format(t), roomtype(10, 10, anchor=anc), dident="LOCALE")
                 self.reinforcement_rooms.append(myroom)
                 if anc is pbge.randmaps.anchors.OPPOSITE_EDGE[entry_anchor]:
@@ -321,6 +321,7 @@ class BAM_TimedDefense(Plot):
 
 class BAM_EscortShip(Plot):
     LABEL = BAMO_ESCORT_SHIP
+    LABEL = BAMO_TEST_MISSION
     active = True
     scope = "LOCALE"
 
@@ -328,108 +329,103 @@ class BAM_EscortShip(Plot):
         myscene = self.elements["LOCALE"]
         allyfac = self.elements.get("ALLIED_FACTION")
         myfac = self.elements.get("ENEMY_FACTION")
-        entry_room: pbge.randmaps.rooms.Room = self.elements.get("ENTRANCE_ROOM")
-        entry_anchor = entry_room.anchor
+        if "ESCORT_PATH" in self.elements and self.elements["ESCORT_PATH"]:
+            std_dident = "ESCORT_PATH"
+        else:
+            std_dident = "LOCALE"
 
-        self.reinforcement_rooms = list()
-        for t, anc in enumerate(pbge.randmaps.anchors.EDGES):
-            if anc is not entry_anchor:
+        if not ("ESCORT_ROOM" in self.elements and self.elements["ESCORT_ROOM"]):
+            self.register_element(
+                "ESCORT_ROOM", ghrooms.OpenRoom(12, 12), dident=std_dident
+            )
+
+        myship = self.register_element("SHIP", megaprops.CivilianWaterShip(rank=self.rank), dident="ESCORT_ROOM")
+
+        entry_anchor = self.elements["ENTRANCE_ANCHOR"]
+        troom = self.register_element(
+            "TARGET_ROOM", ghrooms.IndicatedRoom(
+                12, 12, anchor=pbge.randmaps.anchors.OPPOSITE_EDGE[entry_anchor]
+            ), dident=std_dident
+        )
+
+        reinforcement_rooms = list()
+        for n, anc in enumerate(pbge.randmaps.anchors.EDGES):
+            if anc is not entry_anchor and anc is not pbge.randmaps.anchors.OPPOSITE_EDGE[entry_anchor]:
                 roomtype = self.elements["ARCHITECTURE"].get_a_room()
-                myroom = self.register_element("CORNER_ROOM_{}".format(t), roomtype(10, 10, anchor=anc), dident="LOCALE")
-                self.reinforcement_rooms.append(myroom)
+                rroom = self.register_element("_rroom_{}".format(n), roomtype(10, 10), dident="LOCALE")
+                reinforcement_rooms.append(rroom)
+        self.elements[CTE_REINFORCEMENT_ROOMS] = reinforcement_rooms
 
-
-        team2: teams.Team = self.register_element("_eteam", teams.Team(faction=myfac, enemies=(myscene.player_team,)))
-
-        myroom = self.register_element("CENTER_ROOM",
-                                       ghrooms.IndicatedRoom(16, 16, anchor=pbge.randmaps.anchors.middle),
-                                       dident="LOCALE")
-
-        myroom2 = self.register_element("URBAN_ROOM",
-                                       ghrooms.MechaScaleResidentialArea(12, 12, anchor=pbge.randmaps.anchors.middle),
-                                       dident="CENTER_ROOM")
-
-        bunker_team = self.register_element("_bunkerteam", teams.Team(faction=allyfac, enemies=(team2,), allies=(myscene.player_team,)), dident="URBAN_ROOM")
-        myfort = self.register_element("_bunker", gears.selector.generate_fortification(self.rank, myfac, myscene.environment))
-        bunker_team.contents.append(myfort)
-
-        self.round_counter = 0
-        self.round_target = max(5, self.rank//10 + 2)
-
-        self.obj0 = adventureseed.MissionObjective("Proceed to indicated area", 1)
-        self.adv.objectives.append(self.obj0)
-        self.obj = adventureseed.MissionObjective("Defend buildings for {} rounds".format(self.round_target), MAIN_OBJECTIVE_VALUE * 3)
-        self.adv.objectives.append(self.obj)
-
-        self.init_ready = True
-        self.combat_started = False
+        team2: teams.Team = self.register_element(
+            CTE_ENEMY_TEAM, teams.Team(faction=myfac, enemies=(myscene.player_team,))
+        )
+        self.add_sub_plot(nart, CTHREAT_MECHA, ident="THREAT")
+        self.did_init = False
 
         return True
 
     def t_START(self, camp: gears.GearHeadCampaign):
-        if self.init_ready:
-            myroom = self.elements["CENTER_ROOM"]
-            for x in range(myroom.area.x, myroom.area.x + myroom.area.width):
-                for y in range(myroom.area.y, myroom.area.y + myroom.area.height):
-                    camp.scene.set_visible(x, y, True)
+        if not self.did_init:
+            self.subplots["THREAT"].activate(camp)
+            self.did_init = True
 
-            self.init_ready = False
 
-    def t_PCMOVE(self, camp: gears.GearHeadCampaign):
-        if not self.combat_started:
-            in_dest_zone = list()
-            outta_dest_zone = list()
-            dest_zone: pygame.Rect = self.elements["CENTER_ROOM"].area
-            for pc in camp.get_active_party():
-                if dest_zone.collidepoint(*pc.pos):
-                    in_dest_zone.append(pc)
-                else:
-                    outta_dest_zone.append(pc)
-            # Remove mobility kills from the list of mecha that haven't made it to the end zone. They aren't making it.
-            # Because this check is expensive, only do it if at least some mecha are in the end zone.
-            if in_dest_zone:
-                for pc in list(outta_dest_zone):
-                    if pc.get_current_speed() < 10:
-                        pc.gear_up(camp.scene)
-                        if pc.get_current_speed() < 10:
-                            outta_dest_zone.remove(pc)
+# *******************************
+# ***   CONTINUOUS  THREATS   ***
+# *******************************
+#
+# Sometimes for a mission you don't want just one enemy, you want an endless supply of them!
+# Needed Elements:
+#   ENEMY_TEAM: The team to which to add the reinforcements; if no team is provided then a new team will be created
+#       each time reinforcements are called.
+#   REINFORCEMENT_ROOMS: A list of rooms in which to place reinforcements.
 
-            if in_dest_zone and not outta_dest_zone:
-                self.obj0.win(camp, 100)
-                self.combat_started = True
-                self._add_reinforcements(camp)
+CTHREAT_MECHA = "CTHREAT_MECHA"
+CTHREAT_MONSTERS = "CTHREAT_MONSTERS"
+CTE_MONSTER_TAGS = "CTE_MONSTER_TAGS"
 
-    def _add_reinforcements(self, camp: gears.GearHeadCampaign):
-        myunit = gears.selector.RandomMechaUnit(self.rank, 75, self.elements.get("ENEMY_FACTION"),
+CTE_ENEMY_TEAM = "ENEMY_TEAM"
+CTE_REINFORCEMENT_ROOMS = "REINFORCEMENT_ROOMS"
+
+class CTMecha(Plot):
+    LABEL = CTHREAT_MECHA
+    active = False
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        if CTE_REINFORCEMENT_ROOMS not in self.elements or not self.elements[CTE_REINFORCEMENT_ROOMS]:
+            roomtype = self.elements["ARCHITECTURE"].get_a_room()
+            myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
+            self.elements[CTE_REINFORCEMENT_ROOMS] = [myroom,]
+
+        self.reinforcements_counter = 1
+
+        return True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        game.combat.start_continuous_combat(camp)
+
+    def activate(self, camp):
+        game.combat.start_continuous_combat(camp)
+        super().activate(camp)
+
+    def deactivate(self, camp):
+        if camp.fight:
+            camp.fight.keep_going_without_enemies = False
+        super().deactivate(camp)
+
+    def add_reinforcements(self, camp):
+        myscene = self.elements["LOCALE"]
+        myrooms = self.elements[CTE_REINFORCEMENT_ROOMS]
+        myunit = gears.selector.RandomMechaUnit(self.rank, 100, self.elements.get("ENEMY_FACTION"),
                                                 camp.scene.environment, add_commander=False)
-        team2 = self.elements["_eteam"]
-        #print(myunit.mecha_list)
         mek1 = myunit.mecha_list[0]
-        camp.scene.deploy_team(myunit.mecha_list, team2, random.choice(self.reinforcement_rooms).area)
+        team2 = self.elements.get("ENEMY_TEAM", teams.Team(enemies=(myscene.player_team,)))
+        camp.scene.deploy_team(myunit.mecha_list, team2, random.choice(myrooms).area)
         game.combat.enter_combat(camp, mek1)
-        game.combat.enter_combat(camp, self.elements["_bunker"])
 
     def t_COMBATROUND(self, camp):
-        if self.combat_started:
-            myteam = self.elements["_bunkerteam"]
-            if len(myteam.get_members_in_play(camp)) < 1:
-                pbge.alert("Buildings Destroyed".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
-                self.obj.failed = True
-                camp.check_trigger("FORCE_EXIT")
-
-            else:
-                self.round_counter += 1
-                pbge.alert("Survived Round {}".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
-                if self.round_counter >= self.round_target:
-                    # Victory!
-                    self.obj.win(camp, 100)
-                    camp.check_trigger("FORCE_EXIT")
-                else:
-                    self._add_reinforcements(camp)
-
-    def t_ENDCOMBAT(self, camp):
-        if self.combat_started:
-            myteam = self.elements["_eteam"]
-            if len(myteam.get_members_in_play(camp)) < 1:
-                self.round_counter += 1
-                self._add_reinforcements(camp)
+        if self.reinforcements_counter > 0:
+            self.reinforcements_counter -= 1
+        else:
+            self.add_reinforcements(camp)
