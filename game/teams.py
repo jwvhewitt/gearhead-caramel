@@ -62,3 +62,6 @@ class Team(object):
     def get_members_in_play(self, camp):
         return [npc for npc in camp.scene.contents if
                 camp.scene.local_teams.get(npc, None) == self and npc.is_operational()]
+
+    def get_members_including_destroyed(self, camp):
+        return [npc for npc in camp.scene.contents if camp.scene.local_teams.get(npc, None) == self]

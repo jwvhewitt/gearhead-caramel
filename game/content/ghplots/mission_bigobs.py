@@ -325,6 +325,14 @@ class BAM_EscortShip(Plot):
     active = True
     scope = "LOCALE"
 
+    DIRECTION_BY_ANCHOR = {
+        pbge.randmaps.anchors.north: megaprops.SOUTHWARD, pbge.randmaps.anchors.northeast: megaprops.SOUTHWARD,
+        pbge.randmaps.anchors.east: megaprops.WESTWARD, pbge.randmaps.anchors.southeast: megaprops.WESTWARD,
+        pbge.randmaps.anchors.south: megaprops.NORTHWARD, pbge.randmaps.anchors.southwest: megaprops.NORTHWARD,
+        pbge.randmaps.anchors.west: megaprops.EASTWARD, pbge.randmaps.anchors.northwest: megaprops.EASTWARD,
+        pbge.randmaps.anchors.middle: megaprops.NORTHWARD, None: megaprops.SOUTHWARD
+    }
+
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         allyfac = self.elements.get("ALLIED_FACTION")
@@ -338,10 +346,12 @@ class BAM_EscortShip(Plot):
             self.register_element(
                 "ESCORT_ROOM", ghrooms.OpenRoom(12, 12), dident=std_dident
             )
+        entry_anchor = self.elements["ENTRANCE_ANCHOR"]
+
+        my_facing = self.register_element("_facing", self.DIRECTION_BY_ANCHOR.get(entry_anchor, megaprops.EASTWARD))
 
         myship = self.register_element("SHIP", megaprops.CivilianWaterShip(rank=self.rank), dident="ESCORT_ROOM")
 
-        entry_anchor = self.elements["ENTRANCE_ANCHOR"]
         troom = self.register_element(
             "TARGET_ROOM", ghrooms.IndicatedRoom(
                 12, 12, anchor=pbge.randmaps.anchors.OPPOSITE_EDGE[entry_anchor]
@@ -357,10 +367,19 @@ class BAM_EscortShip(Plot):
         self.elements[CTE_REINFORCEMENT_ROOMS] = reinforcement_rooms
 
         team2: teams.Team = self.register_element(
-            CTE_ENEMY_TEAM, teams.Team(faction=myfac, enemies=(myscene.player_team,))
+            CTE_ENEMY_TEAM, teams.Team(faction=myfac, enemies=(myscene.player_team, myship))
         )
+        self.register_element(CTE_INITIAL_ROOM, ghrooms.OpenRoom(10,10, anchor=pbge.randmaps.anchors.middle),
+                              dident=std_dident)
         self.add_sub_plot(nart, CTHREAT_MECHA, ident="THREAT")
         self.did_init = False
+
+        self.obj = adventureseed.MissionObjective("Escort ship to safe zone", MAIN_OBJECTIVE_VALUE * 3)
+        self.adv.objectives.append(self.obj)
+        self.obj2 = adventureseed.MissionObjective("Protect ship from enemies", MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj2)
+
+        self.initial_health = 0
 
         return True
 
@@ -368,6 +387,48 @@ class BAM_EscortShip(Plot):
         if not self.did_init:
             self.subplots["THREAT"].activate(camp)
             self.did_init = True
+            myprop = self.elements["SHIP"]
+            for p in myprop.get_members_in_play(camp):
+                self.initial_health += p.current_health
+
+    def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
+        myprop = self.elements["SHIP"]
+        if not myprop.get_members_in_play(camp):
+            pbge.alert("Ship Destroyed", font=pbge.HUGEFONT, justify=0)
+            self.obj.failed = True
+            camp.check_trigger("FORCE_EXIT")
+        else:
+            facing = self.elements["_facing"]
+            for t in range(5):
+                myprop.move(camp, *facing)
+                if self._ship_has_escaped(camp, myprop, facing):
+                    pbge.alert("Ship has escaped!")
+                    self.obj.win(camp)
+                    self.obj2.win(camp, sum([p.current_health for p in myprop.get_members_in_play(camp)]) * 100 // self.initial_health)
+                    camp.check_trigger("FORCE_EXIT")
+                    break
+
+    def _ship_has_escaped(self, camp: gears.GearHeadCampaign, ship: megaprops.MegaProp, facing):
+        troom = self.elements["TARGET_ROOM"]
+        all_out = True
+        for ship_part in ship.get_members_including_destroyed(camp):
+            if facing == megaprops.NORTHWARD:
+                if ship_part.pos[1] >= troom.area.bottom:
+                    all_out = False
+                    break
+            elif facing == megaprops.SOUTHWARD:
+                if ship_part.pos[1] < troom.area.top:
+                    all_out = False
+                    break
+            elif facing == megaprops.WESTWARD:
+                if ship_part.pos[0] >= troom.area.right:
+                    all_out = False
+                    break
+            else:
+                if ship_part.pos[0] < troom.area.left:
+                    all_out = False
+                    break
+        return all_out
 
 
 # *******************************
@@ -385,7 +446,9 @@ CTHREAT_MONSTERS = "CTHREAT_MONSTERS"
 CTE_MONSTER_TAGS = "CTE_MONSTER_TAGS"
 
 CTE_ENEMY_TEAM = "ENEMY_TEAM"
+CTE_INITIAL_ROOM = "INITIAL_ENEMY_ROOM"             # May be None, in which case starts without enemies.
 CTE_REINFORCEMENT_ROOMS = "REINFORCEMENT_ROOMS"
+CTE_REINFOCEMENT_DELAY = "REINFORCEMENT_DELAY"      # Defaults to a 1 round delay between reinforcements
 
 class CTMecha(Plot):
     LABEL = CTHREAT_MECHA
@@ -397,6 +460,15 @@ class CTMecha(Plot):
             roomtype = self.elements["ARCHITECTURE"].get_a_room()
             myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
             self.elements[CTE_REINFORCEMENT_ROOMS] = [myroom,]
+
+        if CTE_INITIAL_ROOM in self.elements and self.elements[CTE_INITIAL_ROOM]:
+            myteam = self.elements.get(CTE_ENEMY_TEAM, teams.Team(enemies=(self.elements["LOCALE"].player_team,),
+                                                                  faction=self.elements.get("ENEMY_FACTION")))
+            myunit = gears.selector.RandomMechaUnit(
+                self.rank, 100, self.elements.get("ENEMY_FACTION"), self.elements["LOCALE"].environment,
+                add_commander=True
+            )
+            myteam.deploy_in_room(self.elements["LOCALE"], self.elements[CTE_INITIAL_ROOM], myunit.mecha_list)
 
         self.reinforcements_counter = 1
 
@@ -417,7 +489,7 @@ class CTMecha(Plot):
     def add_reinforcements(self, camp):
         myscene = self.elements["LOCALE"]
         myrooms = self.elements[CTE_REINFORCEMENT_ROOMS]
-        myunit = gears.selector.RandomMechaUnit(self.rank, 100, self.elements.get("ENEMY_FACTION"),
+        myunit = gears.selector.RandomMechaUnit(self.rank, 70, self.elements.get("ENEMY_FACTION"),
                                                 camp.scene.environment, add_commander=False)
         mek1 = myunit.mecha_list[0]
         team2 = self.elements.get("ENEMY_TEAM", teams.Team(enemies=(myscene.player_team,)))
@@ -429,3 +501,4 @@ class CTMecha(Plot):
             self.reinforcements_counter -= 1
         else:
             self.add_reinforcements(camp)
+            self.reinforcements_counter = self.elements.get(CTE_REINFOCEMENT_DELAY, 1)

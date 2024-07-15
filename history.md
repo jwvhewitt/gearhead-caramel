@@ -2,7 +2,7 @@
 * Room contents with fixed positions will now be placed on map
 * Props are immovable even after they are destroyed
 * Props will not be placed somewhere they can block movement
-* calc_mission_reward can automatically round the reward to an round number
+* calc_mission_reward can automatically round the reward to a round number
 * Former lancemates who show up in buildings where they've been before will not be indicated as current members of the lance.
 * A captured territory must be consolidated before another territory can be invaded in WorldMapWar
 * PCs dying in a city scene should now be handled properly
