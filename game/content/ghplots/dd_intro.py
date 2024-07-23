@@ -235,15 +235,17 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
     def _test_mission(self,camp):
         return missionbuilder.BuildAMissionSeed(
-                camp, "Test Mission",
-                self.elements["LOCALE"], self.elements["ENTRANCE"],
-                allied_faction=gears.factions.DeadzoneFederation,
-                enemy_faction=gears.factions.AegisOverlord, rank=25,
-                objectives=(missionbuilder.BAMO_TEST_MISSION,),
-                one_chance=True,
-                scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleSemiDeadzone(),
-                cash_reward=100
-            )
+            camp, "Test Mission",
+            self.elements["LOCALE"], self.elements["ENTRANCE"],
+            allied_faction=gears.factions.DeadzoneFederation,
+            enemy_faction=gears.factions.AegisOverlord, rank=25,
+            objectives=(missionbuilder.BAMO_TEST_MISSION,),
+            one_chance=True,
+            #scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleSemiDeadzone(),
+            scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleOcean(),
+            adv_type="BAM_ESCORT_MISSION", custom_elements={"ENTRANCE_ANCHOR": pbge.randmaps.anchors.west},
+            cash_reward=100
+        )
 
 
 class DZDIntro_CousinIntro(DZDIntro_GetInTheMekShimli):

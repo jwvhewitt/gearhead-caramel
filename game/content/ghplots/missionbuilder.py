@@ -269,11 +269,15 @@ class BuildAMissionPlot(Plot):
     active = True
     scope = "LOCALE"
 
+    DEFAULT_SCENE_WIDTH = 50
+    DEFAULT_SCENE_HEIGHT = 50
+
     def custom_init(self, nart):
         """An empty map that will add subplots for the mission's objectives."""
         team1 = teams.Team(name="Player Team")
         myscene = gears.GearHeadScene(
-            50, 50, "Combat Zone", player_team=team1, scale=self.adv.scale,
+            self.DEFAULT_SCENE_WIDTH, self.DEFAULT_SCENE_HEIGHT,
+            "Combat Zone", player_team=team1, scale=self.adv.scale,
             combat_music=self.elements["COMBAT_MUSIC"], exploration_music=self.elements["EXPLO_MUSIC"],
             environment=self.adv.environment,
             attributes=self.elements.get("SCENE_ATTRIBUTES", (gears.tags.SCENE_OUTDOORS,))
@@ -420,6 +424,8 @@ class EscortMissionPlot(BuildAMissionPlot):
     # Kinda like the road mission, but we've got a ESCORT_ROOM in which to deploy whatever we're escorting and a
     # clear path to the other side of the map.
     LABEL = "BAM_ESCORT_MISSION"
+    DEFAULT_SCENE_WIDTH = 60
+    DEFAULT_SCENE_HEIGHT = 60
 
     def _generate_entrance_room(self):
         # Set ENTRANCE_ANCHOR, ENTRANCE_ROOM, and _ENTRANCE

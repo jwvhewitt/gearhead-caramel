@@ -88,6 +88,6 @@ class CivilianWaterShip(MegaProp):
         size = max(min(rank//10 + 1, 10), 2)
         length = max(min(rank//20 + 1, 5), 2)
         for t in range(length):
-            self.contents.append(gears.base.Prop(size=size, name="Ship", imagename="prop_block.png"))
+            self.contents.append(gears.base.Prop(size=size, name="Ship", imagename="prop_block.png", altitude=0))
 
 #print(MegaProp._generate_spiral(20))

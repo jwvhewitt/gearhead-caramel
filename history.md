@@ -1,3 +1,4 @@
+* PlacableThing's altitude property now does something
 * Combat can be set to keep going even if there are no active enemies on map
 * Room contents with fixed positions will now be placed on map
 * Props are immovable even after they are destroyed

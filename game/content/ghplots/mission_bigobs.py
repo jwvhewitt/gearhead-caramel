@@ -386,10 +386,14 @@ class BAM_EscortShip(Plot):
     def t_START(self, camp: gears.GearHeadCampaign):
         if not self.did_init:
             self.subplots["THREAT"].activate(camp)
-            self.did_init = True
             myprop = self.elements["SHIP"]
             for p in myprop.get_members_in_play(camp):
                 self.initial_health += p.current_health
+            my_enemies = self.elements[CTE_ENEMY_TEAM].get_members_in_play(camp)
+            if my_enemies:
+                game.combat.enter_combat(camp, my_enemies[0])
+            self.did_init = True
+
 
     def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
         myprop = self.elements["SHIP"]

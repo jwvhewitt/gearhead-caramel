@@ -98,10 +98,11 @@ class PlaceableThing(KeyObject):
     """A thing that can be placed on the map."""
 
     # By default, a hidden thing just isn't displayed.
-    def __init__(self, hidden=False, **keywords):
+    def __init__(self, hidden=False, altitude=None, **keywords):
         self.hidden = hidden
         self.pos = None
         self.offset_pos = None
+        self.altitude = altitude
         super(PlaceableThing, self).__init__(**keywords)
 
     def place(self, scene, pos=None, team=None):
@@ -366,7 +367,9 @@ class Scene(object):
             return 0
 
     def model_altitude(self, m, x, y):
-        if not hasattr(m, "mmode") or not m.mmode or m.mmode.altitude is None:
+        if hasattr(m, "altitude") and isinstance(m.altitude, int):
+            return m.altitude
+        elif not hasattr(m, "mmode") or not m.mmode or m.mmode.altitude is None:
             return self.tile_altitude(x, y)
         else:
             return max(self._map[x][y].altitude(), m.mmode.altitude)

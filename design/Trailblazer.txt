@@ -5,7 +5,7 @@ Mecha
     portrait = "mecha_trailblazer.png"
     desc = "The Trailblazer is Maquise Spinner's scout mecha design. The Silver Knights frequently train new Hopefuls using Trailblazers as well."
 
-    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
     faction_list = (None,)
     role_list = (Support,)
 
