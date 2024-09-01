@@ -330,6 +330,8 @@ class FrozenHotSpringCity(Plot):
         sp = self.add_sub_plot(nart, "MOCHA_CARTER")
         self.elements["CARTER"] = sp.elements["CARTER"]
 
+        #self.add_sub_plot(nart, "MOCHA_ONAWA")
+
         # Add the puzzle to get through the snowdrift.
         #
         # Bibliography for procedural puzzle generation:
@@ -559,7 +561,8 @@ class WinterMochaChaletForEnding(Plot):
         intscene = gears.GearHeadScene(
             50, 35, "Mauna Chalet", player_team=team1, civilian_team=team2,
             attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
-            scale=gears.scale.HumanScale
+            scale=gears.scale.HumanScale,
+            exploration_music='Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg',
         )
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(
@@ -569,11 +572,13 @@ class WinterMochaChaletForEnding(Plot):
 
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=random.randint(10,15),
                                                                                  height=random.randint(6,8),
-                                                                                 anchor=pbge.randmaps.anchors.south,),
+                                                                                 anchor=pbge.randmaps.anchors.south,
+                                                                                 decorate=gharchitecture.BreakRoomDecor()),
                                       dident="LOCALE")
         foyer.contents.append(team2)
 
         self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_introom")
+        self.register_element("POSTER", ghwaypoints.MechaPoster(name="Poster", desc="A promotional poster for the charity mecha tournament.", plot_locked=True), dident="_introom")
 
         self.register_element("EXIT",
                               ghwaypoints.Exit(name="Exit", anchor=pbge.randmaps.anchors.south, plot_locked=True), dident="_introom")
@@ -729,6 +734,31 @@ class WinterMochaChaletForEnding(Plot):
                 "I'm gonna have a bit of a rest, and then I can finish bringing my convoy to Gyori when the roads get cleared. Good night... or morning, whatever time it is.",
                 ContextTag((context.HELLO,)),
             ))
+
+        return mylist
+
+
+class WinterMochaOnawa(Plot):
+    LABEL = "MOCHA_ONAWA"
+    active = True
+    scope = "LOCALE"
+
+    did_greeting = False
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        hyolee = nart.camp.get_major_npc("Onawa GH1")
+        hyolee.mmode = pbge.scenes.movement.Walking
+        self.register_element("NPC", hyolee, dident="ROOM")
+        self.asked_join = False
+        return True
+
+    def NPC_offers(self, camp):
+        # Return list of dialogue offers.
+        mylist = list()
+        mylist.append(Offer("Centuries of technological development and nobody has found a better use for computers than turn based gaming. They have played us for fools...",
+                            context=ContextTag([context.CUSTOM]), data={'reply': 'Say the line, please.'},
+                            effect=None, no_repeats=True, dead_end=True))
 
         return mylist
 

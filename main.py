@@ -363,19 +363,12 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #fname = "WIP_JjangBogo.png"
-    #mypic = pbge.image.Image(fname, color=(gears.color.HeavyPurple, gears.color.MediumSkin, gears.color.Beige, gears.color.Saffron, gears.color.PirateSunrise))
+    #fname = "cha_m_polic.png"
+    #mypic = pbge.image.Image(fname, color=(gears.color.Cyan, gears.color.SteelBlue, gears.color.BlackRose, gears.color.Aquamarine, gears.color.Leather))
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 255))
     #mypic.render((0,0),dest_surface=mydest)
     #pygame.image.save(mydest, pbge.util.user_dir("out_"+fname))
-
-    #a = gears.selector.get_design_by_full_name("Heavy Duty Duct Tape")
-    #b = gears.selector.get_design_by_full_name("10 Pack Antidote")
-    #c = gears.selector.get_design_by_full_name("5 Pack Quick Fix Pill")
-    #print(a, a.cost, a.shop_rank())
-    #print(b, b.cost, b.shop_rank())
-    #print(c, c.cost, c.shop_rank())
 
     #a = gears.base.Treasure(value=1000)
     #b = gears.base.Treasure(value=100000, material=gears.materials.Advanced)

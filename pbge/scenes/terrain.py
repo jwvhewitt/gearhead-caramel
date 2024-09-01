@@ -282,6 +282,7 @@ class AnimTerrain(Terrain):
 class WallTerrain(Terrain):
     blocks = (Walking, Flying, Vision)
     bordername = 'terrain_wbor_tall.png'
+    TAKES_WALL_DECOR = True
 
     @classmethod
     def render_top(self, dest, view, x, y):

@@ -487,6 +487,26 @@ class WoodenShelves(pbge.scenes.terrain.OnTheWallVariableTerrain):
     east_frames = (0, 2, 4, 6, 8)
 
 
+class GervaisWeaponRacks(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_gervais_decor_weaponracks.png'
+    south_frames = (1, 3, 5, 7, 9)
+    east_frames = (0, 2, 4, 6, 8)
+
+
+class ArmorCabinetTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_armorcabinet.png'
+
+
+class ArmorMannequinTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_armormannequin.png'
+
+
+class ProvisionsTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_gervais_decor_provisions.png'
+    south_frames = (1, 3)
+    east_frames = (0, 2)
+
+
 class StatueMTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_statue_m.png'
 
@@ -1211,6 +1231,12 @@ class ShippingShelvesTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
     east_frames = (0, 2, 4, 6)
 
 
+class LoungeTableTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
+    image_top = 'terrain_decor_loungetable.png'
+    south_frames = (1, 3, 5, 7)
+    east_frames = (0, 2, 4, 6)
+
+
 class NorthSouthShelvesTerrain(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_decor_nsshelves.png'
     blocks = (Walking, Skimming, Rolling, Flying)
@@ -1478,6 +1504,16 @@ class BarTerrain(pbge.scenes.terrain.WallTerrain):
     altitude = 0
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 5}
+    TAKES_WALL_DECOR = False
+
+
+class ShopCounterTerrain(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_swall_shopcounter.png'
+    bordername = None
+    altitude = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+    TAKES_WALL_DECOR = False
 
 
 class AngelEggTerrain(pbge.scenes.terrain.Terrain):

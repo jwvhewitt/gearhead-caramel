@@ -1267,7 +1267,12 @@ class DZRS_GeneralStore(Plot):
                                                     room2=foyer, door1=building.waypoints["DOOR"],
                                                     move_door1=False)
 
-        npc1.place(intscene, team=team2)
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
+        npc1.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.GENERAL_STORE)
 

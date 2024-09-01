@@ -1466,6 +1466,23 @@ class SceneOne(Plot):
                     allow_generics=False
                 ))
 
+            elif gears.tags.Criminal in camp.pc.get_tags():
+                mylist.append(Offer(
+                    "Hey, I know you! You're [audience]! Last I heard the Guardians put a bounty of ${:,} on your head. So are you still doing crimes, or have you decided to go straight like me?".format(gears.selector.calc_mission_reward(camp.pc.renown, 200, True)),
+                    ContextTag([context.HELLO]), effect=self._have_first_conversation, allow_generics=False
+                ))
+                mylist.append(Offer(
+                    "Hah! You may be right, you may be... Why don't you take a look at the scenery around this park and see if there's anything you can pocket? Just walk over and bump into stuff, same as you did for me.",
+                    ContextTag([context.CUSTOM]),
+                    data={"reply": "Still doing crimes. And I'll believe you've gone straight when I see it!"}, allow_generics=False
+                ))
+                mylist.append(Offer(
+                    "Seriously? You know, the Cavalier Code don't say anything about breaking the law... I'd be at it myself if there wasn't better money in teaching. Which brings me to your first lesson: take a look at the things in this park. Just walk over and bump into 'em, like you did for me.",
+                    ContextTag([context.CUSTOM]),
+                    data={"reply": "I'm a cavalier now. I've left that behind."},
+                    allow_generics=False
+                ))
+
             else:
                 mylist.append(Offer(
                     "Good job, you can move around and interact with other people. You're going to be doing a whole lot of that as a cavalier.",

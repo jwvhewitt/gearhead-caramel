@@ -10,10 +10,6 @@ from gears import GearHeadArchitecture
 import random
 
 
-class CheeseShopDecor(OmniDec):
-    WALL_DECOR = (ghterrain.WoodenShelves,)
-
-
 class ResidentialDecor(OmniDec):
     WALL_DECOR = (ghterrain.WoodenShelves,)
     WIN_DECOR = ghterrain.ScreenWindow
@@ -24,6 +20,44 @@ class RestaurantDecor(OmniDec):
     WALL_FILL_FACTOR = 0.33
     FLOOR_DECOR = (ghterrain.TableAndChairsTerrain,)
     FLOOR_FILL_FACTOR = 0.05
+
+
+class BreakRoomDecor(OmniDec):
+    WALL_DECOR = (ghterrain.LoungeTableTerrain,)
+    WALL_FILL_FACTOR = 0.33
+    FLOOR_DECOR = (ghterrain.TableAndChairsTerrain,)
+    FLOOR_FILL_FACTOR = 0.05
+
+
+class WeaponShopDecor(OmniDec):
+    WALL_DECOR = (ghterrain.GervaisWeaponRacks,)
+
+
+class ArmorShopDecor(OmniDec):
+    WALL_DECOR = (ghterrain.ArmorCabinetTerrain, ghterrain.ArmorMannequinTerrain)
+
+
+class ArmoryDecor(OmniDec):
+    WALL_DECOR = (
+        ghterrain.GervaisWeaponRacks, ghterrain.ArmorCabinetTerrain, ghterrain.ArmorMannequinTerrain
+    )
+
+
+class CheeseShopDecor(OmniDec):
+    WALL_DECOR = (ghterrain.WoodenShelves, ghterrain.ProvisionsTerrain)
+
+
+class GeneralShopDecor(OmniDec):
+    WALL_DECOR = (
+        ghterrain.GervaisWeaponRacks, ghterrain.ArmorCabinetTerrain, ghterrain.WoodenShelves, ghterrain.ProvisionsTerrain
+    )
+
+
+class BlackMarketDecor(OmniDec):
+    WALL_DECOR = (
+        ghterrain.GervaisWeaponRacks, ghterrain.ArmorCabinetTerrain, ghterrain.ArmorMannequinTerrain,
+        ghterrain.ShippingShelvesTerrain, ghterrain.JollyRogerSign
+    )
 
 
 class DungeonDecor(OmniDec):

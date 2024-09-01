@@ -136,6 +136,30 @@ class BasicOfficeBuilding(Plot):
         return True
 
 
+#   *********************
+#   ***  RANDOM_SHOP  ***
+#   *********************
+#
+#   To spice up a random place, add a random shop.
+#   Elements:
+#       LOCALE
+#   Optional:
+#       CITY_COLORS
+#
+
+class RandomShop(Plot):
+    LABEL = "RANDOM_SHOP"
+
+    SHOP_TYPES = (
+        "SHOP_ARMORSTORE", "SHOP_WEAPONSTORE", "SHOP_MECHA",
+        "SHOP_BLACKMARKET", "SHOP_GENERALSTORE", "SHOP_TAVERN"
+    )
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, random.choice(self.SHOP_TYPES))
+        return True
+
+
 #   *************************
 #   ***  SHOP_ARMORSTORE  ***
 #   *************************
@@ -186,14 +210,22 @@ class BasicArmorStore(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south),
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(
+            random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
+            decorate=gharchitecture.ArmorShopDecor()
+        ),
                                       dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
-        npc1.place(intscene, team=team2)
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
+        npc1.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.ARMOR_STORE, rank=self.rank + random.randint(0, 15),
                                   shop_faction=self.elements.get("SHOP_FACTION"))
@@ -270,15 +302,21 @@ class BasicBlackMarket(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
-                                                                              decorate=gharchitecture.CheeseShopDecor()),
-                                      dident="INTERIOR")
+        foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(
+            random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
+            decorate=gharchitecture.ArmoryDecor()
+        ), dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
-        npc1.place(intscene, team=team2)
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
+        npc1.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.BLACK_MARKET, rank=self.rank + 25,
                                   shop_faction=self.elements.get("SHOP_FACTION"), buy_stolen_items=True)
@@ -569,7 +607,12 @@ class BasicGeneralStore(Plot):
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
-        npc1.place(intscene, team=team2)
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
+        npc1.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.GENERAL_STORE, rank=self.rank + random.randint(0, 15),
                                   shop_faction=self.elements.get("SHOP_FACTION"))
@@ -934,7 +977,12 @@ class BasicWeaponStore(Plot):
             nart, self, self.elements["LOCALE"], intscene, room1=building,
             room2=foyer, door1=building.waypoints["DOOR"], move_door1=False)
 
-        npc1.place(intscene, team=team2)
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
+        npc1.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc1, ware_types=services.WEAPON_STORE, rank=self.rank + random.randint(0, 15),
                                   shop_faction=self.elements.get("SHOP_FACTION"))

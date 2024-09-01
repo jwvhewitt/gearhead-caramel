@@ -71,6 +71,7 @@ class DZD_Wujung(Plot):
         # tplot = self.add_sub_plot(nart, "TEST_DUNGEON")
         # tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
         self.add_sub_plot(nart, "DZD_BLACK_ISLE_PUB")
+        self.add_sub_plot(nart, "RANDOM_SHOP")
         # Hwang-Sa Mission
         # Reconstruction Site
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
@@ -1146,10 +1147,15 @@ class DZD_AlliedArmor(Plot):
                                                                  room2=foyer, door1=building.waypoints["OTHER"],
                                                                  move_door1=False)
 
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
-        team2.contents.append(npc)
+        salesteam.contents.append(npc)
 
         self.shop = services.Shop(npc=npc, rank=50)
 
@@ -1321,11 +1327,17 @@ class DZD_WujungTires(Plot):
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
 
+
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"],
                                                                     combatant=False))
-        npc.place(intscene, team=team2)
+        npc.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc, ware_types=services.TIRE_STORE)
 
@@ -1375,7 +1387,7 @@ class DZD_EliteEquipment(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
+                                                                                 decorate=game.content.gharchitecture.ArmoryDecor()),
                                       dident="INTERIOR")
 
         mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
@@ -1383,10 +1395,15 @@ class DZD_EliteEquipment(Plot):
                                                                  room2=foyer, door1=building.waypoints["DOOR"],
                                                                  move_door1=False)
 
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        foyer.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
+        mycounter.contents.append(salesteam)
+
         npc = self.register_element("SHOPKEEPER",
                                     gears.selector.random_character(50, local_tags=self.elements["LOCALE"].attributes,
                                                                     job=gears.jobs.ALL_JOBS["Shopkeeper"]))
-        npc.place(intscene, team=team2)
+        npc.place(intscene, team=salesteam)
 
         self.shop = services.Shop(npc=npc, rank=50,
                                   ware_types=services.GENERAL_STORE)
@@ -1788,7 +1805,7 @@ class DZD_LongRoadLogistics(Plot):
             ))
 
         mylist.append(Offer(
-            "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It alway`s smells like coffee and magnetic grease in here.",
+            "That would be great. More work will help us to rebuild our office faster, and I for one can't wait to get out of this building. It always smells like coffee and magnetic grease in here.",
             context=ContextTag([context.CUSTOMREPLY]), subject=self,
             data={"reply": "I'll see what I can do about that."}, effect=self._tell_about_services
         ))

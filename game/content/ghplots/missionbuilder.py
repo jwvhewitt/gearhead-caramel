@@ -435,9 +435,9 @@ class EscortMissionPlot(BuildAMissionPlot):
             self.elements["ENTRANCE_ANCHOR"] = myanchor
         myscene: gears.GearHeadScene = self.elements["LOCALE"]
         if myanchor in (pbge.randmaps.anchors.east, pbge.randmaps.anchors.west):
-            corridor = pbge.randmaps.rooms.OpenRoom(width=myscene.width, height=14, anchor=pbge.randmaps.anchors.west)
+            corridor = pbge.randmaps.rooms.OpenRoom(width=myscene.width, height=15, anchor=pbge.randmaps.anchors.west)
         else:
-            corridor = pbge.randmaps.rooms.OpenRoom(width=14, height=myscene.height, anchor=pbge.randmaps.anchors.north)
+            corridor = pbge.randmaps.rooms.OpenRoom(width=15, height=myscene.height, anchor=pbge.randmaps.anchors.north)
         self.register_element("ESCORT_PATH", corridor, dident="LOCALE")
         interior_anchors = list(pbge.randmaps.anchors.ADJACENT_ANCHORS[myanchor])
         random.shuffle(interior_anchors)
@@ -445,7 +445,7 @@ class EscortMissionPlot(BuildAMissionPlot):
         self.register_element("_ENTRANCE",
                               game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True),
                               dident="ENTRANCE_ROOM")
-        self.register_element("ESCORT_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=interior_anchors[1]), dident="ESCORT_PATH")
+        self.register_element("ESCORT_ROOM", pbge.randmaps.rooms.OpenRoom(8, 8, anchor=interior_anchors[1]), dident="ESCORT_PATH")
 
 
 #   ****************************

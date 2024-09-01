@@ -335,6 +335,8 @@ class Room(object):
             return False
         elif inspect.isclass(wall) and issubclass(wall, terrain.DoorTerrain):
             return False
+        elif hasattr(wall, "TAKES_WALL_DECOR") and not wall.TAKES_WALL_DECOR:
+            return False
         elif (self.is_basic_wall(gb, x - 1, y) and
               self.is_basic_wall(gb, x + 1, y) and
               not gb.tile_blocks_movement(x, y + 1, archi.mmode)):

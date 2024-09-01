@@ -113,19 +113,24 @@ class MSRuinsRoom(FuzzyRoom):
 
 
 class BarArea(OpenRoom):
+    COUNTER_TYPE = ghterrain.BarTerrain
     def build(self, gb, archi):
         super().build(gb, archi)
 
         # Add a bar along the south and maybe along one side.
         mydest = pygame.Rect(self.area.left, self.area.bottom - 1, self.area.width, 1)
-        gb.fill(mydest, wall=ghterrain.BarTerrain)
+        gb.fill(mydest, wall=self.COUNTER_TYPE)
 
         if random.randint(1, 3) == 1:
             mydest = pygame.Rect(self.area.left, self.area.top, 1, self.area.height)
-            gb.fill(mydest, wall=ghterrain.BarTerrain)
+            gb.fill(mydest, wall=self.COUNTER_TYPE)
         elif random.randint(1, 2) == 1:
             mydest = pygame.Rect(self.area.right, self.area.top, 1, self.area.height)
-            gb.fill(mydest, wall=ghterrain.BarTerrain)
+            gb.fill(mydest, wall=self.COUNTER_TYPE)
+
+
+class ShopCounterArea(BarArea):
+    COUNTER_TYPE = ghterrain.ShopCounterTerrain
 
 
 class LongVehicleRoom(pbge.randmaps.rooms.Room):

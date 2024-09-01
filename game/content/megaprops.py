@@ -81,13 +81,14 @@ WESTWARD = (-1,0)
 
 
 class CivilianWaterShip(MegaProp):
-    POSITIONS = ((0,0), (0,1), (0,-1), (0,2), (0,-2))
+    POSITIONS = ((2,0), (1,0), (0,0), (-1,0), (-2, 0), (-3, 0))
+    FRAMES = (4,6,5)
     def __init__(self, *args, rank=50, **kwargs):
         super().__init__(*args, **kwargs)
         self.rank = rank
         size = max(min(rank//10 + 1, 10), 2)
         length = max(min(rank//20 + 1, 5), 2)
-        for t in range(length):
-            self.contents.append(gears.base.Prop(size=size, name="Ship", imagename="prop_block.png", altitude=0))
+        for t in range(3):
+            self.contents.append(gears.base.Prop(size=size, name="Ship", imagename="prop_ferry.png", altitude=0, frame=self.FRAMES[t]))
 
 #print(MegaProp._generate_spiral(20))
