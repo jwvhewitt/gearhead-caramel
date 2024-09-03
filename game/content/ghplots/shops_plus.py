@@ -152,7 +152,7 @@ class RandomShop(Plot):
 
     SHOP_TYPES = (
         "SHOP_ARMORSTORE", "SHOP_WEAPONSTORE", "SHOP_MECHA",
-        "SHOP_BLACKMARKET", "SHOP_GENERALSTORE", "SHOP_TAVERN"
+        "SHOP_BLACKMARKET", "SHOP_GENERALSTORE", "SHOP_TAVERN", "SHOP_GARAGE"
     )
 
     def custom_init(self, nart):
@@ -304,7 +304,7 @@ class BasicBlackMarket(Plot):
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('FOYER', pbge.randmaps.rooms.ClosedRoom(
             random.randint(10,15), random.randint(10,15), anchor=pbge.randmaps.anchors.south,
-            decorate=gharchitecture.ArmoryDecor()
+            decorate=gharchitecture.BlackMarketDecor()
         ), dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(

@@ -1851,7 +1851,7 @@ class SensorModifier(object):
 class OverwhelmModifier(object):
     # Every time you are attacked, the next attack gets a bonus to hit.
     name = 'Overwhelmed'
-    MOD_PER_ATTACK = 3
+    MOD_PER_ATTACK = 4
 
     def calc_modifier(self, camp, attacker, pos):
         my_mod = 0

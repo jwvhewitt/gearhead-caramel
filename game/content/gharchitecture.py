@@ -168,7 +168,15 @@ class UlsaniteOfficeDecor(OfficeDecor):
     DESK_TERRAIN = (ghterrain.UlsaniteDesk,)
     CHAIR_TERRAIN = (ghterrain.UlsaniteChair,)
     WALL_DECOR = (ghterrain.UlsaniteBookshelfTerrain, ghterrain.UlsaniteFilingCabinetTerrain)
-    # WALL_DECOR = (ghterrain.TekruinsWallDecor,)
+
+
+class MilitaryOfficeDecor(OfficeDecor):
+    DESK_TERRAIN = (ghterrain.UlsaniteDesk,)
+    CHAIR_TERRAIN = (ghterrain.UlsaniteChair,)
+    WALL_DECOR = (
+        ghterrain.UlsaniteBookshelfTerrain, ghterrain.UlsaniteFilingCabinetTerrain, ghterrain.LockersTerrain,
+        ghterrain.MapTerrain, ghterrain.EarthMapTerrain
+    )
 
 
 class WorldScaleDeadzone(GearHeadArchitecture):

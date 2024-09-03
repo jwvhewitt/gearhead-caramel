@@ -1,3 +1,8 @@
+v0.970 September 3, 2024
+* Experience display in FieldHQ updated after training
+* Increased Overwhelmed modifier from 3 to 4
+* Altered NPC combat target selector 
+* Fixed bug with pressing "Alt" key during combat
 * Wall terrain types can be marked to not accept wall decor
 * Added extra dialogue to Bear Bastard's Mecha Camp for Criminal PCs
 * PlacableThing's altitude property now does something

@@ -85,6 +85,74 @@ class LMMissionPlot(LMPlot):
 
 # The actual plots...
 
+class BetterCallAPlumber(LMMissionPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    MISSION_OBJECTIVES = (missionbuilder.BAMOP_DUNGEONLIKE, missionbuilder.BAMOP_REPAIR_MACHINE)
+    MISSION_SCALE = gears.scale.HumanScale
+    CASH_REWARD = 150
+    EXPERIENCE_REWARD = 150
+    MISSION_NAME = "Fix the pipes with {NPC}"
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene)
+
+        self.prep_mission(
+            nart.camp, custom_elements={lancedev_objectives.BAME_LANCEMATE: npc,
+                                        missionbuilder.BAMEP_MONSTER_TYPE: ("SYNTH", "MUTANT", "ROBOT")},
+            archi_override=gharchitecture.ScrapIronWorkshop(decorate=gharchitecture.TechDungeonDecor())
+        )
+        self.had_convo = False
+
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    gears.tags.Laborer in candidate.get_tags() and
+                    not candidate.relationship.expectation
+            )
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.had_convo:
+            npc = self.elements["NPC"]
+            pbge.alert(
+                "As you enter {METROSCENE}, {NPC} approaches you.".format(
+                    **self.elements))
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "[I_GOT_A_MISSION_OFFER] A pipe burst somewhere under {METROSCENE} and it's going to take cavalier backup to find and fix it.".format(**self.elements),
+                npc, camp
+            )
+            mymenu.no_escape = True
+            mymenu.add_item("Let's get to it, then.", self._accept_offer)
+            mymenu.add_item("Sounds like a dirty job... I'd really rather not.", self._reject_offer)
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+
+    def _accept_offer(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "This sort of work isn't glamorous, but it's the kind of work that keeps the city functioning. [LETSGO]",
+            npc)(camp, False)
+        self.elements["NPC"].relationship.expectation = relationships.E_PROFESSIONAL
+        self.had_convo = True
+        self.mission_active = True
+
+    def _reject_offer(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "Yeah, me either. Avoiding jobs like this is one of the reasons I'm trying to become a full time cavalier. Let's go find something a bit more glamorous to do!",
+            npc)(camp, False)
+        self.elements["NPC"].relationship.expectation = relationships.E_ADVENTURE
+
+        self.proper_end_plot(camp)
+
+
 class PartyPlanner(LMPlot):
     LABEL = "LANCEDEV"
     active = True

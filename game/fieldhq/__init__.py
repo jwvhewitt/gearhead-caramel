@@ -190,6 +190,7 @@ class CharacterInfoWidget(widgets.Widget):
         self.fhq.active = False
         my_trainer = training.TrainingMenu(self.camp, self.pc)
         my_trainer()
+        self.fhq.update_party()
         self.fhq.active = True
 
     def open_backpack(self, wid, ev):

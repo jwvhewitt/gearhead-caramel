@@ -223,8 +223,9 @@ class DemocraticOrder(Plot):
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.ResidentialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.UlsaniteOfficeDecor(),
+        ), dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                     room1=building,
@@ -306,8 +307,9 @@ class MilitaryOrder(Plot):
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.FortressBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.MilitaryOfficeDecor(),
+        ), dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                     room1=building,
@@ -390,8 +392,9 @@ class TechnocraticOrder(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding(
             floor_terrain=ghterrain.WhiteTileFloor))
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.UlsaniteOfficeDecor(),
+        ), dident="INTERIOR")
 
         mycon2 = plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                     room1=building,
@@ -463,8 +466,9 @@ class VaultOrder(Plot):
                                        scale=gears.scale.HumanScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, gharchitecture.DefaultBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            anchor=pbge.randmaps.anchors.south, decorate=gharchitecture.MilitaryOfficeDecor(),
+        ), dident="INTERIOR")
 
         entrance_room = self.register_element("_EXTERIOR", pbge.randmaps.rooms.FuzzyRoom(
             tags=[pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
@@ -516,6 +520,15 @@ class VaultOrder(Plot):
 #   ***********************
 #   ***   DZRS_GARAGE   ***
 #   ***********************
+
+class OutsourcedGarage(Plot):
+    LABEL = "DZRS_GARAGE"
+    SHOP_TYPES = ("SHOP_MECHA", "SHOP_GARAGE")
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, random.choice(self.SHOP_TYPES))
+        return True
+
 
 # Prototypical road stop Garage.
 class SomewhatOkayGarage(Plot):
@@ -683,6 +696,16 @@ class GenericGarage(Plot):
 #   ***   DZRS_HOSPITAL   ***
 #   *************************
 
+class OutsourcedHospital(Plot):
+    LABEL = "DZRS_HOSPITAL"
+    SHOP_TYPES = ("SHOP_CYBERCLINIC", "SHOP_HOSPITAL")
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, random.choice(self.SHOP_TYPES))
+        return True
+
+GenericHospital = OutsourcedHospital
+
 class DeadzoneClinic(Plot):
     LABEL = "DZRS_HOSPITAL"
 
@@ -849,17 +872,6 @@ class AmateurCyberdoc(Plot):
 
     def _ask_other_question(self, camp):
         self.asked_other_question = True
-
-
-class GenericHospital(Plot):
-    LABEL = "DZRS_HOSPITAL"
-
-    active = False
-    scope = None
-
-    def custom_init(self, nart):
-        self.add_sub_plot(nart, "SHOP_HOSPITAL", elements={"LOCALE": self.elements["METROSCENE"]})
-        return True
 
 
 #   ************************

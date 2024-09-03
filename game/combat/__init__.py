@@ -362,6 +362,9 @@ class PlayerTurn(object):
         return '/'.join(op_list)
 
     def record_hotkey(self, mykey):
+        if not mykey:
+            return
+
         option_string = self.name_current_option()
 
         pbge.util.config.set("HOTKEYS", mykey, option_string)
@@ -521,7 +524,7 @@ class PlayerTurn(object):
             self.active_ui.update(gdi, self)
 
             if gdi.type == pygame.KEYDOWN:
-                if gdi.unicode in self.ACCEPTABLE_HOTKEYS and gdi.mod & pygame.KMOD_ALT:
+                if gdi.unicode and gdi.unicode in self.ACCEPTABLE_HOTKEYS and gdi.mod & pygame.KMOD_ALT:
                     # Record a hotkey.
                     self.record_hotkey(gdi.unicode)
                 elif gdi.unicode in self.ACCEPTABLE_HOTKEYS and pbge.util.config.has_option("HOTKEYS", gdi.unicode) and not pbge.my_state.key_is_in_use(gdi.unicode):

@@ -2813,6 +2813,25 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[I_GOT_A_MISSION_OFFER]": {
+        # A lancemate is telling the PC that they just received a mission offer.
+        Default: ["I just got a mission offer.", "I've received a mission offer.",
+                  "I got an urgent message from [foaf]..."
+                  ],
+        personality.Cheerful: ["We're in luck; someone wants to hire us."
+                               ],
+        personality.Grim: ["There's trouble afoot... and we've been asked to deal with it.",
+                           ],
+        personality.Easygoing: ["Hey, if you're interested, [foaf] just sent me a mission offer.",
+                                ],
+        personality.Passionate: ["I just got a message- someone needs our talents!",
+                                 ],
+        personality.Sociable: ["[audience], I was chatting with [foaf] and [subject_pronoun] has a mission we might be able to do.",
+                               ],
+        personality.Shy: ["I received a mission offer.",
+                          ],
+    },
+
     "[I_HAVE_BEEN_IMMOBILIZED]": {
         # A lancemate has suffered a mobility kill.
         Default: ["I have been immobilized!", "[SWEAR] I can't move this thing."
