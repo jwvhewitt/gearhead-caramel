@@ -255,12 +255,27 @@ class DynaConversation(object):
             return self._find_std_offer_to_match_cue(cue)
 
     def _get_reply_for_offers(self, off1: Offer, off2: Offer):
-        if not ((off1.no_repeats and off1.subject == off2.subject and off1.context == off2.context) or (
-                off2.is_generic and not off1.allow_generics)):
-            candidates = [r for r in STANDARD_REPLIES if
-                          r.context.matches(off1.context) and r.destination.context.matches(off2.context)
-                          and (off1.subject == off2.subject or off2.subject is None or str(
-                              off2.subject) in off1.msg or off2.subject_start)]
+        # First, make sure this offer even can be connected to the other offer.
+        if off1.no_repeats and off1.subject == off2.subject and off1.context == off2.context:
+            # Off2 repeats the subject and context of Off1 when we've been told to avoid repeats.
+            return None
+
+        elif off2.is_generic and not off1.allow_generics:
+            # Off2 is a generic reply and we've been asked to avoid generics.
+            return None
+
+        elif not (off1.subject == off2.subject or off2.subject is None or str(off2.subject) in off1.msg or off2.subject_start):
+            # There is a subject mismatch between the two offers. Don't connect them.
+            return None
+
+        else:
+            # First, check for replies that match off1's context perfectly.
+            candidates = [
+                r for r in STANDARD_REPLIES if off1.context.matches(r.context) and r.destination.context.matches(off2.context)
+            ]
+            if not candidates:
+                candidates = [r for r in STANDARD_REPLIES if
+                          r.context.matches(off1.context) and r.destination.context.matches(off2.context)]
             if candidates:
                 return copy.deepcopy(random.choice(candidates))
 

@@ -1,3 +1,5 @@
+* Dialogue replies should more closely match context
+
 v0.970 September 3, 2024
 * Experience display in FieldHQ updated after training
 * Increased Overwhelmed modifier from 3 to 4

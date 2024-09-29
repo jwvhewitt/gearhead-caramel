@@ -29,6 +29,7 @@ from . import plotutility
 from . import dungeonmaker
 
 from . import adventureseed
+from . import missiontext
 
 
 

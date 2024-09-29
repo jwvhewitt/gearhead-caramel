@@ -399,6 +399,11 @@ class GameState(object):
             self.mouse_pos = pygame.mouse.get_pos()
 
 
+class SHLayer():
+    def __init__(self):
+        w, h = my_state.physical_screen.get_size()
+        self.surf = pygame.Surface((max(800, 600 * w // h), 600))
+
 INPUT_CURSOR = None
 SMALLFONT = None
 TINYFONT = None

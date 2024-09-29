@@ -85,6 +85,107 @@ class LMMissionPlot(LMPlot):
 
 # The actual plots...
 
+class HowDoYouLikeThat(LMMissionPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        enemy_npc = self.seek_element(nart, "ENEMY_NPC", self._is_good_enemy, scope=nart.camp, lock=True)
+        other_scene = self.seek_element(nart, "OTHER_SCENE", self._is_good_scene, scope=nart.camp)
+        self.elements["ENEMY_FACTION"] = enemy_npc.faction
+        self.prep_mission(nart.camp)
+        self.started_convo = False
+        return not nart.camp.are_faction_allies(enemy_npc, npc)
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.attitude == gears.relationships.A_JUNIOR
+                    and candidate.relationship.role == gears.relationships.R_COLLEAGUE
+            )
+
+    def _is_good_enemy(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.base.Character) and candidate.combatant and
+            nart.camp.is_not_lancemate(candidate) and
+            candidate.relationship and candidate.relationship.is_unfavorable()
+        )
+
+    def _is_good_scene(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and
+            candidate.scale is gears.scale.HumanScale
+        )
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.started_convo:
+            self.started_convo = True
+            npc = self.elements["NPC"]
+            pbge.alert(
+                "As you enter {METROSCENE}, you notice {NPC} looking at {NPC.gender.possessive_determiner} phone. After a moment {NPC.gender.subject_pronoun} turns to you.".format(
+                    **self.elements))
+
+            if npc.get_reaction_score(camp.pc, camp) <= random.randint(20,35):
+                # NPC has decided to take a better offer. Tough luck.
+                npc.relationship.attitude = gears.relationships.A_RESENT
+                npc.relationship.history.append(gears.relationships.Memory(
+                    "I quit your lance after getting a better offer",
+                    "you quit my lance with absolutely no warning",
+                    -10, memtags=(gears.relationships.MEM_Clash, gears.relationships.MEM_Ideological)
+                ))
+                ghcutscene.SimpleMonologueDisplay(
+                    "[GOODBYE] I just got a better offer to join a different lance. I guess I'll see you around.",
+                    npc)(camp, False)
+                pbge.alert("And with that, {NPC} quits the lance.".format(**self.elements))
+                plotutility.AutoLeaver(npc)(camp)
+                npc.place(self.elements["OTHER_SCENE"], team=self.elements["OTHER_SCENE"].civilian_team)
+                self.proper_end_plot(camp, False)
+
+            else:
+                npc.relationship.attitude = gears.relationships.A_FRIENDLY
+                mymenu = ghcutscene.SimpleMonologueMenu(
+                    "I can't believe it! [I_GOT_A_MISSION_OFFER] {ENEMY_NPC} is in town, and I thought you might want to fight {ENEMY_NPC.gender.object_pronoun}.".format(
+                        **self.elements),
+                    npc, camp
+                )
+                mymenu.no_escape = True
+                mymenu.add_item("Of course I do. We've got some scores to settle.", self._accept_offer)
+                mymenu.add_item("Maybe some other time... I'm not in the mood to deal with {ENEMY_NPC} today.".format(**self.elements), self._reject_offer)
+                choice = mymenu.query()
+                if choice:
+                    choice(camp)
+
+    def _accept_offer(self, camp):
+        self.mission_active = True
+        npc: gears.base.Character = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "I'm really excited about finding this lead. I think I might be getting the hang of this cavalier thing? [LETSGO]",
+            npc)(camp, False)
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def _reject_offer(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[UNDERSTOOD] {ENEMY_NPC} can be a [insult]; still, I'm excited to have gotten the call! Maybe I'm getting better at this cavalier stuff.".format(**self.elements),
+            npc)(camp, False)
+        self.proper_end_plot(camp)
+
+    def prep_mission(self, camp: gears.GearHeadCampaign):
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, "Find and defeat {ENEMY_NPC}".format(**self.elements),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            enemy_faction=self.elements.get("ENEMY_FACTION"),
+            allied_faction=self.elements["METROSCENE"].faction,
+            rank=camp.renown + 10, objectives=(missionbuilder.BAMO_DEFEAT_NPC,),
+            cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
+            on_win=self.win_mission, on_loss=self.lose_mission,
+            custom_elements={missionbuilder.BAME_NPC: self.elements["ENEMY_NPC"]}
+        )
+
+
 class BetterCallAPlumber(LMMissionPlot):
     LABEL = "LANCEDEV"
     active = True

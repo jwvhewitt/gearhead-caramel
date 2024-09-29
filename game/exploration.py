@@ -704,6 +704,17 @@ class Explorer(object):
                             if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):
                                 print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
                                                               pc.relationship.can_do_development()))
+                    elif gdi.unicode == "N" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        print("Checking Enemies")
+                        enemies = [candidate for candidate in self.camp.all_contents(self.camp) if (
+                            isinstance(candidate, gears.base.Character) and candidate.combatant and
+                            candidate.relationship and candidate.relationship.is_unfavorable()
+                        )]
+                        for pc in enemies:
+                            if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):
+                                print("{} ({}): {}\n --{}\n --Renown {}, {}\n --Memories: {}".format(pc, pc.faction, pc.get_text_desc(self.camp), pc.get_tags(False), pc.renown, pc.relationship.hilights(), len(pc.relationship.history)))
+                                for mem in pc.relationship.history:
+                                    print(mem)
                     elif gdi.unicode == "V" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for pc in list(self.camp.party):
                             if pc in self.scene.contents and isinstance(pc,

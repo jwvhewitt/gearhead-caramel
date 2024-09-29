@@ -5,7 +5,7 @@ import pbge
 import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility
+from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, missiontext
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -14,6 +14,7 @@ from gears import champions
 from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
     DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 import copy
+from game.content import missiontext
 
 # Mecha Objectives
 BAMO_AID_ALLIED_FORCES = "BAMO_AidAlliedForces"

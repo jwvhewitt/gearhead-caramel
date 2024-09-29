@@ -911,6 +911,11 @@ class RLM_HauntedByTyphon(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
+        npc.relationship.history.append(gears.relationships.Memory(
+            "I was nearly killed by Typhon",
+            "you were almost killed by Typhon",
+            memtags=(gears.relationships.MEM_Trauma,)
+        ))
         effect = game.content.plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)

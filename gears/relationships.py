@@ -80,9 +80,10 @@ MEM_AidedByPC = "MEM_AidedByPC" # NPC got help from the PC
 MEM_Romantic = "MEM_Romantic"
 MEM_Ideological = "MEM_Ideological"     # An ideological event
 MEM_Debt = "MEM_Debt"           # The NPC owes a debt to the PC, formally or informally
+MEM_Trauma = "MEM_Trauma"       # The NPC has a trauma, which may or may not be related to the PC.
 
 
-MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash,MEM_AidedByPC, MEM_Romantic, MEM_Ideological)
+MEMORY_TYPES = (MEM_DefeatPC,MEM_LoseToPC,MEM_CallItADraw,MEM_Clash,MEM_AidedByPC, MEM_Romantic, MEM_Ideological, MEM_Trauma)
 
 class Memory(object):
     def __init__(self, npc_perspective, pc_perspective, reaction_mod=0, memtags=(), ):
@@ -92,6 +93,9 @@ class Memory(object):
         self.pc_perspective = pc_perspective
         self.reaction_mod = reaction_mod
         self.memtags = set(memtags)
+
+    def __str__(self):
+        return self.npc_perspective
 
 
 class Relationship(object):

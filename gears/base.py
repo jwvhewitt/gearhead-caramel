@@ -4509,11 +4509,18 @@ class Character(Being):
                 rs -= 15
         fac = self.get_tacit_faction(camp)
         if fac:
+            fac_score = 0
             if pc is camp.pc:
-                rs += camp.get_faction_reaction_modifier(fac)
+                fac_score += camp.get_faction_reaction_modifier(fac)
             pc_fac = pc.get_tacit_faction(camp)
             if pc_fac and camp.are_faction_enemies(fac, pc_fac):
-                rs -= 20
+                fac_score -= 20
+            if self.relationship:
+                if self.relationship.is_favorable():
+                    fac_score = max(fac_score, 0)
+                elif self.relationship.is_unfavorable():
+                    fac_score = min(fac_score, 0)
+            rs += fac_score
 
         # Add bonuses from PC's merit badges
         for badge in pc.badges:

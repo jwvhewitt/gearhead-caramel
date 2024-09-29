@@ -3257,6 +3257,46 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[insult]": {
+        # Noun phrase describing a character unfavorably.
+        Default: [
+            "jerk", "arsehole",
+        ],
+        personality.Cheerful: [
+            "killjoy", "downer", "asshat"
+        ],
+        personality.Grim: [
+            "pain in the arse", "waste of carbon", "ash-gibbon"
+        ],
+        personality.Easygoing: [
+            "bad person", "doody head", "numbskull"
+        ],
+        personality.Passionate: [
+            "sniveling worm", "abomination", "coward", "jackass"
+        ],
+        personality.Sociable: [
+            "nobody", "brat", "piece of trash", "undesirable"
+        ],
+        personality.Shy: [
+            "loudmouth", "git"
+        ],
+        personality.Justice: [
+            "scoundrel", "scumbag"
+        ],
+        personality.Peace: [
+            "meanie", "brute",
+        ],
+        personality.Glory: [
+            "lowlife", "gorf herder", "wannabe"
+        ],
+        personality.Fellowship: [
+            "creep", "slimeball"
+        ],
+        personality.Duty: [
+            "weasel", "delinquent"
+        ]
+    },
+
     "[INTERESTING_NEWS]": {
         # Character has something interesting to reveal.
         Default: ["Very interesting.",

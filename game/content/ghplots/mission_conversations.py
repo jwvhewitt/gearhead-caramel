@@ -135,6 +135,100 @@ class BasicBattleConversation(Plot):
                 self._lose_adventure(camp)
 
 
+class RalphAndSam(BasicBattleConversation):
+    UNIQUE = True
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                    pstate.elements["NPC"].relationship and
+                    gears.personality.Cheerful in pstate.elements["NPC"].personality and
+                    pstate.elements["NPC"].relationship.expectation == gears.relationships.E_MERCENARY and
+                    pstate.elements["NPC"].relationship.get_recent_memory([relationships.MEM_Clash]) and
+                    pstate.elements["NPC"].relationship.attitude in (
+                        None, gears.relationships.A_JUNIOR, gears.relationships.A_OPENUP
+                    ) and len(pstate.elements["NPC"].relationship.history) >= 3
+               ) or cls.LABEL == "TEST_ENEMY_CONVO"
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[HELLO] We keep running into each other at work... I guess you're playing for the other team again?",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+
+        mylist.append(Offer(
+            "Remember when [MEM_Clash]? This time I'm going to [defeat_you].",
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "Afraid so. [LETSFIGHT]"}, effect=self.friendly_battle
+        ))
+
+        mylist.append(Offer(
+            "Well that's just rude. [CHALLENGE]",
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "Do you think this is a game?! [THREATEN]"}, effect=self.unfriendly_battle,
+            dead_end=True
+        ))
+
+        if not self.elements.get(CONVO_CANT_RETREAT, False):
+            game.ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "[REALLY?] Honestly, I don't even care if you're telling the truth or not. I could use a little break. See you around, [audience].",
+                    context=ContextTag([context.COMBAT_CUSTOM]), effect=self.friendly_retreat,
+                    data={"reply": "Actually I'm here to let you know you have the day off."}
+                ), camp, mylist, gears.stats.Charm, gears.stats.Negotiation, self._effective_rank(),
+                difficulty=gears.stats.DIFFICULTY_LEGENDARY, no_random=False
+            )
+
+        if self._effective_rank() > camp.pc.renown and not self.elements.get(CONVO_CANT_WITHDRAW, False):
+            mylist.append(Offer(
+                "Do whatever makes you happy. [GOODBYE]",
+                context=ContextTag([context.COMBAT_CUSTOM, ]),
+                data={"reply": "I really don't want to deal with you today. Do you mind if I just leave?"},
+                effect=self.friendly_withdraw
+            ))
+
+        return mylist
+
+    def unfriendly_battle(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = relationships.A_RESENT
+
+    def friendly_battle(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = relationships.A_FRIENDLY
+        npc.relationship.history.append(Memory(
+            "we fought on opposite sides a bunch of times",
+            "you kept showing up during my missions",
+            10, memtags=(relationships.MEM_Clash, relationships.MEM_Ideological)
+        ))
+        self.end_plot(camp, True)
+
+    def friendly_retreat(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = relationships.A_FRIENDLY
+        npc.relationship.history.append(Memory(
+            "you convinced me to take some time off work",
+            "you abandoned your mission when I joked about it being a holiday",
+            10, memtags=(relationships.MEM_Clash, relationships.MEM_CallItADraw)
+        ))
+        self._enemies_retreat(camp)
+        self.end_plot(camp, True)
+
+    def friendly_withdraw(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        npc.relationship = camp.get_relationship(npc)
+        npc.relationship.attitude = relationships.A_FRIENDLY
+        npc.relationship.history.append(Memory(
+            "you let me get off work early when you decided to retreat",
+            "I wasn't ready to fight you",
+            20, memtags=(relationships.MEM_Clash, relationships.MEM_DefeatPC)
+        ))
+        self._player_retreat(camp)
+        self.end_plot(camp, True)
+
+
 class AegisInferiorityIntroduction(BasicBattleConversation):
     UNIQUE = True
 
