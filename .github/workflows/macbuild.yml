@@ -38,7 +38,7 @@ jobs:
       run: |
         cxfreeze -c main.py --target-dir dist/ghcaramel --include-files=data,design,image,music,soundfx,credits.md,history.md,LICENSE,README.md -O -s --target-name=ghcaramel --packages=pygame,numpy,pbgerecolor
     - name: Upload the file
-      uses: actions/upload-artifact
+      uses: actions/upload-artifact@v4
       with:
         name: ghcmac
         path: dist/
