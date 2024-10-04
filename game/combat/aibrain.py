@@ -248,7 +248,7 @@ class BasicAI(object):
 
     def attempt_jump_to_better_position(self, camp):
         # Check for a better tile.
-        jump_points = jumping.get_jump_points(camp, self.npc)
+        jump_points = list(jumping.get_jump_points(camp, self.npc))
         sample = random.sample(jump_points, max(len(jump_points) // 3, min(10, len(jump_points))))
         self.camp = camp
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()

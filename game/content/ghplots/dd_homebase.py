@@ -1137,8 +1137,9 @@ class DZD_AlliedArmor(Plot):
 
         intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="METROSCENE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            random.randint(8,12), random.randint(6,10), anchor=pbge.randmaps.anchors.south
+        ), dident="INTERIOR")
         foyer.contents.append(ghwaypoints.AlliedArmorSignWP())
         foyer.contents.append(team2)
 
@@ -1147,7 +1148,7 @@ class DZD_AlliedArmor(Plot):
                                                                  room2=foyer, door1=building.waypoints["OTHER"],
                                                                  move_door1=False)
 
-        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(2, 4), anchor=pbge.randmaps.anchors.north)
         foyer.contents.append(mycounter)
         salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
         mycounter.contents.append(salesteam)
@@ -1317,9 +1318,10 @@ class DZD_WujungTires(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=game.content.gharchitecture.CheeseShopDecor()),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            random.randint(10,15), random.randint(8,12),
+            anchor=pbge.randmaps.anchors.south, decorate=game.content.gharchitecture.CheeseShopDecor()
+        ), dident="INTERIOR")
         foyer.contents.append(ghwaypoints.MechEngTerminal())
 
         mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
@@ -1386,9 +1388,10 @@ class DZD_EliteEquipment(Plot):
 
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.CommercialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=game.content.gharchitecture.ArmoryDecor()),
-                                      dident="INTERIOR")
+        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
+            random.randint(10, 15), random.randint(8, 12),
+            anchor=pbge.randmaps.anchors.south, decorate=game.content.gharchitecture.ArmoryDecor()
+        ), dident="INTERIOR")
 
         mycon2 = game.content.plotutility.TownBuildingConnection(nart, self, self.elements["LOCALE"], intscene,
                                                                  room1=building,

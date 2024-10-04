@@ -174,9 +174,10 @@ class TeamDictionary(weakref.WeakKeyDictionary):
         self.update(state)
 
 
-class Scene(object):
+class Scene:
     DELTA8 = ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1))
     ANGDIR = ((-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0))
+    DEBUG = False
 
     # New in v0.952
     is_temporary = False

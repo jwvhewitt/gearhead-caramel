@@ -195,13 +195,11 @@ class Room(object):
             self.area.x += 1
             self.area.width -= 1
         elif self.area.x + self.area.width >= gb.width:
-            self.area.x -= 1
             self.area.width -= 1
         if self.area.y == 0:
             self.area.y += 1
             self.area.height -= 1
         elif self.area.y + self.area.height >= gb.height:
-            self.area.y -= 1
             self.area.height -= 1
 
     def build(self, gb, archi):

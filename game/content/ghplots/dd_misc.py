@@ -22,7 +22,7 @@ class OnawaMystery(Plot):
         offer_msg = "Her name is Onawa. She's been patrolling the dead zone, looking for something or another. Maybe you can get a mission from her? I don't know.",
         offer_subject="a recon pilot from the Terran Defen", offer_subject_data="this recon pilot",
         memo="Onawa, a recon pilot for the Terran Defense Force, is currently at {NPC_SCENE}.",
-        prohibited_npcs=("NPC")
+        prohibited_npcs=("NPC",)
     )
 
     def custom_init(self, nart):
@@ -111,6 +111,7 @@ class OnawaMystery(Plot):
 
     def _speak_first_time(self, camp):
         self._spoke_before = True
+        self.RUMOR = None
 
     def _start_mission(self, camp):
         self._got_mission = True
@@ -370,7 +371,7 @@ class OmegaTalksTyphon(Plot):
         offer_msg = "He seems to be a nice guy... I just never met a robot that's a person before. But once you start talking you forget that he's made of metal.",
         offer_subject="a robot hanging out", offer_subject_data="the robot",
         memo="There's a robot hanging out at {NPC_SCENE}.",
-        prohibited_npcs=("NPC")
+        prohibited_npcs=("NPC",)
     )
 
     QOL = gears.QualityOfLife(community=1)

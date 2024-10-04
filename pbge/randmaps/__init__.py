@@ -13,6 +13,7 @@ from . import rooms
 from .rooms import Room
 from . import architect
 from . import terrset
+from . import debugviewer
 
 
 # A scene is constructed in the following steps:
@@ -67,9 +68,20 @@ class SceneGenerator(Room):
         """Assemble this stuff into a real map."""
         # Conduct the five steps of building a level.
         self._step_two_from_scratch()
+        #if self.gb.DEBUG:
+        #    self._stamp_debug_info()
+        #    yield self.gb
+
         self.step_three(self.gb, self.archi)  # Connect contents for self, then children
+        #if self.gb.DEBUG:
+        #    self._stamp_debug_info()
+        #    yield self.gb
+
         self.step_four(self.gb)  # Mutate for self, then children
         self.step_five(self.gb, self.archi)  # Render for self, then children
+        #if self.gb.DEBUG:
+        #    self._stamp_debug_info()
+        #    yield self.gb
 
         # Convert undefined walls to real walls.
         self.archi.wall_converter(self)
@@ -114,6 +126,13 @@ class SceneGenerator(Room):
                 tries += 1
                 if tries > 100000:
                     raise RuntimeError("Runtime Error: {} could not generate scene within 100,000 tries. I dunno, this shouldn't be possible. But, I added an exception to prevent the game from locking up. A crash is better than an endless loop, don't you think?".format(self.gb))
+
+    def _stamp_debug_info(self):
+        for r in self.all_rooms():
+            for x in range(r.area.x, r.area.x + r.area.width):
+                for y in range(r.area.y, r.area.y + r.area.height):
+                    if self.gb.on_the_map(x, y):
+                        self.gb.set_visible(x, y, r)
 
     def clean_contents(self):
         # Remove unimportant things from the contents.

@@ -335,6 +335,16 @@ def view_quarantine(tsrd):
 
     mymenu.query()
 
+def test_map_generator(_tsrd):
+    intscene = gears.GearHeadScene(30, 30, "Wujung Hospital", player_team=None, civilian_team=None,
+                                   attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                       gears.tags.SCENE_HOSPITAL),
+                                   scale=gears.scale.HumanScale)
+    intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
+    intscene.contents.append(pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ))
+    intscene.contents.append(pbge.randmaps.rooms.ClosedRoom())
+    pbge.randmaps.debugviewer.DebugViewer.test_map_generation(intscene, intscenegen)
 
 def play_the_game():
     gears.init_gears()
@@ -406,6 +416,7 @@ def play_the_game():
             if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                 mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
                 mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+                mymenu.add_item("Test Map Generator", test_map_generator)
                 #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
                 #mymenu.add_item("Just Show Background", just_show_background)
                 #mymenu.add_item("Test Adventure Generation", TestStartGame)

@@ -1,3 +1,6 @@
+* Fixed blocking counter bug
+* Fixed overlapping rooms bug
+* Fixed some issues with Python 3.12
 * Dialogue replies should more closely match context
 
 v0.970 September 3, 2024
