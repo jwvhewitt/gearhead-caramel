@@ -1319,8 +1319,8 @@ class DZD_WujungTires(Plot):
         intscenegen = pbge.randmaps.SceneGenerator(intscene, game.content.gharchitecture.IndustrialBuilding())
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(
-            random.randint(10,15), random.randint(8,12),
-            anchor=pbge.randmaps.anchors.south, decorate=game.content.gharchitecture.CheeseShopDecor()
+            random.randint(10,15), random.randint(10,15),
+            anchor=pbge.randmaps.anchors.south, decorate=game.content.gharchitecture.FactoryDecor()
         ), dident="INTERIOR")
         foyer.contents.append(ghwaypoints.MechEngTerminal())
 
@@ -1330,7 +1330,7 @@ class DZD_WujungTires(Plot):
                                                                  move_door1=False)
 
 
-        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        mycounter = ghrooms.WorkbenchArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
         foyer.contents.append(mycounter)
         salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[team2]))
         mycounter.contents.append(salesteam)

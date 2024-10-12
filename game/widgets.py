@@ -37,7 +37,7 @@ class SingleListItemWidget(pbge.widgets.Widget):
                        self.on_enter(self)
             else:
                if self._mouse_is_over:
-                   self._mouse_is_over = False;
+                   self._mouse_is_over = False
                    if self.on_leave:
                        self.on_leave(self)
 

@@ -119,6 +119,7 @@ MeleeWeapon
     attributes = (Defender, Accuracy, FastAttack)
     shop_tags= ("WEAPON","MELEE WEAPON",)
     faction_list = (AegisOverlord,TreasureHunters,TerranFederation,BioCorp,TheSilverKnights,TheSolarNavy,ProDuelistAssociation)
+    attack_stat = Speed
 
 MeleeWeapon
     name="Spear"
@@ -200,6 +201,8 @@ MeleeWeapon
     attributes = (Defender, Accuracy, FastAttack)
     shop_tags= ("WEAPON","MELEE WEAPON",)
     faction_list = (AegisOverlord,TreasureHunters,TerranFederation,BioCorp,TheSilverKnights,TheSolarNavy,ProDuelistAssociation)
+    attack_stat = Speed
+
 
 MeleeWeapon
     name="Mace"
@@ -421,7 +424,7 @@ BallisticWeapon
     reach = 3
     damage = 3
     accuracy = 2
-    penetration = 1
+    penetration = 2
     ammo_type = Pistol_6mm
     attributes = (VariableFire2, LinkedFire)
     scale = HumanScale
@@ -430,8 +433,95 @@ BallisticWeapon
     magazine = 12
     SUB
         Ammo
+            name = "Hounder Clip"
             ammo_type=Pistol_6mm
             quantity=12
+    END
+
+BallisticWeapon
+    name = "Auto Pistol"
+    desig = "HM-Gunn"
+    desc = "A small caliber low velocity automatic pistol."
+    reach = 3
+    damage = 2
+    accuracy = 2
+    penetration = 2
+    ammo_type = Pistol_4mm
+    attributes = (BurstFire3, LinkedFire)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (None,)
+    magazine = 30
+    SUB
+        Ammo
+            name = "HM-Gunn Clip"
+            ammo_type=Pistol_4mm
+            quantity=30
+    END
+
+BallisticWeapon
+    name = "Pistol"
+    desig = "Headhunter"
+    desc = "A powerful magnetic pistol."
+    reach = 3
+    damage = 3
+    accuracy = 3
+    penetration = 5
+    ammo_type = Snub_10mm
+    attributes = (Accurate, VariableFire2, LinkedFire)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (None,)
+    magazine = 20
+    material = Ceramic
+    SUB
+        Ammo
+            name = "Headhunter Clip"
+            ammo_type=Snub_10mm
+            quantity=20
+    END
+
+BallisticWeapon
+    name = "Revolver"
+    desig = "Centurion"
+    desc = "A single firing long barrelled pistol."
+    reach = 4
+    damage = 4
+    accuracy = 4
+    penetration = 3
+    ammo_type = Pistol_12mm
+    attributes = (Accurate, LinkedFire)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (None,)
+    magazine = 9
+    SUB
+        Ammo
+            name = "Centurion Clip"
+            ammo_type=Pistol_12mm
+            quantity=9
+    END
+
+
+BallisticWeapon
+    name = "Autogun"
+    desig = "HM-Razz"
+    desc = "A small caliber low velocity automatic rifle."
+    reach = 5
+    damage = 2
+    accuracy = 3
+    penetration = 2
+    ammo_type = Pistol_4mm
+    attributes = (BurstFire3)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (None,)
+    magazine = 90
+    SUB
+        Ammo
+            name = "HM-Razz Clip"
+            ammo_type=Pistol_4mm
+            quantity=90
     END
 
 BallisticWeapon
@@ -450,6 +540,7 @@ BallisticWeapon
     magazine = 40
     SUB
         Ammo
+            name = "RIX-58 Clip"
             ammo_type=Rifle_5mm
             quantity=40
     END
@@ -470,6 +561,7 @@ BallisticWeapon
     magazine = 60
     SUB
         Ammo
+            name = "FS Valken Clip"
             ammo_type=Rifle_5mm
             quantity=60
     END
@@ -486,10 +578,11 @@ BallisticWeapon
     attributes = (BurstFire5)
     scale = HumanScale
     shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
-    faction_list = (TerranFederation,TerranDefenseForce,TheSolarNavy,DeadzoneFederation,ClanIronwind,BoneDevils,KettelIndustries,RegExCorporation,BioCorp)
+    faction_list = (TerranFederation,TerranDefenseForce,TheSolarNavy,DeadzoneFederation,ClanIronwind,BoneDevils,KettelIndustries,RegExCorporation,BioCorp, Guardians)
     magazine = 120
     SUB
         Ammo
+            name = "7-2 Clip"
             ammo_type=Rifle_5mm
             quantity=120
     END
@@ -511,8 +604,31 @@ BallisticWeapon
     attack_stat = Perception
     SUB
         Ammo
+            name = "L60 Clip"
             ammo_type=Rifle_5mm
             quantity=40
+    END
+
+BallisticWeapon
+    name = "Heavy Rifle"
+    desig = "AM-5"
+    desc = "A high caliber rifle designed for eliminating heavily armored targets at long range."
+    reach = 9
+    damage = 4
+    accuracy = 2
+    penetration = 5
+    ammo_type = Rifle_20mm
+    attributes = (Accurate,)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (TerranFederation,TerranDefenseForce,TheSolarNavy,DeadzoneFederation,ClanIronwind,BoneDevils,KettelIndustries,RegExCorporation,BioCorp, TreasureHunters, Guardians)
+    magazine = 15
+    attack_stat = Perception
+    SUB
+        Ammo
+            name = "AM-5 Clip"
+            ammo_type=Rifle_20mm
+            quantity=15
     END
 
 BallisticWeapon
@@ -531,29 +647,11 @@ BallisticWeapon
     attack_stat = Perception
     SUB
         Ammo
+            name = "Snub Rifle Clip"
             ammo_type=Snub_10mm
             quantity=25
     END
 
-BallisticWeapon
-    name = "Headhunter Pistol"
-    desc = "A powerful magnetic pistol."
-    reach = 3
-    damage = 3
-    accuracy = 3
-    penetration = 5
-    ammo_type = Snub_10mm
-    attributes = (Accurate, VariableFire2, LinkedFire)
-    scale = HumanScale
-    shop_tags= ("WEAPON","MISSILE WEAPON")
-    faction_list = (None,)
-    magazine = 20
-    material = Ceramic
-    SUB
-        Ammo
-            ammo_type=Snub_10mm
-            quantity=20
-    END
 
 BallisticWeapon
     name = "Assault Cannon"
@@ -571,6 +669,7 @@ BallisticWeapon
     attack_stat = Body
     SUB
         Ammo
+            name = "SH-989 Clip"
             ammo_type=Snub_7mm
             quantity=80
     END
@@ -591,6 +690,7 @@ BallisticWeapon
     magazine = 16
     SUB
         Ammo
+            name = "RS-22 Clip"
             ammo_type=Cartridge_16mm
             quantity=16
             attributes = (Scatter,)
@@ -612,10 +712,34 @@ BallisticWeapon
     attributes=(VariableFire2,)
     SUB
         Ammo
+            name = "RS-25 Clip"
             ammo_type=Cartridge_16mm
             quantity=32
             attributes = (Scatter,)
     END
+
+BallisticWeapon
+    name = "Thumper"
+    desig = "BAM-15"
+    desc = "A heavy, short ranged grenade launcher."
+    reach = 5
+    damage = 4
+    accuracy = 1
+    penetration = 3
+    ammo_type = Shell_25mm
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON")
+    faction_list = (TerranFederation,TerranDefenseForce,DeadzoneFederation,ClanIronwind,BoneDevils,KettelIndustries,RegExCorporation,BioCorp, TreasureHunters, Guardians)
+    magazine = 24
+    attack_stat = Perception
+    SUB
+        Ammo
+            name = "BAM-15 Clip"
+            ammo_type=Shell_25mm
+            quantity=24
+            attributes = (Blast1,)
+    END
+
 
 BeamWeapon
     name = "Laser Cutter"

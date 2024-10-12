@@ -1516,6 +1516,15 @@ class ShopCounterTerrain(pbge.scenes.terrain.WallTerrain):
     TAKES_WALL_DECOR = False
 
 
+class WorkbenchTerrain(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_swall_workbench.png'
+    bordername = None
+    altitude = 0
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+    TAKES_WALL_DECOR = False
+
+
 class AngelEggTerrain(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_dzd_mechaprops.png'

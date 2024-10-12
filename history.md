@@ -1,3 +1,6 @@
+* Meat cannot be eaten in the middle of combat
+* Added on_enter, on_leave properties for all widgets
+* Fixed some errors in the [CHALLENGE] grammar tag
 * Fixed blocking counter bug
 * Fixed overlapping rooms bug
 * Fixed some issues with Python 3.12

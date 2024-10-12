@@ -4,7 +4,7 @@ import copy
 
 # An Undo/Redo item.
 class UndoRedoBase(object):
-    # Return True if undoing succeeded, False if not.
+    # Return True if doing succeeded, False if not.
     def on_do(self):
         raise NotImplementedError('UndoRedoBase.on_do must be overridden')
 
@@ -156,13 +156,6 @@ class ListsManager(object):
         '''
         raise NotImplementedError("ListsManager.cannot_afford must be overridden")
 
-
-class CustomerManager(object):
-    '''
-    Abstract object to provide the active customer.
-    '''
-    def get_customer(self):
-        raise NotImplementedError("CustomerManager.get_customer must be overridden")
 
 
 class BuyActionUndoRedo(UndoRedoBase):

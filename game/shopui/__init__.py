@@ -8,7 +8,6 @@ ItemListWidget = widgets.ItemListWidget
 UndoRedoSystem = actions.UndoRedoSystem
 BuySellCounters = actions.BuySellCounters
 ListsManager = actions.ListsManager
-CustomerManager = actions.CustomerManager
 BuyAction = actions.BuyAction
 SellAction = actions.SellAction
 
@@ -21,7 +20,7 @@ MARGIN = 24
 UL_X = -SCREEN_WIDTH // 2
 UL_Y = -SCREEN_HEIGHT // 2
 
-INFO_PANEL_WIDTH = 300
+INFO_PANEL_WIDTH = 280
 
 COLUMN_WIDTH = (SCREEN_WIDTH - MARGIN * 4 - INFO_PANEL_WIDTH) // 2
 
@@ -39,33 +38,34 @@ LIST_Y = LABEL_Y + LABEL_HEIGHT + MARGIN
 
 LIST_HEIGHT = SCREEN_HEIGHT - MARGIN - HEADER_HEIGHT - MARGIN - LABEL_HEIGHT - MARGIN * 3
 
-CUSTOMER_PANEL_FRECT = pbge.frects.Frect( COL_1, TOP_Y
-                                        , COLUMN_WIDTH, HEADER_HEIGHT
-                                        )
-SHOP_PANEL_FRECT = pbge.frects.Frect( COL_3, TOP_Y
-                                    , COLUMN_WIDTH, HEADER_HEIGHT
-                                    )
-INVENTORY_LABEL_FRECT = pbge.frects.Frect( COL_1, LABEL_Y
-                                         , COLUMN_WIDTH, LABEL_HEIGHT
+CUSTOMER_PANEL_FRECT = pbge.frects.Frect(COL_1, TOP_Y
+                                         , COLUMN_WIDTH, HEADER_HEIGHT
                                          )
-INVENTORY_LIST_FRECT = pbge.frects.Frect( COL_1, LIST_Y
-                                        , COLUMN_WIDTH, LIST_HEIGHT
-                                        )
-INFO_PANEL_FRECT = pbge.frects.Frect( COL_2, TOP_Y
-                                    , INFO_PANEL_WIDTH, SCREEN_HEIGHT
-                                    )
-CHECKOUT_BUTTON_FRECT = pbge.frects.Frect( COL_2, UL_Y + SCREEN_HEIGHT - MARGIN - BUTTON_HEIGHT
-                                         , INFO_PANEL_WIDTH, BUTTON_HEIGHT
-                                         )
-WARES_LABEL_FRECT = pbge.frects.Frect( COL_3, LABEL_Y
-                                     , COLUMN_WIDTH, LABEL_HEIGHT
+SHOP_PANEL_FRECT = pbge.frects.Frect(COL_3, TOP_Y
+                                     , COLUMN_WIDTH, HEADER_HEIGHT
                                      )
-WARES_LIST_FRECT = pbge.frects.Frect( COL_3, LIST_Y
-                                    , COLUMN_WIDTH, LIST_HEIGHT
-                                    )
+INVENTORY_LABEL_FRECT = pbge.frects.Frect(COL_1, LABEL_Y
+                                          , COLUMN_WIDTH, LABEL_HEIGHT
+                                          )
+INVENTORY_LIST_FRECT = pbge.frects.Frect(COL_1, LIST_Y
+                                         , COLUMN_WIDTH, LIST_HEIGHT
+                                         )
+INFO_PANEL_FRECT = pbge.frects.Frect(COL_2, TOP_Y
+                                     , INFO_PANEL_WIDTH, SCREEN_HEIGHT
+                                     )
+CHECKOUT_BUTTON_FRECT = pbge.frects.Frect(COL_2, UL_Y + SCREEN_HEIGHT - MARGIN - BUTTON_HEIGHT
+                                          , INFO_PANEL_WIDTH, BUTTON_HEIGHT
+                                          )
+WARES_LABEL_FRECT = pbge.frects.Frect(COL_3, LABEL_Y
+                                      , COLUMN_WIDTH, LABEL_HEIGHT
+                                      )
+WARES_LIST_FRECT = pbge.frects.Frect(COL_3, LIST_Y
+                                     , COLUMN_WIDTH, LIST_HEIGHT
+                                     )
 
 EXITMENU_WIDTH = int(SCREEN_WIDTH / 2)
 EXITMENU_HEIGHT = int(SCREEN_HEIGHT / 2.5)
+
 
 ###############################################################################
 
@@ -74,6 +74,7 @@ class ShopPanel(BuySellCounters):
     Displays the panel at the upper right, where the shopkeeper
     and what the shopkeeper says is displayed.
     '''
+
     def __init__(self, shop, camp):
         self.shop = shop
         self.camp = camp
@@ -97,9 +98,9 @@ class ShopPanel(BuySellCounters):
         elif self._num_bought == 0:
             self.caption = "Selling {}.".format(self._n_items(self._num_sold))
         else:
-            self.caption = "Buying {} and selling {}.".format( self._n_items(self._num_bought)
-                                                             , self._n_items(self._num_sold)
-                                                             )
+            self.caption = "Buying {} and selling {}.".format(self._n_items(self._num_bought)
+                                                              , self._n_items(self._num_sold)
+                                                              )
 
     def _n_items(self, n):
         if n == 1:
@@ -116,17 +117,21 @@ class ShopPanel(BuySellCounters):
     @property
     def num_bought(self):
         return self._num_bought
+
     @num_bought.setter
     def num_bought(self, v):
         self._num_bought = v
         self._set_caption()
+
     @property
     def num_sold(self):
         return self._num_sold
+
     @num_sold.setter
     def num_sold(self, v):
         self._num_sold = v
         self._set_caption()
+
     @property
     def bought(self):
         return self._bought
@@ -135,18 +140,21 @@ class ShopPanel(BuySellCounters):
         myrect = SHOP_PANEL_FRECT.get_rect()
         pbge.default_border.render(myrect)
         if self.portrait:
-            self.portrait.render(myrect,1)
+            self.portrait.render(myrect, 1)
             myrect.x += 100
             myrect.w -= 100
         pbge.draw_text(pbge.MEDIUMFONT, self.caption, myrect)
 
+
 ###############################################################################
 
-class ShopCustomerManager(CustomerManager):
+class ShopCustomerManager:
     def __init__(self, shop):
-        self.shop = shop
+        self.customer = shop.customer
+
     def get_customer(self):
-        return self.shop.customer
+        return self.customer
+
 
 ###############################################################################
 
@@ -155,34 +163,38 @@ class _CostBlock(object):
         self._cost = cost
         self.width = width
         msg = '${:,}'.format(cost)
-        self.image = pbge.render_text( pbge.BIGFONT, msg, self.width
-                                     , justify = 0, color = pbge.TEXT_COLOR
-                                     )
+        self.image = pbge.render_text(pbge.BIGFONT, msg, self.width
+                                      , justify=0, color=pbge.TEXT_COLOR
+                                      )
         self.height = self.image.get_height()
+
     def render(self, x, y):
-        pbge.my_state.screen.blit( self.image
-                                 , pygame.Rect(x, y, self.width, self.height)
-                                 )
+        pbge.my_state.screen.blit(self.image
+                                  , pygame.Rect(x, y, self.width, self.height)
+                                  )
+
 
 ###############################################################################
 
 class CustomerPanelIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.NameBlock, gears.info.CreditsBlock, gears.info.EncumberanceBlock)
 
+
 class NoCustomerPanelIP(gears.info.InfoPanel):
-    DEFAULT_BLOCKS = (gears.info.CreditsBlock, )
+    DEFAULT_BLOCKS = (gears.info.CreditsBlock,)
 
 
 class CustomerPanel(object):
     '''
     Displays the customer and the money money money.
     '''
+
     def __init__(self, camp, customer_manager):
         self.camp = camp
         self.customer_manager = customer_manager
         self._portraits = dict()
         self._infopanels = dict()
-        self._no_customer_ip = NoCustomerPanelIP(draw_border=False, width=CUSTOMER_PANEL_FRECT.w-100, camp=self.camp)
+        self._no_customer_ip = NoCustomerPanelIP(draw_border=False, width=CUSTOMER_PANEL_FRECT.w - 100, camp=self.camp)
 
     def render(self):
         myrect = CUSTOMER_PANEL_FRECT.get_rect()
@@ -192,7 +204,8 @@ class CustomerPanel(object):
             if customer not in self._portraits:
                 self._portraits[customer] = customer.get_portrait()
             if customer not in self._infopanels:
-                self._infopanels[customer] = CustomerPanelIP(draw_border=False, width=myrect.w-100, model=customer, camp=self.camp)
+                self._infopanels[customer] = CustomerPanelIP(draw_border=False, width=myrect.w - 100, model=customer,
+                                                             camp=self.camp)
             self._portraits[customer].render(myrect, 1)
             myrect.x += 100
             myrect.w -= 100
@@ -203,10 +216,11 @@ class CustomerPanel(object):
             ip = self._no_customer_ip
 
         ip.render(myrect.x, myrect.y)
-        #pbge.draw_text( pbge.MEDIUMFONT
+        # pbge.draw_text( pbge.MEDIUMFONT
         #              , '{} ${:,}'.format(customertext, self.camp.credits)
         #              , myrect
         #              )
+
 
 ###############################################################################
 
@@ -215,16 +229,17 @@ class ShopListsManager(ListsManager):
     Manages the raw list objects for the sell and buy actions
     on behalf of the shop.
     '''
-    def __init__( self
-                , sell_list, buy_list
-                # These are called with a single argument, the
-                # list index that should get displayed.
-                # It may also be given a None argument, in
-                # which case there is no particular index.
-                , on_sell_list_update, on_buy_list_update
-                # Instance of ShopPanel
-                , shop_panel
-                ):
+
+    def __init__(self
+                 , sell_list, buy_list
+                 # These are called with a single argument, the
+                 # list index that should get displayed.
+                 # It may also be given a None argument, in
+                 # which case there is no particular index.
+                 , on_sell_list_update, on_buy_list_update
+                 # Instance of ShopPanel
+                 , shop_panel
+                 ):
         self.sell_list = sell_list
         self.buy_list = buy_list
         self.on_sell_list_update = on_sell_list_update
@@ -289,89 +304,89 @@ class ShopUI(pbge.widgets.Widget):
         self.sell_list = list()
         self.buy_list = list()
 
-        self.shop_lists_manager = ShopListsManager( self.sell_list
-                                                  , self.buy_list
-                                                  , self._on_sell_list_update
-                                                  , self._on_buy_list_update
-                                                  , self.shop_panel
-                                                  )
+        self.shop_lists_manager = ShopListsManager(self.sell_list
+                                                   , self.buy_list
+                                                   , self._on_sell_list_update
+                                                   , self._on_buy_list_update
+                                                   , self.shop_panel
+                                                   )
 
         # Build initial sell list.
         self._build_sell_list(self.customer_manager.get_customer().inv_com)
         self._build_sell_list(self.camp.party)
-        self.sell_list.sort(key = lambda a: a.label)
+        self.sell_list.sort(key=lambda a: a.label)
         # Build initial buy list.
         for ware in self.shop.wares:
-            self.buy_list.append(BuyAction( self.camp, self.shop, ware
-                                          , self.undo_redo_sys
-                                          , self.shop_panel
-                                          , self.shop_lists_manager
-                                          , self.customer_manager
-                                          ))
-        self.buy_list.sort(key = lambda a: a.label)
+            self.buy_list.append(BuyAction(self.camp, self.shop, ware
+                                           , self.undo_redo_sys
+                                           , self.shop_panel
+                                           , self.shop_lists_manager
+                                           , self.customer_manager
+                                           ))
+        self.buy_list.sort(key=lambda a: a.label)
 
         self._item_panel = None
         self._hover_action = None
 
         # Build UI.
-        inventory_label = pbge.widgets.LabelWidget( INVENTORY_LABEL_FRECT.dx, INVENTORY_LABEL_FRECT.dy
-                                                  , INVENTORY_LABEL_FRECT.w, INVENTORY_LABEL_FRECT.h
-                                                  , text = "Inventory"
-                                                  , justify = 0
-                                                  , font = pbge.BIGFONT
-                                                  )
+        inventory_label = pbge.widgets.LabelWidget(INVENTORY_LABEL_FRECT.dx, INVENTORY_LABEL_FRECT.dy
+                                                   , INVENTORY_LABEL_FRECT.w, INVENTORY_LABEL_FRECT.h
+                                                   , text="Inventory"
+                                                   , justify=0
+                                                   , font=pbge.BIGFONT
+                                                   )
         self.children.append(inventory_label)
-        self._sell_list_widget = ItemListWidget( self.sell_list
-                                               , INVENTORY_LIST_FRECT
-                                               , text_fn = lambda a: a.label
-                                               , on_enter = self._set_item_panel
-                                               , on_leave = self._clear_item_panel
-                                               , on_select = self._select_item
-                                               )
+        self._sell_list_widget = ItemListWidget(self.sell_list
+                                                , INVENTORY_LIST_FRECT
+                                                , text_fn=lambda a: a.label
+                                                , on_enter=self._set_item_panel
+                                                , on_leave=self._clear_item_panel
+                                                , on_select=self._select_item
+                                                )
         self.children.append(self._sell_list_widget)
-        wares_label = pbge.widgets.LabelWidget( WARES_LABEL_FRECT.dx, WARES_LABEL_FRECT.dy
-                                              , WARES_LABEL_FRECT.w, WARES_LABEL_FRECT.h
-                                              , text = "For Sale"
-                                              , justify = 0
-                                              , font = pbge.BIGFONT
-                                              )
+        wares_label = pbge.widgets.LabelWidget(WARES_LABEL_FRECT.dx, WARES_LABEL_FRECT.dy
+                                               , WARES_LABEL_FRECT.w, WARES_LABEL_FRECT.h
+                                               , text="For Sale"
+                                               , justify=0
+                                               , font=pbge.BIGFONT
+                                               )
         self.children.append(wares_label)
-        self._buy_list_widget = ItemListWidget( self.buy_list
-                                              , WARES_LIST_FRECT
-                                              , text_fn = lambda a: a.label
-                                              , on_enter = self._set_item_panel
-                                              , on_leave = self._clear_item_panel
-                                              , on_select = self._select_item
-                                              )
+        self._buy_list_widget = ItemListWidget(self.buy_list
+                                               , WARES_LIST_FRECT
+                                               , text_fn=lambda a: a.label
+                                               , on_enter=self._set_item_panel
+                                               , on_leave=self._clear_item_panel
+                                               , on_select=self._select_item
+                                               )
         self.children.append(self._buy_list_widget)
-        checkout_button = pbge.widgets.LabelWidget( CHECKOUT_BUTTON_FRECT.dx, CHECKOUT_BUTTON_FRECT.dy
-                                                  , CHECKOUT_BUTTON_FRECT.w, CHECKOUT_BUTTON_FRECT.h
-                                                  , text = "Checkout"
-                                                  , justify = 0
-                                                  , draw_border = True
-                                                  , font = pbge.MEDIUMFONT
-                                                  , on_click = self._checkout
-                                                  )
+        checkout_button = pbge.widgets.LabelWidget(CHECKOUT_BUTTON_FRECT.dx, CHECKOUT_BUTTON_FRECT.dy
+                                                   , CHECKOUT_BUTTON_FRECT.w, CHECKOUT_BUTTON_FRECT.h
+                                                   , text="Checkout"
+                                                   , justify=0
+                                                   , draw_border=True
+                                                   , font=pbge.MEDIUMFONT
+                                                   , on_click=self._checkout
+                                                   )
         self.children.append(checkout_button)
 
     def _build_sell_list(self, source):
         for ware in source:
             if not self.shop.can_be_sold(ware):
                 continue
-            self.sell_list.append(SellAction( self.camp, self.shop, ware
-                                            , self.undo_redo_sys
-                                            , self.shop_panel
-                                            , self.shop_lists_manager
-                                            , self.customer_manager
-                                            ))
+            self.sell_list.append(SellAction(self.camp, self.shop, ware
+                                             , self.undo_redo_sys
+                                             , self.shop_panel
+                                             , self.shop_lists_manager
+                                             , self.customer_manager
+                                             ))
 
     def _set_item_panel(self, action, *etc):
-        ip = gears.info.get_longform_display( model = action.model
-                                            , width = INFO_PANEL_FRECT.w
-                                            )
-        ip.info_blocks.insert(1, _CostBlock( cost = action.cost
-                                           , width = INFO_PANEL_FRECT.w
-                                           ))
+        ip = gears.info.get_longform_display(model=action.model
+                                             , width=INFO_PANEL_FRECT.w
+                                             )
+        ip.info_blocks.insert(1, _CostBlock(cost=action.cost
+                                            , width=INFO_PANEL_FRECT.w
+                                            ))
         self._item_panel = ip
         self._hover_action = action
 
@@ -394,10 +409,10 @@ class ShopUI(pbge.widgets.Widget):
         '''
         if self.shop_panel.num_bought != 0 or self.shop_panel.num_sold != 0:
             # Ask if we should abort or not.
-            mymenu = pbge.rpgmenu.Menu( -EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2
-                                      , EXITMENU_WIDTH, EXITMENU_HEIGHT
-                                      , font = pbge.BIGFONT
-                                      )
+            mymenu = pbge.rpgmenu.Menu(-EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2
+                                       , EXITMENU_WIDTH, EXITMENU_HEIGHT
+                                       , font=pbge.BIGFONT
+                                       )
             mymenu.add_item('Continue Shopping', 0)
             mymenu.add_item('Finalize Transactions', 1)
             mymenu.add_item('Cancel All Transactions', 2)
@@ -407,13 +422,14 @@ class ShopUI(pbge.widgets.Widget):
                 self.running = True
                 return
             if res == 2:
-               self.undo_redo_sys.undo_all()
+                self.undo_redo_sys.undo_all()
         self.running = False
 
     def _on_sell_list_update(self, index):
         self._sell_list_widget.refresh_item_list()
         if index is not None:
             self._sell_list_widget.scroll_to_index(index)
+
     def _on_buy_list_update(self, index):
         self._buy_list_widget.refresh_item_list()
         if index is not None:
@@ -444,4 +460,3 @@ class ShopUI(pbge.widgets.Widget):
         if self._item_panel:
             rect = INFO_PANEL_FRECT.get_rect()
             self._item_panel.render(rect.x, rect.y)
-

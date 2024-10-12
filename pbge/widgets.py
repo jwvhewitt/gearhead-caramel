@@ -16,7 +16,7 @@ from . import rpgmenu
 ACTIVE_FLASH = [(0, 0, 0), ] * 5 + [(230, 230, 0), ] * 20
 
 widget_border_off = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge1.png",
-                           tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2)
+                           tex_name="sys_widbor_back2.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2)
 widget_border_on = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge2.png",
                           tex_name="sys_widbor_back.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=2)
 popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge2.png",
@@ -26,9 +26,12 @@ popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor
 
 class Widget(frects.Frect):
     def __init__(self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True,
-                 show_when_inactive=False, on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None, **kwargs):
+                 show_when_inactive=False, on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None,
+                 on_enter=None, on_leave=None, **kwargs):
         # on_click takes widget, event as parameters.
         # on_right_click takes widget, event as parameters.
+        # on_enter takes this widget as a parameter
+        # on_leave takes this widget as a parameter
         super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
         self.active = active
@@ -37,6 +40,9 @@ class Widget(frects.Frect):
         self.on_right_click = on_right_click
         self.children = list(children)
         self.show_when_inactive = show_when_inactive
+        self.on_enter = on_enter
+        self.on_leave = on_leave
+        self._mouse_is_over = False
 
     def respond_event(self, ev):
         if self.active:
@@ -56,12 +62,32 @@ class Widget(frects.Frect):
                         my_state.active_widget = self
                     self.on_right_click(self, ev)
                     my_state.widget_clicked = True
-            elif my_state.active_widget is self:
-                if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
-                    self.on_click(self, ev)
-                    my_state.widget_clicked = True
+                if not self._mouse_is_over:
+                    self._mouse_is_over = True
+                    if self.on_enter:
+                        self.on_enter(self)
+            else:
+                if my_state.active_widget is self:
+                    if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
+                        self.on_click(self, ev)
+                        my_state.widget_clicked = True
+                if self._mouse_is_over:
+                    self._mouse_is_over = False
+                    if self.on_leave:
+                        self.on_leave(self)
             if not my_state.widget_responded:
                 self._builtin_responder(ev)
+        else:
+            self._mouse_is_over = False
+            if self.on_enter or self.on_leave:
+                if self.get_rect().collidepoint(my_state.mouse_pos) and not self._mouse_is_over:
+                    self._mouse_is_over = True
+                    if self.on_enter:
+                        self.on_enter(self)
+                elif self._mouse_is_over:
+                    self._mouse_is_over = False
+                    if self.on_leave:
+                        self.on_leave(self)
 
     def register_response(self):
         # Call this method when _builtin_responder has responded to an event and you don't want other widgets to
@@ -242,7 +268,7 @@ class TextTabsWidget(Widget):
 class ColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, center_interior=False,
                  optimize_height=True, **kwargs):
-        super(ColumnWidget, self).__init__(dx, dy, w, h, **kwargs)
+        super().__init__(dx, dy, w, h, **kwargs)
         self.draw_border = draw_border
         self.border = border
         self._interior_widgets = list()
@@ -297,7 +323,10 @@ class ColumnWidget(Widget):
 
 class ScrollColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
-                 autoclick=False, focus_locked=False, **kwargs):
+                 autoclick=False, focus_locked=False, activate_child_on_enter=False, on_activate_child=None, **kwargs):
+        # if activate_child_on_enter is True, the contents of this widget will activate on mouseover.
+        # on_activate_child is a callable with signature (column_widget, child_widget) that gets called when the
+        #  active widget is changed. Note that child_widget may be "None".
         super(ScrollColumnWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.draw_border = draw_border
         self.border = border
@@ -313,6 +342,8 @@ class ScrollColumnWidget(Widget):
         self.down_button.kbhandler = self
         self.autoclick = autoclick
         self.focus_locked = focus_locked
+        self.on_activate_child = on_activate_child
+        self.activate_child_on_enter = activate_child_on_enter
         self._active_widget = -1
         self.active_widget = 0
 
@@ -324,6 +355,10 @@ class ScrollColumnWidget(Widget):
                 self.scroll_to_index(widindex)
             if self.autoclick and wid.on_click:
                 wid.on_click(wid, None)
+            if self.on_activate_child:
+                self.on_activate_child(self, wid)
+        elif self.on_activate_child:
+            self.on_activate_child(self, None)
 
     def _get_active_widget(self):
         return self._active_widget
@@ -341,7 +376,7 @@ class ScrollColumnWidget(Widget):
     def is_kb_selectable(self):
         return True
 
-    def decorate_click(self, other_on_click):
+    def _decorate_click(self, other_on_click):
         def nuclick(wid, ev):
             if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
                 self.active_widget = self._interior_widgets.index(wid)
@@ -349,16 +384,30 @@ class ScrollColumnWidget(Widget):
 
         return nuclick
 
-    def add_interior(self, other_w):
+    def _decorate_on_enter(self, other_on_enter):
+        def nuenter(wid):
+            if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
+                self.active_widget = self._interior_widgets.index(wid)
+            if other_on_enter:
+                other_on_enter(wid)
+
+        return nuenter
+
+    def add_interior(self, other_w, pos=None):
         self.children.append(other_w)
-        self._interior_widgets.append(other_w)
+        if pos is None:
+            self._interior_widgets.append(other_w)
+        else:
+            self._interior_widgets.insert(pos, other_w)
         # Set the position of other_w inside this widget.
         other_w.parent = self
         other_w.dx = 0
         other_w.anchor = frects.ANCHOR_UPPERLEFT
         self._position_contents()
         if other_w.on_click:
-            other_w.on_click = self.decorate_click(other_w.on_click)
+            other_w.on_click = self._decorate_click(other_w.on_click)
+        if self.activate_child_on_enter:
+            other_w.on_enter = self._decorate_on_enter(other_w.on_enter)
 
     def clear(self):
         for w in list(self._interior_widgets):

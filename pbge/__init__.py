@@ -694,6 +694,7 @@ from . import okapipuzzle
 from . import challenges
 from . import memos
 from . import internationalization
+from . import widgetmenu
 
 # PG2 Change
 # FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED

@@ -101,7 +101,7 @@ class MeatFX(Singleton):
                 anim = geffects.SparkleRedAnim,
                 ),
             area=pbge.scenes.targetarea.SingleTarget(reach=1),
-            used_in_combat = True, used_in_exploration=True,
+            used_in_combat = False, used_in_exploration=True,
             ai_tar = aitargeters.GenericTargeter(impulse_score=10,conditions=[aitargeters.TargetIsAlly(),aitargeters.TargetIsOperational(),aitargeters.TargetIsLowSP()],targetable_types=pbge.scenes.PlaceableThing),
             shot_anim=None,
             data=geffects.AttackData(pbge.image.Image('sys_usableicons.png',32,32),0),

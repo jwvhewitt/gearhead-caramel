@@ -133,6 +133,10 @@ class ShopCounterArea(BarArea):
     COUNTER_TYPE = ghterrain.ShopCounterTerrain
 
 
+class WorkbenchArea(BarArea):
+    COUNTER_TYPE = ghterrain.WorkbenchTerrain
+
+
 class LongVehicleRoom(pbge.randmaps.rooms.Room):
     MIN_RANDOM_SIZE = 12
     # Suggested dimensions: 16x8 or longer. Keep the height even if possible.

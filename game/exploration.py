@@ -649,15 +649,6 @@ class Explorer(object):
                     elif gdi.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.camp.check_trigger("CHEATINGFUCKINGBASTARD")
 
-                    elif gdi.unicode == "X" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        pc = self.camp.first_active_pc()
-                        myinvo = pbge.effects.Invocation(
-                            fx=geffects.DoCrash(),
-                            area=pbge.scenes.targetarea.SingleTarget()
-                        )
-                        myinvo.invoke(self.camp, None, [pc.pos, ], pbge.my_state.view.anim_list)
-                        pbge.my_state.view.handle_anim_sequence()
-
                     elif gdi.unicode == "K" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for lm in self.camp.get_active_party():
                             pc: gears.base.Being = lm.get_pilot()
