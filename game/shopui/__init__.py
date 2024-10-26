@@ -1,15 +1,7 @@
 import pbge
-from game import widgets
 import gears
 from . import actions
 import pygame
-
-ItemListWidget = widgets.ItemListWidget
-UndoRedoSystem = actions.UndoRedoSystem
-BuySellCounters = actions.BuySellCounters
-ListsManager = actions.ListsManager
-BuyAction = actions.BuyAction
-SellAction = actions.SellAction
 
 ###############################################################################
 
@@ -69,37 +61,56 @@ EXITMENU_HEIGHT = int(SCREEN_HEIGHT / 2.5)
 
 ###############################################################################
 
-class ShopPanel(BuySellCounters):
+class ShopPanel(pbge.widgets.RowWidget):
     '''
     Displays the panel at the upper right, where the shopkeeper
     and what the shopkeeper says is displayed.
     '''
 
-    def __init__(self, shop, camp):
+    def __init__(self, shop, camp, undo_sys: actions.ShoppingUndoSystem):
+        super().__init__(
+            SHOP_PANEL_FRECT.dx, SHOP_PANEL_FRECT.dy, SHOP_PANEL_FRECT.w, SHOP_PANEL_FRECT.h,
+            draw_border=True, border=pbge.default_border, padding=0, border_inflation=0
+        )
         self.shop = shop
         self.camp = camp
-        self._num_sold = 0
-        self._num_bought = 0
-        self._bought = list()
-        self.caption = ''
+        self.undo_sys = undo_sys
 
         if shop.npc:
             self.portrait = shop.npc.get_portrait()
         else:
             self.portrait = None
 
-        self._set_caption()
+        self.add_left(pbge.widgets.ButtonWidget(
+            0, 0, 100, 100, sprite=self.portrait, frame=1
+        ))
 
-    def _set_caption(self):
-        if self._num_sold == 0 and self._num_bought == 0:
+        self.label = pbge.widgets.LabelWidget(
+            0, 0, self.w - 100, self.h, font=pbge.MEDIUMFONT
+        )
+        self.add_right(self.label)
+
+        self.reset_caption()
+
+    @property
+    def caption(self):
+        return self.label.text
+
+    @caption.setter
+    def caption(self, text):
+        self.label.text = text
+
+    def reset_caption(self):
+        num_bought, num_sold = self.undo_sys.get_bought_and_sold()
+        if num_sold == 0 and num_bought == 0:
             self.caption = 'Enjoy your shopping.'
-        elif self._num_sold == 0:
-            self.caption = 'Buying {}.'.format(self._n_items(self._num_bought))
-        elif self._num_bought == 0:
-            self.caption = "Selling {}.".format(self._n_items(self._num_sold))
+        elif num_sold == 0:
+            self.caption = 'Buying {}.'.format(self._n_items(num_bought))
+        elif num_bought == 0:
+            self.caption = "Selling {}.".format(self._n_items(num_sold))
         else:
-            self.caption = "Buying {} and selling {}.".format(self._n_items(self._num_bought)
-                                                              , self._n_items(self._num_sold)
+            self.caption = "Buying {} and selling {}.".format(self._n_items(num_bought)
+                                                              , self._n_items(num_sold)
                                                               )
 
     def _n_items(self, n):
@@ -108,42 +119,6 @@ class ShopPanel(BuySellCounters):
         else:
             return '{} items'.format(n)
 
-    def set_cannot_afford(self):
-        self.caption = "You can't afford it!"
-
-    def set_no_stolen_goods(self):
-        self.caption = "I don't buy stolen merchandise."
-
-    @property
-    def num_bought(self):
-        return self._num_bought
-
-    @num_bought.setter
-    def num_bought(self, v):
-        self._num_bought = v
-        self._set_caption()
-
-    @property
-    def num_sold(self):
-        return self._num_sold
-
-    @num_sold.setter
-    def num_sold(self, v):
-        self._num_sold = v
-        self._set_caption()
-
-    @property
-    def bought(self):
-        return self._bought
-
-    def render(self, flash):
-        myrect = SHOP_PANEL_FRECT.get_rect()
-        pbge.default_border.render(myrect)
-        if self.portrait:
-            self.portrait.render(myrect, 1)
-            myrect.x += 100
-            myrect.w -= 100
-        pbge.draw_text(pbge.MEDIUMFONT, self.caption, myrect)
 
 
 ###############################################################################
@@ -216,76 +191,16 @@ class CustomerPanel(object):
             ip = self._no_customer_ip
 
         ip.render(myrect.x, myrect.y)
-        # pbge.draw_text( pbge.MEDIUMFONT
-        #              , '{} ${:,}'.format(customertext, self.camp.credits)
-        #              , myrect
-        #              )
 
 
 ###############################################################################
 
-class ShopListsManager(ListsManager):
-    '''
-    Manages the raw list objects for the sell and buy actions
-    on behalf of the shop.
-    '''
+class WareMenuData:
+    def __init__(self, ware, price, action):
+        self.ware = ware
+        self.price = price
+        self.action = action
 
-    def __init__(self
-                 , sell_list, buy_list
-                 # These are called with a single argument, the
-                 # list index that should get displayed.
-                 # It may also be given a None argument, in
-                 # which case there is no particular index.
-                 , on_sell_list_update, on_buy_list_update
-                 # Instance of ShopPanel
-                 , shop_panel
-                 ):
-        self.sell_list = sell_list
-        self.buy_list = buy_list
-        self.on_sell_list_update = on_sell_list_update
-        self.on_buy_list_update = on_buy_list_update
-        self.shop_panel = shop_panel
-
-    def _find_insert_index(self, l, action):
-        # Find the index to insert into.
-        # We *could* use binary search followed by scanning
-        # for actions with the same label, but premature
-        # optimization...
-        for i, a in enumerate(l):
-            if action.label <= a.label:
-                return i
-        return len(l)
-
-    def _add_to_list(self, l, action, on_update):
-        i = self._find_insert_index(l, action)
-        l.insert(i, action)
-        on_update(i)
-
-    def _remove_from_list(self, l, action, on_update):
-        if action in l:
-            l.remove(action)
-            on_update(None)
-
-    def add_sell_action(self, action):
-        self._add_to_list(self.sell_list, action, self.on_sell_list_update)
-
-    def remove_sell_action(self, action):
-        self._remove_from_list(self.sell_list, action, self.on_sell_list_update)
-
-    def add_buy_action(self, action):
-        self._add_to_list(self.buy_list, action, self.on_buy_list_update)
-
-    def remove_buy_action(self, action):
-        self._remove_from_list(self.buy_list, action, self.on_buy_list_update)
-
-    def cannot_afford(self):
-        self.shop_panel.set_cannot_afford()
-
-    def no_stolen_goods(self):
-        self.shop_panel.set_no_stolen_goods()
-
-
-###############################################################################
 
 class ShopUI(pbge.widgets.Widget):
     def __init__(self, camp, shop, **kwargs):
@@ -296,34 +211,11 @@ class ShopUI(pbge.widgets.Widget):
 
         self.running = False
 
-        self.undo_redo_sys = UndoRedoSystem()
-        self.shop_panel = ShopPanel(self.shop, self.camp)
+        self.undo_sys = actions.ShoppingUndoSystem()
+        self.shop_panel = ShopPanel(self.shop, self.camp, self.undo_sys)
+        self.children.append(self.shop_panel)
         self.customer_manager = ShopCustomerManager(self.shop)
         self.customer_panel = CustomerPanel(self.camp, self.customer_manager)
-
-        self.sell_list = list()
-        self.buy_list = list()
-
-        self.shop_lists_manager = ShopListsManager(self.sell_list
-                                                   , self.buy_list
-                                                   , self._on_sell_list_update
-                                                   , self._on_buy_list_update
-                                                   , self.shop_panel
-                                                   )
-
-        # Build initial sell list.
-        self._build_sell_list(self.customer_manager.get_customer().inv_com)
-        self._build_sell_list(self.camp.party)
-        self.sell_list.sort(key=lambda a: a.label)
-        # Build initial buy list.
-        for ware in self.shop.wares:
-            self.buy_list.append(BuyAction(self.camp, self.shop, ware
-                                           , self.undo_redo_sys
-                                           , self.shop_panel
-                                           , self.shop_lists_manager
-                                           , self.customer_manager
-                                           ))
-        self.buy_list.sort(key=lambda a: a.label)
 
         self._item_panel = None
         self._hover_action = None
@@ -332,32 +224,27 @@ class ShopUI(pbge.widgets.Widget):
         inventory_label = pbge.widgets.LabelWidget(INVENTORY_LABEL_FRECT.dx, INVENTORY_LABEL_FRECT.dy
                                                    , INVENTORY_LABEL_FRECT.w, INVENTORY_LABEL_FRECT.h
                                                    , text="Inventory"
-                                                   , justify=0
+                                                   , justify=0, color=pbge.WHITE
                                                    , font=pbge.BIGFONT
                                                    )
         self.children.append(inventory_label)
-        self._sell_list_widget = ItemListWidget(self.sell_list
-                                                , INVENTORY_LIST_FRECT
-                                                , text_fn=lambda a: a.label
-                                                , on_enter=self._set_item_panel
-                                                , on_leave=self._clear_item_panel
-                                                , on_select=self._select_item
-                                                )
+        self._sell_list_widget = pbge.widgetmenu.MenuWidget(
+            INVENTORY_LIST_FRECT.dx, INVENTORY_LIST_FRECT.dy, INVENTORY_LIST_FRECT.w, INVENTORY_LIST_FRECT.h,
+            activate_child_on_enter=True, on_activate_item=self._set_item_panel
+        )
         self.children.append(self._sell_list_widget)
         wares_label = pbge.widgets.LabelWidget(WARES_LABEL_FRECT.dx, WARES_LABEL_FRECT.dy
                                                , WARES_LABEL_FRECT.w, WARES_LABEL_FRECT.h
                                                , text="For Sale"
-                                               , justify=0
+                                               , justify=0, color=pbge.WHITE
                                                , font=pbge.BIGFONT
                                                )
         self.children.append(wares_label)
-        self._buy_list_widget = ItemListWidget(self.buy_list
-                                               , WARES_LIST_FRECT
-                                               , text_fn=lambda a: a.label
-                                               , on_enter=self._set_item_panel
-                                               , on_leave=self._clear_item_panel
-                                               , on_select=self._select_item
-                                               )
+        self._buy_list_widget = pbge.widgetmenu.MenuWidget(
+            WARES_LIST_FRECT.dx, WARES_LIST_FRECT.dy, WARES_LIST_FRECT.w, WARES_LIST_FRECT.h,
+            activate_child_on_enter=True, on_activate_item=self._set_item_panel
+        )
+
         self.children.append(self._buy_list_widget)
         checkout_button = pbge.widgets.LabelWidget(CHECKOUT_BUTTON_FRECT.dx, CHECKOUT_BUTTON_FRECT.dy
                                                    , CHECKOUT_BUTTON_FRECT.w, CHECKOUT_BUTTON_FRECT.h
@@ -369,36 +256,123 @@ class ShopUI(pbge.widgets.Widget):
                                                    )
         self.children.append(checkout_button)
 
-    def _build_sell_list(self, source):
+        # Build initial menus.
+        self._refresh_ware_lists()
+        self._item_panel = None
+
+    REACTIVATE_SELL = 1
+    REACTIVATE_BUY = 2
+
+    def _refresh_ware_lists(self):
+        # Figure out which of the buy menu or the sell menu is being used right now, because probably one of those has
+        # just been used and if the player clicked on an item with their mouse that means that the buy or sell menu
+        # is no longer the active menu- the menu item that we're about to delete and replace is.
+        # So, we need to remember which menu is being used and re-activate it after rebuilding it.
+        # I am writing this out as a long story because it's a cautionary tale for both you and future Joe.
+        # It took me far too long to figure out why clicking on a menu item was deselecting the menu and I was
+        # looking for the solution in all the wrong places.
+        if self._sell_list_widget.is_in_menu(pbge.my_state.active_widget):
+            reactivate = self.REACTIVATE_SELL
+        elif self._buy_list_widget.is_in_menu(pbge.my_state.active_widget):
+            reactivate = self.REACTIVATE_BUY
+        else:
+            reactivate = 0
+        self._build_sell_list()
+        self._build_buy_list()
+        if reactivate == self.REACTIVATE_SELL:
+            pbge.my_state.active_widget = self._sell_list_widget.scroll_column
+        elif reactivate == self.REACTIVATE_BUY:
+            pbge.my_state.active_widget = self._buy_list_widget.scroll_column
+
+    def _build_sell_list(self):
+        active_index = self._sell_list_widget.active_index
+        self._sell_list_widget.clear()
+        pc = self.customer_manager.get_customer()
+        pc_root = pc.get_root()
+        source = list(pc.inv_com) + self.camp.party
+        bought_items = self.undo_sys.get_bought_items()
         for ware in source:
             if not self.shop.can_be_sold(ware):
                 continue
-            self.sell_list.append(SellAction(self.camp, self.shop, ware
-                                             , self.undo_redo_sys
-                                             , self.shop_panel
-                                             , self.shop_lists_manager
-                                             , self.customer_manager
-                                             ))
+            if ware in bought_items:
+                continue
+            self._sell_list_widget.add_interior(
+                pbge.widgetmenu.MenuItemWidget(
+                    0,0,INVENTORY_LIST_FRECT.w, 0,
+                    text = ware.get_full_name(),
+                    data=WareMenuData(
+                        ware=ware, price=self.shop.calc_sale_price(self.camp, ware),
+                        action=actions.SellAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
+                    ), on_click=self._click_ware, font=pbge.BIGFONT
+                )
+            )
 
-    def _set_item_panel(self, action, *etc):
-        ip = gears.info.get_longform_display(model=action.model
-                                             , width=INFO_PANEL_FRECT.w
-                                             )
-        ip.info_blocks.insert(1, _CostBlock(cost=action.cost
-                                            , width=INFO_PANEL_FRECT.w
-                                            ))
-        self._item_panel = ip
-        self._hover_action = action
+        # Add returnable items.
+        for ware in bought_items:
+            if ware in self.camp.party or ware.get_root() is pc_root:
+                self._sell_list_widget.add_interior(
+                    pbge.widgetmenu.MenuItemWidget(
+                        0, 0, INVENTORY_LIST_FRECT.w, 0,
+                        text="{} [Bought]".format(ware.get_full_name()),
+                        data=WareMenuData(
+                            ware=ware, price=self.undo_sys.items_to_undo[ware].price,
+                            action=self.undo_sys.get_undo_action(ware),
+                        ), on_click=self._click_ware, font=pbge.BIGFONT
+                    )
+                )
+        self._sell_list_widget.sort(key=lambda a: str(a))
+        self._sell_list_widget.active_index = active_index
 
-    def _clear_item_panel(self, action, *etc):
-        if self._hover_action is action:
-            self._item_panel = None
-            self._hover_action = None
+    def _build_buy_list(self):
+        active_index = self._buy_list_widget.active_index
+        self._buy_list_widget.clear()
+        for ware in self.shop.wares:
+            self._buy_list_widget.add_interior(
+                pbge.widgetmenu.MenuItemWidget(
+                    0, 0, INVENTORY_LIST_FRECT.w, 0,
+                    text=ware.get_full_name(),
+                    data=WareMenuData(
+                        ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
+                        action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
+                    ), on_click=self._click_ware, font=pbge.BIGFONT
+                )
+            )
 
-    def _select_item(self, action, *etc):
-        action()
-        self._sell_list_widget.deselect()
-        self._buy_list_widget.deselect()
+        # Add cancelable sales.
+        for ware in self.undo_sys.get_sold_items():
+            self._buy_list_widget.add_interior(
+                pbge.widgetmenu.MenuItemWidget(
+                    0, 0, INVENTORY_LIST_FRECT.w, 0,
+                    text="{} [Sold]".format(ware.get_full_name()),
+                    data=WareMenuData(
+                        ware=ware, price=self.undo_sys.items_to_undo[ware].price,
+                        action=self.undo_sys.get_undo_action(ware),
+                    ), on_click=self._click_ware, font=pbge.BIGFONT
+                )
+            )
+
+        self._buy_list_widget.sort(key=lambda a: str(a))
+        self._buy_list_widget.active_index = active_index
+
+    def _set_item_panel(self, colwidget, warewidget):
+        if warewidget and isinstance(warewidget.data, WareMenuData):
+            ip = gears.info.get_longform_display(model=warewidget.data.ware
+                                                 , width=INFO_PANEL_FRECT.w
+                                                 )
+            ip.info_blocks.insert(1, _CostBlock(cost=warewidget.data.price
+                                                , width=INFO_PANEL_FRECT.w
+                                                ))
+            self._item_panel = ip
+        #else:
+        #    self._item_panel = None
+
+    def _click_ware(self, ware_widget, *etc):
+        text = ware_widget.data.action()
+        if text:
+            self.shop_panel.caption = text
+        else:
+            self.shop_panel.reset_caption()
+        self._refresh_ware_lists()
 
     def _checkout(self, *etc):
         self.running = False
@@ -407,7 +381,7 @@ class ShopUI(pbge.widgets.Widget):
         '''
         Done when escape key is pressed while displaying the shop.
         '''
-        if self.shop_panel.num_bought != 0 or self.shop_panel.num_sold != 0:
+        if self.undo_sys.actions_have_happened():
             # Ask if we should abort or not.
             mymenu = pbge.rpgmenu.Menu(-EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2
                                        , EXITMENU_WIDTH, EXITMENU_HEIGHT
@@ -422,18 +396,8 @@ class ShopUI(pbge.widgets.Widget):
                 self.running = True
                 return
             if res == 2:
-                self.undo_redo_sys.undo_all()
+                self.undo_sys.undo_all()
         self.running = False
-
-    def _on_sell_list_update(self, index):
-        self._sell_list_widget.refresh_item_list()
-        if index is not None:
-            self._sell_list_widget.scroll_to_index(index)
-
-    def _on_buy_list_update(self, index):
-        self._buy_list_widget.refresh_item_list()
-        if index is not None:
-            self._buy_list_widget.scroll_to_index(index)
 
     def activate_and_run(self):
         pbge.my_state.widgets.append(self)
@@ -448,14 +412,13 @@ class ShopUI(pbge.widgets.Widget):
                     self._on_escape_key()
         pbge.my_state.widgets.remove(self)
         # Improve friendliness for all items bought.
-        if self.shop_panel.num_bought > 0 or self.shop_panel.num_sold > 0:
+        if self.undo_sys.actions_have_happened():
             pbge.my_state.start_sound_effect("purchase2.ogg")
-        for item in self.shop_panel.bought:
+        for item in self.undo_sys.get_bought_items():
             self.shop.improve_friendliness(self.camp, item)
 
     def render(self, flash=False):
         super().render()
-        self.shop_panel.render(flash)
         self.customer_panel.render()
         if self._item_panel:
             rect = INFO_PANEL_FRECT.get_rect()

@@ -79,15 +79,15 @@ class Widget(frects.Frect):
                 self._builtin_responder(ev)
         else:
             self._mouse_is_over = False
-            if self.on_enter or self.on_leave:
-                if self.get_rect().collidepoint(my_state.mouse_pos) and not self._mouse_is_over:
-                    self._mouse_is_over = True
-                    if self.on_enter:
-                        self.on_enter(self)
-                elif self._mouse_is_over:
-                    self._mouse_is_over = False
-                    if self.on_leave:
-                        self.on_leave(self)
+        #    if self.on_enter or self.on_leave:
+        #        if self.get_rect().collidepoint(my_state.mouse_pos) and not self._mouse_is_over:
+        #            self._mouse_is_over = True
+        #            if self.on_enter:
+        #                self.on_enter(self)
+        #        elif self._mouse_is_over:
+        #            self._mouse_is_over = False
+        #            if self.on_leave:
+        #                self.on_leave(self)
 
     def register_response(self):
         # Call this method when _builtin_responder has responded to an event and you don't want other widgets to
@@ -150,6 +150,7 @@ class LabelWidget(Widget):
                  border=widget_border_off, text_fun=None, alt_smaller_fonts=(), **kwargs):
         # text_fun is a function that takes this widget as a parameter. It returns the text to display.
         super().__init__(dx, dy, w, h, **kwargs)
+        self._text = text
         self.text = text
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
@@ -172,8 +173,6 @@ class LabelWidget(Widget):
     def render(self, flash=False):
         if self.draw_border:
             self.border.render(self.get_rect())
-        if self.text_fun:
-            self.text = self.text_fun(self)
         if self.alt_smaller_fonts and len(wrap_multi_line(self.text, self.font, self.w)) * self.font.get_linesize() > self.h:
             myfont = self.alt_smaller_fonts[-1]
             for f in self.alt_smaller_fonts[:-1]:
@@ -185,6 +184,20 @@ class LabelWidget(Widget):
         draw_text(myfont, self.text, self.get_rect(), self.color, self.justify)
         if flash:
             self._default_flash()
+
+    @property
+    def text(self):
+        if self.text_fun:
+            return self.text_fun(self)
+        else:
+            return self._text
+
+    @text.setter
+    def text(self, nutext):
+        self._text = nutext
+
+    def __str__(self):
+        return self.text
 
 
 class RadioButtonWidget(Widget):
@@ -348,17 +361,17 @@ class ScrollColumnWidget(Widget):
         self.active_widget = 0
 
     def _set_active_widget(self, widindex):
-        if 0 <= widindex < len(self._interior_widgets) and widindex != self._active_widget:
-            self._active_widget = widindex
+        if 0 <= widindex < len(self._interior_widgets):
             wid = self._interior_widgets[widindex]
-            if not wid.active:
-                self.scroll_to_index(widindex)
-            if self.autoclick and wid.on_click:
-                wid.on_click(wid, None)
+            if widindex != self._active_widget:
+                self._active_widget = widindex
+                if not wid.active:
+                    self.scroll_to_index(widindex)
+                if self.autoclick and wid.on_click:
+                    wid.on_click(wid, None)
+
             if self.on_activate_child:
                 self.on_activate_child(self, wid)
-        elif self.on_activate_child:
-            self.on_activate_child(self, None)
 
     def _get_active_widget(self):
         return self._active_widget
@@ -378,7 +391,7 @@ class ScrollColumnWidget(Widget):
 
     def _decorate_click(self, other_on_click):
         def nuclick(wid, ev):
-            if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
+            if wid.active and wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
                 self.active_widget = self._interior_widgets.index(wid)
             other_on_click(wid, ev)
 
@@ -386,10 +399,12 @@ class ScrollColumnWidget(Widget):
 
     def _decorate_on_enter(self, other_on_enter):
         def nuenter(wid):
-            if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
-                self.active_widget = self._interior_widgets.index(wid)
-            if other_on_enter:
-                other_on_enter(wid)
+            if wid.active:
+                if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
+                    self.active_widget = self._interior_widgets.index(wid)
+                if other_on_enter:
+                    print(wid)
+                    other_on_enter(wid)
 
         return nuenter
 
@@ -408,6 +423,9 @@ class ScrollColumnWidget(Widget):
             other_w.on_click = self._decorate_click(other_w.on_click)
         if self.activate_child_on_enter:
             other_w.on_enter = self._decorate_on_enter(other_w.on_enter)
+
+    def is_interior_widget(self, other_w):
+        return other_w in self._interior_widgets
 
     def clear(self):
         for w in list(self._interior_widgets):
@@ -497,7 +515,8 @@ class ScrollColumnWidget(Widget):
 
 
 class RowWidget(Widget):
-    def __init__(self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, **kwargs):
+    def __init__(self, dx, dy, w, h, draw_border=False, border=default_border, padding=5, border_inflation=10,
+                 **kwargs):
         super().__init__(dx, dy, w, h, **kwargs)
         self.draw_border = draw_border
         self.border = border
@@ -505,6 +524,7 @@ class RowWidget(Widget):
         self._center_widgets = list()
         self._right_widgets = list()
         self.padding = padding
+        self.border_inflation=border_inflation
 
     def add_left(self, other_w):
         self.children.append(other_w)
@@ -554,7 +574,7 @@ class RowWidget(Widget):
 
     def render(self, flash=False):
         if self.draw_border:
-            self.border.render(self.get_rect().inflate(10, 10))
+            self.border.render(self.get_rect().inflate(self.border_inflation, self.border_inflation))
         if flash:
             self._default_flash()
 

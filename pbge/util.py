@@ -92,3 +92,64 @@ def init(appname, gamedir):
     if not config.read([user_dir("config.cfg")]):
         with open(user_dir("config.cfg"), "wt") as f:
             config.write(f)
+
+
+# Code removed from the GearHead Caramel shopping UI unit. The original undo/redo system makes some assumptions about
+# shopping that later turned out to not be true- that there would be one buy list and one sell list is the big one.
+# Also, the redo functionality never gets used. So, I'm moving this code here because it might come in handy someday.
+# It's good code.
+
+# An Undo/Redo item.
+class UndoRedoBase(object):
+    # Return True if doing succeeded, False if not.
+    def on_do(self):
+        raise NotImplementedError('UndoRedoBase.on_do must be overridden')
+
+    # Return True if undoing succeeded, False if not.
+    def on_undo(self):
+        raise NotImplementedError('UndoRedoBase.on_undo must be overridden')
+
+# The undo/redo list.
+class UndoRedoSystem(object):
+    def __init__(self):
+        self.undos = list()
+        self.redos = list()
+
+    def do_action(self, undo_redo_base):
+        if undo_redo_base.on_do():
+            self.undos.append(undo_redo_base)
+            self.redos.clear()
+
+    def is_empty(self):
+        return not (self.undos or self.redos)
+
+    def undo(self):
+        if not self.undos:
+            return
+        undo_redo_base = self.undos[-1]
+        if undo_redo_base.on_undo():
+            self.undos.pop()
+            self.redos.append(undo_redo_base)
+
+    def redo(self):
+        if not self.redos:
+            return
+        undo_redo_base = self.redos[-1]
+        if undo_redo_base.on_do():
+            self.redos.pop()
+            self.undos.append(undo_redo_base)
+
+    # Undo a specific item.
+    def undo_specific(self, undo_redo_base):
+        if not (undo_redo_base in self.undos):
+            return
+        if undo_redo_base.on_undo():
+            self.undos.remove(undo_redo_base)
+            self.redos.append(undo_redo_base)
+
+    # Undo everything.
+    def undo_all(self):
+        while self.undos:
+            undo_redo_base = self.undos.pop()
+            undo_redo_base.on_undo()
+        self.redos.clear()

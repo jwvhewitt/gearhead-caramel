@@ -1,10 +1,14 @@
 from . import widgets
 from . import image
-from . import my_state, INFO_HILIGHT, INFO_GREEN
+from . import my_state, Border
 from . import rpgmenu
 
 DEFAULT_UPDOWN_IMAGE_W_H = ("sys_updownbuttons.png", 128, 16)
 
+widget_menu_border_off = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge1.png",
+                           tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=16)
+widget_menu_border_on = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge2.png",
+                          tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=16)
 
 class MenuItemWidget(widgets.LabelWidget):
     def __init__(self, dx, dy, w, h,
@@ -24,11 +28,19 @@ class MenuItemWidget(widgets.LabelWidget):
     def color(self, nuval):
         self.off_color = nuval
 
+    def _default_flash(self):
+        # The default flash for this widget is "don't".
+        pass
+
 
 class MenuWidget(widgets.ColumnWidget):
-    def __init__(self, dx, dy, w, h, draw_border=True, border=widgets.widget_border_on,
-                 off_border=widgets.widget_border_off, activate_child_on_enter=False, **kwargs):
-        super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, **kwargs)
+    def __init__(self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
+                 off_border=widget_menu_border_off, activate_child_on_enter=False,
+                 on_activate_item=None, center_interior=True, **kwargs):
+        # on_activate_item is a callable with signature (column, colitem). colitem may be None.
+        #  Basically this is just passed to the interior ScrollColumn as its on_activate_child parameter.
+        super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
+                         **kwargs)
         self.off_border = off_border
 
         image_name, image_w, image_h = DEFAULT_UPDOWN_IMAGE_W_H
@@ -42,10 +54,11 @@ class MenuWidget(widgets.ColumnWidget):
         self.scroll_column = widgets.ScrollColumnWidget(
             0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = 0,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
+            on_activate_child=on_activate_item
         )
-        self.add_interior(self.up_arrow)
-        self.add_interior(self.scroll_column)
-        self.add_interior(self.down_arrow)
+        super().add_interior(self.up_arrow)
+        super().add_interior(self.scroll_column)
+        super().add_interior(self.down_arrow)
 
     def _enter_column(self, wid):
         my_state.active_widget = wid
@@ -59,10 +72,9 @@ class MenuWidget(widgets.ColumnWidget):
 
     def _should_flash(self):
         return (
-            (self.scroll_column is my_state.active_widget
-             or self.up_arrow is my_state.active_widget
-             or self.down_arrow is my_state.active_widget)
-            and my_state.active_widget_hilight
+            self.scroll_column is my_state.active_widget
+            or self.up_arrow is my_state.active_widget
+            or self.down_arrow is my_state.active_widget
         )
 
     # Some utility functions to access the scroll column's contents directly.
@@ -77,4 +89,16 @@ class MenuWidget(widgets.ColumnWidget):
 
     def sort(self, key=None):
         self.scroll_column.sort(key)
+
+    @property
+    def active_index(self):
+        return self.scroll_column.active_widget
+
+    @active_index.setter
+    def active_index(self, nuval):
+        self.scroll_column.scroll_to_index(nuval)
+        self.scroll_column.active_widget = nuval
+
+    def is_in_menu(self, other_widget):
+        return self.scroll_column.is_interior_widget(other_widget)
 
