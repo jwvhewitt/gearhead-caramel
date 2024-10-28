@@ -36,6 +36,17 @@ class AttackInvocation(effects.Invocation):
         super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record)
 
 
+class ItemInvocation(effects.Invocation):
+    def __init__(self, weapon, *args, **kwargs):
+        self.weapon = weapon
+        super().__init__(*args, **kwargs)
+
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None):
+        if originator:
+            anim_list.append(animobs.WatchMeWiggle(originator))
+        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record)
+
+
 class InvoLibraryShelf(object):
     def __init__(self, source, invo_list):
         self.source = source
@@ -813,7 +824,7 @@ class AttackRoll(effects.NoEffect):
         self.defenses = defenses
         self.can_crit = can_crit
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat, self.att_skill)
         else:
@@ -881,7 +892,7 @@ class MeleeAttackRoll(AttackRoll):
         super().__init__(att_stat, att_skill, **kwargs)
         self.bonus_strikes = bonus_strikes
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat, self.att_skill)
             max_attacks = 1 + max(
@@ -962,7 +973,7 @@ class MultiAttackRoll(effects.NoEffect):
         # not all of these attacks are likely to hit.
         return min(self.num_attacks, 10) * 2
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         if originator:
             att_bonus = originator.get_skill_score(self.att_stat, self.att_skill)
             if self.apply_hit_modifier:
@@ -1061,7 +1072,7 @@ class SkillRoll(effects.NoEffect):
             percent = self.roll_mod
         return max(min(percent, self.max_chance), self.min_chance)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         odds = self._calc_percent(camp, originator)
         if random.randint(1, 100) <= odds:
             if originator and hasattr(originator, "dole_experience"):
@@ -1110,7 +1121,7 @@ class OpposedSkillRoll(effects.NoEffect):
             percent -= target.get_skill_score(self.def_stat, self.def_skill)
         return max(min(percent, self.max_chance), self.min_chance)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         target = camp.scene.get_main_actor(pos)
         if target:
             odds = self._calc_percent(camp, originator, target)
@@ -1172,7 +1183,7 @@ class ResistanceRoll(effects.NoEffect):
             percent -= target.get_skill_score(self.def_stat, self._get_dodge_skill(target))
         return max(min(percent, self.max_chance), self.min_chance)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         target = camp.scene.get_main_actor(pos)
         if target:
             odds = self._calc_percent(camp, originator, target)
@@ -1210,7 +1221,7 @@ class CheckConditions(effects.NoEffect):
         self.on_failure = list(on_failure)
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         target = camp.scene.get_main_actor(pos)
         if all(con(camp, originator, target) for con in self.conditions):
             return self.on_success
@@ -1253,7 +1264,7 @@ class StealthSkillRoll(effects.NoEffect):
             percent -= max(enemy_skills)
         return max(min(percent, self.max_chance), self.min_chance)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         odds = self._calc_percent(camp, originator, pos)
         if random.randint(1, 100) <= odds:
             if originator and hasattr(originator, "dole_experience"):
@@ -1286,7 +1297,7 @@ class DoDamage(effects.NoEffect):
         self.can_be_divided = can_be_divided
         self.affected_by_armor = affected_by_armor
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         targets = camp.scene.get_operational_actors(pos)
         penetration = fx_record.get(FX_PENETRATION, random.randint(1, 100))
         damage_percent = fx_record.get("damage_percent", 100)
@@ -1342,7 +1353,7 @@ class DoCrash(effects.NoEffect):
     def __init__(self, children=()):
         super().__init__(children)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         targets = camp.scene.get_operational_actors(pos)
         for t in targets:
             if hasattr(t, "mmode"):
@@ -1371,7 +1382,7 @@ class DoHealing(effects.NoEffect):
         self.scale = scale
         self.repair_type = repair_type
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         targets = camp.scene.get_operational_actors(pos)
         for target in targets:
             scale = self.scale or target.scale
@@ -1414,7 +1425,7 @@ class RestoreMP(effects.NoEffect):
             self.children = list()
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         targets = camp.scene.get_operational_actors(pos)
         for target in targets:
             tpilot = target.get_pilot()
@@ -1443,7 +1454,7 @@ class RestoreSP(effects.NoEffect):
             self.children = list()
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         targets = camp.scene.get_operational_actors(pos)
         for target in targets:
             tpilot = target.get_pilot()
@@ -1481,7 +1492,7 @@ class DoEncourage(effects.NoEffect):
                 compat += 1
         return compat
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         if originator:
             score = originator.get_skill_score(self.stat, self.skill)
         else:
@@ -1526,13 +1537,13 @@ class DoEncourage(effects.NoEffect):
                                      y_off=-camp.scene.model_altitude(target, *target.pos))
             anims.append(myanim)
 
-        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 
 class SetHidden(effects.NoEffect):
     """An effect that hides a model."""
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         """Do whatever is required of effect; return list of child effects."""
         targets = camp.scene.get_operational_actors(pos)
         for target in targets:
@@ -1544,7 +1555,7 @@ class SetHidden(effects.NoEffect):
 class SetVisible(effects.NoEffect):
     """An effect that reveals a model."""
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         """Do whatever is required of effect; return list of child effects."""
         targets = camp.scene.get_operational_actors(pos)
         for target in targets:
@@ -1567,7 +1578,7 @@ class CallAnimalCompanion(effects.NoEffect):
             self.children = list()
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         if originator:
             threat_bonus = originator.get_skill_score(self.fx_stat, self.fx_skill) + 10
         else:
@@ -1604,7 +1615,7 @@ class IfEnchantmentOK(effects.NoEffect):
         self.on_failure = list(on_failure)
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         target = camp.scene.get_main_actor(pos)
         if target and hasattr(target, 'ench_list') and self.enchant_type.can_affect(target):
             return self.on_success
@@ -1629,7 +1640,7 @@ class AddEnchantment(effects.NoEffect):
             self.children = list()
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         target = camp.scene.get_main_actor(pos)
         if target and hasattr(target, 'ench_list') and self.enchant_type.can_affect(target):
             params = self.enchant_params.copy()
@@ -1649,7 +1660,7 @@ class RandomEffect(effects.NoEffect):
         super().__init__(**keywords)
         self.possible_fx = possible_fx
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         return [random.choice(self.possible_fx)] + self.children
 
 
@@ -1663,12 +1674,12 @@ class DispelEnchantments(effects.NoEffect):
         super().__init__(**keywords)
         self.dispel_this = dispel_this or ON_DISPEL_NEGATIVE
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         for target in camp.scene.get_operational_actors(pos):
             if not hasattr(target, 'ench_list'):
                 continue
             target.ench_list.tidy(self.dispel_this)
-        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 
 class DoDrainPower(effects.NoEffect):
@@ -1678,7 +1689,7 @@ class DoDrainPower(effects.NoEffect):
     def __init__(self, **keywords):
         super().__init__(**keywords)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         for target in camp.scene.get_operational_actors(pos):
             if not hasattr(target, 'get_current_and_max_power'):
                 continue
@@ -1700,7 +1711,7 @@ class DoDrainPower(effects.NoEffect):
                                      , y_off=-camp.scene.model_altitude(target, *target.pos)
                                      )
             anims.append(myanim)
-        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 
 class DoDrainStamina(effects.NoEffect):
@@ -1712,7 +1723,7 @@ class DoDrainStamina(effects.NoEffect):
         self.drain_d = drain_d
         super().__init__(**keywords)
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         for target in camp.scene.get_operational_actors(pos):
             if not hasattr(target, 'spend_stamina'):
                 continue
@@ -1728,7 +1739,7 @@ class DoDrainStamina(effects.NoEffect):
                                      , y_off=-camp.scene.model_altitude(target, *target.pos)
                                      )
             anims.append(myanim)
-        return super().handle_effect(camp, fx_record, originator, pos, anims, delay)
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 
 

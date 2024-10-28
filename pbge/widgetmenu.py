@@ -36,7 +36,7 @@ class MenuItemWidget(widgets.LabelWidget):
 class MenuWidget(widgets.ColumnWidget):
     def __init__(self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
                  off_border=widget_menu_border_off, activate_child_on_enter=False,
-                 on_activate_item=None, center_interior=True, **kwargs):
+                 on_activate_item=None, center_interior=True, padding=5, **kwargs):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
         #  Basically this is just passed to the interior ScrollColumn as its on_activate_child parameter.
         super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
@@ -52,7 +52,7 @@ class MenuWidget(widgets.ColumnWidget):
             0, 0, image_w, image_h, sprite = updown, on_frame = 2, off_frame = 3
         )
         self.scroll_column = widgets.ScrollColumnWidget(
-            0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = 0,
+            0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = padding,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
             on_activate_child=on_activate_item
         )
@@ -101,4 +101,7 @@ class MenuWidget(widgets.ColumnWidget):
 
     def is_in_menu(self, other_widget):
         return self.scroll_column.is_interior_widget(other_widget)
+
+    def items(self):
+        return list(self.scroll_column._interior_widgets)
 

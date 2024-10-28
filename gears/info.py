@@ -1005,6 +1005,8 @@ class WeaponIP(InfoPanel):
         FullNameBlock, MassVolumeHPBlock, WeaponStatsBlock, ItemStatsBlock, WeaponSkillBlock, WeaponAttributesBlock,
         DescBlock)
 
+class AmmoIP(InfoPanel):
+    DEFAULT_BLOCKS = (FullNameBlock, MassVolumeHPBlock, ItemStatsBlock, WeaponAttributesBlock, DescBlock)
 
 class LauncherIP(InfoPanel):
     DEFAULT_BLOCKS = (
@@ -1068,6 +1070,8 @@ def get_status_display(model, **kwargs):
 def get_longform_display(model, **kwargs):
     if isinstance(model, base.Weapon):
         return WeaponIP(model=model, **kwargs)
+    elif isinstance(model, base.Ammo):
+        return AmmoIP(model=model, **kwargs)
     elif isinstance(model, base.Launcher):
         return LauncherIP(model=model, **kwargs)
     elif isinstance(model, base.EWSystem):

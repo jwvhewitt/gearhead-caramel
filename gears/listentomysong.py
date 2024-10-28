@@ -30,16 +30,12 @@ class Invocation( effects.Invocation ):
                                                               , conditions = [ aitargeters.CasterIsSurrounded(reach = SONG_REACH) ]
                                                               )
                         , shot_anim = geffects.OriginSpotShotFactory(geffects.ListenToMySongAnim)
-                        , data = _attack_data()
+                        , data = geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 27)
                         , price = [geffects.MentalPrice(MENTAL_COST)]
                         , targets = 1,
                           help_text=help_text
                         )
 
-def _attack_data():
-    '''Defines the icon for this action.'''
-    # TODO: Something more appropriate.
-    return geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 27)
 
 def _top_fx(info):
     '''Primary effect when cast.'''

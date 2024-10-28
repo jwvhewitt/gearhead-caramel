@@ -1,3 +1,6 @@
+* Can now purchase spare ammo clips in shops
+* Refactored the shopping UI to use WidgetMenu
+* Added WidgetMenu widget type
 * Meat cannot be eaten in the middle of combat
 * Added on_enter, on_leave properties for all widgets
 * Fixed some errors in the [CHALLENGE] grammar tag

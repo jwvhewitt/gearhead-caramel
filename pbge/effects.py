@@ -8,12 +8,21 @@
 #   pay(chara): Pay the price
 #   can_pay(chara): The character is capable of paying the price
 
-class Invocation(object):
+class TargetingRecord:
+    def __init__(self):
+        self.target_points = set()
+        self.data = dict()
+
+
+class Invocation:
     """ An invocation describes an effect that may be invoked by a character.
         Or not by a character. Try not to make too many assumptions."""
 
     def __init__(self, name=None, fx=None, area=None, used_in_combat=None, used_in_exploration=None, shot_anim=None,
-                 ai_tar=None, targets=1, price=None, data=None, help_text=""):
+                 ai_tar=None, targets=1, price=None, data=None, help_text="", data_gatherers=()):
+        # data_gatherers is a list of game-specific menus or other interfaces called after the target(s) of an
+        # invocation are picked and is used to select additional data used by the invocation. The returned data should
+        # take the form of a dict.
         self.name = name
         self.fx = fx
         self.area = area
@@ -28,6 +37,7 @@ class Invocation(object):
         self.data = data  # Game-specific info attached to an invocation,
         # such as button images and whatnot.
         self.help_text = help_text
+        self.data_gatherers = list(data_gatherers)
 
     def can_be_invoked(self, chara, in_combat=False):
         if self.price and not all(p.can_pay(chara) for p in self.price):
@@ -40,7 +50,7 @@ class Invocation(object):
     def __str__(self):
         return self.name
 
-    def invoke(self, camp, originator, target_points, anim_list, fx_record=None):
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
         """ Invoke this effect using the provided target points. Animations
             will be stored in the provided list and displayed afterward.
             camp: The campaign.
@@ -80,7 +90,7 @@ class Invocation(object):
             for p in area_of_effect:
                 if delay_point:
                     delay = camp.scene.distance(p, delay_point) * 2 + 1
-                self.fx(camp, fx_record, originator, p, anims, delay)
+                self.fx(camp, fx_record, originator, p, anims, delay, data)
 
         for p in self.price:
             p.pay(originator)
@@ -102,11 +112,11 @@ class NoEffect(object):
             self.children = list()
         self.anim = anim
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         """Do whatever is required of effect; return list of child effects."""
         return self.children
 
-    def __call__(self, camp, fx_record, originator, pos, anims, delay=0):
+    def __call__(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         o_anims = anims
         o_delay = delay
         if self.anim:
@@ -120,9 +130,9 @@ class NoEffect(object):
         # additional anims to be added by the effect itself. "handle_effect" is
         # called after the automatic anim above so that any captions/etc get
         # drawn on top of the base anim.
-        next_fx = self.handle_effect(camp, fx_record, originator, pos, o_anims, o_delay)
+        next_fx = self.handle_effect(camp, fx_record, originator, pos, o_anims, o_delay, data)
         for nfx in next_fx:
-            anims = nfx(camp, fx_record, originator, pos, anims, delay)
+            anims = nfx(camp, fx_record, originator, pos, anims, delay, data)
         return anims
 
 
@@ -134,6 +144,6 @@ class InvokeEffect(NoEffect):
         super().__init__(**keywords)
         self.invocation = invocation
 
-    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0):
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         self.invocation.invoke(camp, originator, [pos], anims, fx_record)
         return super().handle_effect(camp, fx_record, originator, pos, anims, delay)

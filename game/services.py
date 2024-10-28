@@ -184,6 +184,30 @@ class Shop(object):
             percent += f//7
         return max((it.cost * percent)//100 , 1)
 
+    def can_sell_ammo(self, gun):
+        return gun.scale is gears.scale.HumanScale and isinstance(gun, gears.base.BallisticWeapon)
+
+    def get_ammo_list(self, gun: gears.base.BallisticWeapon):
+        mylist = list()
+        protoammo = gun.get_ammo()
+        if protoammo:
+            nu_ammo = copy.deepcopy(protoammo)
+            mylist.append(nu_ammo)
+
+            for ammo_mod in protoammo.ammo_type.modifiers:
+                nu_ammo = gears.base.Ammo(
+                    name="{} ({})".format(protoammo.name, ammo_mod.name),
+                    scale=protoammo.scale, ammo_type=protoammo.ammo_type, quantity=protoammo.quantity,
+                    attributes=tuple(ammo_mod.atts), material=protoammo.material
+                )
+
+                while nu_ammo.quantity > 0 and not gun.is_good_ammo(nu_ammo):
+                    nu_ammo.quantity -= 1
+                if nu_ammo.quantity > 0:
+                    mylist.append(nu_ammo)
+
+        return mylist
+
     def enter_shop(self, camp):
         self.customer = camp.pc
         ui = shopui.ShopUI(camp, self)

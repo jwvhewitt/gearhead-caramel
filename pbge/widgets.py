@@ -357,7 +357,7 @@ class ScrollColumnWidget(Widget):
         self.focus_locked = focus_locked
         self.on_activate_child = on_activate_child
         self.activate_child_on_enter = activate_child_on_enter
-        self._active_widget = -1
+        self._active_widget = 0
         self.active_widget = 0
 
     def _set_active_widget(self, widindex):
@@ -372,6 +372,8 @@ class ScrollColumnWidget(Widget):
 
             if self.on_activate_child:
                 self.on_activate_child(self, wid)
+        else:
+            self._active_widget = 0
 
     def _get_active_widget(self):
         return self._active_widget

@@ -2163,7 +2163,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
 
     def get_item_stats(self):
         # Provide info on the ammo.
-        return (('Ammo', '{}/{}'.format(self.quantity - self.spent, self.quantity)),)
+        return (('Ammo', '{}/{}'.format(self.quantity - self.spent, self.quantity)), ("Calibre", str(self.ammo_type)))
 
     def get_reload_cost(self):
         return (self.cost * self.spent) // self.quantity
@@ -2195,6 +2195,10 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                         )), shot_anim=geffects.AmmoExplosionAnim,
                     area=pbge.scenes.targetarea.SingleTarget())
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
+
+    def get_attributes(self):
+        # Kinda pointless method to maintain compatibility with the weapon attribute infopanel.
+        return self.attributes
 
 
 class BallisticWeapon(Weapon):
@@ -2246,6 +2250,30 @@ class BallisticWeapon(Weapon):
         for maybe_ammo in self.sub_com:
             if isinstance(maybe_ammo, Ammo):
                 return maybe_ammo
+
+    def is_good_ammo(self, ammo):
+        volume_limit = self.free_volume
+        current_ammo = self.get_ammo()
+        if current_ammo:
+            volume_limit += current_ammo.volume
+        return self.can_install(ammo, check_volume=False) and ammo.volume <= volume_limit and ammo.spent < ammo.quantity
+
+    def get_attacks(self):
+        ammo = self.get_ammo()
+        if any([self.is_good_ammo(a) for a in self.get_root().inv_com]) and not (ammo and (ammo.quantity - ammo.spent) > 0):
+            return [
+                pbge.effects.Invocation(
+                    name="Reload", fx=None, area=None,
+                    used_in_combat=True, used_in_exploration=True,
+                    help_text="Reload {}".format(self.get_full_name()),
+                    data=geffects.AttackData(
+                        pbge.image.Image('sys_attackui_default.png', 32, 32), 21, 22, 23,
+                        thrill_power=0
+                    ),
+
+                )
+            ]
+        return super().get_attacks()
 
     def get_attributes(self):
         ammo = self.get_ammo()

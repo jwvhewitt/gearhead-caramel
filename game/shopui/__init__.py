@@ -138,7 +138,7 @@ class _CostBlock(object):
         self._cost = cost
         self.width = width
         msg = '${:,}'.format(cost)
-        self.image = pbge.render_text(pbge.BIGFONT, msg, self.width
+        self.image = pbge.render_text(pbge.MEDIUM_DISPLAY_FONT, msg, self.width
                                       , justify=0, color=pbge.TEXT_COLOR
                                       )
         self.height = self.image.get_height()
@@ -196,10 +196,11 @@ class CustomerPanel(object):
 ###############################################################################
 
 class WareMenuData:
-    def __init__(self, ware, price, action):
+    def __init__(self, ware, price, action, sort_order=0):
         self.ware = ware
         self.price = price
         self.action = action
+        self.sort_order = sort_order
 
 
 class ShopUI(pbge.widgets.Widget):
@@ -257,8 +258,11 @@ class ShopUI(pbge.widgets.Widget):
         self.children.append(checkout_button)
 
         # Build initial menus.
+        self._special_wares = list()
+        self._style = dict(font=pbge.MEDIUM_DISPLAY_FONT)
         self._refresh_ware_lists()
         self._item_panel = None
+
 
     REACTIVATE_SELL = 1
     REACTIVATE_BUY = 2
@@ -303,7 +307,7 @@ class ShopUI(pbge.widgets.Widget):
                     data=WareMenuData(
                         ware=ware, price=self.shop.calc_sale_price(self.camp, ware),
                         action=actions.SellAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
-                    ), on_click=self._click_ware, font=pbge.BIGFONT
+                    ), on_click=self._click_ware, **self._style
                 )
             )
 
@@ -317,13 +321,43 @@ class ShopUI(pbge.widgets.Widget):
                         data=WareMenuData(
                             ware=ware, price=self.undo_sys.items_to_undo[ware].price,
                             action=self.undo_sys.get_undo_action(ware),
-                        ), on_click=self._click_ware, font=pbge.BIGFONT
+                        ), on_click=self._click_ware, **self._style
                     )
                 )
         self._sell_list_widget.sort(key=lambda a: str(a))
         self._sell_list_widget.active_index = active_index
 
     def _build_buy_list(self):
+        if self._special_wares:
+            self._build_special_buy_list()
+        else:
+            self._build_regular_buy_list()
+
+    def _build_special_buy_list(self):
+        active_index = self._buy_list_widget.active_index
+        self._buy_list_widget.clear()
+        for ware in self._special_wares:
+            self._buy_list_widget.add_interior(
+                pbge.widgetmenu.MenuItemWidget(
+                    0, 0, INVENTORY_LIST_FRECT.w, 0,
+                    text=ware.get_full_name(),
+                    data=WareMenuData(
+                        ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
+                        action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
+                    ), on_click=self._click_ware, **self._style
+                )
+            )
+        self._buy_list_widget.sort(key=lambda a: str(a))
+
+        self._buy_list_widget.add_interior(
+            pbge.widgetmenu.MenuItemWidget(
+                0, 0, INVENTORY_LIST_FRECT.w, 0,
+                text="[Done]", on_click=self._return_to_regular_menu, **self._style
+            )
+        )
+        self._buy_list_widget.active_index = active_index
+
+    def _build_regular_buy_list(self):
         active_index = self._buy_list_widget.active_index
         self._buy_list_widget.clear()
         for ware in self.shop.wares:
@@ -334,7 +368,7 @@ class ShopUI(pbge.widgets.Widget):
                     data=WareMenuData(
                         ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
                         action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
-                    ), on_click=self._click_ware, font=pbge.BIGFONT
+                    ), on_click=self._click_ware, **self._style
                 )
             )
 
@@ -347,22 +381,53 @@ class ShopUI(pbge.widgets.Widget):
                     data=WareMenuData(
                         ware=ware, price=self.undo_sys.items_to_undo[ware].price,
                         action=self.undo_sys.get_undo_action(ware),
-                    ), on_click=self._click_ware, font=pbge.BIGFONT
+                    ), on_click=self._click_ware, **self._style
                 )
             )
 
         self._buy_list_widget.sort(key=lambda a: str(a))
+
+        # Part three- add ammo packs for guns.
+        for n, wid in enumerate(self._buy_list_widget.items(), start=1):
+            wid.data.sort_order = n*100
+
+        for wid in self._buy_list_widget.items():
+            if wid.data.ware and self.shop.can_sell_ammo(wid.data.ware):
+                self._buy_list_widget.add_interior(
+                    pbge.widgetmenu.MenuItemWidget(
+                        0, 0, INVENTORY_LIST_FRECT.w, 0,
+                        text="+ {} ammo".format(wid.data.ware.get_full_name()),
+                        data=WareMenuData(
+                            ware=wid.data.ware, price=self.shop.calc_purchase_price(self.camp, wid.data.ware),
+                            action=None, sort_order=wid.data.sort_order + 1
+                        ), on_click=self._switch_ammo_menu, **self._style
+                    )
+                )
+
+        self._buy_list_widget.sort(key=lambda a: a.data.sort_order)
         self._buy_list_widget.active_index = active_index
+
+    def _return_to_regular_menu(self, *etc):
+        self._special_wares.clear()
+        self._refresh_ware_lists()
+
+    def _switch_ammo_menu(self, ware_widget, *etc):
+        self._special_wares = self.shop.get_ammo_list(ware_widget.data.ware)
+        self._buy_list_widget.active_index = 0
+        self._refresh_ware_lists()
 
     def _set_item_panel(self, colwidget, warewidget):
         if warewidget and isinstance(warewidget.data, WareMenuData):
-            ip = gears.info.get_longform_display(model=warewidget.data.ware
-                                                 , width=INFO_PANEL_FRECT.w
-                                                 )
-            ip.info_blocks.insert(1, _CostBlock(cost=warewidget.data.price
-                                                , width=INFO_PANEL_FRECT.w
-                                                ))
-            self._item_panel = ip
+            if warewidget.data.ware:
+                ip = gears.info.get_longform_display(model=warewidget.data.ware
+                                                     , width=INFO_PANEL_FRECT.w
+                                                     )
+                ip.info_blocks.insert(1, _CostBlock(cost=warewidget.data.price
+                                                    , width=INFO_PANEL_FRECT.w
+                                                    ))
+                self._item_panel = ip
+            else:
+                self._item_panel = None
         #else:
         #    self._item_panel = None
 
@@ -381,11 +446,15 @@ class ShopUI(pbge.widgets.Widget):
         '''
         Done when escape key is pressed while displaying the shop.
         '''
+        if self._special_wares:
+            self._return_to_regular_menu()
+            return
+
         if self.undo_sys.actions_have_happened():
             # Ask if we should abort or not.
             mymenu = pbge.rpgmenu.Menu(-EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2
                                        , EXITMENU_WIDTH, EXITMENU_HEIGHT
-                                       , font=pbge.BIGFONT
+                                       , font=pbge.MEDIUM_DISPLAY_FONT
                                        )
             mymenu.add_item('Continue Shopping', 0)
             mymenu.add_item('Finalize Transactions', 1)

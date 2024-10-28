@@ -389,11 +389,7 @@ class DrainsPower(Singleton):
         # Add a drain power effect to the children.
         # Construct an invocation that is invoked after damage is dealt,
         # otherwise the -100Pw caption will overlap with the damage caption.
-        fx = pbge.effects.NoEffect(children=[geffects.DoDrainPower()])
-        inv = pbge.effects.Invocation(area=pbge.scenes.targetarea.SingleTarget(delay_from=-1)
-                                      , fx=fx
-                                      )
-        attack.fx.children[0].children.append(pbge.effects.InvokeEffect(invocation=inv))
+        attack.fx.children[0].children.append(geffects.DoDrainPower())
 
 
 class IgnitesAmmo(BurnAttack):

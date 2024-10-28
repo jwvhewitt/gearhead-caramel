@@ -529,10 +529,10 @@ BallisticWeapon
     desig = "RIX-58"
     desc = "A burst capable semiautomatic rifle designed for use against armored targets."
     reach = 6
-    damage = 2
-    accuracy = 0
+    damage = 3
+    accuracy = 1
     penetration = 3
-    ammo_type = Rifle_5mm
+    ammo_type = Rifle_6mm
     attributes = (Accurate,VariableFire3,)
     scale = HumanScale
     shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
@@ -541,7 +541,7 @@ BallisticWeapon
     SUB
         Ammo
             name = "RIX-58 Clip"
-            ammo_type=Rifle_5mm
+            ammo_type=Rifle_6mm
             quantity=40
     END
 
@@ -582,7 +582,7 @@ BallisticWeapon
     magazine = 120
     SUB
         Ammo
-            name = "7-2 Clip"
+            name = "7-Z Clip"
             ammo_type=Rifle_5mm
             quantity=120
     END
@@ -726,7 +726,7 @@ BallisticWeapon
     damage = 4
     accuracy = 1
     penetration = 3
-    ammo_type = Shell_25mm
+    ammo_type = Cannister_25mm
     scale = HumanScale
     shop_tags= ("WEAPON","MISSILE WEAPON")
     faction_list = (TerranFederation,TerranDefenseForce,DeadzoneFederation,ClanIronwind,BoneDevils,KettelIndustries,RegExCorporation,BioCorp, TreasureHunters, Guardians)
@@ -735,7 +735,7 @@ BallisticWeapon
     SUB
         Ammo
             name = "BAM-15 Clip"
-            ammo_type=Shell_25mm
+            ammo_type=Cannister_25mm
             quantity=24
             attributes = (Blast1,)
     END
