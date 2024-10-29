@@ -2238,7 +2238,7 @@ class BallisticWeapon(Weapon):
                         break
 
         # Finally, call the gear initializer.
-        super(BallisticWeapon, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     def is_legal_sub_com(self, part):
         if isinstance(part, Weapon):
@@ -2259,21 +2259,27 @@ class BallisticWeapon(Weapon):
         return self.can_install(ammo, check_volume=False) and ammo.volume <= volume_limit and ammo.spent < ammo.quantity
 
     def get_attacks(self):
-        ammo = self.get_ammo()
-        if any([self.is_good_ammo(a) for a in self.get_root().inv_com]) and not (ammo and (ammo.quantity - ammo.spent) > 0):
-            return [
-                pbge.effects.Invocation(
-                    name="Reload", fx=None, area=None,
+        attacks = super().get_attacks()
+        if any([self.is_good_ammo(a) for a in self.get_root().inv_com]):
+            attacks.append(
+                geffects.AttackInvocation(
+                    self,
+                    name="Reload", fx=geffects.DoReload(self, anim=geffects.ReloadAnim),
+                    area=pbge.scenes.targetarea.SelfOnly(),
                     used_in_combat=True, used_in_exploration=True,
                     help_text="Reload {}".format(self.get_full_name()),
                     data=geffects.AttackData(
                         pbge.image.Image('sys_attackui_default.png', 32, 32), 21, 22, 23,
                         thrill_power=0
                     ),
-
+                    data_gatherers=(
+                        ghuiutil.SelectGearDataGatherer(
+                            [a for a in self.get_root().inv_com if self.is_good_ammo(a)], "Select Ammo", "AMMO"
+                        ),
+                    )
                 )
-            ]
-        return super().get_attacks()
+            )
+        return attacks
 
     def get_attributes(self):
         ammo = self.get_ammo()
@@ -4886,3 +4892,6 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
 
     def get_item_stats(self):
         return (("Quantity", str(self.quantity - self.spent)),)
+
+
+from . import ghuiutil

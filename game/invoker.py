@@ -10,6 +10,15 @@ from . import exploration
 # Shelf needs name, desc properties & __str__ method.
 # AttackData should be renamed InvoData
 
+# Data Gatherers are explicitly left undefined in the pbge Invocation specs. In GearHead Caramel, a data gatherer
+# should be a callable that takes the invocation's data dict as a parameter and returns True if data was successfully
+# gathered or False if it was not.
+
+class DataGatherer:
+    def __call__(self, data: dict):
+        raise(NotImplementedError("This data gatherer does nothing!"))
+
+
 class InvoMenuDesc(pbge.frects.Frect):
     def __call__(self, menu_item):
         # Just print this weapon's stats in the provided window.
@@ -295,6 +304,8 @@ class InvocationUI(object):
         self.pc = pc
         # self.change_invo(invo)
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
+        self.invo: pbge.effects.Invocation = None
+        self.data = dict()
 
         self.my_widget = self.LIBRARY_WIDGET(
             camp, pc, build_library_function, self.change_invo, source,
@@ -312,6 +323,7 @@ class InvocationUI(object):
         self.record = False
         self.keep_exploring = True
         self.clock = clock
+        self.ready_to_invoke = False
 
     def _get_target_count(self, *args):
         return "{}/{} Targets".format(len(self.targets), self.num_targets)
@@ -422,10 +434,16 @@ class InvocationUI(object):
         # method will handle invocations outside of combat.
         # Ideally, there should be a way to describe actions that works
         # both inside and outside of combat. I'm gonna think about that.
-        if self.camp.fight:
-            pbge.my_state.view.overlays.clear()
+        self.ready_to_invoke = True
+        self.data.clear()
+        for data_g in self.invo.data_gatherers:
+            if not data_g(self.data):
+                self.ready_to_invoke = False
+                break
+        pbge.my_state.view.overlays.clear()
+        if self.camp.fight and self.ready_to_invoke:
             # Launch the effect.
-            self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list)
+            self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list, data=self.data)
             pbge.my_state.view.handle_anim_sequence(self.record)
             self.camp.fight.cstat[self.pc].spend_ap(1)
             self.targets = list()
@@ -435,6 +453,7 @@ class InvocationUI(object):
             # Recalculate the combat info.
             self.activate()
             self.camp.scene.update_party_position(self.camp)
+            self.ready_to_invoke = False
 
     def click_left(self, player_turn):
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
@@ -492,6 +511,7 @@ class InvocationUI(object):
         # Get rid of the widgets and shut down.
         pbge.my_state.widgets.remove(self.my_widget)
         pbge.my_state.view.cursor.frame = self.SC_CURSOR
+        pbge.my_state.view.overlays.clear()
 
     def activate(self):
         self.my_widget.active = True
@@ -570,5 +590,6 @@ class InvocationUI(object):
 
         myui.dispose()
 
-        if myui.invo and len(myui.targets) >= myui.num_targets and myui.invo.can_be_invoked(myui.pc, False):
-            return exploration.DoInvocation(explo, pc, myui.get_firing_pos(), myui.invo, myui.targets, myui.record)
+        if myui.invo and myui.ready_to_invoke:
+            return exploration.DoInvocation(explo, pc, myui.get_firing_pos(), myui.invo, myui.targets, myui.record,
+                                            data=myui.data)

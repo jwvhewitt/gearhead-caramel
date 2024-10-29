@@ -1,3 +1,7 @@
+* Added SelectGearDataGatherer interface
+* Guns have a reload option if player has appropriate ammo in inventory
+* Caption anims may now have sound effects
+* Invocations may now request additional data
 * Can now purchase spare ammo clips in shops
 * Refactored the shopping UI to use WidgetMenu
 * Added WidgetMenu widget type

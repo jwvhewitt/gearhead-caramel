@@ -210,7 +210,7 @@ class BumpTo(MoveTo):
 class DoInvocation(MoveTo):
     """A command for moving to a particular spot, then invoking."""
 
-    def __init__(self, explo, pc, pos, invo, target_list, record=False):
+    def __init__(self, explo, pc, pos, invo, target_list, record=False, data=None):
         """Move the pc to pos, then invoke the invocation."""
         self.party = [pc, ]
         self.pos = pos
@@ -220,6 +220,7 @@ class DoInvocation(MoveTo):
         self.invo = invo
         self.target_list = target_list
         self.pmm = self._get_party_mmode(explo)
+        self.data = data
 
     def __call__(self, exp):
         pc = self.party[0]
@@ -227,7 +228,7 @@ class DoInvocation(MoveTo):
 
         if self.pos == pc.pos:
             # Invoke the invocation from here.
-            self.invo.invoke(exp.camp, pc, self.target_list, pbge.my_state.view.anim_list)
+            self.invo.invoke(exp.camp, pc, self.target_list, pbge.my_state.view.anim_list, data=self.data)
             pbge.my_state.view.handle_anim_sequence(self.record)
             return False
         elif (not pc.is_operational()) or (self.step > len(self.path.results)) or not exp.scene.on_the_map(*self.pos):

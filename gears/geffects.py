@@ -30,10 +30,10 @@ class AttackInvocation(effects.Invocation):
         self.weapon = weapon
         super().__init__(*args, **kwargs)
 
-    def invoke(self, camp, originator, target_points, anim_list, fx_record=None):
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
         if originator:
             anim_list.append(animobs.WatchMeWiggle(originator))
-        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record)
+        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
 
 
 class ItemInvocation(effects.Invocation):
@@ -41,10 +41,10 @@ class ItemInvocation(effects.Invocation):
         self.weapon = weapon
         super().__init__(*args, **kwargs)
 
-    def invoke(self, camp, originator, target_points, anim_list, fx_record=None):
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
         if originator:
             anim_list.append(animobs.WatchMeWiggle(originator))
-        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record)
+        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
 
 
 class InvoLibraryShelf(object):
@@ -347,6 +347,11 @@ class InterceptAnim(animobs.Caption):
 
 class FailAnim(animobs.Caption):
     DEFAULT_TEXT = 'Fail!'
+
+
+class ReloadAnim(animobs.Caption):
+    DEFAULT_TEXT = 'Reload'
+    DEFAULT_SOUND_FX = "reload.ogg"
 
 
 class ResistAnim(animobs.Caption):
@@ -1741,6 +1746,34 @@ class DoDrainStamina(effects.NoEffect):
             anims.append(myanim)
         return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
+
+class DoReload(effects.NoEffect):
+    """ Reload the provided firearm.
+    """
+
+    def __init__(self, target_weapon, **keywords):
+        self.target_weapon = target_weapon
+        self.done = False
+        super().__init__(**keywords)
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
+        print("Trying reload...")
+        print(data)
+        if data and not self.done:
+            ammo = data.get("AMMO")
+            pc = self.target_weapon.get_root()
+            if ammo and self.target_weapon.is_good_ammo(ammo):
+                old_ammo = self.target_weapon.get_ammo()
+                if old_ammo:
+                    self.target_weapon.sub_com.remove(old_ammo)
+                    pc.inv_com.append(old_ammo)
+                pc.inv_com.remove(ammo)
+                self.target_weapon.sub_com.append(ammo)
+                print("Ammo changed, I think?")
+            else:
+                print("Not good ammo.")
+            self.done = True
+        return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 
 #  ***************************

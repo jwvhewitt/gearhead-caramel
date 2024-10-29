@@ -250,7 +250,7 @@ class AnimatedShotAnim(ShotAnim):
 
 
 class Caption(AnimOb):
-    def __init__(self, txt=None, pos=(0, 0), width=128, loop=16, color=None, delay=1, y_off=0):
+    def __init__(self, txt=None, pos=(0, 0), width=128, loop=16, color=None, delay=1, y_off=0, sound_fx=None):
         txt = txt or self.DEFAULT_TEXT
         color = color or self.DEFAULT_COLOR
         self.txt = txt
@@ -265,6 +265,7 @@ class Caption(AnimOb):
         self.pos = pos
         self.delay = delay
         self.children = list()
+        self.sound_fx = sound_fx or self.DEFAULT_SOUND_FX
 
     DEFAULT_TEXT = '???'
     DEFAULT_COLOR = (250, 250, 250)
@@ -273,6 +274,10 @@ class Caption(AnimOb):
         if self.delay > 0:
             self.delay += -1
         else:
+            if self.sound_fx:
+                my_state.start_sound_effect(self.sound_fx, loops=1,
+                                            allow_multiple_copies=self.ALLOW_MULTIPLE_SOUND_FX)
+
             view.tickers[view.pos_to_key(self.pos)].add(self.txt, self.dy_off)
             self.needs_deletion = True
 

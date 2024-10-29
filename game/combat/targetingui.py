@@ -32,6 +32,14 @@ class AttackWidget(invoker.InvocationsWidget):
                                                    justify=0, on_click=self.pop_invo_menu)
         self.children.append(self.ammo_label)
 
+    def update_buttons(self):
+        source = self.shelf.source
+        if source:
+            self.build_library()
+            self.select_shelf_with_this_source(source)
+        else:
+            super().update_buttons()
+
     def _get_ammo_str(self,wid):
         if self.shelf and self.shelf.source and hasattr(self.shelf.source,"get_ammo_string"):
             return self.shelf.source.get_ammo_string()

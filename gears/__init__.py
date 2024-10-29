@@ -32,6 +32,7 @@ from . import genderobj
 from . import usables
 from . import meritbadges
 from . import treasuretype
+from . import ghuiutil
 
 import inspect
 import os
