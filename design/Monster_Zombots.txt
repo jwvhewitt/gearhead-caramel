@@ -109,6 +109,87 @@ Monster
     END
 
 
+Monster
+    name = "Chromecorpse"
+    statline = {Reflexes = 15, Body=20, Speed=16, Perception=13, Craft=6, Knowledge=5, Ego=15, Charm = 9,
+			CloseCombat = 8, RangedCombat = 3, Dodge = 5, Vitality = 5
+	}
+	scale = HumanScale
+	material = Metal
+	imagename = 'mon_zombots.png'
+	frame = 1
+	colors = (Cactus,Aquamarine,BrightRed,Malachite,Cyan)
+    threat = 65
+    type_tags = ("ZOMBOT", "CREEPY" )
+    families = ("ZOMBOT", "CREEPY")
+    environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Science, treasures=(None, "Spare Parts")}
+
+	SUB
+        Head
+            size = 4
+            SUB
+				MeleeWeapon
+					name="Bite"
+					reach=1
+					damage=3
+					accuracy=3
+					penetration=3
+					integral = True
+                    shot_anim = JawShot
+                    attributes = (PoisonAttack)
+				Armor
+				    size=2
+            END
+        Torso
+            size = 3
+            SUB
+                Armor
+				    size=4
+            END
+        Arm
+            size = 3
+            SUB
+                Armor
+				    size=3
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=2
+					accuracy=4
+					penetration=2
+					integral = True
+                    attributes = (MultiWielded)
+            END
+        Arm
+            size = 3
+            SUB
+                Armor
+				    size=3
+				MeleeWeapon
+					name="Claw"
+					reach=1
+					damage=2
+					accuracy=4
+					penetration=2
+					integral = True
+                    attributes = (MultiWielded)
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+				    size=4
+            END
+        Leg
+            size = 3
+            SUB
+                Armor
+				    size=4
+            END
+    END
+
+
 # Mecha Scale Zombots
 
 Monster

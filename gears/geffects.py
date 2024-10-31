@@ -368,6 +368,7 @@ class InflictDisintegrationAnim(animobs.Caption):
 
 class InflictHaywireAnim(animobs.Caption):
     DEFAULT_TEXT = 'Haywire!'
+    DEFAULT_SOUND_FX = "qubodupElectricityDamage02.ogg"
 
 
 class InflictPoisonAnim(animobs.Caption):
@@ -1753,26 +1754,15 @@ class DoReload(effects.NoEffect):
 
     def __init__(self, target_weapon, **keywords):
         self.target_weapon = target_weapon
-        self.done = False
         super().__init__(**keywords)
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
-        print("Trying reload...")
-        print(data)
-        if data and not self.done:
+        if data:
             ammo = data.get("AMMO")
             pc = self.target_weapon.get_root()
             if ammo and self.target_weapon.is_good_ammo(ammo):
-                old_ammo = self.target_weapon.get_ammo()
-                if old_ammo:
-                    self.target_weapon.sub_com.remove(old_ammo)
-                    pc.inv_com.append(old_ammo)
-                pc.inv_com.remove(ammo)
-                self.target_weapon.sub_com.append(ammo)
-                print("Ammo changed, I think?")
-            else:
-                print("Not good ammo.")
-            self.done = True
+                self.target_weapon.reload(ammo)
+            del data["AMMO"]
         return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 

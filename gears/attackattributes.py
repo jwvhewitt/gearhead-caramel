@@ -243,7 +243,7 @@ class ConeAttack(Singleton):
     name = "Cone Area"
     MASS_MODIFIER = 2.0
     VOLUME_MODIFIER = 2.0
-    COST_MODIFIER = 2.0
+    COST_MODIFIER = 4.0
     POWER_MODIFIER = 3.0
 
     @classmethod

@@ -526,6 +526,28 @@ BallisticWeapon
 
 BallisticWeapon
     name = "Combat Rifle"
+    desig = "V13"
+    desc = "A light combat rifle commonly used by security forces on Earth."
+    reach = 5
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    ammo_type = Rifle_5mm
+    attributes = (Accurate,Automatic,)
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON","ESSENTIAL")
+    faction_list = (DeadzoneFederation,ClanIronwind,TerranFederation,TerranDefenseForce,RegExCorporation,KettelIndustries,BioCorp,Guardians,TheSolarNavy)
+    magazine = 60
+    SUB
+        Ammo
+            name = "V13 Clip"
+            ammo_type=Rifle_5mm
+            quantity=60
+    END
+
+
+BallisticWeapon
+    name = "Combat Rifle"
     desig = "RIX-58"
     desc = "A burst capable semiautomatic rifle designed for use against armored targets."
     reach = 6
@@ -738,6 +760,49 @@ BallisticWeapon
             ammo_type=Cannister_25mm
             quantity=24
             attributes = (Blast1,)
+    END
+
+
+ChemThrower
+    desig = "Wyvern"
+    name = "Flame Pistol"
+    reach = 4
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    attributes = (Blast1, LinkedFire)
+    shot_anim = FireBolt
+    area_anim = Fireball
+    material = Ceramic
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON",)
+    faction_list = (None,)
+    SUB
+        Chem
+            name = "Wyvern Fuel"
+            quantity = 72
+            attributes = (BurnAttack)
+            material = Metal
+    END
+
+
+ChemThrower
+    desig = "DAK-92"
+    name = "Flamethrower"
+    reach = 4
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    attributes = (ConeAttack)
+    area_anim = Fireball
+    scale = HumanScale
+    shop_tags= ("WEAPON","MISSILE WEAPON",)
+    faction_list = (None,)
+    SUB
+        Chem
+            name = "DAK-92 Fuel"
+            quantity = 90
+            attributes = (BurnAttack)
     END
 
 

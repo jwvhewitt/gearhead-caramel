@@ -285,7 +285,10 @@ class BigEncounter(Plot):
 
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
-        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(), dident="LOCALE")
+        self.register_element(
+            "ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(8,15), random.randint(8,15)),
+            dident="LOCALE"
+        )
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
         team2.contents += gears.selector.RandomMonsterUnit(self.rank, 150, myscene.environment,
                                                            self.elements[DG_MONSTER_TAGS], myscene.scale).contents
@@ -322,7 +325,10 @@ class EternalGuardians(Plot):
 
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
-        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(), dident="LOCALE")
+        self.register_element(
+            "ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(8,15), random.randint(8,15)),
+            dident="LOCALE"
+        )
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
         team2.contents += gears.selector.RandomMonsterUnit(self.rank + 15, 75, myscene.environment,
                                                            ("ROBOT",), myscene.scale).contents

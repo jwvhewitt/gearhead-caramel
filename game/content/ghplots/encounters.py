@@ -103,7 +103,7 @@ class RandoMonsterEncounter(Plot):
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         if not self.elements.get("ROOM"):
-            self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
+            self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
         team2.contents += gears.selector.RandomMonsterUnit(self.rank, 100, myscene.environment,
                                                            self.elements["TYPE_TAGS"], myscene.scale).contents

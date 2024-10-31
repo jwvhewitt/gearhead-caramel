@@ -412,13 +412,32 @@ class RandomMonsterUnit(object):
             print("ERROR: No monsters found for {} {} {} {}".format(level, env, type_tags, scale))
             mylist = [mon for mon in MONSTER_LIST if mon.scale is scale and mon.type_tags]
 
+        if random.randint(1,30) == 23:
+            monster_limit = random.randint(3, 15)
+        else:
+            monster_limit = random.randint(9, 15)
         if mylist:
-            while strength > 0:
-                numon = copy.deepcopy(random.choice(mylist))
+            while strength > 0 and len(self.contents) < monster_limit:
+                numon = copy.deepcopy(self.select_monster_from_list(mylist))
                 cost = self.monster_cost(numon)
                 if random.randint(1, cost) <= strength or not self.contents:
                     self.contents.append(numon)
                 strength -= cost
+
+            if strength > 10:
+                boss = random.choice(self.contents)
+                boss.threat += strength//2
+                if strength > 30:
+                    boss.name = "{} the {}".format(GENERIC_NAMES.gen_word(), boss)
+                boss.statline[stats.Vitality] += strength//10
+                while strength > 0:
+                    boss.statline[random.choice(stats.PRIMARY_STATS)] += 1
+                    strength -= 5
+
+    def select_monster_from_list(self, list):
+        list.sort(key=lambda a: self.monster_cost(a))
+        i = max(random.randint(0, len(list)-1), random.randint(0, len(list)-1))
+        return list[i]
 
     def monster_cost(self, mon):
         delta = mon.threat - self.level

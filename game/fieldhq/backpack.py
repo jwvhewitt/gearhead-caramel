@@ -116,7 +116,7 @@ class PlayerCharacterSwitch(widgets.RowWidget):
     HEIGHT = 100
 
     def __init__(self, camp, pc, set_pc_fun, upleft=(0, 0), **kwargs):
-        super().__init__(upleft[0], upleft[1], self.WIDTH, self.HEIGHT, **kwargs)
+        super().__init__(upleft[0], upleft[1], self.WIDTH, self.HEIGHT, padding=2, **kwargs)
         self.camp = camp
         self.pc = pc
         self.portraits = dict()
@@ -169,8 +169,8 @@ class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
         self.my_switch = PlayerCharacterSwitch(camp, pc, set_pc_fun)
         self.add_left(self.my_switch)
         self.add_right(
-            gears.info.InfoWidget(0, 0, 70, 100, info_panel=BackpackSwitchIP(
-                draw_border=False, switch=self.my_switch, camp=camp, width=70,
+            gears.info.InfoWidget(0, 0, 80, 100, info_panel=BackpackSwitchIP(
+                draw_border=False, switch=self.my_switch, camp=camp, width=80,
             ))
         )
         # self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))
@@ -288,6 +288,35 @@ class BackpackWidget(widgets.Widget):
             dest.inv_com.append(wid.item)
             self.update_selectors()
 
+    def _load_ammo(self, wid):
+        mymenu = wid.get_menu()
+        for part in self.pc.descendants():
+            if isinstance(part, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and part.is_good_ammo(wid.item):
+                msg = part.get_full_name()
+                if part.parent is not self.pc:
+                    msg = "{} ({})".format(msg, part.parent)
+                mymenu.add_item(msg, part)
+        mymenu.sort()
+        mymenu.add_item("[CANCEL]", None)
+        dest = mymenu.query()
+        if dest:
+            dest.reload(wid.item)
+            pbge.my_state.start_sound_effect("reload.ogg")
+            self.update_selectors()
+
+    def _reload_gun(self, wid):
+        mymenu = wid.get_menu()
+        for part in self.pc.inv_com:
+            if isinstance(part, (gears.base.Ammo, gears.base.Chem)) and wid.item.is_good_ammo(part):
+                mymenu.add_item("{} [{}/{}]".format(part.get_full_name(), part.quantity - part.spent, part.quantity), part)
+        mymenu.sort()
+        mymenu.add_item("[CANCEL]", None)
+        dest = mymenu.query()
+        if dest:
+            wid.item.reload(dest)
+            pbge.my_state.start_sound_effect("reload.ogg")
+            self.update_selectors()
+
     def _drop_item(self, wid):
         wid.item.parent.inv_com.remove(wid.item)
         self.camp.scene.contents.append(wid.item)
@@ -329,6 +358,11 @@ class BackpackWidget(widgets.Widget):
             mymenu.add_item("Equip {}".format(wid.item), self._equip_item)
         else:
             mymenu.add_item("Unequip {}".format(wid.item), self._unequip_item)
+
+        if isinstance(wid.item, (gears.base.Ammo, gears.base.Chem)):
+            mymenu.add_item("Load {}".format(wid.item), self._load_ammo)
+        elif isinstance(wid.item, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and any([wid.item.is_good_ammo(a) for a in self.pc.inv_com]):
+            mymenu.add_item("Reload {}".format(wid.item), self._reload_gun)
 
         if self.pc.get_root() in self.camp.scene.contents:
             mymenu.add_item("Drop {}".format(wid.item), self._drop_item)

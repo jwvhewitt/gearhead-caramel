@@ -1,8 +1,11 @@
+* Added named boss monsters
+* Room deploy method should not delete contents due to lack of space
+* Can now reload guns and chemthrowers from the backpack interface
 * Added SelectGearDataGatherer interface
-* Guns have a reload option if player has appropriate ammo in inventory
-* Caption anims may now have sound effects
+* Guns and ChemThrowers have a reload option in combat if player has appropriate ammo in inventory
+* Caption AnimObs may now have sound effects
 * Invocations may now request additional data
-* Can now purchase spare ammo clips in shops
+* Can now purchase spare ammo clips and chem tanks in shops
 * Refactored the shopping UI to use WidgetMenu
 * Added WidgetMenu widget type
 * Meat cannot be eaten in the middle of combat

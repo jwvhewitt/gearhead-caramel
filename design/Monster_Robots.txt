@@ -177,7 +177,7 @@ Monster
 	colors = (GullGrey,FadedDenim,BrightRed,AeroBlue,BattleshipGrey)
     threat = 60
     type_tags = ("ROBOT", "GUARD", "FACTORY",)
-    families = ("ROBOT","GUARD")
+    families = ("ROBOT","GUARD","FACTORY")
     environment_list = (GroundEnv,UrbanEnv)
     treasure_type = {skill=Science, treasures=("Spare Parts")}
 
@@ -266,7 +266,7 @@ Monster
 	colors = (ArmyDrab, BattleshipGrey, HunterOrange, AeroBlue, Charcoal)
     threat = 78
     type_tags = ("ROBOT", "FACTORY", "MINE",)
-    families = ("ROBOT",)
+    families = ("ROBOT","FACTORY")
     environment_list = (GroundEnv,UrbanEnv)
     treasure_type = {skill=Science, treasures=("Spare Parts", "Copper Ingot", "Silver Ingot", "Impervium Ingot", "Gold Ingot", "Platinum Ingot")}
 

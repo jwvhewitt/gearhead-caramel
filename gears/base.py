@@ -1565,6 +1565,8 @@ class PowerSource(Component, StandardDamageHandler, MakesPower):
     DEFAULT_NAME = "Power Source"
     SAVE_PARAMETERS = ('size',)
 
+    DEFAULT_SLOT = tags.SLOT_POWERSOURCE
+
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 20
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.02
 
@@ -2281,6 +2283,20 @@ class BallisticWeapon(Weapon):
             )
         return attacks
 
+    def reload(self, new_ammo):
+        # Reload the ammunition, trying to make as few assumptions about the situation as possible.
+        # The expected case is that a character or mecha is reloading a weapon they are carrying with ammo from
+        # their inventory. However, as Red Penguin says, a gamedev must expect the unexpected.
+        pc = self.get_root()
+        old_ammo = self.get_ammo()
+        if old_ammo:
+            self.sub_com.remove(old_ammo)
+            if pc and pc.can_equip(old_ammo):
+                pc.inv_com.append(old_ammo)
+        if hasattr(new_ammo, "container") and new_ammo.container:
+            new_ammo.container.remove(new_ammo)
+        self.sub_com.append(new_ammo)
+
     def get_attributes(self):
         ammo = self.get_ammo()
         if ammo:
@@ -2851,7 +2867,7 @@ class ChemThrower(Weapon):
     MAX_ACCURACY = 5
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
-    COST_FACTOR = 5
+    COST_FACTOR = 8
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     DEFAULT_AREA_ANIM = geffects.Fireball
     LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.LineAttack,
@@ -2867,10 +2883,58 @@ class ChemThrower(Weapon):
         else:
             return isinstance(part, Chem)
 
+    @property
+    def base_mass(self):
+        return max(super().base_mass//2, 1)
+
     def get_ammo(self):
         for maybe_ammo in self.sub_com:
             if isinstance(maybe_ammo, Chem):
                 return maybe_ammo
+
+    def is_good_ammo(self, ammo):
+        volume_limit = self.free_volume
+        current_ammo = self.get_ammo()
+        if current_ammo:
+            volume_limit += current_ammo.volume
+        return self.can_install(ammo, check_volume=False) and ammo.volume <= volume_limit and ammo.spent < ammo.quantity
+
+    def get_attacks(self):
+        attacks = super().get_attacks()
+        if any([self.is_good_ammo(a) for a in self.get_root().inv_com]):
+            attacks.append(
+                geffects.AttackInvocation(
+                    self,
+                    name="Reload", fx=geffects.DoReload(self, anim=geffects.ReloadAnim),
+                    area=pbge.scenes.targetarea.SelfOnly(),
+                    used_in_combat=True, used_in_exploration=True,
+                    help_text="Reload {}".format(self.get_full_name()),
+                    data=geffects.AttackData(
+                        pbge.image.Image('sys_attackui_default.png', 32, 32), 21, 22, 23,
+                        thrill_power=0
+                    ),
+                    data_gatherers=(
+                        ghuiutil.SelectGearDataGatherer(
+                            [a for a in self.get_root().inv_com if self.is_good_ammo(a)], "Select Chem", "AMMO"
+                        ),
+                    )
+                )
+            )
+        return attacks
+
+    def reload(self, new_ammo):
+        # Reload the ammunition, trying to make as few assumptions about the situation as possible.
+        # The expected case is that a character or mecha is reloading a weapon they are carrying with ammo from
+        # their inventory. However, as Red Penguin says, a gamedev must expect the unexpected.
+        pc = self.get_root()
+        old_ammo = self.get_ammo()
+        if old_ammo:
+            self.sub_com.remove(old_ammo)
+            if pc and pc.can_equip(old_ammo):
+                pc.inv_com.append(old_ammo)
+        if hasattr(new_ammo, "container") and new_ammo.container:
+            new_ammo.container.remove(new_ammo)
+        self.sub_com.append(new_ammo)
 
     def get_attributes(self):
         ammo = self.get_ammo()
@@ -2891,7 +2955,7 @@ class ChemThrower(Weapon):
         mult = 1.0
         for aa in self.get_attributes():
             mult *= aa.POWER_MODIFIER
-        return int(mult * self.damage)
+        return max(int(mult * self.damage), 1)
 
     def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         my_ammo = self.get_ammo()

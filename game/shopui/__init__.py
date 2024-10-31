@@ -1,3 +1,5 @@
+import copy
+
 import pbge
 import gears
 from . import actions
@@ -392,17 +394,34 @@ class ShopUI(pbge.widgets.Widget):
             wid.data.sort_order = n*100
 
         for wid in self._buy_list_widget.items():
-            if wid.data.ware and self.shop.can_sell_ammo(wid.data.ware):
-                self._buy_list_widget.add_interior(
-                    pbge.widgetmenu.MenuItemWidget(
-                        0, 0, INVENTORY_LIST_FRECT.w, 0,
-                        text="+ {} ammo".format(wid.data.ware.get_full_name()),
-                        data=WareMenuData(
-                            ware=wid.data.ware, price=self.shop.calc_purchase_price(self.camp, wid.data.ware),
-                            action=None, sort_order=wid.data.sort_order + 1
-                        ), on_click=self._switch_ammo_menu, **self._style
+            if wid.data.ware:
+                if self.shop.can_sell_ammo(wid.data.ware):
+                    self._buy_list_widget.add_interior(
+                        pbge.widgetmenu.MenuItemWidget(
+                            0, 0, INVENTORY_LIST_FRECT.w, 0,
+                            text="+ {} ammo".format(wid.data.ware.get_full_name()),
+                            data=WareMenuData(
+                                ware=wid.data.ware, price=self.shop.calc_purchase_price(self.camp, wid.data.ware),
+                                action=None, sort_order=wid.data.sort_order + 1
+                            ), on_click=self._switch_ammo_menu, **self._style
+                        )
                     )
-                )
+                elif isinstance(wid.data.ware, gears.base.ChemThrower):
+                    myammo = wid.data.ware.get_ammo()
+                    if myammo:
+                        myammo = copy.deepcopy(myammo)
+                        self._buy_list_widget.add_interior(
+                            pbge.widgetmenu.MenuItemWidget(
+                                0, 0, INVENTORY_LIST_FRECT.w, 0,
+                                text="+ {}".format(myammo.get_full_name()),
+                                data=WareMenuData(
+                                    ware=myammo, price=self.shop.calc_purchase_price(self.camp, myammo),
+                                    action=actions.BuyAction(self.camp, self.shop, myammo, self.undo_sys,
+                                                             self.customer_manager),
+                                    sort_order=wid.data.sort_order + 1
+                                ), on_click=self._click_ware, **self._style
+                            )
+                        )
 
         self._buy_list_widget.sort(key=lambda a: a.data.sort_order)
         self._buy_list_widget.active_index = active_index
@@ -479,6 +498,11 @@ class ShopUI(pbge.widgets.Widget):
             elif ev.type == pygame.KEYDOWN:
                 if ev.key == pygame.K_ESCAPE:
                     self._on_escape_key()
+                elif ev.unicode == "R" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    self.shop.wares = list()
+                    self.shop.update_wares(self.camp)
+                    self._refresh_ware_lists()
+
         pbge.my_state.widgets.remove(self)
         # Improve friendliness for all items bought.
         if self.undo_sys.actions_have_happened():

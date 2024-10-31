@@ -113,20 +113,36 @@ class MSRuinsRoom(FuzzyRoom):
 
 
 class BarArea(OpenRoom):
+    MIN_RANDOM_SIZE = 3
+    MAX_RANDOM_SIZE = 5
     COUNTER_TYPE = ghterrain.BarTerrain
-    def build(self, gb, archi):
+    def build(self, gb: gears.GearHeadScene, archi):
         super().build(gb, archi)
 
         # Add a bar along the south and maybe along one side.
-        mydest = pygame.Rect(self.area.left + 1, self.area.bottom - 1, self.area.width - 2, 1)
-        gb.fill(mydest, wall=self.COUNTER_TYPE)
+        left_counter_ok, right_counter_ok = True, True
+        x0 = self.area.x
+        x1 = self.area.x + self.area.width - 1
+        y = self.area.y + self.area.height - 1
+        if self.probably_blocks_movement(gb, x0-1, y, archi):
+            x0 += 1
+            left_counter_ok = False
+        if self.probably_blocks_movement(gb, x1+1, y, archi):
+            x1 -= 1
+            right_counter_ok = False
 
-        if random.randint(1, 3) == 1:
-            mydest = pygame.Rect(self.area.left, self.area.top + 1, 1, self.area.height - 1)
-            gb.fill(mydest, wall=self.COUNTER_TYPE)
-        elif random.randint(1, 2) == 1:
-            mydest = pygame.Rect(self.area.right, self.area.top + 1, 1, self.area.height - 1)
-            gb.fill(mydest, wall=self.COUNTER_TYPE)
+        if x1 > x0:
+            for x in range(x0, x1+1):
+                gb.set_wall(x, y, self.COUNTER_TYPE)
+
+            if self.area.height > 2:
+                if random.randint(1, 3) == 1 and left_counter_ok:
+                    for y in range(self.area.y + 1, self.area.y + self.area.height):
+                        gb.set_wall(x0, y, self.COUNTER_TYPE)
+
+                if random.randint(1, 3) == 1:
+                    for y in range(self.area.y + 1, self.area.y + self.area.height):
+                        gb.set_wall(x1, y, self.COUNTER_TYPE)
 
 
 class ShopCounterArea(BarArea):
