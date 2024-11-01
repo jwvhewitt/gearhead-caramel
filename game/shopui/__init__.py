@@ -2,7 +2,6 @@ import copy
 
 import pbge
 import gears
-from main import draw_border
 from pbge import my_state
 from . import actions
 import pygame
@@ -158,8 +157,8 @@ class NoCustomerPanelIP(gears.info.InfoPanel):
 
 class CustomerPanelWidget(pbge.widgets.ColumnWidget):
     '''
-    Displays the panel at the upper right, where the shopkeeper
-    and what the shopkeeper says is displayed.
+    Displays the panel at the upper left, where the customer
+    and customer info is displayed.
     '''
 
     def __init__(self, camp: gears.GearHeadCampaign, refresh_lists_fun, open_backpack_fun):
