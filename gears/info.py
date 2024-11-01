@@ -923,12 +923,24 @@ class CreditsBlock(object):
         self.camp = camp
         self.width = width
         self.font = font or pbge.SMALLFONT
+        self.image = None
         self.update()
         self.height = self.image.get_height()
 
+    def _should_abbreviate(self):
+        return self.width < 150
+
     def update(self):
+        creds = self.camp.credits
+        if creds > 999999999 and self._should_abbreviate():
+            cred_string = "${:,}M".format(creds//1000000)
+        elif creds > 9999999 and self._should_abbreviate():
+            cred_string = "${:,}k".format(creds//1000)
+        else:
+            cred_string = '${:,}'.format(creds)
+
         self.image = pbge.render_text(
-            self.font, '${:,}'.format(self.camp.credits), self.width, justify=0, color=pbge.INFO_GREEN
+            self.font, cred_string, self.width, justify=0, color=pbge.INFO_GREEN
         )
 
     def render(self, x, y):
@@ -944,10 +956,13 @@ class EncumberanceBlock(object):
 
     @property
     def height(self):
-        if hasattr(self.model, "carrying_capacity"):
+        if hasattr(self.model, "carrying_capacity") and self._should_split():
             return self.font.get_linesize() * 2
         else:
             return self.font.get_linesize()
+
+    def _should_split(self):
+        return self.width < 150
 
     def render(self, x, y):
         mydest = pygame.Rect(x, y, self.width, self.height)
@@ -959,15 +974,18 @@ class EncumberanceBlock(object):
                 mycolor = pbge.ENEMY_RED
             elif mymass > mycapacity:
                 mycolor = pygame.Color("yellow")
-        else:
-            mycapacity = 0
-        pbge.draw_text(
-            self.font, self.model.scale.get_mass_string(mymass), mydest, mycolor, justify=0
-        )
-        if mycapacity > 0:
-            mydest.y += self.font.get_linesize()
+            if self._should_split():
+                base_msg = "{} \n/{}"
+            else:
+                base_msg = "{}/{}"
             pbge.draw_text(
-                self.font, "/{}".format(self.model.scale.get_mass_string(mycapacity)), mydest, mycolor, justify=0
+                self.font,
+                base_msg.format(self.model.scale.get_mass_string(mymass), self.model.scale.get_mass_string(mycapacity)),
+                mydest, mycolor, justify=0
+            )
+        else:
+            pbge.draw_text(
+                self.font, self.model.scale.get_mass_string(mymass), mydest, mycolor, justify=0
             )
 
 
@@ -1115,7 +1133,8 @@ class InfoWidget(pbge.widgets.Widget):
         self.info_panel = info_panel
 
     def render(self, flash=False):
-        mydest = self.get_rect()
-        pbge.my_state.screen.set_clip(mydest)
-        self.info_panel.render(mydest.x, mydest.y)
-        pbge.my_state.screen.set_clip(None)
+        if self.info_panel:
+            mydest = self.get_rect()
+            pbge.my_state.screen.set_clip(mydest)
+            self.info_panel.render(mydest.x, mydest.y)
+            pbge.my_state.screen.set_clip(None)

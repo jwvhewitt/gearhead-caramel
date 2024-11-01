@@ -112,7 +112,7 @@ class InvItemWidget(widgets.Widget):
 
 
 class PlayerCharacterSwitch(widgets.RowWidget):
-    WIDTH = 140
+    WIDTH = 136
     HEIGHT = 100
 
     def __init__(self, camp, pc, set_pc_fun, upleft=(0, 0), **kwargs):
@@ -170,7 +170,7 @@ class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
         self.add_left(self.my_switch)
         self.add_right(
             gears.info.InfoWidget(0, 0, 80, 100, info_panel=BackpackSwitchIP(
-                draw_border=False, switch=self.my_switch, camp=camp, width=80,
+                draw_border=False, switch=self.my_switch, camp=camp, width=80, abbreviate=False
             ))
         )
         # self.add_right(widgets.LabelWidget(0,0,70,100,text_fun=self.get_label_text, justify=0, color=pbge.INFO_GREEN))

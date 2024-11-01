@@ -1,3 +1,4 @@
+* You can now switch characters in shop interface
 * Added named boss monsters
 * Room deploy method should not delete contents due to lack of space
 * Can now reload guns and chemthrowers from the backpack interface

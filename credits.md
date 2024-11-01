@@ -68,6 +68,7 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 * Floppy Disk by Creative Stall from Noun Project (CC BY 3.0)
 * computer bug by Laymik from Noun Project (CC BY 3.0)
 * up by Rizalwale from Noun Project (CC BY 3.0)
+* Backpack by M. Adebadal from Noun Project (CC BY 3.0)
 
 MUSIC
 =====

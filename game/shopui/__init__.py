@@ -2,8 +2,11 @@ import copy
 
 import pbge
 import gears
+from main import draw_border
+from pbge import my_state
 from . import actions
 import pygame
+from game import fieldhq
 
 ###############################################################################
 
@@ -22,6 +25,8 @@ HEADER_HEIGHT = 100
 LABEL_HEIGHT = 22
 BUTTON_HEIGHT = 24
 
+LEFT_HEADER_HEIGHT = 155
+
 COL_1 = UL_X + MARGIN
 COL_2 = COL_1 + COLUMN_WIDTH + MARGIN
 COL_3 = COL_2 + INFO_PANEL_WIDTH + MARGIN
@@ -30,19 +35,19 @@ TOP_Y = UL_Y + MARGIN
 LABEL_Y = TOP_Y + HEADER_HEIGHT + MARGIN
 LIST_Y = LABEL_Y + LABEL_HEIGHT + MARGIN
 
-LIST_HEIGHT = SCREEN_HEIGHT - MARGIN - HEADER_HEIGHT - MARGIN - LABEL_HEIGHT - MARGIN * 3
+LEFT_LIST_HEIGHT = SCREEN_HEIGHT - MARGIN - LEFT_HEADER_HEIGHT - MARGIN * 4
+LEFT_LIST_Y = TOP_Y + LEFT_HEADER_HEIGHT + MARGIN * 2
+
+RIGHT_LIST_HEIGHT = SCREEN_HEIGHT - MARGIN - HEADER_HEIGHT - MARGIN - LABEL_HEIGHT - MARGIN * 3
 
 CUSTOMER_PANEL_FRECT = pbge.frects.Frect(COL_1, TOP_Y
-                                         , COLUMN_WIDTH, HEADER_HEIGHT
+                                         , COLUMN_WIDTH, LEFT_HEADER_HEIGHT
                                          )
 SHOP_PANEL_FRECT = pbge.frects.Frect(COL_3, TOP_Y
                                      , COLUMN_WIDTH, HEADER_HEIGHT
                                      )
-INVENTORY_LABEL_FRECT = pbge.frects.Frect(COL_1, LABEL_Y
-                                          , COLUMN_WIDTH, LABEL_HEIGHT
-                                          )
-INVENTORY_LIST_FRECT = pbge.frects.Frect(COL_1, LIST_Y
-                                         , COLUMN_WIDTH, LIST_HEIGHT
+INVENTORY_LIST_FRECT = pbge.frects.Frect(COL_1, LEFT_LIST_Y
+                                         , COLUMN_WIDTH, LEFT_LIST_HEIGHT
                                          )
 INFO_PANEL_FRECT = pbge.frects.Frect(COL_2, TOP_Y
                                      , INFO_PANEL_WIDTH, SCREEN_HEIGHT
@@ -54,7 +59,7 @@ WARES_LABEL_FRECT = pbge.frects.Frect(COL_3, LABEL_Y
                                       , COLUMN_WIDTH, LABEL_HEIGHT
                                       )
 WARES_LIST_FRECT = pbge.frects.Frect(COL_3, LIST_Y
-                                     , COLUMN_WIDTH, LIST_HEIGHT
+                                     , COLUMN_WIDTH, RIGHT_LIST_HEIGHT
                                      )
 
 EXITMENU_WIDTH = int(SCREEN_WIDTH / 2)
@@ -125,16 +130,6 @@ class ShopPanel(pbge.widgets.RowWidget):
 
 ###############################################################################
 
-class ShopCustomerManager:
-    def __init__(self, shop):
-        self.customer = shop.customer
-
-    def get_customer(self):
-        return self.customer
-
-
-###############################################################################
-
 class _CostBlock(object):
     def __init__(self, cost, width):
         self._cost = cost
@@ -161,38 +156,52 @@ class NoCustomerPanelIP(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (gears.info.CreditsBlock,)
 
 
-class CustomerPanel(object):
+class CustomerPanelWidget(pbge.widgets.ColumnWidget):
     '''
-    Displays the customer and the money money money.
+    Displays the panel at the upper right, where the shopkeeper
+    and what the shopkeeper says is displayed.
     '''
 
-    def __init__(self, camp, customer_manager):
+    def __init__(self, camp: gears.GearHeadCampaign, refresh_lists_fun, open_backpack_fun):
+        super().__init__(
+            CUSTOMER_PANEL_FRECT.dx, CUSTOMER_PANEL_FRECT.dy, CUSTOMER_PANEL_FRECT.w, CUSTOMER_PANEL_FRECT.h,
+            draw_border=True, border=pbge.default_border, center_interior=True
+        )
+
         self.camp = camp
-        self.customer_manager = customer_manager
-        self._portraits = dict()
-        self._infopanels = dict()
-        self._no_customer_ip = NoCustomerPanelIP(draw_border=False, width=CUSTOMER_PANEL_FRECT.w - 100, camp=self.camp)
+        self.refresh_lists_fun = refresh_lists_fun
+        self._pc = camp.first_active_pc()
 
-    def render(self):
-        myrect = CUSTOMER_PANEL_FRECT.get_rect()
-        pbge.default_border.render(myrect)
-        customer = self.customer_manager.get_customer()
-        if customer:
-            if customer not in self._portraits:
-                self._portraits[customer] = customer.get_portrait()
-            if customer not in self._infopanels:
-                self._infopanels[customer] = CustomerPanelIP(draw_border=False, width=myrect.w - 100, model=customer,
-                                                             camp=self.camp)
-            self._portraits[customer].render(myrect, 1)
-            myrect.x += 100
-            myrect.w -= 100
-            ip = self._infopanels[customer]
-            customertext = customer.name + '\n'
-        else:
-            customertext = ''
-            ip = self._no_customer_ip
+        myrow = pbge.widgets.RowWidget(
+            0, 0, self.w, CUSTOMER_PANEL_FRECT.h - 100, draw_border=False,
+        )
 
-        ip.render(myrect.x, myrect.y)
+        self.info_widget_width = self.w - 50    # Magic number is the width of the Backpack button.
+        self.info_widget = gears.info.InfoWidget(
+            0, 0, self.info_widget_width, CUSTOMER_PANEL_FRECT.h - 100, info_panel=None
+        )
+        self.player_switcher = fieldhq.backpack.PlayerCharacterSwitch(camp, self._pc, set_pc_fun=self._set_pc)
+        self.backpack_button = pbge.widgets.ButtonWidget(
+            0, 0, 49, 55, sprite=pbge.image.Image("sys_backpack2.png"), tooltip="Open Backpack",
+            on_click=open_backpack_fun
+        )
+        self.add_interior(self.player_switcher)
+        self.add_interior(myrow)
+        myrow.add_right(self.backpack_button)
+        myrow.add_left(self.info_widget)
+
+        self._set_pc(self._pc)
+        print(COLUMN_WIDTH)
+
+    def _set_pc(self, pc):
+        self._pc = pc
+        self.info_widget.info_panel = CustomerPanelIP(
+            draw_border=False, width=self.info_widget_width, model=self._pc, camp=self.camp
+        )
+        self.refresh_lists_fun()
+
+    def get_customer(self):
+        return self._pc
 
 
 ###############################################################################
@@ -207,6 +216,9 @@ class WareMenuData:
 
 class ShopUI(pbge.widgets.Widget):
     def __init__(self, camp, shop, **kwargs):
+        # Note that the order in which the sub-widgets are initialized is a finely tuned machine. It's that
+        # PlayerSelectorWidget that causes all the problems because it expects everything to be set up and ready by
+        # the time it's initialized.
         super().__init__(UL_X, UL_Y, SCREEN_WIDTH, SCREEN_HEIGHT, **kwargs)
 
         self.camp = camp
@@ -217,20 +229,10 @@ class ShopUI(pbge.widgets.Widget):
         self.undo_sys = actions.ShoppingUndoSystem()
         self.shop_panel = ShopPanel(self.shop, self.camp, self.undo_sys)
         self.children.append(self.shop_panel)
-        self.customer_manager = ShopCustomerManager(self.shop)
-        self.customer_panel = CustomerPanel(self.camp, self.customer_manager)
 
         self._item_panel = None
-        self._hover_action = None
 
         # Build UI.
-        inventory_label = pbge.widgets.LabelWidget(INVENTORY_LABEL_FRECT.dx, INVENTORY_LABEL_FRECT.dy
-                                                   , INVENTORY_LABEL_FRECT.w, INVENTORY_LABEL_FRECT.h
-                                                   , text="Inventory"
-                                                   , justify=0, color=pbge.WHITE
-                                                   , font=pbge.BIGFONT
-                                                   )
-        self.children.append(inventory_label)
         self._sell_list_widget = pbge.widgetmenu.MenuWidget(
             INVENTORY_LIST_FRECT.dx, INVENTORY_LIST_FRECT.dy, INVENTORY_LIST_FRECT.w, INVENTORY_LIST_FRECT.h,
             activate_child_on_enter=True, on_activate_item=self._set_item_panel
@@ -259,15 +261,26 @@ class ShopUI(pbge.widgets.Widget):
                                                    )
         self.children.append(checkout_button)
 
-        # Build initial menus.
-        self._special_wares = list()
         self._style = dict(font=pbge.MEDIUM_DISPLAY_FONT)
+        self._special_wares = list()
+
+        self.customer_manager = CustomerPanelWidget(self.camp, self._refresh_ware_lists, self._open_backpack)
+        self.children.append(self.customer_manager)
+
+        # Build initial menus.
         self._refresh_ware_lists()
         self._item_panel = None
 
-
     REACTIVATE_SELL = 1
     REACTIVATE_BUY = 2
+
+    def _open_backpack(self, *args, **kwargs):
+        pc = self.customer_manager.get_customer()
+        if pc:
+            my_state.widgets.remove(self)
+            fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, pc)
+            my_state.widgets.append(self)
+            self._refresh_ware_lists()
 
     def _refresh_ware_lists(self):
         # Figure out which of the buy menu or the sell menu is being used right now, because probably one of those has
@@ -277,6 +290,8 @@ class ShopUI(pbge.widgets.Widget):
         # I am writing this out as a long story because it's a cautionary tale for both you and future Joe.
         # It took me far too long to figure out why clicking on a menu item was deselecting the menu and I was
         # looking for the solution in all the wrong places.
+        if not hasattr(self, "customer_manager"):
+            return
         if self._sell_list_widget.is_in_menu(pbge.my_state.active_widget):
             reactivate = self.REACTIVATE_SELL
         elif self._buy_list_widget.is_in_menu(pbge.my_state.active_widget):
@@ -512,7 +527,6 @@ class ShopUI(pbge.widgets.Widget):
 
     def render(self, flash=False):
         super().render()
-        self.customer_panel.render()
         if self._item_panel:
             rect = INFO_PANEL_FRECT.get_rect()
             self._item_panel.render(rect.x, rect.y)
