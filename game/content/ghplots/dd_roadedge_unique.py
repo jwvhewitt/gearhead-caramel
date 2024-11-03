@@ -11,9 +11,70 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, PlotState
 from . import dd_customobjectives
-from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
+from .dd_homebase import BiotechDiscovery
 from .dd_roadedge import DZDREBasicPlotWithEncounterStuff, DeadZoneHighwaySceneGen
 from pbge.memos import Memo
+
+
+#   ***************************************
+#   ***   DZD_ROADEDGE_ROADOFNORETURN   ***
+#   ***************************************
+
+class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
+    LABEL = "DZD_ROADEDGE_ROADOFNORETURN"
+
+    active = True
+    scope = True
+    UNIQUE = True
+    BASE_RANK = 30
+    ENCOUNTER_CHANCE = BASE_RANK
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
+
+    FACTION_OPTIONS = (gears.factions.AegisOverlord, gears.factions.ClanIronwind, gears.factions.BoneDevils,
+                       None, None, None)
+
+    def custom_init(self, nart):
+        super().custom_init(nart)
+        self.elements["FACTION"] = gears.factions.Circle(nart.camp, parent_faction=random.choice(self.FACTION_OPTIONS))
+        my_edge = self.elements["DZ_EDGE"]
+        self.elements["GATE_A"] = my_edge.start_node.entrance
+        self.elements["GATE_B"] = my_edge.end_node.entrance
+        self._got_rumor = False
+        return True
+
+    def GATE_A_menu(self, camp, thingmenu):
+        if self._got_rumor:
+            thingmenu.add_item('Search "The Road of No Return".', self.go_to_locale)
+
+    def GATE_B_menu(self, camp, thingmenu):
+        self.GATE_A_menu(camp, thingmenu)
+
+    def go_to_locale(self, camp):
+        pass
+
+    def _get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        myscene = camp.scene.get_root_scene()
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared and not self._got_rumor:
+            # This city is on this road.
+            mygram["[News]"] = ['the highway to {} is called "The Road of No Return"'.format(
+                self.elements["DZ_EDGE"].get_city_link(myscene)), ]
+        return mygram
+
+    def _get_generic_offers(self, npc, camp):
+        """Get any offers that could apply to non-element NPCs."""
+        goffs = list()
+        myscene = camp.scene.get_root_scene()
+        myedge = self.elements["DZ_EDGE"]
+        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared and not self._got_rumor:
+            goffs.append(Offer(
+                "",
+                ContextTag([context.INFO,]), effect=self._get_rumor, subject="The Road of No Return"
+            ))
+        return goffs
+
+    def _get_rumor(self, camp):
+        self._got_rumor = True
 
 
 #   *********************************
@@ -28,7 +89,7 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
     scope = True
     UNIQUE = True
     BASE_RANK = 50
-    ENCOUNTER_CHANCE = BASE_RANK + 30
+    ENCOUNTER_CHANCE = BASE_RANK
     ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
 
     def custom_init(self, nart):

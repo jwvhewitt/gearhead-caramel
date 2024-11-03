@@ -1,3 +1,5 @@
+v0.971 November 3, 2024
+* You can now access your inventory from the shop interface
 * You can now switch characters in shop interface
 * Added named boss monsters
 * Room deploy method should not delete contents due to lack of space
