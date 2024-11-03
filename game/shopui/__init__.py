@@ -190,7 +190,6 @@ class CustomerPanelWidget(pbge.widgets.ColumnWidget):
         myrow.add_left(self.info_widget)
 
         self._set_pc(self._pc)
-        print(COLUMN_WIDTH)
 
     def _set_pc(self, pc):
         self._pc = pc

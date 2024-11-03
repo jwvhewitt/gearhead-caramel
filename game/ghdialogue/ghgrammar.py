@@ -1682,7 +1682,10 @@ DEFAULT_GRAMMAR = {
             "a wilderness guide can make long distance travel much easier",
             "a sneaky lancemate can help keep you out of trouble, as well as get you into trouble",
             "knowing the repair skill improves your odds of finding good salvage",
-            "the first job of a cavalier is to survive"
+            "the first job of a cavalier is to survive",
+            "the more you move the harder you are to hit",
+            "running around the battlefield doesn't help when you run straight into a [mecha] with a laser axe",
+            "it's hard to shoot fast moving opponents, which is why you should also pack a big stick",
         ],
         personality.Cheerful: [
             "everybody likes cookies"

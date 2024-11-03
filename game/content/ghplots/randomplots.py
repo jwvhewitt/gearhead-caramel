@@ -217,6 +217,8 @@ class MechaMissionForCity(Plot):
     RUMOR = Rumor(
         "{NPC} is looking for a pilot to fight {ENEMY_FACTION} for {METROSCENE}",
         offer_msg="{NPC} at {NPC_SCENE} can give you more details. [IF_YOU_WANT_MISSION_GO_ASK_ABOUT_IT]",
+        offer_subject="{NPC} is looking for a pilot to fight {ENEMY_FACTION}",
+        offer_subject_data="{NPC}'s mission",
         memo="{NPC} is looking for a pilot to fight {ENEMY_FACTION}.",
         prohibited_npcs=("NPC",)
     )
@@ -237,7 +239,7 @@ class MechaMissionForCity(Plot):
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
             # Create the mission seed.
             self.mission_seed = missionbuilder.BuildAMissionSeed(
-                nart.camp, "{NPC}'s Mission".format(**self.elements),
+                nart.camp, "{NPC}'s Mission against {ENEMY_FACTION}".format(**self.elements),
                 self.elements["METROSCENE"], self.elements["MISSION_GATE"],
                 allied_faction=npc.faction,
                 enemy_faction=self.elements["ENEMY_FACTION"], rank=self.rank,

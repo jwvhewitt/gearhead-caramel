@@ -30,6 +30,7 @@ from . import lancedev
 from . import lancedev_objectives
 from . import lancemates
 from . import localproblems
+from . import mechadungeons
 from . import military_places
 from . import missionbuilder
 from . import mission_bigobs
@@ -101,6 +102,7 @@ harvest(lancedev)
 harvest(lancedev_objectives)
 harvest(lancemates)
 harvest(localproblems)
+harvest(mechadungeons)
 harvest(military_places)
 harvest(missionbuilder)
 harvest(mission_bigobs)

@@ -155,6 +155,7 @@ class LabelWidget(Widget):
         self.color = color or TEXT_COLOR
         self.font = font or my_state.small_font
         self.draw_border = draw_border
+        self.text_fun = text_fun
         if w == 0:
             self.w = self.font.size(self.text)[0]
             if self.draw_border:
@@ -167,7 +168,6 @@ class LabelWidget(Widget):
             #    self.dy -= 8
         self.justify = justify
         self.border = border
-        self.text_fun = text_fun
         self.alt_smaller_fonts = alt_smaller_fonts
 
     def render(self, flash=False):
