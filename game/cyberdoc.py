@@ -274,7 +274,27 @@ class SurgeryUI(pbge.widgets.Widget):
             ))
 
     def _install(self, widj, ev):
-        pass
+        cyber = widj.data
+        mymenu = CyberMenu("Select Installation Location", alert_font=pbge.BIGFONT, font=pbge.MEDIUM_DISPLAY_FONT)
+        if self.camp.credits <= self.shop.calc_purchase_price(self.camp, cyber):
+            for limb in self.pc.sub_com:
+                if limb.can_install(cyber, False):
+                    other_cyber = cyber.get_current_cyber(limb)
+                    if limb.can_install(cyber):
+                        mymenu.add_item("Install {} in {}".format(cyber, limb), True)
+                    elif other_cyber and cyber.can_replace(limb, other_cyber):
+                        mymenu.add_item("Replace {} with {} in {}".format(other_cyber, cyber, limb), True)
+            if mymenu.items:
+                mymenu.add_item("Cancel installation", False)
+            else:
+                mymenu.add_item("Cannot install {} due to current trauma".format(cyber), False)
+        else:
+            mymenu.desc = "You cannot afford {}".format(cyber)
+            mymenu.add_item("[Continue]", False)
+
+        if mymenu.query():
+
+            self._refresh_all()
 
     def _remove(self, widj, ev):
         pass

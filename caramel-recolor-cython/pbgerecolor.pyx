@@ -35,7 +35,7 @@ import numpy as np
 # about the numpy module (this is stored in a file numpy.pxd which is
 # currently part of the Cython distribution).
 cimport numpy as np
-np.import_array()
+#np.import_array()
 
 
 
