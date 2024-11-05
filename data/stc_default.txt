@@ -85,6 +85,25 @@ BallisticWeapon
             quantity=16
     END
 
+BallisticWeapon
+    desig = "MBAZ-17"
+    name = "Mecha Bazooka"
+    reach = 7
+    damage = 4
+    accuracy = 2
+    penetration = 4
+    ammo_type = SelfPropelled_70cm
+    attack_stat = Perception
+    magazine = 12
+    shot_anim = Missile1
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_70cm
+            quantity=12
+            attributes = (Blast2, Brutal)
+    END
+
+
 BeamWeapon
     desig = "LAS-5"
     name = "Intercept Laser"

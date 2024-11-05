@@ -76,15 +76,32 @@ class InfoPanel(object):
             self.render(myrect.left, myrect.top)
 
 
-class NameBlock(object):
-    def __init__(self, model, width=220, **kwargs):
+class AbstractModelTextBlock(object):
+    # Do not use this block on its own!!! Instead, subclass it and replace the get_text function with whatever
+    # text function you need!
+    COLOR_OVERRIDE = None
+    def __init__(self, model, width=220, font=None, color=pbge.INFO_GREEN, **kwargs):
         self.model = model
         self.width = width
-        self.image = pbge.render_text(pbge.BIGFONT, str(model), width, justify=0, color=pbge.WHITE)
+        self.font = font or pbge.MEDIUMFONT
+        self.color = self.COLOR_OVERRIDE or color
+        self.update()
         self.height = self.image.get_height()
+
+    def update(self):
+        self.image = pbge.render_text(self.font, self.get_text(),
+                                      self.width, justify=0, color=self.color)
 
     def render(self, x, y):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+
+    def get_text(self):
+        raise RuntimeError("AbstractModelTextBlock.get_text called")
+
+
+class NameBlock(AbstractModelTextBlock):
+    def get_text(self):
+        return str(self.model)
 
 
 class TitleBlock(object):
@@ -98,15 +115,11 @@ class TitleBlock(object):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
-class FullNameBlock(object):
-    def __init__(self, model, width=220, **kwargs):
-        self.model = model
-        self.width = width
-        self.image = pbge.render_text(pbge.BIGFONT, model.get_full_name(), width, justify=0, color=pbge.WHITE)
-        self.height = self.image.get_height()
+class FullNameBlock(AbstractModelTextBlock):
+    COLOR_OVERRIDE = pbge.WHITE
 
-    def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+    def get_text(self):
+        return self.model.get_full_name()
 
 
 class ListBlock(object):
@@ -121,16 +134,9 @@ class ListBlock(object):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
-class DescBlock(object):
-    def __init__(self, model, width=220, font=None, **kwargs):
-        self.model = model
-        self.width = width
-        self.font = font or pbge.MEDIUMFONT
-        self.image = pbge.render_text(self.font, model.desc, width, justify=-1, color=pbge.INFO_GREEN)
-        self.height = self.image.get_height()
-
-    def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+class DescBlock(AbstractModelTextBlock):
+    def get_text(self):
+        return self.model.desc
 
 
 class EnchantmentBlock(object):

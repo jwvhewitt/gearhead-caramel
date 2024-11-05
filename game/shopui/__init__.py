@@ -129,7 +129,7 @@ class ShopPanel(pbge.widgets.RowWidget):
 
 ###############################################################################
 
-class _CostBlock(object):
+class CostBlock(object):
     def __init__(self, cost, width):
         self._cost = cost
         self.width = width
@@ -300,8 +300,10 @@ class ShopUI(pbge.widgets.Widget):
         self._build_buy_list()
         if reactivate == self.REACTIVATE_SELL:
             pbge.my_state.active_widget = self._sell_list_widget.scroll_column
+            self._set_item_panel(self._sell_list_widget.scroll_column, self._sell_list_widget.get_active_item())
         elif reactivate == self.REACTIVATE_BUY:
             pbge.my_state.active_widget = self._buy_list_widget.scroll_column
+            self._set_item_panel(self._buy_list_widget.scroll_column, self._buy_list_widget.get_active_item())
 
     def _build_sell_list(self):
         active_index = self._sell_list_widget.active_index
@@ -454,9 +456,9 @@ class ShopUI(pbge.widgets.Widget):
                 ip = gears.info.get_longform_display(model=warewidget.data.ware
                                                      , width=INFO_PANEL_FRECT.w
                                                      )
-                ip.info_blocks.insert(1, _CostBlock(cost=warewidget.data.price
-                                                    , width=INFO_PANEL_FRECT.w
-                                                    ))
+                ip.info_blocks.insert(1, CostBlock(cost=warewidget.data.price
+                                                   , width=INFO_PANEL_FRECT.w
+                                                   ))
                 self._item_panel = ip
             else:
                 self._item_panel = None

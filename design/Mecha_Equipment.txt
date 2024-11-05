@@ -12,6 +12,10 @@ STC Heavy Gauss Rifle
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
+STC MBAZ-17 Mecha Bazooka
+    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    faction_list = (None,)
+
 STC Light Autocannon
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)

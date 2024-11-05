@@ -139,6 +139,13 @@ class SelfPropelled_130mm(BaseCalibre):
     risk = RISK_VOLATILE
 
 
+class SelfPropelled_70cm(BaseCalibre):
+    name = "70cm Self Propelled"
+    bang = 16
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
+
 class SelfPropelled_160mm(BaseCalibre):
     name = "160mm Self Propelled"
     bang = 15

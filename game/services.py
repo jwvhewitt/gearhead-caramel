@@ -229,6 +229,14 @@ class Shop(object):
             self.buy_stolen_items = False
 
 
+class CyberwareShop(Shop):
+    def enter_shop(self, camp):
+        self.customer = camp.pc
+        ui = shopui.ShopUI(camp, self)
+        ui.activate_and_run()
+
+
+
 class SkillButtonWidget(pbge.widgets.LabelWidget):
     def __init__(self, skill, clickfun, scolumn):
         super().__init__(0, 0, 170, 24, skill.name, on_click=clickfun, data=skill, font=pbge.BIGFONT)

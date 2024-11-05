@@ -3142,6 +3142,42 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
                 , ("Trauma/Sta", str(self.trauma))
                 )
 
+    def can_replace(self, mod, old):
+        ''' Determine if we can install the new cyberware
+        if the old cyberware is removed first.
+        '''
+        # We actually perform the remove, *then* check,
+        # then restore the old gear.
+        # This lets us leave the cyberware check to
+        # gears.base, so only one place needs to be
+        # updated if we want to change the limits on
+        # cyberware.
+        mod.sub_com.remove(old)
+        ret = mod.can_install(self)
+        mod.sub_com.append(old)
+        return ret
+
+    def get_current_cyber(self, slot: BaseGear):
+        # ASSERT: There should only be one cyberware of the given type.
+        candidates = list()
+        for sc in slot.sub_com:
+            if isinstance(sc, BaseCyberware) and sc.__class__ is self.__class__:
+                candidates.append(sc)
+        if candidates:
+            if len(candidates) > 1:
+                print("Warning: Multiple cybers detected in {}: {}".format(slot, candidates))
+            return candidates[0]
+
+    def install(self, slot: BaseGear):
+        # Attempt to install this cyberware into the slot. Dispose of any cyberware currently in the slot.
+        for sc in list(slot.sub_com):
+            # There should only be at most one cyberware of a given type... but why not be thorough?
+            if isinstance(sc, BaseCyberware) and sc.__class__ is self.__class__:
+                slot.sub_com.remove(sc)
+        if slot.can_install(self):
+            slot.sub_com.append(self)
+
+
 
 class EyesCyberware(BaseCyberware):
     location = 'Eyes'

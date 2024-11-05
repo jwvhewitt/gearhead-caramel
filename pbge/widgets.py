@@ -360,6 +360,9 @@ class ScrollColumnWidget(Widget):
         self._active_widget = 0
         self.active_widget = 0
 
+        self.up_button.frame = self.up_button.off_frame
+        self.down_button.frame = self.down_button.off_frame
+
     def _set_active_widget(self, widindex):
         if 0 <= widindex < len(self._interior_widgets):
             wid = self._interior_widgets[widindex]
@@ -490,6 +493,10 @@ class ScrollColumnWidget(Widget):
     def sort(self, key=None):
         self._interior_widgets.sort(key=key)
         self._position_contents()
+
+    def get_active_item(self):
+        if 0 <= self._active_widget < len(self._interior_widgets):
+            return self._interior_widgets[self._active_widget]
 
     def _builtin_responder(self, ev):
         if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):

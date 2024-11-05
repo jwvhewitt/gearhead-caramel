@@ -105,3 +105,6 @@ class MenuWidget(widgets.ColumnWidget):
     def items(self):
         return list(self.scroll_column._interior_widgets)
 
+    def get_active_item(self):
+        return self.scroll_column.get_active_item()
+

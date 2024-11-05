@@ -73,7 +73,7 @@ class Automatic(Singleton):
 
 class Blast1(Singleton):
     name = "Blast 1"
-    MASS_MODIFIER = 2.0
+    MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 2.0
     POWER_MODIFIER = 2.0
@@ -95,9 +95,9 @@ class Blast1(Singleton):
 
 class Blast2(Blast1):
     name = "Blast 2"
-    MASS_MODIFIER = 3.0
+    MASS_MODIFIER = 2.0
     VOLUME_MODIFIER = 3.0
-    COST_MODIFIER = 3.0
+    COST_MODIFIER = 3.5
     POWER_MODIFIER = 3.0
     BLAST_RADIUS = 2
 

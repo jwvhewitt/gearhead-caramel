@@ -1713,7 +1713,7 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "pbgerecolor.pyx":50
+/* "pbgerecolor.pyx":51
  * # every type in the numpy module there's a corresponding compile-time
  * # type with a _t-suffix.
  * ctypedef np.uint32_t DTYPE_t             # <<<<<<<<<<<<<<
@@ -1722,7 +1722,7 @@ typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
  */
 typedef __pyx_t_5numpy_uint32_t __pyx_t_11pbgerecolor_DTYPE_t;
 
-/* "pbgerecolor.pyx":51
+/* "pbgerecolor.pyx":52
  * # type with a _t-suffix.
  * ctypedef np.uint32_t DTYPE_t
  * ctypedef np.uint8_t CHANTYPE_t             # <<<<<<<<<<<<<<
@@ -1798,7 +1798,7 @@ typedef npy_cdouble __pyx_t_5numpy_complex_t;
 struct __pyx_ctuple_4226fb____dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__etc;
 typedef struct __pyx_ctuple_4226fb____dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__etc __pyx_ctuple_4226fb____dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__etc;
 
-/* "pbgerecolor.pyx":58
+/* "pbgerecolor.pyx":59
  * 
  * cdef class Gradient(object):
  *     cdef (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range             # <<<<<<<<<<<<<<
@@ -1814,7 +1814,7 @@ struct __pyx_ctuple_4226fb____dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunder
   __pyx_t_11pbgerecolor_CHANTYPE_t f5;
 };
 
-/* "pbgerecolor.pyx":57
+/* "pbgerecolor.pyx":58
  * 
  * 
  * cdef class Gradient(object):             # <<<<<<<<<<<<<<
@@ -2738,6 +2738,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy_7ndarray_4data_data(PyArrayObject *__p
 /* Module declarations from "numpy" */
 
 /* Module declarations from "numpy" */
+static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
 
 /* Module declarations from "pbgerecolor" */
 static __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_f_11pbgerecolor_generate_value(__pyx_t_11pbgerecolor_CHANTYPE_t, __pyx_t_11pbgerecolor_CHANTYPE_t, __pyx_t_11pbgerecolor_CHANTYPE_t); /*proto*/
@@ -4699,7 +4700,7 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
   return __pyx_r;
 }
 
-/* "pbgerecolor.pyx":53
+/* "pbgerecolor.pyx":54
  * ctypedef np.uint8_t CHANTYPE_t
  * 
  * cdef CHANTYPE_t generate_value(CHANTYPE_t vmax, CHANTYPE_t vmin, CHANTYPE_t level):             # <<<<<<<<<<<<<<
@@ -4710,7 +4711,7 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
 static __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_f_11pbgerecolor_generate_value(__pyx_t_11pbgerecolor_CHANTYPE_t __pyx_v_vmax, __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_v_vmin, __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_v_level) {
   __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_r;
 
-  /* "pbgerecolor.pyx":54
+  /* "pbgerecolor.pyx":55
  * 
  * cdef CHANTYPE_t generate_value(CHANTYPE_t vmax, CHANTYPE_t vmin, CHANTYPE_t level):
  *     return vmin + ((vmax - vmin) * level // 215)             # <<<<<<<<<<<<<<
@@ -4720,7 +4721,7 @@ static __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_f_11pbgerecolor_generate_value(__p
   __pyx_r = (__pyx_v_vmin + __Pyx_div_long(((__pyx_v_vmax - __pyx_v_vmin) * __pyx_v_level), 0xD7));
   goto __pyx_L0;
 
-  /* "pbgerecolor.pyx":53
+  /* "pbgerecolor.pyx":54
  * ctypedef np.uint8_t CHANTYPE_t
  * 
  * cdef CHANTYPE_t generate_value(CHANTYPE_t vmax, CHANTYPE_t vmin, CHANTYPE_t level):             # <<<<<<<<<<<<<<
@@ -4733,7 +4734,7 @@ static __pyx_t_11pbgerecolor_CHANTYPE_t __pyx_f_11pbgerecolor_generate_value(__p
   return __pyx_r;
 }
 
-/* "pbgerecolor.pyx":59
+/* "pbgerecolor.pyx":60
  * cdef class Gradient(object):
  *     cdef (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range
  *     def __init__(cls, name, (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range):             # <<<<<<<<<<<<<<
@@ -4780,7 +4781,7 @@ static int __pyx_pw_11pbgerecolor_8Gradient_1__init__(PyObject *__pyx_v_cls, PyO
           (void)__Pyx_Arg_NewRef_VARARGS(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -4788,14 +4789,14 @@ static int __pyx_pw_11pbgerecolor_8Gradient_1__init__(PyObject *__pyx_v_cls, PyO
           (void)__Pyx_Arg_NewRef_VARARGS(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 59, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 60, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 59, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 60, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -4804,11 +4805,11 @@ static int __pyx_pw_11pbgerecolor_8Gradient_1__init__(PyObject *__pyx_v_cls, PyO
       values[1] = __Pyx_Arg_VARARGS(__pyx_args, 1);
     }
     __pyx_v_name = values[0];
-    __pyx_v_color_range = __pyx_convert__from_py___pyx_ctuple_4226fb____dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__etc(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
+    __pyx_v_color_range = __pyx_convert__from_py___pyx_ctuple_4226fb____dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__and___dunderpyx_t_11pbgerecolor_CHANTYPE_t__etc(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 59, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 60, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4841,16 +4842,16 @@ static int __pyx_pf_11pbgerecolor_8Gradient___init__(struct __pyx_obj_11pbgereco
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "pbgerecolor.pyx":60
+  /* "pbgerecolor.pyx":61
  *     cdef (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range
  *     def __init__(cls, name, (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range):
  *         cls.name = name             # <<<<<<<<<<<<<<
  *         cls.color_range = color_range
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_cls), __pyx_n_s_name, __pyx_v_name) < 0) __PYX_ERR(0, 60, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_cls), __pyx_n_s_name, __pyx_v_name) < 0) __PYX_ERR(0, 61, __pyx_L1_error)
 
-  /* "pbgerecolor.pyx":61
+  /* "pbgerecolor.pyx":62
  *     def __init__(cls, name, (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range):
  *         cls.name = name
  *         cls.color_range = color_range             # <<<<<<<<<<<<<<
@@ -4859,7 +4860,7 @@ static int __pyx_pf_11pbgerecolor_8Gradient___init__(struct __pyx_obj_11pbgereco
  */
   __pyx_v_cls->color_range = __pyx_v_color_range;
 
-  /* "pbgerecolor.pyx":59
+  /* "pbgerecolor.pyx":60
  * cdef class Gradient(object):
  *     cdef (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range
  *     def __init__(cls, name, (CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t,CHANTYPE_t) color_range):             # <<<<<<<<<<<<<<
@@ -4877,7 +4878,7 @@ static int __pyx_pf_11pbgerecolor_8Gradient___init__(struct __pyx_obj_11pbgereco
   return __pyx_r;
 }
 
-/* "pbgerecolor.pyx":63
+/* "pbgerecolor.pyx":64
  *         cls.color_range = color_range
  * 
  *     def generate_color( Gradient cls, int color_level):             # <<<<<<<<<<<<<<
@@ -4938,23 +4939,23 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 64, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "generate_color") < 0)) __PYX_ERR(0, 63, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "generate_color") < 0)) __PYX_ERR(0, 64, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
     }
-    __pyx_v_color_level = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_color_level == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L3_error)
+    __pyx_v_color_level = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_color_level == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 64, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("generate_color", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 63, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("generate_color", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 64, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4998,7 +4999,7 @@ static PyObject *__pyx_pf_11pbgerecolor_8Gradient_2generate_color(struct __pyx_o
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("generate_color", 1);
 
-  /* "pbgerecolor.pyx":66
+  /* "pbgerecolor.pyx":67
  *         # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
  *         # and r g b at lowest intensity.
  *         color_level = max(color_level - 40, 0)             # <<<<<<<<<<<<<<
@@ -5015,37 +5016,37 @@ static PyObject *__pyx_pf_11pbgerecolor_8Gradient_2generate_color(struct __pyx_o
   }
   __pyx_v_color_level = __pyx_t_3;
 
-  /* "pbgerecolor.pyx":67
+  /* "pbgerecolor.pyx":68
  *         # and r g b at lowest intensity.
  *         color_level = max(color_level - 40, 0)
  *         cdef int r = generate_value(cls.color_range[0], cls.color_range[3], color_level)             # <<<<<<<<<<<<<<
  *         cdef int g = generate_value(cls.color_range[1], cls.color_range[4], color_level)
  *         cdef int b = generate_value(cls.color_range[2], cls.color_range[5], color_level)
  */
-  __pyx_t_5 = __pyx_f_11pbgerecolor_generate_value(__pyx_v_cls->color_range.f0, __pyx_v_cls->color_range.f3, __pyx_v_color_level); if (unlikely(__pyx_t_5 == ((__pyx_t_11pbgerecolor_CHANTYPE_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_5 = __pyx_f_11pbgerecolor_generate_value(__pyx_v_cls->color_range.f0, __pyx_v_cls->color_range.f3, __pyx_v_color_level); if (unlikely(__pyx_t_5 == ((__pyx_t_11pbgerecolor_CHANTYPE_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 68, __pyx_L1_error)
   __pyx_v_r = __pyx_t_5;
 
-  /* "pbgerecolor.pyx":68
+  /* "pbgerecolor.pyx":69
  *         color_level = max(color_level - 40, 0)
  *         cdef int r = generate_value(cls.color_range[0], cls.color_range[3], color_level)
  *         cdef int g = generate_value(cls.color_range[1], cls.color_range[4], color_level)             # <<<<<<<<<<<<<<
  *         cdef int b = generate_value(cls.color_range[2], cls.color_range[5], color_level)
  *         return (r << 16) | (g << 8) | b
  */
-  __pyx_t_5 = __pyx_f_11pbgerecolor_generate_value(__pyx_v_cls->color_range.f1, __pyx_v_cls->color_range.f4, __pyx_v_color_level); if (unlikely(__pyx_t_5 == ((__pyx_t_11pbgerecolor_CHANTYPE_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_5 = __pyx_f_11pbgerecolor_generate_value(__pyx_v_cls->color_range.f1, __pyx_v_cls->color_range.f4, __pyx_v_color_level); if (unlikely(__pyx_t_5 == ((__pyx_t_11pbgerecolor_CHANTYPE_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
   __pyx_v_g = __pyx_t_5;
 
-  /* "pbgerecolor.pyx":69
+  /* "pbgerecolor.pyx":70
  *         cdef int r = generate_value(cls.color_range[0], cls.color_range[3], color_level)
  *         cdef int g = generate_value(cls.color_range[1], cls.color_range[4], color_level)
  *         cdef int b = generate_value(cls.color_range[2], cls.color_range[5], color_level)             # <<<<<<<<<<<<<<
  *         return (r << 16) | (g << 8) | b
  * 
  */
-  __pyx_t_5 = __pyx_f_11pbgerecolor_generate_value(__pyx_v_cls->color_range.f2, __pyx_v_cls->color_range.f5, __pyx_v_color_level); if (unlikely(__pyx_t_5 == ((__pyx_t_11pbgerecolor_CHANTYPE_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_5 = __pyx_f_11pbgerecolor_generate_value(__pyx_v_cls->color_range.f2, __pyx_v_cls->color_range.f5, __pyx_v_color_level); if (unlikely(__pyx_t_5 == ((__pyx_t_11pbgerecolor_CHANTYPE_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 70, __pyx_L1_error)
   __pyx_v_b = __pyx_t_5;
 
-  /* "pbgerecolor.pyx":70
+  /* "pbgerecolor.pyx":71
  *         cdef int g = generate_value(cls.color_range[1], cls.color_range[4], color_level)
  *         cdef int b = generate_value(cls.color_range[2], cls.color_range[5], color_level)
  *         return (r << 16) | (g << 8) | b             # <<<<<<<<<<<<<<
@@ -5053,13 +5054,13 @@ static PyObject *__pyx_pf_11pbgerecolor_8Gradient_2generate_color(struct __pyx_o
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_6 = __Pyx_PyInt_From_long((((__pyx_v_r << 16) | (__pyx_v_g << 8)) | __pyx_v_b)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_From_long((((__pyx_v_r << 16) | (__pyx_v_g << 8)) | __pyx_v_b)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_r = __pyx_t_6;
   __pyx_t_6 = 0;
   goto __pyx_L0;
 
-  /* "pbgerecolor.pyx":63
+  /* "pbgerecolor.pyx":64
  *         cls.color_range = color_range
  * 
  *     def generate_color( Gradient cls, int color_level):             # <<<<<<<<<<<<<<
@@ -5480,7 +5481,7 @@ static PyObject *__pyx_pf_11pbgerecolor_8Gradient_6__setstate_cython__(struct __
   return __pyx_r;
 }
 
-/* "pbgerecolor.pyx":73
+/* "pbgerecolor.pyx":74
  * 
  * 
  * def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):             # <<<<<<<<<<<<<<
@@ -5544,7 +5545,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -5552,14 +5553,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("recolor", 1, 2, 2, 1); __PYX_ERR(0, 73, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("recolor", 1, 2, 2, 1); __PYX_ERR(0, 74, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "recolor") < 0)) __PYX_ERR(0, 73, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "recolor") < 0)) __PYX_ERR(0, 74, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -5572,7 +5573,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("recolor", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 73, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("recolor", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 74, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5586,7 +5587,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_par), __pyx_ptype_5numpy_ndarray, 1, "par", 0))) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_par), __pyx_ptype_5numpy_ndarray, 1, "par", 0))) __PYX_ERR(0, 74, __pyx_L1_error)
   __pyx_r = __pyx_pf_11pbgerecolor_recolor(__pyx_self, __pyx_v_par, __pyx_v_color_channels);
 
   /* function exit code */
@@ -5651,11 +5652,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_pybuffernd_par.rcbuffer = &__pyx_pybuffer_par;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_par.rcbuffer->pybuffer, (PyObject*)__pyx_v_par, &__Pyx_TypeInfo_nn___pyx_t_11pbgerecolor_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 73, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_par.rcbuffer->pybuffer, (PyObject*)__pyx_v_par, &__Pyx_TypeInfo_nn___pyx_t_11pbgerecolor_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 74, __pyx_L1_error)
   }
   __pyx_pybuffernd_par.diminfo[0].strides = __pyx_pybuffernd_par.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_par.diminfo[0].shape = __pyx_pybuffernd_par.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_par.diminfo[1].strides = __pyx_pybuffernd_par.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_par.diminfo[1].shape = __pyx_pybuffernd_par.rcbuffer->pybuffer.shape[1];
 
-  /* "pbgerecolor.pyx":74
+  /* "pbgerecolor.pyx":75
  * 
  * def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):
  *     red_channel, yellow_channel, green_channel, cyan_channel, magenta_channel = color_channels             # <<<<<<<<<<<<<<
@@ -5668,7 +5669,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
     if (unlikely(size != 5)) {
       if (size > 5) __Pyx_RaiseTooManyValuesError(5);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 74, __pyx_L1_error)
+      __PYX_ERR(0, 75, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -5694,7 +5695,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       Py_ssize_t i;
       PyObject** temps[5] = {&__pyx_t_1,&__pyx_t_2,&__pyx_t_3,&__pyx_t_4,&__pyx_t_5};
       for (i=0; i < 5; i++) {
-        PyObject* item = PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 74, __pyx_L1_error)
+        PyObject* item = PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 75, __pyx_L1_error)
         __Pyx_GOTREF(item);
         *(temps[i]) = item;
       }
@@ -5703,7 +5704,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
   } else {
     Py_ssize_t index = -1;
     PyObject** temps[5] = {&__pyx_t_1,&__pyx_t_2,&__pyx_t_3,&__pyx_t_4,&__pyx_t_5};
-    __pyx_t_6 = PyObject_GetIter(__pyx_v_color_channels); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_t_6 = PyObject_GetIter(__pyx_v_color_channels); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 75, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_7 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_6);
     for (index=0; index < 5; index++) {
@@ -5711,7 +5712,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_GOTREF(item);
       *(temps[index]) = item;
     }
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_6), 5) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_6), 5) < 0) __PYX_ERR(0, 75, __pyx_L1_error)
     __pyx_t_7 = NULL;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     goto __pyx_L4_unpacking_done;
@@ -5719,7 +5720,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_7 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 74, __pyx_L1_error)
+    __PYX_ERR(0, 75, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
   __pyx_v_red_channel = __pyx_t_1;
@@ -5733,27 +5734,27 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_v_magenta_channel = __pyx_t_5;
   __pyx_t_5 = 0;
 
-  /* "pbgerecolor.pyx":78
+  /* "pbgerecolor.pyx":79
  *     cdef int x
  *     cdef int y
  *     cdef int height = par.shape[1]             # <<<<<<<<<<<<<<
  *     cdef int width = par.shape[0]
  *     cdef int r
  */
-  __pyx_t_8 = __pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_par)); if (unlikely(__pyx_t_8 == ((npy_intp *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_8 = __pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_par)); if (unlikely(__pyx_t_8 == ((npy_intp *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 79, __pyx_L1_error)
   __pyx_v_height = (__pyx_t_8[1]);
 
-  /* "pbgerecolor.pyx":79
+  /* "pbgerecolor.pyx":80
  *     cdef int y
  *     cdef int height = par.shape[1]
  *     cdef int width = par.shape[0]             # <<<<<<<<<<<<<<
  *     cdef int r
  *     cdef int g
  */
-  __pyx_t_8 = __pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_par)); if (unlikely(__pyx_t_8 == ((npy_intp *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 79, __pyx_L1_error)
+  __pyx_t_8 = __pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_par)); if (unlikely(__pyx_t_8 == ((npy_intp *)NULL) && PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L1_error)
   __pyx_v_width = (__pyx_t_8[0]);
 
-  /* "pbgerecolor.pyx":84
+  /* "pbgerecolor.pyx":85
  *     cdef int b
  * 
  *     for y in range(height):             # <<<<<<<<<<<<<<
@@ -5765,7 +5766,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
   for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
     __pyx_v_y = __pyx_t_11;
 
-    /* "pbgerecolor.pyx":85
+    /* "pbgerecolor.pyx":86
  * 
  *     for y in range(height):
  *         for x in range(width):             # <<<<<<<<<<<<<<
@@ -5777,7 +5778,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
     for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
       __pyx_v_x = __pyx_t_14;
 
-      /* "pbgerecolor.pyx":87
+      /* "pbgerecolor.pyx":88
  *         for x in range(width):
  * 
  *             r = 0xFF & ( par[x, y] >> 16)             # <<<<<<<<<<<<<<
@@ -5797,11 +5798,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
       if (unlikely(__pyx_t_17 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_17);
-        __PYX_ERR(0, 87, __pyx_L1_error)
+        __PYX_ERR(0, 88, __pyx_L1_error)
       }
       __pyx_v_r = (0xFF & ((*__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_par.diminfo[1].strides)) >> 16));
 
-      /* "pbgerecolor.pyx":88
+      /* "pbgerecolor.pyx":89
  * 
  *             r = 0xFF & ( par[x, y] >> 16)
  *             g = 0xFF & ( par[x, y] >> 8)             # <<<<<<<<<<<<<<
@@ -5821,11 +5822,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       } else if (unlikely(__pyx_t_15 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
       if (unlikely(__pyx_t_17 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_17);
-        __PYX_ERR(0, 88, __pyx_L1_error)
+        __PYX_ERR(0, 89, __pyx_L1_error)
       }
       __pyx_v_g = (0xFF & ((*__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_15, __pyx_pybuffernd_par.diminfo[1].strides)) >> 8));
 
-      /* "pbgerecolor.pyx":89
+      /* "pbgerecolor.pyx":90
  *             r = 0xFF & ( par[x, y] >> 16)
  *             g = 0xFF & ( par[x, y] >> 8)
  *             b = 0xFF &  par[x, y]             # <<<<<<<<<<<<<<
@@ -5845,11 +5846,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
       if (unlikely(__pyx_t_17 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_17);
-        __PYX_ERR(0, 89, __pyx_L1_error)
+        __PYX_ERR(0, 90, __pyx_L1_error)
       }
       __pyx_v_b = (0xFF & (*__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_par.diminfo[1].strides)));
 
-      /* "pbgerecolor.pyx":92
+      /* "pbgerecolor.pyx":93
  * 
  * 
  *             if (r > 0) and (g == 0) and (b == 0):             # <<<<<<<<<<<<<<
@@ -5873,16 +5874,16 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_18) {
 
-        /* "pbgerecolor.pyx":93
+        /* "pbgerecolor.pyx":94
  * 
  *             if (r > 0) and (g == 0) and (b == 0):
  *                 par[x, y] = red_channel.generate_color(r)             # <<<<<<<<<<<<<<
  *                 # par[x,y] = cls.generate_color(red_channel,c.r)
  *             elif (r > 0) and (g > 0) and (b == 0):
  */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_red_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 93, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_red_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 93, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __pyx_t_2 = NULL;
         __pyx_t_17 = 0;
@@ -5903,11 +5904,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_5 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_17, 1+__pyx_t_17);
           __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 93, __pyx_L1_error)
+          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 94, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
-        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 93, __pyx_L1_error)
+        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 94, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __pyx_t_16 = __pyx_v_x;
         __pyx_t_15 = __pyx_v_y;
@@ -5922,11 +5923,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         } else if (unlikely(__pyx_t_15 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          __PYX_ERR(0, 93, __pyx_L1_error)
+          __PYX_ERR(0, 94, __pyx_L1_error)
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_15, __pyx_pybuffernd_par.diminfo[1].strides) = __pyx_t_20;
 
-        /* "pbgerecolor.pyx":92
+        /* "pbgerecolor.pyx":93
  * 
  * 
  *             if (r > 0) and (g == 0) and (b == 0):             # <<<<<<<<<<<<<<
@@ -5936,7 +5937,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         goto __pyx_L9;
       }
 
-      /* "pbgerecolor.pyx":95
+      /* "pbgerecolor.pyx":96
  *                 par[x, y] = red_channel.generate_color(r)
  *                 # par[x,y] = cls.generate_color(red_channel,c.r)
  *             elif (r > 0) and (g > 0) and (b == 0):             # <<<<<<<<<<<<<<
@@ -5960,16 +5961,16 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_L13_bool_binop_done:;
       if (__pyx_t_18) {
 
-        /* "pbgerecolor.pyx":96
+        /* "pbgerecolor.pyx":97
  *                 # par[x,y] = cls.generate_color(red_channel,c.r)
  *             elif (r > 0) and (g > 0) and (b == 0):
  *                 par[x, y] = yellow_channel.generate_color(r)             # <<<<<<<<<<<<<<
  *             elif (r > 0) and (g == 0) and (b > 0):
  *                 par[x, y] = magenta_channel.generate_color(r)
  */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_yellow_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 96, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_yellow_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 97, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 96, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 97, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __pyx_t_2 = NULL;
         __pyx_t_17 = 0;
@@ -5990,11 +5991,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_5 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_17, 1+__pyx_t_17);
           __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 96, __pyx_L1_error)
+          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
-        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 96, __pyx_L1_error)
+        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 97, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __pyx_t_15 = __pyx_v_x;
         __pyx_t_16 = __pyx_v_y;
@@ -6009,11 +6010,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          __PYX_ERR(0, 96, __pyx_L1_error)
+          __PYX_ERR(0, 97, __pyx_L1_error)
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_par.diminfo[1].strides) = __pyx_t_20;
 
-        /* "pbgerecolor.pyx":95
+        /* "pbgerecolor.pyx":96
  *                 par[x, y] = red_channel.generate_color(r)
  *                 # par[x,y] = cls.generate_color(red_channel,c.r)
  *             elif (r > 0) and (g > 0) and (b == 0):             # <<<<<<<<<<<<<<
@@ -6023,7 +6024,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         goto __pyx_L9;
       }
 
-      /* "pbgerecolor.pyx":97
+      /* "pbgerecolor.pyx":98
  *             elif (r > 0) and (g > 0) and (b == 0):
  *                 par[x, y] = yellow_channel.generate_color(r)
  *             elif (r > 0) and (g == 0) and (b > 0):             # <<<<<<<<<<<<<<
@@ -6047,16 +6048,16 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_L16_bool_binop_done:;
       if (__pyx_t_18) {
 
-        /* "pbgerecolor.pyx":98
+        /* "pbgerecolor.pyx":99
  *                 par[x, y] = yellow_channel.generate_color(r)
  *             elif (r > 0) and (g == 0) and (b > 0):
  *                 par[x, y] = magenta_channel.generate_color(r)             # <<<<<<<<<<<<<<
  *             elif (r == 0) and (g > 0) and (b == 0):
  *                 par[x, y] = green_channel.generate_color(g)
  */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_magenta_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 98, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_magenta_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 99, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 98, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 99, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __pyx_t_2 = NULL;
         __pyx_t_17 = 0;
@@ -6077,11 +6078,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_5 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_17, 1+__pyx_t_17);
           __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
-        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 98, __pyx_L1_error)
+        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __pyx_t_16 = __pyx_v_x;
         __pyx_t_15 = __pyx_v_y;
@@ -6096,11 +6097,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         } else if (unlikely(__pyx_t_15 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          __PYX_ERR(0, 98, __pyx_L1_error)
+          __PYX_ERR(0, 99, __pyx_L1_error)
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_15, __pyx_pybuffernd_par.diminfo[1].strides) = __pyx_t_20;
 
-        /* "pbgerecolor.pyx":97
+        /* "pbgerecolor.pyx":98
  *             elif (r > 0) and (g > 0) and (b == 0):
  *                 par[x, y] = yellow_channel.generate_color(r)
  *             elif (r > 0) and (g == 0) and (b > 0):             # <<<<<<<<<<<<<<
@@ -6110,7 +6111,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         goto __pyx_L9;
       }
 
-      /* "pbgerecolor.pyx":99
+      /* "pbgerecolor.pyx":100
  *             elif (r > 0) and (g == 0) and (b > 0):
  *                 par[x, y] = magenta_channel.generate_color(r)
  *             elif (r == 0) and (g > 0) and (b == 0):             # <<<<<<<<<<<<<<
@@ -6134,16 +6135,16 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_L19_bool_binop_done:;
       if (__pyx_t_18) {
 
-        /* "pbgerecolor.pyx":100
+        /* "pbgerecolor.pyx":101
  *                 par[x, y] = magenta_channel.generate_color(r)
  *             elif (r == 0) and (g > 0) and (b == 0):
  *                 par[x, y] = green_channel.generate_color(g)             # <<<<<<<<<<<<<<
  *             elif (r == 0) and (g > 0) and (b > 0):
  *                 par[x, y] = cyan_channel.generate_color(g)
  */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_green_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_green_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 101, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_g); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_g); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __pyx_t_2 = NULL;
         __pyx_t_17 = 0;
@@ -6164,11 +6165,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_5 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_17, 1+__pyx_t_17);
           __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 100, __pyx_L1_error)
+          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
-        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 100, __pyx_L1_error)
+        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __pyx_t_15 = __pyx_v_x;
         __pyx_t_16 = __pyx_v_y;
@@ -6183,11 +6184,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          __PYX_ERR(0, 100, __pyx_L1_error)
+          __PYX_ERR(0, 101, __pyx_L1_error)
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_par.diminfo[1].strides) = __pyx_t_20;
 
-        /* "pbgerecolor.pyx":99
+        /* "pbgerecolor.pyx":100
  *             elif (r > 0) and (g == 0) and (b > 0):
  *                 par[x, y] = magenta_channel.generate_color(r)
  *             elif (r == 0) and (g > 0) and (b == 0):             # <<<<<<<<<<<<<<
@@ -6197,7 +6198,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         goto __pyx_L9;
       }
 
-      /* "pbgerecolor.pyx":101
+      /* "pbgerecolor.pyx":102
  *             elif (r == 0) and (g > 0) and (b == 0):
  *                 par[x, y] = green_channel.generate_color(g)
  *             elif (r == 0) and (g > 0) and (b > 0):             # <<<<<<<<<<<<<<
@@ -6221,16 +6222,16 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_L22_bool_binop_done:;
       if (__pyx_t_18) {
 
-        /* "pbgerecolor.pyx":102
+        /* "pbgerecolor.pyx":103
  *                 par[x, y] = green_channel.generate_color(g)
  *             elif (r == 0) and (g > 0) and (b > 0):
  *                 par[x, y] = cyan_channel.generate_color(g)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_cyan_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 102, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_cyan_channel, __pyx_n_s_generate_color); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_g); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 102, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_g); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __pyx_t_2 = NULL;
         __pyx_t_17 = 0;
@@ -6251,11 +6252,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
           __pyx_t_5 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_17, 1+__pyx_t_17);
           __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 102, __pyx_L1_error)
+          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
-        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L1_error)
+        __pyx_t_20 = __Pyx_PyInt_As_npy_uint32(__pyx_t_5); if (unlikely((__pyx_t_20 == ((npy_uint32)-1)) && PyErr_Occurred())) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __pyx_t_16 = __pyx_v_x;
         __pyx_t_15 = __pyx_v_y;
@@ -6270,11 +6271,11 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
         } else if (unlikely(__pyx_t_15 >= __pyx_pybuffernd_par.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          __PYX_ERR(0, 102, __pyx_L1_error)
+          __PYX_ERR(0, 103, __pyx_L1_error)
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_11pbgerecolor_DTYPE_t *, __pyx_pybuffernd_par.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_par.diminfo[0].strides, __pyx_t_15, __pyx_pybuffernd_par.diminfo[1].strides) = __pyx_t_20;
 
-        /* "pbgerecolor.pyx":101
+        /* "pbgerecolor.pyx":102
  *             elif (r == 0) and (g > 0) and (b == 0):
  *                 par[x, y] = green_channel.generate_color(g)
  *             elif (r == 0) and (g > 0) and (b > 0):             # <<<<<<<<<<<<<<
@@ -6286,7 +6287,7 @@ static PyObject *__pyx_pf_11pbgerecolor_recolor(CYTHON_UNUSED PyObject *__pyx_se
     }
   }
 
-  /* "pbgerecolor.pyx":73
+  /* "pbgerecolor.pyx":74
  * 
  * 
  * def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):             # <<<<<<<<<<<<<<
@@ -7005,7 +7006,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 85, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 984, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -7050,17 +7051,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "pbgerecolor.pyx":63
+  /* "pbgerecolor.pyx":64
  *         cls.color_range = color_range
  * 
  *     def generate_color( Gradient cls, int color_level):             # <<<<<<<<<<<<<<
  *         # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
  *         # and r g b at lowest intensity.
  */
-  __pyx_tuple__6 = PyTuple_Pack(5, __pyx_n_s_cls, __pyx_n_s_color_level, __pyx_n_s_r, __pyx_n_s_g, __pyx_n_s_b); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_tuple__6 = PyTuple_Pack(5, __pyx_n_s_cls, __pyx_n_s_color_level, __pyx_n_s_r, __pyx_n_s_g, __pyx_n_s_b); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
-  __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__6, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pbgerecolor_pyx, __pyx_n_s_generate_color, 63, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__6, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pbgerecolor_pyx, __pyx_n_s_generate_color, 64, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 64, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -7083,17 +7084,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__10);
   __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 16, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(2, 16, __pyx_L1_error)
 
-  /* "pbgerecolor.pyx":73
+  /* "pbgerecolor.pyx":74
  * 
  * 
  * def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):             # <<<<<<<<<<<<<<
  *     red_channel, yellow_channel, green_channel, cyan_channel, magenta_channel = color_channels
  * 
  */
-  __pyx_tuple__12 = PyTuple_Pack(14, __pyx_n_s_par, __pyx_n_s_color_channels, __pyx_n_s_red_channel, __pyx_n_s_yellow_channel, __pyx_n_s_green_channel, __pyx_n_s_cyan_channel, __pyx_n_s_magenta_channel, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_height, __pyx_n_s_width, __pyx_n_s_r, __pyx_n_s_g, __pyx_n_s_b); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(14, __pyx_n_s_par, __pyx_n_s_color_channels, __pyx_n_s_red_channel, __pyx_n_s_yellow_channel, __pyx_n_s_green_channel, __pyx_n_s_cyan_channel, __pyx_n_s_magenta_channel, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_height, __pyx_n_s_width, __pyx_n_s_r, __pyx_n_s_g, __pyx_n_s_b); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
-  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pbgerecolor_pyx, __pyx_n_s_recolor, 73, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pbgerecolor_pyx, __pyx_n_s_recolor, 74, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 74, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Gradient(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
@@ -7124,28 +7125,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
 /* #### Code section: init_globals ### */
 
 static CYTHON_SMALL_CODE int __Pyx_InitGlobals(void) {
-  /* NumpyImportArray.init */
-  /*
- * Cython has automatically inserted a call to _import_array since
- * you didn't include one when you cimported numpy. To disable this
- * add the line
- *   <void>numpy._import_array
- */
-#ifdef NPY_FEATURE_VERSION
-#ifndef NO_IMPORT_ARRAY
-if (unlikely(_import_array() == -1)) {
-    PyErr_SetString(PyExc_ImportError, "numpy.core.multiarray failed to import "
-    "(auto-generated because you didn't call 'numpy.import_array()' after cimporting numpy; "
-    "use '<void>numpy._import_array' to disable if you are certain you don't need it).");
-}
-#endif
-#endif
-
-if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
-
   return 0;
-  __pyx_L1_error:;
-  return -1;
 }
 /* #### Code section: init_module ### */
 
@@ -7189,15 +7169,15 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_ptype_11pbgerecolor_Gradient = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_11pbgerecolor_Gradient_spec, NULL); if (unlikely(!__pyx_ptype_11pbgerecolor_Gradient)) __PYX_ERR(0, 57, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_11pbgerecolor_Gradient_spec, __pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_ptype_11pbgerecolor_Gradient = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_11pbgerecolor_Gradient_spec, NULL); if (unlikely(!__pyx_ptype_11pbgerecolor_Gradient)) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_11pbgerecolor_Gradient_spec, __pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
   #else
   __pyx_ptype_11pbgerecolor_Gradient = &__pyx_type_11pbgerecolor_Gradient;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
   #endif
   #if PY_MAJOR_VERSION < 3
   __pyx_ptype_11pbgerecolor_Gradient->tp_print = 0;
@@ -7207,9 +7187,9 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_ptype_11pbgerecolor_Gradient->tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Gradient, (PyObject *) __pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Gradient, (PyObject *) __pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_11pbgerecolor_Gradient) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
   #endif
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -7443,7 +7423,8 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_pbgerecolor(PyObject *__pyx_pyinit
   #endif
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
+  int __pyx_t_3;
+  PyObject *__pyx_t_4 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -7583,46 +7564,55 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_2) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pbgerecolor.pyx":44
+  /* "pbgerecolor.pyx":38
+ * # currently part of the Cython distribution).
+ * cimport numpy as np
+ * np.import_array()             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_3 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 38, __pyx_L1_error)
+
+  /* "pbgerecolor.pyx":45
  * # DTYPE for this, which is assigned to the usual NumPy runtime
  * # type info object.
  * DTYPE = np.uint32             # <<<<<<<<<<<<<<
  * CHANTYPE = np.uint8
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_uint32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 44, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_3) < 0) __PYX_ERR(0, 44, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_4) < 0) __PYX_ERR(0, 45, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pbgerecolor.pyx":45
+  /* "pbgerecolor.pyx":46
  * # type info object.
  * DTYPE = np.uint32
  * CHANTYPE = np.uint8             # <<<<<<<<<<<<<<
  * 
  * # "ctypedef" assigns a corresponding compile-time type to DTYPE_t. For
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_uint8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_CHANTYPE, __pyx_t_2) < 0) __PYX_ERR(0, 45, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_CHANTYPE, __pyx_t_2) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pbgerecolor.pyx":63
+  /* "pbgerecolor.pyx":64
  *         cls.color_range = color_range
  * 
  *     def generate_color( Gradient cls, int color_level):             # <<<<<<<<<<<<<<
  *         # The COLOR_RANGE is a tuple of six values: r g b at highest intensity,
  *         # and r g b at lowest intensity.
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_11pbgerecolor_8Gradient_3generate_color, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Gradient_generate_color, NULL, __pyx_n_s_pbgerecolor, __pyx_d, ((PyObject *)__pyx_codeobj__7)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_11pbgerecolor_8Gradient_3generate_color, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Gradient_generate_color, NULL, __pyx_n_s_pbgerecolor, __pyx_d, ((PyObject *)__pyx_codeobj__7)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_11pbgerecolor_Gradient, __pyx_n_s_generate_color, __pyx_t_2) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_11pbgerecolor_Gradient, __pyx_n_s_generate_color, __pyx_t_2) < 0) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_11pbgerecolor_Gradient);
 
@@ -7649,16 +7639,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_11pbgerecolor_Gradient);
 
-  /* "pbgerecolor.pyx":73
+  /* "pbgerecolor.pyx":74
  * 
  * 
  * def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):             # <<<<<<<<<<<<<<
  *     red_channel, yellow_channel, green_channel, cyan_channel, magenta_channel = color_channels
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_11pbgerecolor_1recolor, 0, __pyx_n_s_recolor, NULL, __pyx_n_s_pbgerecolor, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_11pbgerecolor_1recolor, 0, __pyx_n_s_recolor, NULL, __pyx_n_s_pbgerecolor, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_recolor, __pyx_t_2) < 0) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_recolor, __pyx_t_2) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -7686,7 +7676,7 @@ if (!__Pyx_RefNanny) {
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
   if (__pyx_m) {
     if (__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init pbgerecolor", __pyx_clineno, __pyx_lineno, __pyx_filename);

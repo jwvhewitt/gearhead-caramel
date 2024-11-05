@@ -8,7 +8,6 @@ from . import portraits
 from . import genderobj
 from . import color
 from . import jobs
-from . import cyberinstaller
 import math
 import collections
 
@@ -100,9 +99,7 @@ def random_install_cyberware(pc, rank):
     if rank <= 0:
         return
     # Get all cyberware.
-    cybersource = cyberinstaller.AllCyberwareSource()
-
-    cyberwares = cybersource.get_cyberware_list()
+    cyberwares = [cw for cw in DESIGN_LIST if isinstance(cw, base.BaseCyberware)]
     # Remove cw that cannot be installed anyway.
     remaining_trauma = pc.max_trauma - pc.current_trauma
     cyberwares = [cw for cw in cyberwares if cw.trauma <= remaining_trauma]
@@ -113,32 +110,26 @@ def random_install_cyberware(pc, rank):
     cyberwares.sort(key=lambda cw: cw.cost)
     # If rank < 100, treat as percentage.
     # Only the cheapest will get in.
-    if rank < 100:
-        truncate_to = math.ceil(len(cyberwares) * rank / 100.0)
+    if rank < 80:
+        truncate_to = max((len(cyberwares) * rank) // 80, 5)
         cyberwares = cyberwares[:truncate_to]
 
-    # Set up the installer.
-    class FakeCamp(object):
-        def __init__(self):
-            self.credits = 99999999999
+    cw = random.choice(cyberwares)
 
-    def fake_alert(text):
-        pass
+    candidates = list()
+    for bodpart in pc.sub_com:
+        if bodpart.can_install(cw):
+            candidates.append(bodpart)
 
-    def fake_choose(items):
-        # The last choice is always cancel, don't select that.
-        return random.randint(0, len(items) - 2)
-
-    installer = cyberinstaller.CyberwareInstaller(pc, cybersource, FakeCamp(), fake_alert, fake_choose)
-
-    # And install.
-    installer.install(random.choice(cyberwares))
+    if candidates:
+        bodpart = random.choice(candidates)
+        bodpart.sub_com.append(cw)
 
 
 def _try_cyberize(pc, rank):
-    if random.randint(1, 6) != 1:
+    if random.randint(1, 8) != 1 and stats.Cybertech not in pc.statline:
         return
-    for i in range(1 + pc.get_stat(stats.Cybertech)):
+    for i in range(random.randint(1,2) + pc.get_stat(stats.Cybertech)):
         random_install_cyberware(pc, rank)
 
 

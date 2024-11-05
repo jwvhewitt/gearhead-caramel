@@ -132,12 +132,131 @@ Mecha
 
 Mecha
     name = "Daum"
-    desig = "SAN-D8 Mughal"
+    desig = "SAN-D1h HW"
     imagename = "mav_daum.png"
     portrait = "mecha_daum.png"
     family = "Daum"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
+    role_list = (Support,)
+    desc = "In NT100, RegEx corporation and the Federation Defense Force began a project to update the BuruBuru design using modern technology. This mecha was the result."
+    material = Advanced
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Gatling Laser"
+                    reach = 2
+                    damage = 2
+                    accuracy = 2
+                    penetration = 1
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept,VariableFire4)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 1000
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Right Shoulder Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 25
+                            END
+                    END
+                Mount
+                    name = "Left Shoulder Mount"
+                HoverJets
+                    size = 1
+
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC MBAZ-17 Mecha Bazooka
+
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        STC Mecha Sword
+                    END
+            END
+            INV
+                BeamShield
+                    size = 5
+                    bonus = 1
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    name = "Right Leg Mount"
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 5
+                Mount
+                    name = "Left Leg Mount"
+            END
+    END
+
+
+Mecha
+    name = "Daum"
+    desig = "SAN-D8 Mughal"
+    imagename = "mav_daum.png"
+    portrait = "mecha_daum.png"
+    family = "Daum"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (TerranFederation, RegExCorporation)
     role_list = (Commander,)
     desc = "A variant of the Daum that specializes in devastating melee attacks with unconventional weapons."
     material = Advanced

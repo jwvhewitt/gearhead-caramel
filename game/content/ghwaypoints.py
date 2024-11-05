@@ -398,7 +398,7 @@ class CyberdocTerminal( Waypoint ):
             mymenu.add_item("[EXIT]", None)
             char = mymenu.query()
             if char:
-                ui = cyberdoc.UI(char, camp, self.shop, camp.party, camp.year)
+                ui = cyberdoc.SurgeryUI(camp, self.shop, char)
                 ui.activate_and_run()
 
 

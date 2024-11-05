@@ -1,3 +1,5 @@
+* Sales menu will be properly reactivated after selling something
+
 v0.972 November 3, 2024
 * Fixed a bug in the Label widget
 
