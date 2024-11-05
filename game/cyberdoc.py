@@ -153,6 +153,14 @@ class _MedicalCommentaryPanel(gears.info.InfoPanel):
 
 ###############################################################################
 
+class CyberMenu(pbge.rpgmenu.AlertMenu):
+    WIDTH = 350
+    HEIGHT = 250
+    MENU_HEIGHT = 150
+
+    FULL_RECT = pbge.frects.Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT)
+    TEXT_RECT = pbge.frects.Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT - MENU_HEIGHT - 10)
+
 
 class SurgeryUI(pbge.widgets.Widget):
     def __init__(self, camp: gears.GearHeadCampaign, shop, pc: gears.base.Being, **kwargs):
@@ -216,6 +224,8 @@ class SurgeryUI(pbge.widgets.Widget):
         )
         self.children.append(self._credits_panel_widget)
 
+        self._style = dict(font=pbge.MEDIUM_DISPLAY_FONT)
+
         # Preparations
         self._build_all()
 
@@ -226,7 +236,6 @@ class SurgeryUI(pbge.widgets.Widget):
             self._set_infopanel(menuitem.data)
 
     def _set_infopanel(self, gear):
-        print(gear)
         if isinstance(gear, base.Character):
             self._active_info_panel = _CyberCharPanel(model = gear, width = COLUMN_WIDTH, camp = self.camp)
         else:
@@ -254,14 +263,14 @@ class SurgeryUI(pbge.widgets.Widget):
         for gear in self.pc.sub_sub_coms():
             if isinstance(gear, gears.base.BaseCyberware):
                 self._installed_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                    0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._remove
+                    0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._remove, **self._style
                 ))
 
     def _refresh_available_list(self):
         self._available_listwidget.clear()
         for gear in self.shop.wares:
             self._available_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._install
+                0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._install, **self._style
             ))
 
     def _install(self, widj, ev):

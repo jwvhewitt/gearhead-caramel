@@ -396,7 +396,7 @@ class ScrollColumnWidget(Widget):
 
     def _decorate_click(self, other_on_click):
         def nuclick(wid, ev):
-            if wid.active and wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
+            if wid.active and wid in self._interior_widgets and self._active_widget != self._interior_widgets.index(wid):
                 self.active_widget = self._interior_widgets.index(wid)
             other_on_click(wid, ev)
 
@@ -405,10 +405,10 @@ class ScrollColumnWidget(Widget):
     def _decorate_on_enter(self, other_on_enter):
         def nuenter(wid):
             if wid.active:
-                if wid in self._interior_widgets and self.active_widget != self._interior_widgets.index(wid):
+                if wid in self._interior_widgets:
                     self.active_widget = self._interior_widgets.index(wid)
+                    # self._prev_active_widget = self.active_widget
                 if other_on_enter:
-                    print(wid)
                     other_on_enter(wid)
 
         return nuenter

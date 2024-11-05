@@ -347,13 +347,17 @@ class AlertMenu( Menu ):
     HEIGHT = 250
     MENU_HEIGHT = 75
 
-    FULL_RECT = Frect(-175,-125,350,250)
-    TEXT_RECT = Frect(-175,-125,350,165)
+    FULL_RECT = Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT)
+    TEXT_RECT = Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT - MENU_HEIGHT - 10)
 
-    def __init__(self, desc, predraw=None):
-        super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,border=None,predraw=self.pre)
+    def __init__(self, desc, predraw=None, alert_font=None, **kwargs):
+        super().__init__(
+            -self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,
+            border=None, predraw=self.pre, **kwargs
+        )
         self.predraw_zero = predraw
         self.desc = desc
+        self.alert_font = alert_font or my_state.medium_font
 
     def pre( self ):
         if self.predraw_zero:
@@ -361,6 +365,6 @@ class AlertMenu( Menu ):
         elif my_state.view:
             my_state.view()
         default_border.render(self.FULL_RECT.get_rect())
-        draw_text(my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify=0)
+        draw_text(self.alert_font, self.desc, self.TEXT_RECT.get_rect(), justify=0)
 
 
