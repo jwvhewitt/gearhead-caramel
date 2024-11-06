@@ -1,3 +1,10 @@
+v0.973 November 6, 2024
+* Used cyberware is resold at a lower price
+* Refactored cyberdoc unit to use current widget system
+* Fixed crashing bug in cyberdoc unit
+* AlertMenu will appear in front of widgets, like all other menus
+* Fixed hover selection bug in WidgetMenu, ScrollColumnWidget
+* Fixed crashing bug on Windows
 * Sales menu will be properly reactivated after selling something
 
 v0.972 November 3, 2024

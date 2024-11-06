@@ -410,7 +410,7 @@ class ShopUI(pbge.widgets.Widget):
 
         for wid in self._buy_list_widget.items():
             if wid.data.ware:
-                if self.shop.can_sell_ammo(wid.data.ware):
+                if self.shop.can_stock_ammo(wid.data.ware):
                     self._buy_list_widget.add_interior(
                         pbge.widgetmenu.MenuItemWidget(
                             0, 0, INVENTORY_LIST_FRECT.w, 0,

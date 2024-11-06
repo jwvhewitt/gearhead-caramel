@@ -1,10 +1,11 @@
 import pygame
 import glob
+
 from .frects import Frect,ANCHOR_CENTER,ANCHOR_UPPERLEFT
 import random
 import collections
 
-from . import default_border,render_text, draw_text, wait_event,TIMEREVENT,my_state,INFO_GREEN
+from . import default_border,render_text, draw_text, wait_event,TIMEREVENT,my_state,INFO_GREEN, WHITE
 
 class MenuItem( object ):
     def __init__(self,msg,value,desc,menu):
@@ -350,21 +351,50 @@ class AlertMenu( Menu ):
     FULL_RECT = Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT)
     TEXT_RECT = Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT - MENU_HEIGHT - 10)
 
-    def __init__(self, desc, predraw=None, alert_font=None, **kwargs):
+    class _AlertMenuBorder:
+        def __init__(self, amenu):
+            self.amenu = amenu
+
+        def render(self, _dest):
+            default_border.render(self.amenu.FULL_RECT.get_rect())
+            draw_text(self.amenu.alert_font, self.amenu.desc, self.amenu.TEXT_RECT.get_rect(), justify=0)
+
+    def __init__(self, desc, border=None, alert_font=None, **kwargs):
         super().__init__(
             -self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,
-            border=None, predraw=self.pre, **kwargs
+            border=self._AlertMenuBorder(self), **kwargs
         )
-        self.predraw_zero = predraw
         self.desc = desc
         self.alert_font = alert_font or my_state.medium_font
 
-    def pre( self ):
-        if self.predraw_zero:
-            self.predraw_zero()
-        elif my_state.view:
-            my_state.view()
-        default_border.render(self.FULL_RECT.get_rect())
-        draw_text(self.alert_font, self.desc, self.TEXT_RECT.get_rect(), justify=0)
 
+class TitleMenu(Menu):
+    WIDTH = 350
+    HEIGHT = 250
+    TITLE_HEIGHT = 30
+    PADDING = 24
 
+    MENU_RECT = Frect(-WIDTH // 2, -HEIGHT // 2 + TITLE_HEIGHT + PADDING, WIDTH, HEIGHT - TITLE_HEIGHT - PADDING)
+    TITLE_RECT = Frect(-WIDTH // 2, -HEIGHT // 2, WIDTH, TITLE_HEIGHT)
+
+    class _TitleMenuBorder:
+        def __init__(self, my_menu):
+            self.my_menu = my_menu
+
+        def render(self, _dest):
+            default_border.render(self.my_menu.MENU_RECT.get_rect())
+            default_border.render(self.my_menu.TITLE_RECT.get_rect())
+            draw_text(
+                self.my_menu.title_font, self.my_menu.title, self.my_menu.TITLE_RECT.get_rect(), justify=0, vjustify=0,
+                color=WHITE
+            )
+
+    def __init__(self, title, title_font=None, **kwargs):
+        if "border" in kwargs:
+            kwargs.pop("border")
+        super().__init__(
+            self.MENU_RECT.dx, self.MENU_RECT.dy, self.MENU_RECT.w, self.MENU_RECT.h,
+            border=self._TitleMenuBorder(self), **kwargs
+        )
+        self.title = title
+        self.title_font = title_font or my_state.big_font

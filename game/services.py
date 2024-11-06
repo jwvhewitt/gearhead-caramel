@@ -5,7 +5,7 @@ from gears import champions
 import random
 import pbge
 import copy
-from . import shopui, fieldhq
+from . import shopui, fieldhq, cyberdoc
 
 MECHA_STORE = (tags.ST_MECHA,)
 MEXTRA_STORE = (tags.ST_MECHA,tags.ST_MECHA_WEAPON)
@@ -157,6 +157,9 @@ class Shop(object):
 
     def calc_purchase_price(self, camp, item):
         """The sale price of an item depends on friendliness. Min price = 70%"""
+        # If this item is in your inventory already, return 0. Needed for cyberdoc unit.
+        if item.parent:
+            return 0
         it = item.cost
         if self.npc:
             f = self.npc.get_reaction_score(camp.pc, camp)
@@ -181,10 +184,16 @@ class Shop(object):
         percent = 46
         if self.npc:
             f = self.npc.get_reaction_score(camp.pc, camp)
-            percent += f//7
+            if f > 0:
+                percent += f//7
+            elif f < 0:
+                percent -= abs(f)//4
+        # Used cyberware can only be recycled, so it sells for less.
+        if isinstance(it, gears.base.BaseCyberware) and it.dna_sequence:
+            percent = max(percent//5, 5)
         return max((it.cost * percent)//100 , 1)
 
-    def can_sell_ammo(self, gun):
+    def can_stock_ammo(self, gun):
         return gun.scale is gears.scale.HumanScale and isinstance(gun, gears.base.BallisticWeapon)
 
     def get_ammo_list(self, gun: gears.base.BallisticWeapon):
@@ -228,12 +237,22 @@ class Shop(object):
         if "buy_stolen_items" not in state:
             self.buy_stolen_items = False
 
+    def enter_surgery(self, camp):
+        self.update_shop(camp)
 
-class CyberwareShop(Shop):
-    def enter_shop(self, camp):
-        self.customer = camp.pc
-        ui = shopui.ShopUI(camp, self)
-        ui.activate_and_run()
+        char = True
+        while char:
+            mymenu = pbge.rpgmenu.TitleMenu("Choose patient",font=pbge.BIGFONT)
+            for char in camp.party:
+                if isinstance(char, gears.base.Character):
+                    mymenu.add_item(char.name, char)
+            mymenu.sort()
+            mymenu.add_item("[EXIT]", None)
+            char = mymenu.query()
+            if char:
+                self.customer = char
+                ui = cyberdoc.SurgeryUI(camp, self, char)
+                ui.activate_and_run()
 
 
 

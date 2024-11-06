@@ -3102,13 +3102,6 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
 
     @property
     def base_cost(self):
-        # Used cyberware has 0 value because it has the first
-        # user's cells in it and it can no longer be safely
-        # implanted in anyone else without risking rejection
-        # and other symptoms commonly called "cyberdisfunction".
-        # Also, eww.
-        if self.dna_sequence:
-            return 0
         benefit = 0
         for s in self.statline.keys():
             value = self.statline.get(s, 0)
@@ -3177,6 +3170,9 @@ class BaseCyberware(BaseGear, StandardDamageHandler):
         if slot.can_install(self):
             slot.sub_com.append(self)
 
+    def record_dna(self, pc):
+        self.dna_sequence = pc.dna_sequence
+        self.desig = "{}'s".format(str(pc))
 
 
 class EyesCyberware(BaseCyberware):
@@ -3213,23 +3209,20 @@ class SpineCyberware(BaseCyberware):
 
 
 class TorsoMusclesCyberware(BaseCyberware):
-    location = 'Torso Muscles'
+    location = 'Torso'
+
+
+class SkeletalCyberware(BaseCyberware):
+    location = 'Skeleton'
 
 
 class ArmMusclesCyberware(BaseCyberware):
-    location = 'Arm Muscles'
-
-
-class ArmBonesCyberware(BaseCyberware):
-    location = 'Arm Bones'
+    location = 'Arm'
 
 
 class LegMusclesCyberware(BaseCyberware):
-    location = 'Leg Muscles'
+    location = 'Leg'
 
-
-class LegBonesCyberware(BaseCyberware):
-    location = 'Leg Bones'
 
 
 #   *******************
@@ -3288,14 +3281,14 @@ class MF_Torso(ModuleForm):
     name = "Torso"
     MULTIPLICITY_LIMITS = {
         Engine: 1, Mount: 2, Cockpit: 1, Gyroscope: 1, Armor: 1,
-        HeartCyberware: 1, SpineCyberware: 1, TorsoMusclesCyberware: 1
+        HeartCyberware: 1, SpineCyberware: 1, TorsoMusclesCyberware: 1, SkeletalCyberware: 1,
     }
 
     @classmethod
     def is_legal_sub_com(self, part):
         return isinstance(part, (
             Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, Engine, Gyroscope,
-            EWSystem, HeartCyberware, SpineCyberware, TorsoMusclesCyberware))
+            EWSystem, HeartCyberware, SpineCyberware, TorsoMusclesCyberware, SkeletalCyberware))
 
     VOLUME_X = 4
     MASS_X = 2
@@ -3309,7 +3302,7 @@ class MF_Arm(ModuleForm):
     PENETRATION = 1
 
     MULTIPLICITY_LIMITS = {
-        ArmMusclesCyberware: 1, ArmBonesCyberware: 1,
+        ArmMusclesCyberware: 1,
         **ModuleForm.MULTIPLICITY_LIMITS
     }
 
@@ -3317,7 +3310,7 @@ class MF_Arm(ModuleForm):
     def is_legal_sub_com(self, part):
         return isinstance(part,
                           (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem,
-                           ArmMusclesCyberware, ArmBonesCyberware))
+                           ArmMusclesCyberware, ))
 
     @classmethod
     def is_legal_inv_com(self, part):
@@ -3331,7 +3324,7 @@ class MF_Leg(ModuleForm):
     ACCURACY = 1
 
     MULTIPLICITY_LIMITS = {
-        LegBonesCyberware: 1, LegMusclesCyberware: 1,
+        LegMusclesCyberware: 1,
         **ModuleForm.MULTIPLICITY_LIMITS
     }
 
@@ -3341,7 +3334,7 @@ class MF_Leg(ModuleForm):
     def is_legal_sub_com(self, part):
         return isinstance(part, (
             Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware,
-            LegBonesCyberware))
+            ))
 
 
 class MF_Wing(ModuleForm):

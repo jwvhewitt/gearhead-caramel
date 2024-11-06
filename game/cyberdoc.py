@@ -5,6 +5,7 @@ from gears import base
 #from gears.cyberinstaller import CyberwareSource, ListedSalesCyberwareSource, AllCyberwareSource, CyberwareInstaller
 import pygame
 from . import shopui
+import copy
 
 #ItemListWidget = widgets.ItemListWidget
 
@@ -253,6 +254,7 @@ class SurgeryUI(pbge.widgets.Widget):
 
     def _refresh_all(self):
         self._refresh_installed_list()
+        self._refresh_available_list()
         self._med_panel.update()
         self._credits_panel.update()
         if self._active_info_panel:
@@ -263,27 +265,38 @@ class SurgeryUI(pbge.widgets.Widget):
         for gear in self.pc.sub_sub_coms():
             if isinstance(gear, gears.base.BaseCyberware):
                 self._installed_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                    0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._remove, **self._style
+                    0, 0, COLUMN_WIDTH, 0, text="{} [{}]".format(gear, gear.parent), data=gear, on_click=self._remove, **self._style
                 ))
+
+        self._installed_listwidget.sort(key=lambda a: str(a))
 
     def _refresh_available_list(self):
         self._available_listwidget.clear()
         for gear in self.shop.wares:
-            self._available_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._install, **self._style
-            ))
+            if isinstance(gear, gears.base.BaseCyberware):
+                self._available_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
+                    0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._install, **self._style
+                ))
+
+        for gear in self.pc.inv_com:
+            if isinstance(gear, gears.base.BaseCyberware) and (gear.dna_sequence == self.pc.dna_sequence or not gear.dna_sequence):
+                self._available_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
+                    0, 0, COLUMN_WIDTH, 0, text="{} [inv]".format(gear.get_full_name()), data=gear, on_click=self._install, **self._style
+                ))
+
+        self._available_listwidget.sort(key=lambda a: str(a))
 
     def _install(self, widj, ev):
         cyber = widj.data
         mymenu = CyberMenu("Select Installation Location", alert_font=pbge.BIGFONT, font=pbge.MEDIUM_DISPLAY_FONT)
-        if self.camp.credits <= self.shop.calc_purchase_price(self.camp, cyber):
+        if self.camp.credits >= self.shop.calc_purchase_price(self.camp, cyber):
             for limb in self.pc.sub_com:
                 if limb.can_install(cyber, False):
                     other_cyber = cyber.get_current_cyber(limb)
                     if limb.can_install(cyber):
-                        mymenu.add_item("Install {} in {}".format(cyber, limb), True)
+                        mymenu.add_item("Install {} in {}".format(cyber, limb), limb)
                     elif other_cyber and cyber.can_replace(limb, other_cyber):
-                        mymenu.add_item("Replace {} with {} in {}".format(other_cyber, cyber, limb), True)
+                        mymenu.add_item("Replace {} with {} in {}".format(other_cyber, cyber, limb), limb)
             if mymenu.items:
                 mymenu.add_item("Cancel installation", False)
             else:
@@ -292,12 +305,37 @@ class SurgeryUI(pbge.widgets.Widget):
             mymenu.desc = "You cannot afford {}".format(cyber)
             mymenu.add_item("[Continue]", False)
 
-        if mymenu.query():
+        limb = mymenu.query()
+        if limb:
+            other_cyber = cyber.get_current_cyber(limb)
+            if other_cyber:
+                other_cyber.container.remove(other_cyber)
+                other_cyber.record_dna(self.pc)
+                self.pc.inv_com.append(other_cyber)
 
+            self.camp.credits -= self.shop.calc_purchase_price(self.camp, cyber)
+
+            if cyber in self.pc.inv_com:
+                self.pc.inv_com.remove(cyber)
+            else:
+                cyber = copy.deepcopy(cyber)
+            cyber.record_dna(self.pc)
+            limb.sub_com.append(cyber)
             self._refresh_all()
 
     def _remove(self, widj, ev):
-        pass
+        cyber = widj.data
+        mymenu = CyberMenu(
+            "Remove {} from {}?".format(cyber, cyber.parent), alert_font=pbge.BIGFONT, font=pbge.MEDIUM_DISPLAY_FONT
+        )
+        mymenu.add_item("Accept", True)
+        mymenu.add_item("Cancel", False)
+
+        if mymenu.query():
+            cyber.container.remove(cyber)
+            cyber.record_dna(self.pc)
+            self.pc.inv_com.append(cyber)
+            self._refresh_all()
 
     def _on_exit(self, *args, **kwargs):
         self.running = False
@@ -307,6 +345,13 @@ class SurgeryUI(pbge.widgets.Widget):
         if self._active_info_panel:
             myrect = INFO_PANEL_FRECT.get_rect()
             self._active_info_panel.render(myrect.x, myrect.y)
+
+    def _builtin_responder(self, ev):
+        super()._builtin_responder(ev)
+        a_rect = self._installed_listwidget.get_rect()
+        b_rect = self._available_listwidget.get_rect()
+        if not (a_rect.collidepoint(pbge.my_state.mouse_pos) or b_rect.collidepoint(pbge.my_state.mouse_pos)):
+            self._set_infopanel(self.pc)
 
     ### Primary entry point.
     def activate_and_run(self):
