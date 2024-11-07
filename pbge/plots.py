@@ -311,7 +311,7 @@ class Plot(object):
         # keep that scene alive even after deletion, but the scene's contents and scripts will be gone.
         # Best bet is to link temporary scenes to the permanent parts of the campaign using something that will
         # disappear when this plot ends, such as a conversation option or a waypoint menu item.
-        if not dident:
+        if not (dident and self.elements.get(dident)):
             if self.adv and self.adv.world:
                 self.adv.world.contents.append(myscene)
                 self.move_records.append((myscene, self.adv.world.contents))

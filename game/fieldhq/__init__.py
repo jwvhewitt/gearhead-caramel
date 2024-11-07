@@ -629,7 +629,21 @@ class FieldHQ(widgets.Widget):
             else:
                 self.member_widgets[pc] = ItemInfoWidget(self.camp, pc, self, active=False)
                 self.children.append(self.member_widgets[pc])
+        self.member_selector.sort(key=self._get_sort_order)
         self.active_info = return_to
+        
+    def _get_sort_order(self,  wid):
+        pc = wid.pc
+        if pc is self.camp.pc:
+            return (0,  str(pc))
+        elif isinstance(pc,  gears.base.Character):
+            return (100,  str(pc))
+        elif isinstance(pc,  gears.base.Being):
+            return (200,  str(pc))
+        elif isinstance(pc,  gears.base.Mecha) and pc.pilot:
+            return (300,  str(pc.pilot))
+        else:
+            return (500,  str(pc))
 
     def click_member(self, wid, ev):
         # self.active_pc = wid.pc

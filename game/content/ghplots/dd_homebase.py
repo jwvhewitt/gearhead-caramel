@@ -603,7 +603,7 @@ class TestCharMover(Plot):
 
     def register_adventure(self, camp):
         self.mission_seed = missionbuilder.BuildAMissionSeed(
-            camp, "{}'s Mission".format(self.elements["NPC"]),
+            camp, "{NPC}'s mission against {ENEMY_FACTION}".format(**self.elements),
             self.elements["METROSCENE"], self.elements["MISSION_GATE"],
             self.elements.get("ENEMY_FACTION"), rank=self.rank, architecture=gharchitecture.MechaScaleGreenzone(),
             objectives=(missionbuilder.BAMO_DEFEAT_COMMANDER,),
@@ -986,7 +986,7 @@ class DZD_BlueFortressHQ(Plot):
         return random.choice(self.ENEMY_FACTIONS)
 
     def register_adventure(self, camp):
-        self.adventure_seed = CombatMissionSeed(camp, "{}'s Mission".format(self.elements["DISPATCHER"]),
+        self.adventure_seed = CombatMissionSeed(camp, "{}'s mission against {}".format(self.elements["DISPATCHER"],  self.next_enemy_faction),
                                                 self.elements["LOCALE"], self.elements["MISSION_GATE"],
                                                 enemy_faction=self.next_enemy_faction,
                                                 allied_faction=factions.TerranDefenseForce,

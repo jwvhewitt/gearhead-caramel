@@ -9,7 +9,7 @@ import game.content.ghwaypoints
 from game import content, services, teams, ghdialogue
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
+from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, ghterrain, \
     ghchallenges, ghrooms
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag

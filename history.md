@@ -1,6 +1,9 @@
-*
+* FieldHQ contents are sorted now
+* Scenes without a defined parent scene should get added as root scenes
+* Most missions names now include faction being fought
 
 v0.973 November 6, 2024
+
 * Used cyberware is resold at a lower price
 * Refactored cyberdoc unit to use current widget system
 * Fixed crashing bug in cyberdoc unit
@@ -10,9 +13,11 @@ v0.973 November 6, 2024
 * Sales menu will be properly reactivated after selling something
 
 v0.972 November 3, 2024
+
 * Fixed a bug in the Label widget
 
 v0.971 November 3, 2024
+
 * You can now access your inventory from the shop interface
 * You can now switch characters in shop interface
 * Added named boss monsters

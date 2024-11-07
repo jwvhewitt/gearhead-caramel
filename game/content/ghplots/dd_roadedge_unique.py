@@ -39,6 +39,14 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         my_edge = self.elements["DZ_EDGE"]
         self.elements["GATE_A"] = my_edge.start_node.entrance
         self.elements["GATE_B"] = my_edge.end_node.entrance
+        
+        # Add the entry scene.
+        self.elements[dungeonmaker.DG_NAME] = "The Road to Nowhere"
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = gharchitecture.MechaScaleSemiDeadzone()
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = (gears.tags.SCENE_OUTDOORS,  gears.personality.DeadZone)
+        self.elements[dungeonmaker.DG_EXPLO_MUSIC] = "HoliznaCC0 - Lost In Space.ogg"
+        self.elements[dungeonmaker.DG_COMBAT_MUSIC] = "Komiku_-_03_-_Battle_Theme.ogg" 
+        
         self._got_rumor = False
         return True
 
@@ -66,15 +74,16 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         goffs = list()
         myscene = camp.scene.get_root_scene()
         myedge = self.elements["DZ_EDGE"]
-        if self.elements["DZ_EDGE"].connects_to_city(myscene) and not self.road_cleared and not self._got_rumor:
+        if myedge.connects_to_city(myscene) and not self.road_cleared and not self._got_rumor:
             goffs.append(Offer(
-                "",
+                "A lot of people have disappeared without a trace while traveling the highway. Whole convoys gone, with no wreckage left behind. Some people say the road is haunted by the ghosts of a long-dead hive city.",
                 ContextTag([context.INFO,]), effect=self._get_rumor, subject="The Road of No Return"
             ))
         return goffs
 
     def _get_rumor(self, camp):
         self._got_rumor = True
+        self.memo = "The highway between {} and {} is called the Road of No Return because a lot of convoys have gone missing there.".format(self.elements["DZ_EDGE"].start_node.destination, self.elements["DZ_EDGE"].end_node.destination)
 
 
 #   *********************************

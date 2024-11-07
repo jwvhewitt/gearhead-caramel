@@ -21,7 +21,7 @@ class GenericMechaDungeonLevel(Plot):
                                        exploration_music=self.elements[DG_EXPLO_MUSIC],
                                        scale=gears.scale.MechaScale)
         intscenegen = pbge.randmaps.SceneGenerator(intscene, self.elements[DG_ARCHITECTURE],
-                                                   decorate=self.elements[DG_DECOR])
+                                                   decorate=self.elements.get(DG_DECOR))
         self.register_scene(nart, intscene, intscenegen, ident="LOCALE", dident=DG_PARENT_SCENE,
                             temporary=self.elements.get(DG_TEMPORARY,False))
 
