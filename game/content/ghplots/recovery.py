@@ -76,7 +76,12 @@ class PC_HospitalRecovery( Plot ):
 
     def HOSPITAL_ENTER(self, camp):
         pbge.alert("You wake up in the hospital.")
-
+        
+        if random.randint(1,200) < camp.pc.renown and gears.stats.Cybertech not in camp.pc.statline:
+            camp.pc.statline[gears.stats.Cybertech] = 1
+            gears.selector._try_cyberize(camp.pc,  camp.pc.renown + 10)
+            pbge.alert("You required cybernetic surgery to save your life.")
+            
         for p in self.plots_to_run:
             p.start_recovery(camp)
 

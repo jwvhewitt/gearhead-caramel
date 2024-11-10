@@ -1,3 +1,5 @@
+* Fixed unloadable save file is PC killed during combat bug
+* Incapacitated PCs may need lifesaving cybersurgery
 * FieldHQ contents are sorted now
 * Scenes without a defined parent scene should get added as root scenes
 * Most missions names now include faction being fought

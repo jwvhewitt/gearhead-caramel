@@ -3,14 +3,14 @@ import random
 import game.content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints
+from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints,  ghrooms
 from game import teams
 from game.content.ghplots import missionbuilder
 from game.content.ghcutscene import SimpleMonologueDisplay
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, PlotState
-from . import dd_customobjectives
+from . import dd_customobjectives,  mechadungeons
 from .dd_homebase import BiotechDiscovery
 from .dd_roadedge import DZDREBasicPlotWithEncounterStuff, DeadZoneHighwaySceneGen
 from pbge.memos import Memo
@@ -46,8 +46,13 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         self.elements[dungeonmaker.DG_SCENE_TAGS] = (gears.tags.SCENE_OUTDOORS,  gears.personality.DeadZone)
         self.elements[dungeonmaker.DG_EXPLO_MUSIC] = "HoliznaCC0 - Lost In Space.ogg"
         self.elements[dungeonmaker.DG_COMBAT_MUSIC] = "Komiku_-_03_-_Battle_Theme.ogg" 
+        self.elements[mechadungeons.MDG_DUNGEON] = mechadungeons.MechaDungeon("The Road of No Return")
+        
+        my_dungeon = self.add_sub_plot(nart, "DZD_RONRDUNGEON")
+        self.elements["DUNGEON_ENTRANCE"] = my_dungeon.elements["ENTRANCE"]
         
         self._got_rumor = False
+        self._got_rumor = True
         return True
 
     def GATE_A_menu(self, camp, thingmenu):
@@ -57,8 +62,8 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
     def GATE_B_menu(self, camp, thingmenu):
         self.GATE_A_menu(camp, thingmenu)
 
-    def go_to_locale(self, camp):
-        pass
+    def go_to_locale(self, camp: gears.GearHeadCampaign):
+        camp.go(self.elements["DUNGEON_ENTRANCE"])
 
     def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -74,10 +79,12 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         goffs = list()
         myscene = camp.scene.get_root_scene()
         myedge = self.elements["DZ_EDGE"]
+
         if myedge.connects_to_city(myscene) and not self.road_cleared and not self._got_rumor:
             goffs.append(Offer(
                 "A lot of people have disappeared without a trace while traveling the highway. Whole convoys gone, with no wreckage left behind. Some people say the road is haunted by the ghosts of a long-dead hive city.",
-                ContextTag([context.INFO,]), effect=self._get_rumor, subject="The Road of No Return"
+                ContextTag([context.INFO,]), effect=self._get_rumor, subject="The Road of No Return", 
+                data={"subject": "the Road of No Return"},  no_repeats=True
             ))
         return goffs
 
@@ -85,6 +92,60 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         self._got_rumor = True
         self.memo = "The highway between {} and {} is called the Road of No Return because a lot of convoys have gone missing there.".format(self.elements["DZ_EDGE"].start_node.destination, self.elements["DZ_EDGE"].end_node.destination)
 
+
+class RONRDungeon(Plot):
+    LABEL = "DZD_RONRDUNGEON"
+
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self,  nart):
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team", allies=(team1,))
+
+        myscene = gears.GearHeadScene(50, 50, "The Road of No Return", player_team=team1, civilian_team=team2,
+            scale=gears.scale.MechaScale, is_metro=False,
+            attributes=(gears.personality.DeadZone, gears.tags.SCENE_OUTDOORS), 
+            exploration_music=self.elements[dungeonmaker.DG_EXPLO_MUSIC], 
+            combat_music=self.elements[dungeonmaker.DG_COMBAT_MUSIC]
+        )   
+
+        myscene.contents.append(ghrooms.MSRuinsRoom(5,5))
+        myscene.contents.append(ghrooms.WreckageRoom(5,5))
+        entry_room = pbge.randmaps.rooms.Room(5, 5,  anchor=pbge.randmaps.anchors.middle)
+        myscene.contents.append(entry_room)
+
+        my_edge = self.elements["DZ_EDGE"]
+        my_entrance = pbge.scenes.waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle)
+        entry_room.contents.append(my_entrance)
+        self.elements["ENTRANCE"] = my_entrance
+        
+        entry_room.contents.append(ghwaypoints.WreckWP())
+        entry_room.contents.append(ghwaypoints.WreckWP())
+        entry_room.contents.append(ghwaypoints.WreckWP())
+
+        if my_edge.start_node.pos[1] < my_edge.end_node.pos[1]:
+            north_node = my_edge.start_node
+            south_node = my_edge.end_node
+        else:
+            north_node = my_edge.end_node
+            south_node = my_edge.start_node
+
+        north_room = pbge.randmaps.rooms.FuzzyRoom(5, 5,  anchor=pbge.randmaps.anchors.north)
+        north_gate = ghwaypoints.Exit(north_node.entrance, name="To {}".format(str(north_node.destination)), anchor=pbge.randmaps.anchors.middle)
+        north_room.contents.append(north_gate)
+        
+        south_room = pbge.randmaps.rooms.FuzzyRoom(5, 5,  anchor=pbge.randmaps.anchors.south)
+        south_gate = ghwaypoints.Exit(south_node.entrance, name="To {}".format(str(south_node.destination)), anchor=pbge.randmaps.anchors.middle)
+        south_room.contents.append(south_gate)
+        
+        myscene.contents.append(north_room)
+        myscene.contents.append(south_room)
+ 
+        myscenegen = gharchitecture.VerticalHighwaySceneGen(myscene, gharchitecture.MechaScaleSemiDeadzoneRuins())
+
+        self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
+        return True
 
 #   *********************************
 #   ***   DZD_ROADEDGE_KERBEROS   ***

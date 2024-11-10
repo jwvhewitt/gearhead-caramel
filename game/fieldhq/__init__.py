@@ -641,7 +641,10 @@ class FieldHQ(widgets.Widget):
         elif isinstance(pc,  gears.base.Being):
             return (200,  str(pc))
         elif isinstance(pc,  gears.base.Mecha) and pc.pilot:
-            return (300,  str(pc.pilot))
+            if pc.pilot is self.camp.pc:
+                return (300,  str(pc.pilot))
+            else:
+                return (400,  str(pc.pilot))
         else:
             return (500,  str(pc))
 

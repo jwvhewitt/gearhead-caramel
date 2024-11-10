@@ -62,6 +62,13 @@ class IndicatedRoom(OpenRoom):
         gb.set_decor(self.area.x+self.area.width-1, self.area.y+self.area.height-1, ghterrain.BorderMarkerSE)
 
 
+class HighwayRoom(OpenRoom):
+    DEFAULT_FLOOR = ghterrain.Pavement
+    def build(self, gb, archi):
+        super().build(gb, archi)
+        gb.fill(self.area, floor=self.DEFAULT_FLOOR)
+
+
 class LakeRoom(FuzzyRoom):
     def build(self, gb, archi):
         super().build(gb, archi)

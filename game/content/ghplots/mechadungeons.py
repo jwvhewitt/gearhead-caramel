@@ -7,6 +7,17 @@ import random
 from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_TEMPORARY, DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 
 
+MDG_DUNGEON = "MDG_DUNGEON"
+
+
+class MechaDungeon:
+    HOSTILE = 0
+    DEFEATED = -1
+    def __init__(self, name,  status=HOSTILE):
+        self.name = name
+        self.status = status
+    
+
 class GenericMechaDungeonLevel(Plot):
     LABEL = "MECHA_DUNGEON_GENERIC"
 
@@ -28,7 +39,7 @@ class GenericMechaDungeonLevel(Plot):
         self.last_update = 0
 
         for t in range(random.randint(3,5)):
-            self.add_sub_plot(nart, "MECHA_OUTPOST",)
+            self.add_sub_plot(nart, "MDUNGEON_ENCOUNTER",)
 
         #self.add_sub_plot(nart, "DUNGEON_EXTRA", necessary=False)
 
@@ -44,3 +55,55 @@ class GenericMechaDungeonLevel(Plot):
         if camp.time > self.last_update:
             dungeonmaker.dungeon_cleaner(camp.scene)
             self.last_update = camp.time
+
+
+
+#  **************************************
+#  ***   MDUNGEON_ENCOUNTER   ***
+#  **************************************
+#
+#   Like a mecha encounter, but it respawns like a dungeon encounter.
+#
+#  Elements:
+#   LOCALE: The scene where the encounter will take place
+#   ROOM: The room where the encounter will take place; if None, an open room will be added.
+#   ENEMY_FACTION: The enemy you'll be fighting
+#
+
+class BasicMechaOutpost(Plot):
+    # Fight some random mecha. What do they want? To pad the adventure.
+    LABEL = "MDUNGEON_ENCOUNTER"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart: pbge.plots.NarrativeRequest):
+        myscene = self.elements["LOCALE"]
+        fac = self.elements.get("ENEMY_FACTION")
+        if not self.elements.get("ROOM"):
+            mapgen: pbge.randmaps.SceneGenerator = nart.get_map_generator(myscene)
+            if mapgen:
+                room_class = mapgen.archi.get_a_room()
+            else:
+                return False
+            self.register_element("ROOM", room_class(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,), faction=fac), dident="ROOM")
+        team2.contents += gears.selector.RandomMechaUnit(self.rank, 50, fac, myscene.environment).mecha_list
+        self.last_update = 0
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        self.last_update = camp.time
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: teams.Team = self.elements["_eteam"]
+        myscene = self.elements["LOCALE"]
+        fac = self.elements.get("ENEMY_FACTION")
+        if camp.time > self.last_update:
+            dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])
+            MDG = self.elements.get(MDG_DUNGEON)
+            if len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 3) != 2 and not (MDG and MDG.status == MDG.hostile):
+                camp.scene.deploy_team(gears.selector.RandomMechaUnit(
+                    self.rank, random.randint(30,80), fac, myscene.environment
+                ).mecha_list, myteam
+                )
+                self.last_update = camp.time

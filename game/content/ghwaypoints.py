@@ -608,4 +608,10 @@ class KenneyWoodenTableWP(Waypoint):
 class KenneyCratesWP(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.KenneyCrates)
 
+    
+class WreckWP(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.Wrecks)
+    name = "Wreck"
+    desc = "You stand before the remains of a mecha."
+
 

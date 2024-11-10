@@ -1561,6 +1561,12 @@ class TableAndChairsTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
 
 
+class Wrecks(pbge.scenes.terrain.VariableTerrain):
+    frames = (0, 1, 2, 3)
+    image_top = 'terrain_decor_wrecks.png'
+    blocks = (Walking, Skimming, Rolling)
+
+
 class HerbsTerrain(pbge.scenes.terrain.Terrain):
     frame = 3
     image_top = 'terrain_gervais_decor.png'

@@ -676,7 +676,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
 
     def keep_playing_campaign(self):
-        return self.pc.is_operational() and self.egg
+        return (self.pc.is_operational() or self.fight) and self.egg
 
     def play(self):
         super().play()

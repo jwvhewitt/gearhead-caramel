@@ -40,7 +40,8 @@ nosetests.xml
 .jedi
 *.epj
 caramel-recolor-cython/pbgerecolor.c
-
+*.geany
+*.py~
 
 
 

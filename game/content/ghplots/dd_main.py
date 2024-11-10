@@ -240,7 +240,7 @@ class RoadMap(object):
             prev = south_road[-1]
         self.connect_nodes(prev, self.end_node, RoadEdge())
 
-        cross_road = RoadEdge()
+        cross_road = RoadEdge(sub_plot_label="DZD_ROADEDGE_ROADOFNORETURN")
         self.connect_nodes(random.choice(north_road), random.choice(south_road), cross_road)
 
         # At this point we have all the main locations joined. Gonna sort roads according to "westerliness"
@@ -252,13 +252,16 @@ class RoadMap(object):
         for edg in sorted_edges:
             if sorted_edges.index(edg) < max(len(sorted_edges) // 3, 2):
                 edg.style = RoadEdge.STYLE_RED
-                edg.sub_plot_label = "DZD_ROADEDGE_RED"
+                if not edg.sub_plot_label:
+                    edg.sub_plot_label = "DZD_ROADEDGE_RED"
             elif sorted_edges.index(edg) < len(sorted_edges) * 2 // 3:
                 edg.style = RoadEdge.STYLE_ORANGE
-                edg.sub_plot_label = "DZD_ROADEDGE_ORANGE"
+                if not edg.sub_plot_label:
+                    edg.sub_plot_label = "DZD_ROADEDGE_ORANGE"
             else:
                 edg.style = RoadEdge.STYLE_YELLOW
-                edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"
+                if not edg.sub_plot_label:
+                    edg.sub_plot_label = "DZD_ROADEDGE_YELLOW"
 
         # The Kerberos plot always happens on one of the two roads leading into the goal town.
         k_edge = random.choice((north_edges[0], south_edges[0]))
