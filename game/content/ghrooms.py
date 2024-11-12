@@ -211,6 +211,23 @@ class LongVehicleRoom(pbge.randmaps.rooms.Room):
         gb.fill(self.body_area, floor=archi.floor_terrain, wall=None)
 
 
+class MechaScaleFortressRoom(pbge.randmaps.rooms.Room):
+    FLOOR_TERRAIN = ghterrain.MSConcreteSlabFloor
+    WALL_TERRAIN = ghterrain.MechaFortressWall
+    def build(self, gb, archi):
+        gb.fill(self.area.inflate(2, 2), floor=self.FLOOR_TERRAIN, wall=None)
+        for x in range(self.area.w // 2 - 1):
+            gb.set_wall(x + self.area.left, self.area.top, self.WALL_TERRAIN)
+            gb.set_wall(self.area.right - x - 1, self.area.top, self.WALL_TERRAIN)
+            gb.set_wall(x + self.area.left, self.area.bottom - 1, self.WALL_TERRAIN)
+            gb.set_wall(self.area.right - x - 1, self.area.bottom - 1, self.WALL_TERRAIN)
+        for y in range(self.area.h // 2 - 1):
+            gb.set_wall(self.area.left, y + self.area.top, self.WALL_TERRAIN)
+            gb.set_wall(self.area.left, self.area.bottom - y - 1, self.WALL_TERRAIN)
+            gb.set_wall(self.area.right - 1, y + self.area.top, self.WALL_TERRAIN)
+            gb.set_wall(self.area.right - 1, self.area.bottom - y - 1, self.WALL_TERRAIN)
+
+
 class MobileHQRoom(LongVehicleRoom):
     MIN_RANDOM_SIZE = 12
     # Suggested dimensions: 16x8 or longer. Keep the height even if possible.

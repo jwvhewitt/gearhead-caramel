@@ -24,6 +24,7 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
     RANDOM_ENCOUNTER_CHANCE = 20
     ENCOUNTER_NAME = "Bandit Ambush!"
     ENCOUNTER_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
+    DEFAULT_OBJECTIVES = (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,)
     ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
 
     def custom_init(self, nart):
@@ -42,7 +43,7 @@ class DZDREBasicPlotWithEncounterStuff(Plot):
         myadv = missionbuilder.BuildAMissionSeed(
             camp, self.ENCOUNTER_NAME, start_node.destination, start_node.entrance,
             enemy_faction = self.elements.get("FACTION"), rank=self.rank,
-            objectives = self.ENCOUNTER_OBJECTIVES + (dd_customobjectives.DDBAMO_MAYBE_AVOID_FIGHT,),
+            objectives = self.ENCOUNTER_OBJECTIVES + self.DEFAULT_OBJECTIVES,
             adv_type = "BAM_ROAD_MISSION",
             custom_elements={"ADVENTURE_GOAL": dest_node.entrance, "DEST_SCENE": dest_node.destination,
                              "ENTRANCE_ANCHOR": myanchor},

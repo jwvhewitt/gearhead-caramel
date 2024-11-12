@@ -1,18 +1,8 @@
 import gears
-from pbge.plots import Plot, Adventure, NarrativeRequest, PlotState
-from game.content.plotutility import LMSkillsSelfIntro
-import game.content.ghwaypoints
-import game.content.ghterrain
+from pbge.plots import Plot, PlotState
 import pbge
-from pbge.dialogue import Offer, ContextTag
-from game import teams, ghdialogue
-from game.ghdialogue import context
-import pygame
 import random
-import game.content.plotutility
-import game.content.gharchitecture
 from game.content.ghwaypoints import Exit
-from game.content import PLOT_LIST
 from game.content.plotutility import AdventureModuleData
 
 # Room tags

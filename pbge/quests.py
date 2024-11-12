@@ -61,7 +61,7 @@ class QuestPlot(plots.Plot):
         # oeident is the identifier of an outcome element that we want
         # new_fun is a function that will find or create that element if it doesn't currently exist; sig (nart)
         #   The new object will be recorded as an outcome element
-        my_outcome = self.elements[quests.OUTCOME_ELEMENT_ID]
+        my_outcome = self.elements[OUTCOME_ELEMENT_ID]
         if oeident in my_outcome.o_elements and my_outcome.o_elements[oeident]:
             return my_outcome.o_elements[oeident]
         else:

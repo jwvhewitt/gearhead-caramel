@@ -8,7 +8,6 @@ from . import ghterrain
 from game.content.ghterrain import DZDTownTerrain, DZDWCommTowerTerrain, DZDCommTowerTerrain
 from pbge.scenes.waypoints import Waypoint
 from game import geareditor, fieldhq
-from game import cyberdoc
 import gears
 import random
 

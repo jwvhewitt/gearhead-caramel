@@ -148,7 +148,7 @@ class TestStartGame:
         for egg in myeggs:
             for story in mystories:
                 for t in range(100):
-                    camp = game.content.narrative_convenience_function(egg, adv_type=story.LABEL)
+                    game.content.narrative_convenience_function(egg, adv_type=story.LABEL)
                     print("Success: {} in {} generated #{}".format(egg.pc, story.ADVENTURE_MODULE_DATA.name, t))
 
 

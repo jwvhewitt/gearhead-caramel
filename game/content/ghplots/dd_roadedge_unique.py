@@ -3,7 +3,7 @@ import random
 import game.content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints,  ghrooms
+from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints,  ghrooms,  ghcutscene
 from game import teams
 from game.content.ghplots import missionbuilder
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -27,8 +27,13 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
     scope = True
     UNIQUE = True
     BASE_RANK = 30
-    ENCOUNTER_CHANCE = BASE_RANK
-    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
+    ENCOUNTER_NAME = "Mystery Ambush"
+    ENCOUNTER_CHANCE = BASE_RANK + 10
+    ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleSemiDeadzone
+    ENCOUNTER_OBJECTIVES = (
+        missionbuilder.BAMO_SURVIVE_THE_AMBUSH,
+    )
+    DEFAULT_OBJECTIVES = tuple()
 
     FACTION_OPTIONS = (gears.factions.AegisOverlord, gears.factions.ClanIronwind, gears.factions.BoneDevils,
                        None, None, None)
@@ -36,6 +41,7 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
     def custom_init(self, nart):
         super().custom_init(nart)
         self.elements["FACTION"] = gears.factions.Circle(nart.camp, parent_faction=random.choice(self.FACTION_OPTIONS))
+        self.elements["ENEMY_FACTION"] = self.elements["FACTION"]
         my_edge = self.elements["DZ_EDGE"]
         self.elements["GATE_A"] = my_edge.start_node.entrance
         self.elements["GATE_B"] = my_edge.end_node.entrance
@@ -143,9 +149,92 @@ class RONRDungeon(Plot):
         myscene.contents.append(south_room)
  
         myscenegen = gharchitecture.VerticalHighwaySceneGen(myscene, gharchitecture.MechaScaleSemiDeadzoneRuins())
+        
+        self.last_update = 0
+        self.intro_ready = True
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
+        
+        self.add_sub_plot(nart, "MDUNGEON_ENCOUNTER",)
+        
+        if random.randint(1, 2) == 2:
+            direction = (pbge.randmaps.anchors.east,  pbge.randmaps.anchors.west)
+        else:
+            direction = (pbge.randmaps.anchors.west,  pbge.randmaps.anchors.east)
+            
+        level_one = self.add_sub_plot(nart,  "MECHA_DUNGEON_GENERIC",  elements={dungeonmaker.DG_NAME: "Road of No Return 2"})
+        level_one_locale = level_one.elements["LOCALE"]
+        plotutility.SceneConnection(nart,  self,  myscene,  level_one_locale,  anchor1=direction[0],  anchor2=direction[1])
+        
+        two_to_three_room = pbge.randmaps.rooms.FuzzyRoom(9, 12,  anchor=direction[0])
+        level_one_locale.contents.append(two_to_three_room)
+
+        level_two = self.add_sub_plot(nart,  "MECHA_DUNGEON_GENERIC",  elements={dungeonmaker.DG_NAME: "Road of No Return 3"})
+        level_two_locale = level_two.elements["LOCALE"]
+        plotutility.SceneConnection(nart,  self,  level_one_locale, level_two_locale, room1=two_to_three_room,  anchor2=direction[1])
+        self.add_sub_plot(nart, "MDUNGEON_ENCOUNTER", elements={"LOCALE": level_one_locale, "ROOM": two_to_three_room,  "STRENGTH": 150})
+
+        self.add_sub_plot(nart, "DZD_RONR_BOSS")
         return True
+        
+    def t_ENDCOMBAT(self, camp:gears.GearHeadCampaign):
+        camp.bring_out_your_dead(True)
+        if camp.pc not in camp.party:
+            pbge.alert("Your lance retreats...")
+            camp.go(camp.home_base)
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        if self.intro_ready:
+            pbge.alert("Wreckage litters the highway. You come across the site of a recent battle, or more likely an ambush. There is no sign of who or what might have destroyed these mecha.")
+            npc = camp.do_skill_test(gears.stats.Knowledge,  gears.stats.Scouting,  self.rank)
+            if npc:
+                if npc.get_pilot() is camp.pc:
+                    pbge.alert("Your long range sensors are giving contradictory readings. This area of the dead zone probably has radioactive interference.")
+                else:
+                    ghcutscene.SimpleMonologueDisplay("[BAD_NEWS] There's a strange electromagnetic signal in this area; it's blocking our long range sensors. [WE_ARE_IN_DANGER]",  npc)(camp)
+            else:
+                candidates = camp.get_active_lancemates()
+                if candidates:
+                    ghcutscene.SimpleMonologueDisplay("[BAD_NEWS] If this attack is related to the disappearances we can assume that the attackers are nearby, and it's a safe bet they know we're here too. [WE_ARE_IN_DANGER]",  random.choice(candidates))(camp)
+            self.intro_ready = False
+
+        if camp.time > self.last_update:
+            dungeonmaker.dungeon_cleaner(camp.scene)
+            self.last_update = camp.time
+
+
+class RoadOfNoReturnConclusion(Plot):
+    # Fight some random mecha. What do they want? To pad the adventure.
+    LABEL = "DZD_RONR_BOSS"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart: pbge.plots.NarrativeRequest):
+        myscene = self.elements["LOCALE"]
+        fac = self.elements.get("ENEMY_FACTION")
+        self.register_element("ROOM", ghrooms.MechaScaleFortressRoom(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,), faction=fac), dident="ROOM")
+        team2.contents += gears.selector.RandomMechaUnit(self.rank, 150, fac, myscene.environment).mecha_list
+        self.last_update = 0
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        self.last_update = camp.time
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: teams.Team = self.elements["_eteam"]
+        myscene = self.elements["LOCALE"]
+        fac = self.elements.get("ENEMY_FACTION")
+        if camp.time > self.last_update:
+            dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])
+            MDG = self.elements.get(mechadungeons.MDG_DUNGEON)
+            if len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 3) != 2 and not (MDG and MDG.status != MDG.HOSTILE):
+                camp.scene.deploy_team(gears.selector.RandomMechaUnit(
+                    self.rank, random.randint(30,80), fac, myscene.environment
+                ).mecha_list, myteam
+                )
+                self.last_update = camp.time
+
 
 #   *********************************
 #   ***   DZD_ROADEDGE_KERBEROS   ***

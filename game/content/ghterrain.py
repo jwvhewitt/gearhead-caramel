@@ -166,6 +166,10 @@ class OldTilesFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_oldtiles.png'
 
 
+class MSConcreteSlabFloor(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_ground_msconcreteslab.png'
+
+
 class WhiteTileFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_whitetile.png'
 
@@ -305,6 +309,14 @@ class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
+
+class MechaFortressWall(pbge.scenes.terrain.WallTerrain):
+    image_top = 'terrain_wall_mechfort.png'
+    bordername = None
+    altitude = 20
+    blocks = (Walking, Skimming, Rolling)
+    movement_cost = {pbge.scenes.movement.Vision: 50}
+    
 
 class JunkyardWall(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_wall_junkyard.png'
