@@ -215,7 +215,8 @@ class MechaScaleFortressRoom(pbge.randmaps.rooms.Room):
     FLOOR_TERRAIN = ghterrain.MSConcreteSlabFloor
     WALL_TERRAIN = ghterrain.MechaFortressWall
     def build(self, gb, archi):
-        gb.fill(self.area.inflate(2, 2), floor=self.FLOOR_TERRAIN, wall=None)
+        gb.fill(self.area.inflate(2, 2), floor=archi.floor_terrain, wall=None)
+        gb.fill(self.area, floor=self.FLOOR_TERRAIN)
         for x in range(self.area.w // 2 - 1):
             gb.set_wall(x + self.area.left, self.area.top, self.WALL_TERRAIN)
             gb.set_wall(self.area.right - x - 1, self.area.top, self.WALL_TERRAIN)

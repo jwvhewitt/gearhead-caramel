@@ -1,4 +1,7 @@
-* Fixed unloadable save file is PC killed during combat bug
+v0.974 November 14, 2024
+
+* Added "Road of No Return" quest to DeadZone Drifter
+* Fixed unloadable save file if PC killed during combat bug
 * Incapacitated PCs may need lifesaving cybersurgery
 * FieldHQ contents are sorted now
 * Scenes without a defined parent scene should get added as root scenes

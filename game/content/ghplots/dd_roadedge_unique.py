@@ -47,7 +47,7 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         self.elements["GATE_B"] = my_edge.end_node.entrance
         
         # Add the entry scene.
-        self.elements[dungeonmaker.DG_NAME] = "The Road to Nowhere"
+        self.elements[dungeonmaker.DG_NAME] = "The Road of No Return"
         self.elements[dungeonmaker.DG_ARCHITECTURE] = gharchitecture.MechaScaleSemiDeadzone()
         self.elements[dungeonmaker.DG_SCENE_TAGS] = (gears.tags.SCENE_OUTDOORS,  gears.personality.DeadZone)
         self.elements[dungeonmaker.DG_EXPLO_MUSIC] = "HoliznaCC0 - Lost In Space.ogg"
@@ -58,8 +58,13 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
         self.elements["DUNGEON_ENTRANCE"] = my_dungeon.elements["ENTRANCE"]
         
         self._got_rumor = False
-        self._got_rumor = True
         return True
+        
+    def MDG_DUNGEON_WIN(self, camp):
+        self.elements[mechadungeons.MDG_DUNGEON].status = self.elements[mechadungeons.MDG_DUNGEON].DEFEATED
+        self.elements["DZ_EDGE"].style = self.elements["DZ_EDGE"].STYLE_SAFE
+        self.road_cleared = True
+        self.memo = None
 
     def GATE_A_menu(self, camp, thingmenu):
         if self._got_rumor:
@@ -162,19 +167,24 @@ class RONRDungeon(Plot):
         else:
             direction = (pbge.randmaps.anchors.west,  pbge.randmaps.anchors.east)
             
-        level_one = self.add_sub_plot(nart,  "MECHA_DUNGEON_GENERIC",  elements={dungeonmaker.DG_NAME: "Road of No Return 2"})
+        level_one = self.add_sub_plot(nart,  "MECHA_DUNGEON_GENERIC",  elements={dungeonmaker.DG_NAME: "Road of No Return 2",  dungeonmaker.DG_PARENT_SCENE: myscene})
         level_one_locale = level_one.elements["LOCALE"]
         plotutility.SceneConnection(nart,  self,  myscene,  level_one_locale,  anchor1=direction[0],  anchor2=direction[1])
         
         two_to_three_room = pbge.randmaps.rooms.FuzzyRoom(9, 12,  anchor=direction[0])
         level_one_locale.contents.append(two_to_three_room)
 
-        level_two = self.add_sub_plot(nart,  "MECHA_DUNGEON_GENERIC",  elements={dungeonmaker.DG_NAME: "Road of No Return 3"})
+        level_two = self.add_sub_plot(nart,  "MECHA_DUNGEON_GENERIC",  elements={dungeonmaker.DG_NAME: "Road of No Return 3",  dungeonmaker.DG_PARENT_SCENE: level_one_locale})
         level_two_locale = level_two.elements["LOCALE"]
         plotutility.SceneConnection(nart,  self,  level_one_locale, level_two_locale, room1=two_to_three_room,  anchor2=direction[1])
         self.add_sub_plot(nart, "MDUNGEON_ENCOUNTER", elements={"LOCALE": level_one_locale, "ROOM": two_to_three_room,  "STRENGTH": 150})
+        
+        if random.randint(1, 5) == 5:
+            final_anchor = direction[0]
+        else:
+            final_anchor = random.choice(pbge.randmaps.anchors.ADJACENT_ANCHORS[direction[0]])
 
-        self.add_sub_plot(nart, "DZD_RONR_BOSS")
+        self.add_sub_plot(nart, "DZD_RONR_BOSS",  elements={"LOCALE": level_two_locale, "ANCHOR": final_anchor})
         return True
         
     def t_ENDCOMBAT(self, camp:gears.GearHeadCampaign):
@@ -212,28 +222,49 @@ class RoadOfNoReturnConclusion(Plot):
     def custom_init(self, nart: pbge.plots.NarrativeRequest):
         myscene = self.elements["LOCALE"]
         fac = self.elements.get("ENEMY_FACTION")
-        self.register_element("ROOM", ghrooms.MechaScaleFortressRoom(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        self.register_element("ROOM", ghrooms.MechaScaleFortressRoom(random.randint(8,16), random.randint(8,16),  anchor=self.elements["ANCHOR"]), dident="LOCALE")
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,), faction=fac), dident="ROOM")
         team2.contents += gears.selector.RandomMechaUnit(self.rank, 150, fac, myscene.environment).mecha_list
+        
+        myfort = self.register_element("_FORT", gears.selector.generate_fortification(self.rank, fac, myscene.environment))
+        team2.contents.append(myfort)
+        
+        self.enemy_combatants = list(team2.contents)
+
         self.last_update = 0
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
         self.last_update = camp.time
 
-    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
-        myteam: teams.Team = self.elements["_eteam"]
-        myscene = self.elements["LOCALE"]
-        fac = self.elements.get("ENEMY_FACTION")
-        if camp.time > self.last_update:
-            dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])
-            MDG = self.elements.get(mechadungeons.MDG_DUNGEON)
-            if len(myteam.get_members_in_play(camp)) < 1 and random.randint(1, 3) != 2 and not (MDG and MDG.status != MDG.HOSTILE):
-                camp.scene.deploy_team(gears.selector.RandomMechaUnit(
-                    self.rank, random.randint(30,80), fac, myscene.environment
-                ).mecha_list, myteam
-                )
-                self.last_update = camp.time
+    def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
+        myteam = self.elements["_eteam"]
+        myguards = myteam.get_members_in_play(camp)
+
+        if len(myguards) < 1:
+            # Win the battle! 
+            self.win_the_dungeon(camp)
+        else:
+            myscene = self.elements["LOCALE"]
+            for npc in list(self.enemy_combatants):
+                npc.restore_all()
+                if npc.is_operational() and npc.scale is gears.scale.MechaScale:
+                    if npc not in myscene.contents:
+                        myscene.contents.append(npc)
+                else:
+                    self.enemy_combatants.remove(npc)
+                
+    def win_the_dungeon(self, camp: gears.GearHeadCampaign):
+        camp.check_trigger("WIN",  self.elements[mechadungeons.MDG_DUNGEON])
+        dest_node = random.choice((self.elements["DZ_EDGE"].start_node,  self.elements["DZ_EDGE"].end_node))
+        pbge.alert("When the battle ends, you find the people who had disappeared from the highway: {ENEMY_FACTION} kidnapped them and forced them to work disassembling the captured vehicles to build mecha and war machines.".format(**self.elements))
+        pbge.alert("Soon, rescue teams from nearby communities arrive to provide aid to the victims. You return to {}.".format(dest_node.destination))
+        self.elements["DZ_EDGE"].start_node.destination.metrodat.local_reputation += 10
+        self.elements["DZ_EDGE"].end_node.destination.metrodat.local_reputation += 10
+        camp.dole_xp(200)
+        camp.go(dest_node.entrance)
+        self.end_plot(camp)
+
 
 
 #   *********************************

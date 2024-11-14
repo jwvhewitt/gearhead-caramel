@@ -313,7 +313,7 @@ class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
 class MechaFortressWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_mechfort.png'
     bordername = None
-    altitude = 20
+    #altitude = 20
     blocks = (Walking, Skimming, Rolling)
     movement_cost = {pbge.scenes.movement.Vision: 50}
     

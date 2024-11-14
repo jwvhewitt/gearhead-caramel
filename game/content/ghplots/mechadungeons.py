@@ -2,7 +2,7 @@ from pbge.plots import Plot
 from game import teams
 import gears
 import pbge
-from game.content import ghwaypoints, gharchitecture, plotutility, dungeonmaker
+from game.content import dungeonmaker
 import random
 from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_TEMPORARY, DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 
