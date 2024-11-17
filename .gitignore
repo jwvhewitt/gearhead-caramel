@@ -42,6 +42,8 @@ nosetests.xml
 caramel-recolor-cython/pbgerecolor.c
 *.geany
 *.py~
+*.code-workspace
+.vscode
 
 
 

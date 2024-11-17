@@ -3,7 +3,7 @@ import pbge
 import pygame
 import gears
 from gears import stats, geffects
-from . import combat
+from . import combat, content
 from . import ghdialogue
 from . import configedit
 from . import invoker
@@ -638,9 +638,7 @@ class Explorer(object):
                         self.camp.time += 1
                         self.camp.credits += 300000
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.pc.statline[gears.stats.Performance] += 5
-                        self.camp.pc.statline[gears.stats.Negotiation] += 5
-                        self.camp.pc.statline[gears.stats.Wildcraft] += 5
+                        content.missiontext.test_mission_text(self.camp)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.record_count = 30
                     elif gdi.unicode == "S" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
