@@ -6476,6 +6476,38 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+        "[your_job]": {
+        # A lead-in where the NPC will explain the PC's mission as a simple present verb phrase
+        Default: ["your job is to",
+                  ],
+        personality.Cheerful: ["",
+                               ""
+                               ],
+        personality.Grim: ["",
+                           ""
+                           ],
+        personality.Easygoing: ["you should",
+                                ],
+        personality.Passionate: ["you must",
+                                 ],
+        personality.Sociable: ["I hate to say this, but your plan is hopeless.",
+                               "Have you discussed this with anyone else? Because I really think it's a bad idea."
+                               ],
+        personality.Shy: ["It won't work.",
+                          ],
+        personality.Duty: ["I think we should consider alternatives before throwing our lives away.",
+                           ],
+        personality.Glory: ["Remember that no-one will sing about your heroic deeds if we all die.",
+                            ],
+        personality.Justice: ["And what's to be gained, a symbolic victory at the cost of our lives?",
+                              ],
+        personality.Peace: ["Hasn't there been enough death already?",
+                            ],
+        personality.Fellowship: ["You may view your own life as cheap, but I don't.",
+                                 ],
+    },
+
+
     "[YOUR_PLAN_IS_HOPELESS]": {
         # The NPC expresses a lack of hope about the suggested plan.
         Default: ["This is hopeless.", "Your plan is hopeless."

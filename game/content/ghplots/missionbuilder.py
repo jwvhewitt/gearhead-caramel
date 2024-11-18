@@ -143,7 +143,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             gears.CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC) or "Chronos.ogg"
         self.solo_mission = solo_mission
         if not mission_grammar:
-            mission_grammar = MissionGrammar()
+            mission_grammar = MissionGrammar(**missiontext.MissionText(
+                camp, self.objectives, metroscene, allied_faction, enemy_faction).get_mission_grammar_dict()
+            )
         self.mission_grammar = mission_grammar
         self.make_enemies = make_enemies
         self.defeat_trigger_on = defeat_trigger_on

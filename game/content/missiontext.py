@@ -154,6 +154,10 @@ class MissionText:
     # win is a clause in simple past describing the outcome if the player wins
     # lose is a clause in simple past describing the outcome if the player loses
 
+    _MISSION_DESCS = (
+        "",
+    )
+
     def __init__(self, camp: gears.GearHeadCampaign, objectives, metroscene, allied_faction=None, enemy_faction=None):
         # Give us some text that can be used to generate a MissionGrammar and also some text that can be used by the
         # mission-giver to describe the mission.

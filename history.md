@@ -1,3 +1,6 @@
+* New MissionText generated if no MissionGrammar provided to BuildAMissionSeed
+* Random MissionText added
+
 v0.974 November 14, 2024
 
 * Added "Road of No Return" quest to DeadZone Drifter
