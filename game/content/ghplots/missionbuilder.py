@@ -144,7 +144,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.solo_mission = solo_mission
         if not mission_grammar:
             mission_grammar = MissionGrammar(**missiontext.MissionText(
-                camp, self.objectives, metroscene, allied_faction, enemy_faction).get_mission_grammar_dict()
+                camp, objectives, metroscene, allied_faction, enemy_faction).get_mission_grammar_dict()
             )
         self.mission_grammar = mission_grammar
         self.make_enemies = make_enemies

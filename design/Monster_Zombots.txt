@@ -3,7 +3,7 @@
 Monster
     name = "Cyber Arm"
     statline = {Reflexes = 13, Body=6, Speed=13, Perception=5, Craft=6, Knowledge=3, Ego=12, Charm = 5,
-			CloseCombat = 8, RangedCombat = 3, Dodge = 4
+			CloseCombat = 8, RangedCombat = 3, Dodge = 3
 	}
 	scale = HumanScale
 	material = Metal

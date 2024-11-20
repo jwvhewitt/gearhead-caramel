@@ -8,7 +8,7 @@ import pbge
 import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, ghcutscene
+from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, ghcutscene, missiontext
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -182,6 +182,104 @@ class Cookies(Plot):
             return {"[News]": ["{NPC} likes cookies".format(**self.elements)]}
 
 
+class CorpMissionRandom(Plot):
+    LABEL = "RANDOM_PLOT"
+    active = True
+    scope = "METRO"
+    RUMOR = Rumor(
+        "{NPC} needs a cavalier to do some kind of mission for {ALLIED_FACTION}",
+        offer_msg="You need to talk to {NPC} at {NPC_SCENE}. [IF_YOU_WANT_MISSION_GO_ASK_ABOUT_IT]",
+        offer_subject="{NPC} needs a cavalier to do some kind of mission for {ALLIED_FACTION}",
+        offer_subject_data="{NPC}'s mission",
+        memo="{NPC} is looking for a pilot to do a mission for {ALLIED_FACTION}.",
+        prohibited_npcs=("NPC",)
+    )
+
+    OBJECTIVES = (
+        missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DEFEAT_COMMANDER,
+        missionbuilder.BAMO_CAPTURE_BUILDINGS, missionbuilder.BAMO_EXTRACT_ALLIED_FORCES,
+        missionbuilder.BAMO_RECOVER_CARGO, missionbuilder.BAMO_PROTECT_BUILDINGS,
+        missionbuilder.BAMO_CAPTURE_THE_MINE
+    )
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
+        self.register_element("ALLIED_FACTION", npc.faction)
+        self.register_element("NPC_SCENE", npc.scene)
+        ef = self.register_element("ENEMY_FACTION", nart.camp.get_enemy_faction(self.elements["NPC"]))
+        if ef:
+            self.expiration = TimeExpiration(nart.camp)
+
+            sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+            objectives=random.sample(self.OBJECTIVES, 2)
+            mission_text = missiontext.MissionText(nart.camp, objectives, self.elements["METROSCENE"], allied_faction=npc.faction, enemy_faction=ef)
+            # Create the mission seed.
+            self.mission_seed = missionbuilder.BuildAMissionSeed(
+                nart.camp, "{NPC}'s Mission for {ALLIED_FACTION}".format(**self.elements),
+                self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+                allied_faction=npc.faction,
+                enemy_faction=self.elements["ENEMY_FACTION"], rank=self.rank,
+                objectives=objectives,
+                one_chance=True, mission_grammar=missionbuilder.MissionGrammar(**mission_text.get_mission_grammar_dict()),
+                scenegen=sgen, architecture=archi,
+                cash_reward=90, make_enemies=False
+            )
+
+            set_npc_recharge(npc, nart.camp, time=10)
+            self.mission_active = False
+            return True
+
+    def _is_good_npc(self, nart, candidate):
+        if npc_is_ready_for_plot(candidate, nart.camp) and nart.camp.is_not_lancemate(candidate):
+            faction_ok = candidate.faction and gears.tags.CorporateWorker in candidate.faction.factags
+            scene_ok = gears.tags.SCENE_PUBLIC in candidate.scene.attributes
+            return faction_ok and scene_ok
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if not self.mission_active:
+            mylist.append(Offer(
+                "[LOOKING_FOR_CAVALIER] [CORPORATE_JOB_SPIEL]",
+                ContextTag([context.HELLO, context.MISSION]), 
+                data={"corporate_faction": self.elements["ALLIED_FACTION"]}
+            ))
+
+            mylist.append(Offer(
+                "[VAGUE_MISSION_DESCRIPTION] [DOYOUACCEPTMISSION]".format(
+                    **self.elements),
+                ContextTag([context.MISSION]), data={"enemy_faction": self.elements["ENEMY_FACTION"]},
+                subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[IWillSendMissionDetails]. [PLEASURE_DOING_BUSINESS]",
+                ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                subject=self
+            ))
+
+            mylist.append(Offer(
+                "[UNDERSTOOD] [GOODBYE]",
+                ContextTag([context.DENY]), effect=self.end_plot,
+                subject=self
+            ))
+
+        return mylist
+
+    def t_UPDATE(self, camp):
+        if self.mission_seed.ended:
+            self.end_plot(camp)
+
+    def activate_mission(self, camp):
+        self.mission_active = True
+        self.expiration = None
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.mission_seed and self.mission_active:
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+
+
 class Entropy(Plot):
     # Nothing is happening. I am just wasting a plot slot so the player can't stay in the same place and milk plots
     # forever.
@@ -237,14 +335,17 @@ class MechaMissionForCity(Plot):
             self.expiration = TimeExpiration(nart.camp)
 
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+            objectives=random.sample(self.OBJECTIVES, 2)
+            mission_text = missiontext.MissionText(nart.camp, objectives, self.elements["METROSCENE"], allied_faction=npc.faction, enemy_faction=ef)
+            self.elements["MISSION_DESC"] = mission_text.mission_description
             # Create the mission seed.
             self.mission_seed = missionbuilder.BuildAMissionSeed(
                 nart.camp, "{NPC}'s Mission against {ENEMY_FACTION}".format(**self.elements),
                 self.elements["METROSCENE"], self.elements["MISSION_GATE"],
                 allied_faction=npc.faction,
                 enemy_faction=self.elements["ENEMY_FACTION"], rank=self.rank,
-                objectives=random.sample(self.OBJECTIVES, 2),
-                one_chance=True,
+                objectives=objectives,
+                one_chance=True, mission_grammar=missionbuilder.MissionGrammar(**mission_text.get_mission_grammar_dict()),
                 scenegen=sgen, architecture=archi,
                 cash_reward=100
             )
@@ -269,7 +370,7 @@ class MechaMissionForCity(Plot):
             ))
 
             mylist.append(Offer(
-                "Mecha from {ENEMY_FACTION} have been operating near {METROSCENE}. [DOYOUACCEPTMISSION]".format(
+                "Mecha from {ENEMY_FACTION} have been operating near {METROSCENE}. {MISSION_DESC}. [DOYOUACCEPTMISSION]".format(
                     **self.elements),
                 ContextTag([context.MISSION]), data={"enemy_faction": self.elements["ENEMY_FACTION"]},
                 subject=self, subject_start=True

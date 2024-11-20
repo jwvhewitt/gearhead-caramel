@@ -541,12 +541,18 @@ class ItemInfoWidget(widgets.Widget):
 
 class PartyMemberButton(widgets.Widget):
     def __init__(self, camp, pc, fhq, **kwargs):
-        super(PartyMemberButton, self).__init__(0, 0, fhqinfo.RIGHT_COLUMN.w, 72, **kwargs)
+        super().__init__(0, 0, fhqinfo.RIGHT_COLUMN.w, 72, **kwargs)
         self.camp = camp
         self.pc = pc
         self.fhq = fhq
         self.avatar_pic = pc.get_sprite()
         self.avatar_frame = pc.frame
+        label = widgets.LabelWidget(
+            64, 4, fhqinfo.RIGHT_COLUMN.w-72, 64, text_fun=self._name_fun, color=pbge.WHITE, parent=self,
+            border=None, font=pbge.MEDIUMFONT, alt_smaller_fonts=(pbge.SMALLFONT, pbge.TINYFONT), anchor=pbge.frects.ANCHOR_UPPERLEFT,
+            on_click=self._click_name
+        )
+        self.children.append(label)
 
     def render(self, flash=False):
         mydest = self.get_rect().inflate(-8, -8)
@@ -555,9 +561,14 @@ class PartyMemberButton(widgets.Widget):
         else:
             widgets.widget_border_off.render(mydest)
         self.avatar_pic.render(mydest, self.avatar_frame)
-        mydest.x += 64
-        mydest.w -= 64
-        pbge.draw_text(pbge.MEDIUMFONT, self.pc.get_full_name(), mydest, color=pbge.WHITE)
+
+    def _name_fun(self, *args):
+        return self.pc.get_full_name()
+
+    def _click_name(self, wid, ev):
+        if self.on_click:
+            self.on_click(self, ev)
+
 
 
 class FieldHQ(widgets.Widget):

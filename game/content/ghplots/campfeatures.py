@@ -233,6 +233,14 @@ class MetrosceneRandomPlotHandler(Plot):
                 self._resolve_unfound_plot(camp)
                 break
 
+        # Attempt to load the test plot.
+        if self.should_load_test(camp):
+            myplot = game.content.load_dynamic_plot(
+                camp, "TEST_RANDOM_PLOT", pstate=PlotState(
+                    rank=self.calc_rank(camp)
+                ).based_on(self)
+            )
+
     def _resolve_unfound_plot(self, camp):
         # Do whatever needs to be done when a plot could not be found. Not used here, but might get used in subclasses.
         pass
@@ -246,6 +254,11 @@ class MetrosceneRandomPlotHandler(Plot):
         mymetro: gears.MetroData = self.elements["METRO"]
         lp = len([p for p in mymetro.scripts if p.LABEL in self.ALL_RANDOM_PLOT_TYPES])
         return lp < self.MAX_PLOTS
+
+    def should_load_test(self, camp):
+        mymetro: gears.MetroData = self.elements["METRO"]
+        lp = len([p for p in mymetro.scripts if p.LABEL == "TEST_RANDOM_PLOT"])
+        return lp < 1
 
     def calc_rank(self, camp: gears.GearHeadCampaign):
         if self.elements.get("USE_PLOT_RANK", False):

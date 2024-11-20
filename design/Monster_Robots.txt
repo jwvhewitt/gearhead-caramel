@@ -257,7 +257,7 @@ Monster
 Monster
     name = "Forgebot"
     statline = {Reflexes = 8, Body=24, Speed=8, Perception=8, Craft=13, Knowledge=1, Ego=1, Charm = 1,
-			CloseCombat = 4, RangedCombat = 4, Dodge = 9, Vitality = 10, Athletics = 8, Concentration=5
+			CloseCombat = 4, RangedCombat = 4, Dodge = 7, Vitality = 10, Athletics = 8, Concentration=5
 	}
 	scale = HumanScale
 	material = Metal

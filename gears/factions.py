@@ -422,15 +422,15 @@ class FactionRelations(object):
 DEFAULT_FACTION_DICT_NT158 = {
     AegisOverlord: FactionRelations(
         allies=(),
-        enemies=(TerranFederation, DeadzoneFederation, BladesOfCrihna)
+        enemies=(TerranFederation, DeadzoneFederation, BladesOfCrihna, TheSilverKnights, TheSolarNavy)
     ),
     BladesOfCrihna: FactionRelations(
         allies=(),
-        enemies=(AegisOverlord, Guardians)
+        enemies=(AegisOverlord, Guardians, TheSilverKnights, TheSolarNavy)
     ),
     BoneDevils: FactionRelations(
         allies=(),
-        enemies=(TerranDefenseForce, Guardians)
+        enemies=(TerranDefenseForce, Guardians, BioCorp, KettelIndustries, RegExCorporation)
     ),
     TerranFederation: FactionRelations(
         allies=(TerranDefenseForce, Guardians, TheSolarNavy),
@@ -464,6 +464,20 @@ DEFAULT_FACTION_DICT_NT158 = {
     TreasureHunters: FactionRelations(
         allies=(BladesOfCrihna, BoneDevils),
         enemies=(Guardians,)
+    ),
+    KettelIndustries: FactionRelations(
+        enemies=(RegExCorporation, BioCorp, BoneDevils, BladesOfCrihna),
+        allies=(Guardians,)
+    ),
+    BioCorp: FactionRelations(
+        enemies=(RegExCorporation, KettelIndustries, BoneDevils, TreasureHunters),
+        allies=(Guardians,)
+    ),
+    RegExCorporation: FactionRelations(
+        enemies=(KettelIndustries, BioCorp, BoneDevils, ClanIronwind),
+        allies=(Guardians,)
     )
+
+
 
 }

@@ -1075,6 +1075,37 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[CORPORATE_JOB_SPIEL]": {
+        # data block needs {corporate_faction}
+        Default: ["{corporate_faction} pays top dollar for qualified applicants.",
+                  ],
+        personality.Cheerful: ["It's a joy working for {corporate_faction}.",
+                               ],
+        personality.Grim: [
+            "You could do much worse than working for {corporate_faction}.",
+        ],
+        personality.Easygoing: ["{corporate_faction} is an alright company.",
+                                ],
+        personality.Passionate: ["To fight for {corporate_faction} is to fight for the future of humanity!",
+                                 ],
+        personality.Sociable: ["You could be a valued member of our team at {corporate_faction}.",
+                               ],
+        personality.Shy: ["Consider {corporate_faction}.",
+                          ],
+        gears.factions.RegExCorporation: [
+            "RegEx Corporation is the corporation of the people!",
+            "RegEx is always looking for freelance cavaliers to do something or another.",
+        ],
+        gears.factions.KettelIndustries: [
+            "Through its corporate and philanthropic activities, Kettel Industries seeks to restore the golden age of humanity.",
+            "Kettel Industries is the largest business conglomerate in the solar system."
+        ],
+        gears.factions.BioCorp: [
+            "Biocorp provides the tools and technology you need to survive in an ever changing world.",
+            "Biocorp harnesses the power of nature for the future of humanity."
+        ]
+    },
+
     "[CRYPTIC_GREETING]": {
         Default: [
             "We live in dangerous times, but there is still a light in the darkness.",
@@ -1500,6 +1531,25 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Duty: ["[HOLD_ON] The [enemy_meks] haven't seen us yet, so technically we could just sneak away.",
                            ],
+    },
+
+    "[enemy_is_going_to]": {
+        # lead in to describing opponent's aims or methods as a simple present verb phrase
+        Default: ["enemy forces are going to",
+                  ],
+        personality.Cheerful: ["your competition is going to",
+                               ],
+        personality.Grim: ["our dire foes plan to",
+                           ],
+        personality.Easygoing: ["they are trying to",
+                                ],
+        personality.Passionate: ["the enemy has mobilized and is going to",
+                                 ],
+        personality.Sociable: [
+            "the enemy plan is to", "our enemy is going to"
+                               ],
+        personality.Shy: ["the enemy is going to",
+                          ],
     },
 
     "[enemy_meks]": {
@@ -5946,6 +5996,38 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[VAGUE_MISSION_DESCRIPTION]": {
+        # You're being offered a mission of some sort. I dunno. Take it or leave it.
+        Default: [
+            "Our team has reported some problems in the field; [your_job] solve the issue.",
+            "There is a matter which requires the attention of a cavalier; [You_have_the_needed_skills].",
+        ],
+        personality.Cheerful: [
+            "This mission could really be a lot of fun for you.",
+            "If you could sort out the problems we've been having that would look really good on your record.",
+        ],
+        personality.Grim: [
+            "You will not be the first cavalier we sent to sort this out; [You_have_the_needed_skills].",
+            "The previous troubleshooters did not return from this mission. [your_job] do better than them.",
+        ],
+        personality.Easygoing: [
+            "I don't remember all the details but you'll be doing some kind of cavalier work.",
+            "This should be a nice, straightforward mission. [You_have_the_needed_skills].",
+        ],
+        personality.Passionate: [
+            "There are people out there who wish to see our enterprise fail; [your_job] deal with them",
+            "This mission will be a brilliant opportunity to show the world your prowress!",
+        ],
+        personality.Sociable: [
+            "The details surrounding this mission are kind of sensitive; as a cavalier, I'm sure you're familiar with such things.",
+            "I've been reviwing the case files of local cavaliers. [You_have_the_needed_skills].",
+        ],
+        personality.Shy: [
+            "This should be a pretty standard mission.",
+            "This mission is pretty straightforward."
+        ],
+    },
+
     "[vanquished]": {
         Default: ["vanquished", "defeated", "wiped out", "subjugated", "overwhelmed", "conquered", "trounced",
                   "annihilated", "subdued", "crushed", "demolished", "destroyed", "slaughtered"
@@ -6480,30 +6562,25 @@ DEFAULT_GRAMMAR = {
         # A lead-in where the NPC will explain the PC's mission as a simple present verb phrase
         Default: ["your job is to",
                   ],
-        personality.Cheerful: ["",
-                               ""
+        personality.Cheerful: ["you get to",
                                ],
-        personality.Grim: ["",
-                           ""
+        personality.Grim: ["to avoid disaster you must",
                            ],
         personality.Easygoing: ["you should",
                                 ],
         personality.Passionate: ["you must",
                                  ],
-        personality.Sociable: ["I hate to say this, but your plan is hopeless.",
-                               "Have you discussed this with anyone else? Because I really think it's a bad idea."
+        personality.Sociable: ["I want you to",
                                ],
-        personality.Shy: ["It won't work.",
+        personality.Shy: ["the job is to",
                           ],
-        personality.Duty: ["I think we should consider alternatives before throwing our lives away.",
-                           ],
-        personality.Glory: ["Remember that no-one will sing about your heroic deeds if we all die.",
+        personality.Duty: [
+            "the purpose of this mission is to",
+            "your duty is to",
+        ],
+        personality.Glory: ["to succeed you must",
                             ],
-        personality.Justice: ["And what's to be gained, a symbolic victory at the cost of our lives?",
-                              ],
-        personality.Peace: ["Hasn't there been enough death already?",
-                            ],
-        personality.Fellowship: ["You may view your own life as cheap, but I don't.",
+        personality.Fellowship: ["let me describe your mission-",
                                  ],
     },
 

@@ -114,7 +114,7 @@ Monster
 Monster
     name = "Hunter-Drone"
     statline = {Reflexes = 16, Body=15, Speed=16, Perception=10, Craft=6, Knowledge=5, Ego=7, Charm = 4,
-			CloseCombat = 7, RangedCombat=4, Dodge = 8, Biotechnology = 4
+			CloseCombat = 7, RangedCombat=4, Dodge = 4, Biotechnology = 4
 	}
 	scale = HumanScale
 	imagename = 'mon_synth.png'
@@ -178,7 +178,7 @@ Monster
 Monster
     name = "Hunter-Scout"
     statline = {Reflexes = 16, Body=14, Speed=18, Perception=17, Craft=7, Knowledge=5, Ego=8, Charm = 4,
-			CloseCombat = 6, RangedCombat=7, Dodge = 7, Scouting = 6, Stealth = 8
+			CloseCombat = 6, RangedCombat=7, Dodge = 5, Scouting = 6, Stealth = 8
 	}
 	scale = HumanScale
 	imagename = 'mon_synth.png'
@@ -394,7 +394,7 @@ Monster
 Monster
     name = "Servitor"
     statline = {Reflexes = 14, Body=16, Speed=15, Perception=17, Craft=17, Knowledge=18, Ego=23, Charm = 12,
-			CloseCombat = 5, RangedCombat=5, Dodge = 8, Concentration = 5, Biotechnology = 7
+			CloseCombat = 5, RangedCombat=5, Dodge = 6, Concentration = 5, Biotechnology = 7
 	}
 	scale = HumanScale
 	imagename = 'mon_synth.png'

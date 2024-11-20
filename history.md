@@ -1,3 +1,5 @@
+* Corporate factions now have allies and enemies
+* FieldHQ name buttons now use labels and can resize text if name is too long
 * New MissionText generated if no MissionGrammar provided to BuildAMissionSeed
 * Random MissionText added
 

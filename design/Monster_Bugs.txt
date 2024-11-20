@@ -1,7 +1,7 @@
 Monster
     name = "Sun Scarab"
     statline = {Reflexes = 16, Body=13, Speed=11, Perception=8, Craft=2, Knowledge=1, Ego=15, Charm = 5,
-			CloseCombat = 5, RangedCombat = 3, Dodge = 8
+			CloseCombat = 5, RangedCombat = 3, Dodge = 6
 	}
 	scale = HumanScale
 	imagename = 'mon_bugs.png'
@@ -82,7 +82,7 @@ Monster
 Monster
     name = "Black Scarab"
     statline = {Reflexes = 10, Body=12, Speed=9, Perception=7, Craft=2, Knowledge=1, Ego=15, Charm = 2,
-			CloseCombat = 4, Dodge = 4
+			CloseCombat = 4, Dodge = 3
 	}
 	scale = HumanScale
 	imagename = 'mon_bugs.png'

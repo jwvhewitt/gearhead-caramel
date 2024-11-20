@@ -79,7 +79,7 @@ Monster
 	imagename = 'mon_dinosaurs_ps.png'
 	frame = 0
 	colors = (AceScarlet,Cream,Malachite,Avocado,Saffron)
-    threat = 30
+    threat = 35
     type_tags = ("DINOSAUR", ""EXOTIC", "CAVE", "DESERT", "REPTILE",)
     families = ("DINOSAUR",)
     environment_list = (GroundEnv,UrbanEnv)

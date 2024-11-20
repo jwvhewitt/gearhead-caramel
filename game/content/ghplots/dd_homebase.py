@@ -8,7 +8,7 @@ from gears import factions, personality
 import game.content.gharchitecture
 import pbge
 import game.content.plotutility
-from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker, ghchallenges, ghcutscene
+from game.content import ghwaypoints, gharchitecture, plotutility, ghrooms, dungeonmaker, ghchallenges, ghcutscene, missiontext
 import game.content.ghterrain
 from game.content.ghplots.dd_combatmission import CombatMissionSeed
 import random
@@ -903,9 +903,9 @@ class DZD_BlueFortressHQ(Plot):
 
     active = True
     scope = "METRO"
-
-    # Compatibility var- for v0.540
     got_tutorial = False
+    mission_active = False
+    mission_description = "go fight someone"
 
     def custom_init(self, nart):
         # Create a building within the town.
@@ -975,7 +975,7 @@ class DZD_BlueFortressHQ(Plot):
         return True
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        if self.adventure_seed:
+        if self.adventure_seed and self.mission_active:
             thingmenu.add_item(self.adventure_seed.name, self.adventure_seed)
 
     ENEMY_FACTIONS = (factions.AegisOverlord, factions.AegisOverlord, factions.ClanIronwind, factions.ClanIronwind,
@@ -985,14 +985,30 @@ class DZD_BlueFortressHQ(Plot):
         # Randomly determine an enemy faction.
         return random.choice(self.ENEMY_FACTIONS)
 
+    OBJECTIVES = (
+        missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DEFEAT_COMMANDER,
+        missionbuilder.BAMO_EXTRACT_ALLIED_FORCES, missionbuilder.BAMO_RESPOND_TO_DISTRESS_CALL,
+        missionbuilder.BAMO_RECOVER_CARGO
+    )
+
     def register_adventure(self, camp):
-        self.adventure_seed = CombatMissionSeed(camp, "{}'s mission against {}".format(self.elements["DISPATCHER"],  self.next_enemy_faction),
-                                                self.elements["LOCALE"], self.elements["MISSION_GATE"],
-                                                enemy_faction=self.next_enemy_faction,
-                                                allied_faction=factions.TerranDefenseForce,
-                                                architecture=gharchitecture.MechaScaleGreenzone(),
-                                                on_win=self._win_mission)
+        objectives = random.sample(self.OBJECTIVES, 2)
+        mission_text = missiontext.MissionText(camp, objectives, self.elements["LOCALE"], allied_faction=factions.TerranDefenseForce, enemy_faction=self.next_enemy_faction)
+        self.mission_description = mission_text.mission_description
+        self.adventure_seed = missionbuilder.BuildAMissionSeed(
+            camp, "{}'s mission against {}".format(self.elements["DISPATCHER"],  self.next_enemy_faction),
+            self.elements["LOCALE"], self.elements["MISSION_GATE"],
+            enemy_faction=self.next_enemy_faction,
+            allied_faction=factions.TerranDefenseForce,
+            objectives=objectives, rank=max(camp.pc.renown + 1, 10),
+            mission_grammar = missionbuilder.MissionGrammar(**mission_text.get_mission_grammar_dict()),
+            architecture=gharchitecture.MechaScaleGreenzone(),
+            on_win=self._win_mission
+        )
+
+    def _activate_mission(self, camo):
         missionbuilder.NewMissionNotification(self.adventure_seed.name, self.elements["MISSION_GATE"])
+        self.mission_active = True
 
     def _win_mission(self, camp: gears.GearHeadCampaign):
         self.total_mission_wins += 1
@@ -1009,6 +1025,7 @@ class DZD_BlueFortressHQ(Plot):
         # If the adventure has ended, get rid of it.
         if self.adventure_seed and self.adventure_seed.ended:
             self.adventure_seed = None
+            self.mission_active = False
             self.next_enemy_faction = self.generate_enemy_faction()
 
     def DISPATCHER_offers(self, camp: gears.GearHeadCampaign):
@@ -1018,12 +1035,22 @@ class DZD_BlueFortressHQ(Plot):
             if self.not_yet_told_no_missions_left and not self.adventure_seed:
                 mylist.append(
                     Offer(
-                        "Sorry, but you've done such a good job defending Wujung, there aren't any missions left for you to do.",
+                        "Sorry, but you've done such a good job defending Wujung, I don't have anything else for you to do. Maybe one of the other officers here has a job available.",
                         context=ContextTag([context.MISSION, ]), effect=self._tell_no_missions,
                     )
                 )
 
-        elif camp.time >= self.next_mission_date and not self.adventure_seed:
+        elif camp.time >= self.next_mission_date and not (self.mission_active and self.adventure_seed):
+            if not self.adventure_seed:
+                self.register_adventure(camp)
+
+            mylist.append(
+                Offer(
+                    "[HELLO] If you're looking for a mission, you've come to the right place.",
+                    context=ContextTag([context.HELLO, context.MISSION ])
+                )
+            )
+
             mylist.append(
                 Offer(
                     "The Defense Force is short handed at the moment, so there are almost always missions available. [MechaMissionVsEnemyFaction].",
@@ -1034,8 +1061,8 @@ class DZD_BlueFortressHQ(Plot):
 
             mylist.append(
                 Offer(
-                    "[IWillSendMissionDetails]. You can start the mission by heading to the West Gate.",
-                    context=ContextTag([context.ACCEPT, ]), subject=self, effect=self.register_adventure,
+                    "{}. You can start the mission by heading to the West Gate.".format(self.mission_description),
+                    context=ContextTag([context.ACCEPT, ]), subject=self, effect=self._activate_mission,
                     data={"enemy_faction": self.next_enemy_faction.name}
                 )
             )
@@ -1820,6 +1847,7 @@ class DZD_LongRoadLogistics(Plot):
         camp.check_trigger("UPDATE")
         self._asked_about_construction = True
         camp.campdata["CONSTRUCTION_ARRANGED"] = True
+        #self.locked_elements.remove(self.elements["REGEXNPC"])
 
     def DISPATCHER_offers(self, camp):
         mylist = list()

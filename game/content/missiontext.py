@@ -75,7 +75,6 @@ MOTIVE_VERBS = {
         MTVerb("eliminate", "eliminated", "fight for", "fought for",  objects=(OB_ALLIED_FORCES, OB_ALLIED_TARGET)),  
     ), 
     MOTIVE_GREED: (
-        MTVerb("get rich", "got paid", "stop you", "stopped your scheme"), 
         MTVerb("obtain",  "obtained", "secure", "secured", objects=(OB_MACGUFFIN, OB_INFORMATION ),), 
     ), 
     MOTIVE_REVENGE: (
@@ -155,7 +154,11 @@ class MissionText:
     # lose is a clause in simple past describing the outcome if the player loses
 
     _MISSION_DESCS = (
-        "",
+        "[your_job] {means_vp_npresent}",
+        "[your_job] {means_vp_npresent} in order to {motive_vp_npresent}",
+        "[enemy_is_going_to] {motive_vp_present}, so [your_job] {means_vp_npresent}",
+        "[enemy_is_going_to] {means_vp_present} in order to {motive_vp_present}",
+        "[enemy_is_going_to] {means_vp_present}, so [your_job] {motive_vp_npresent}",
     )
 
     def __init__(self, camp: gears.GearHeadCampaign, objectives, metroscene, allied_faction=None, enemy_faction=None):
@@ -307,6 +310,15 @@ class MissionText:
         self.win_ep = "you {}".format(random.choice((self.motive_vp_npast, self.means_vp_npast))).format(**format_dict)
         self.lose_pp = "you {}".format(random.choice((self.motive_vp_past, self.means_vp_past))).format(**format_dict)
         self.lose_ep = "I {}".format(random.choice((self.motive_vp_past, self.means_vp_past))).format(**format_dict)
+
+        mission_desc_dict = dict(
+            motive_vp_present=self.motive_vp_present, means_vp_present=self.means_vp_present,
+            motive_vp_past=self.motive_vp_past, means_vp_past=self.means_vp_past,
+            motive_vp_npresent=self.motive_vp_npresent, means_vp_npresent = self.means_vp_npresent,
+            motive_vp_npast=self.motive_vp_npast, means_vp_npast=self.means_vp_npast,
+        )
+
+        self.mission_description = random.choice(self._MISSION_DESCS).format(**mission_desc_dict).format(**format_dict)
 
     def get_random_item(self, candidates, context):
         return random.choice(self.get_candidates(candidates, context))
