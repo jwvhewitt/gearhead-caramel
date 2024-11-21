@@ -206,7 +206,7 @@ class CorpMissionRandom(Plot):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, lock=True, scope=self.elements["METROSCENE"])
         self.register_element("ALLIED_FACTION", npc.faction)
         self.register_element("NPC_SCENE", npc.scene)
-        ef = self.register_element("ENEMY_FACTION", nart.camp.get_enemy_faction(self.elements["NPC"]))
+        ef = self.register_element("ENEMY_FACTION", nart.camp.get_enemy_faction(self.elements["NPC"].faction))
         if ef:
             self.expiration = TimeExpiration(nart.camp)
 

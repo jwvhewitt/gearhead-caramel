@@ -208,7 +208,7 @@ class MetrosceneRandomPlotHandler(Plot):
         self.adv = pbge.plots.Adventure(name="Plot Handler")
         return True
 
-    def t_START(self, camp):
+    def t_START(self, camp: gears.GearHeadCampaign):
         # Attempt to load at least one challenge plot, then load some more plots.
         tries = random.randint(2, 5)
         while self.should_load_challenge(camp) and tries > 0:

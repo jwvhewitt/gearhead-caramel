@@ -58,6 +58,7 @@ class CombatStat(object):
         self.has_started_turn = False
         self.last_weapon_used = None
         self.last_program_used = None
+        self.extra_actions_taken = 0
 
     @property
     def mp_remaining(self):
@@ -106,6 +107,7 @@ class CombatStat(object):
         self.moves_this_round = 0
         self.attacks_this_round = 0
         self._mp_spent = 0
+        self.extra_actions_taken = 0
 
     def end_turn(self):
         if self._ap_remaining > 0:
@@ -152,8 +154,14 @@ class CombatStat(object):
         else:
             return max(self.action_points - ap_to_spend, 0), 0
 
+    def __setstate__(self, state):
+        # For saves from V0.974 or earlier, make sure there's an extra_actions_taken property.
+        if "extra_actions_taken" not in state:
+            self.extra_actions_taken = 0
+        self.__dict__.update(state)
 
-class CombatDict(object):
+
+class CombatDict:
     def __init__(self):
         self._entries = dict()
 
@@ -212,6 +220,8 @@ class ActionClockWidget(pbge.widgets.Widget):
             else:
                 frame = min(frame, actions * 32 + 8 + frame_offset)
             self.quarters.render(adest, frame)
+
+
 
     def render(self, flash=False):
         mydest = self.get_rect()

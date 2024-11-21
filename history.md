@@ -1,10 +1,13 @@
+* Added Ravagers faction
+* Biotech mecha can only mount biotech modules; non-biotech mecha may not mount biotech modules
+* Reduced Stamina loss from cyberware
+* Rebalanced monster dodge skill
 * Corporate factions now have allies and enemies
 * FieldHQ name buttons now use labels and can resize text if name is too long
 * New MissionText generated if no MissionGrammar provided to BuildAMissionSeed
 * Random MissionText added
 
 v0.974 November 14, 2024
-
 * Added "Road of No Return" quest to DeadZone Drifter
 * Fixed unloadable save file if PC killed during combat bug
 * Incapacitated PCs may need lifesaving cybersurgery
@@ -13,7 +16,6 @@ v0.974 November 14, 2024
 * Most missions names now include faction being fought
 
 v0.973 November 6, 2024
-
 * Used cyberware is resold at a lower price
 * Refactored cyberdoc unit to use current widget system
 * Fixed crashing bug in cyberdoc unit
@@ -23,11 +25,9 @@ v0.973 November 6, 2024
 * Sales menu will be properly reactivated after selling something
 
 v0.972 November 3, 2024
-
 * Fixed a bug in the Label widget
 
 v0.971 November 3, 2024
-
 * You can now access your inventory from the shop interface
 * You can now switch characters in shop interface
 * Added named boss monsters

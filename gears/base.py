@@ -38,7 +38,7 @@ class StandardDamageHandler(KeyObject, Restoreable):
     # amount of damage taken exceeds its maximum capacity.
     def __init__(self, **keywords):
         self.hp_damage = 0
-        super(StandardDamageHandler, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     base_health = 1
 
@@ -460,6 +460,9 @@ class Combatant(KeyObject):
         """Return the combatant itself."""
         return self
 
+    def get_bonus_action_cost_mod(self):
+        return 100
+
 
 class HasPower(KeyObject):
     # This is a gear that has, and can use, power sources.
@@ -498,7 +501,7 @@ class MakesPower(KeyObject, Restoreable):
     # method.
     def __init__(self, **keywords):
         self.spent = 0
-        super(MakesPower, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     def max_power(self):
         return self.scale.scale_power(1)
@@ -1028,7 +1031,7 @@ class Component(BaseGear):
 # to their full names
 class SizeClassedComponent(Component):
     def __init__(self, **keywords):
-        super(SizeClassedComponent, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     def get_full_name(self):
         basename = super(SizeClassedComponent, self).get_full_name()
@@ -1070,7 +1073,7 @@ class Armor(SizeClassedComponent, StandardDamageHandler):
         elif size > self.MAX_SIZE:
             size = self.MAX_SIZE
         self.size = size
-        super(Armor, self).__init__(**keywords)
+        super().__init__(**keywords)
 
     @property
     def base_mass(self):
@@ -3882,8 +3885,14 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             self.shop_tags.append(tags.ST_MECHA)
         self.pilot = None
 
+    def _material_matches(self, part):
+        if self.material is materials.Biotech:
+            return part.material is materials.Biotech
+        else:
+            return part.material is not materials.Biotech
+
     def is_legal_sub_com(self, part):
-        return self.form.is_legal_sub_com(part)
+        return self.form.is_legal_sub_com(part) and self._material_matches(part)
 
     def is_legal_inv_com(self, part):
         return not isinstance(part, (Mover, Combatant))
@@ -4395,7 +4404,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
                                          , self.get_stat(stats.Athletics)
                                          )
         # Give the character a minimum stamina of 1.
-        return max(1, base - self.current_trauma)
+        return max(1, base - self.current_trauma//2)
 
     def get_current_mental(self):
         return max(self.get_max_mental() - self.mp_spent, 0)

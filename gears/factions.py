@@ -96,7 +96,7 @@ class BoneDevils(Faction):
     mecha_colors = (color.Black, color.Cream, color.BrightRed, color.Avocado, color.Terracotta)
     CAREERS = {
         tags.Trooper: ("Bandit", "Thief"),
-        tags.Commander: ("Commander", "Scavenger"),
+        tags.Commander: ("Commander", "Scavenger", "Crimelord", "Kingpin"),
         tags.Support: ("Mecha Pilot", "Tekno"),
     }
     LOCATIONS = (personality.DeadZone,)
@@ -285,6 +285,20 @@ class ProDuelistAssociation(Faction):
     NOUNS = ("Club", "League")
 
 
+class Ravagers(Faction):
+    name = "the Ravagers"
+    factags = (tags.Adventurer, tags.Criminal)
+    mecha_colors = (color.DesertYellow, color.Sandstone, color.FlourescentGreen, color.Ebony, color.DeepSeaBlue)
+    CAREERS = {
+        tags.Trooper: ("Bandit", "Scavenger", "Mercenary"),
+        tags.Commander: ("Gladiator", "Assassin", "Warlord"),
+        tags.Support: ("Explorer", "Technoshaman", "Neodruid"),
+    }
+    LOCATIONS = (personality.DeadZone,)
+    ADJECTIVES = ("Ashen", "Forsaken", "Apocalypse")
+    NOUNS = ("Nomads", "Survivors", "Caravan")
+
+
 class Circle(object):
     def __init__(self, camp, parent_faction=None, mecha_colors=None, name="", careers=None, factags=(), locations=(),
                  uniform_colors=None, active=True, allies=(), enemies=()):
@@ -442,15 +456,15 @@ DEFAULT_FACTION_DICT_NT158 = {
     ),
     Guardians: FactionRelations(
         allies=(TerranFederation, DeadzoneFederation),
-        enemies=(BoneDevils, BladesOfCrihna)
+        enemies=(BoneDevils, BladesOfCrihna, Ravagers)
     ),
     DeadzoneFederation: FactionRelations(
-        allies=(Guardians,),
-        enemies=(BoneDevils, ClanIronwind),
+        allies=(Guardians, TerranFederation),
+        enemies=(BoneDevils, ClanIronwind, Ravagers),
     ),
     ClanIronwind: FactionRelations(
         allies=(),
-        enemies=(TerranFederation, TerranDefenseForce, DeadzoneFederation)
+        enemies=(TerranFederation, TerranDefenseForce, DeadzoneFederation, Ravagers)
     ),
     TheSilverKnights: FactionRelations(
         allies=(TheSolarNavy,),
@@ -466,18 +480,21 @@ DEFAULT_FACTION_DICT_NT158 = {
         enemies=(Guardians,)
     ),
     KettelIndustries: FactionRelations(
-        enemies=(RegExCorporation, BioCorp, BoneDevils, BladesOfCrihna),
+        enemies=(RegExCorporation, BioCorp, BoneDevils, Ravagers, BladesOfCrihna),
         allies=(Guardians,)
     ),
     BioCorp: FactionRelations(
-        enemies=(RegExCorporation, KettelIndustries, BoneDevils, TreasureHunters),
+        enemies=(RegExCorporation, KettelIndustries, BoneDevils, Ravagers, TreasureHunters),
         allies=(Guardians,)
     ),
     RegExCorporation: FactionRelations(
-        enemies=(KettelIndustries, BioCorp, BoneDevils, ClanIronwind),
+        enemies=(KettelIndustries, BioCorp, BoneDevils, Ravagers, ClanIronwind),
         allies=(Guardians,)
+    ),
+    Ravagers: FactionRelations(
+        enemies=(DeadzoneFederation, ClanIronwind, BoneDevils, KettelIndustries, BioCorp, RegExCorporation),
+        allies=()
     )
-
 
 
 }
