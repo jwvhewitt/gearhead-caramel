@@ -1,3 +1,5 @@
+* Fixed dungeon branch naming bug
+* A biotech torso can only install a biotech engine; non-biotech mecha may not use biotech engines
 * Added Ravagers faction
 * Biotech mecha can only mount biotech modules; non-biotech mecha may not mount biotech modules
 * Reduced Stamina loss from cyberware

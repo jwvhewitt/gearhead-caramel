@@ -461,7 +461,7 @@ class Combatant(KeyObject):
         return self
 
     def get_bonus_action_cost_mod(self):
-        return 100
+        return 0
 
 
 class HasPower(KeyObject):
@@ -3238,7 +3238,7 @@ class ModuleForm(Singleton):
         return False
 
     @classmethod
-    def is_legal_inv_com(self, part):
+    def is_legal_inv_com(cls, part):
         return False
 
     MULTIPLICITY_LIMITS = {
@@ -3246,10 +3246,10 @@ class ModuleForm(Singleton):
     }
 
     @classmethod
-    def check_multiplicity(self, mod, part):
+    def check_multiplicity(cls, mod, part):
         """Returns True if part within acceptable limits for its kind."""
         ok = True
-        for k, v in list(self.MULTIPLICITY_LIMITS.items()):
+        for k, v in list(cls.MULTIPLICITY_LIMITS.items()):
             if isinstance(part, k):
                 ok = ok and len([item for item in mod.sub_com if isinstance(item, k)]) < v
         return ok
@@ -3274,7 +3274,7 @@ class MF_Head(ModuleForm):
     }
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (
             Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, EWSystem,
             EyesCyberware, EarsCyberware, ForebrainCyberware, BrainstemCyberware))
@@ -3288,10 +3288,11 @@ class MF_Torso(ModuleForm):
     }
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (
-            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, Engine, Gyroscope,
-            EWSystem, HeartCyberware, SpineCyberware, TorsoMusclesCyberware, SkeletalCyberware))
+            Weapon, Launcher, Armor, Sensor, Cockpit, Mount, MovementSystem, PowerSource, Usable, Gyroscope, Engine,
+            EWSystem, HeartCyberware, SpineCyberware, TorsoMusclesCyberware, SkeletalCyberware
+        ))
 
     VOLUME_X = 4
     MASS_X = 2
@@ -3310,13 +3311,13 @@ class MF_Arm(ModuleForm):
     }
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part,
                           (Weapon, Launcher, Armor, Hand, Mount, MovementSystem, PowerSource, Sensor, Usable, EWSystem,
                            ArmMusclesCyberware, ))
 
     @classmethod
-    def is_legal_inv_com(self, part):
+    def is_legal_inv_com(cls, part):
         return isinstance(part, Shield)
 
 
@@ -3334,7 +3335,7 @@ class MF_Leg(ModuleForm):
     THRUST_BONUS = 10
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (
             Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem, LegMusclesCyberware,
             ))
@@ -3346,7 +3347,7 @@ class MF_Wing(ModuleForm):
     THRUST_BONUS = 50
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
 
 
@@ -3355,7 +3356,7 @@ class MF_Turret(ModuleForm):
     AIM_BONUS = 5
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
 
 
@@ -3367,7 +3368,7 @@ class MF_Tail(ModuleForm):
     PENETRATION = 2
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
 
 
@@ -3375,7 +3376,7 @@ class MF_Storage(ModuleForm):
     name = "Storage"
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
 
     VOLUME_X = 4
@@ -3416,6 +3417,12 @@ class Module(BaseGear, StandardDamageHandler):
         return self.form.check_multiplicity(self, part)
 
     def is_legal_sub_com(self, part):
+        if isinstance(part, Engine):
+            if self.material is materials.Biotech and part.material is not materials.Biotech:
+                return False
+            elif part.material is materials.Biotech:
+                return False
+
         return self.form.is_legal_sub_com(part)
 
     def is_legal_inv_com(self, part):
@@ -3645,14 +3652,14 @@ class MT_Battroid(Singleton):
     scenes.movement.Walking, tags.Rolling, tags.Skimming, tags.SpaceFlight, tags.Jumping)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Turret,)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         return base_speed
 
@@ -3667,14 +3674,14 @@ class MT_Arachnoid(MT_Battroid):
     LEGAL_MOVE_MODES = (scenes.movement.Walking,)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Arm, MF_Wing, MF_Tail)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == pbge.scenes.movement.Walking:
             return int(base_speed * 1.2)
@@ -3692,7 +3699,7 @@ class MT_Groundhugger(MT_Battroid):
     LEGAL_MOVE_MODES = (tags.Rolling, tags.Skimming)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Arm, MF_Wing, MF_Tail, MF_Leg)
         else:
@@ -3717,14 +3724,14 @@ class MT_Aerofighter(MT_Battroid):
     LEGAL_MOVE_MODES = (pbge.scenes.movement.Flying,)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Head, MF_Arm, MF_Tail, MF_Leg)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == pbge.scenes.movement.Flying:
             return int(base_speed * 1.5)
@@ -3742,14 +3749,14 @@ class MT_Gerwalk(MT_Battroid):
     LEGAL_MOVE_MODES = (pbge.scenes.movement.Flying, pbge.scenes.movement.Walking, tags.Skimming)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Tail, MF_Turret)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == pbge.scenes.movement.Flying:
             return int(base_speed * 1.1)
@@ -3766,14 +3773,14 @@ class MT_Ornithoid(MT_Battroid):
     LEGAL_MOVE_MODES = (scenes.movement.Walking, scenes.movement.Flying, tags.SpaceFlight)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Arm, MF_Turret)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == pbge.scenes.movement.Flying:
             return int(base_speed * 1.25)
@@ -3792,14 +3799,14 @@ class MT_Zoanoid(MT_Battroid):
     LEGAL_MOVE_MODES = (scenes.movement.Walking, tags.Jumping, tags.SpaceFlight)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Arm, MF_Turret, MF_Wing)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == pbge.scenes.movement.Walking:
             return base_speed + 20
@@ -3816,14 +3823,14 @@ class MT_Hoverfighter(MT_Battroid):
     LEGAL_MOVE_MODES = (pbge.scenes.movement.Flying, tags.Skimming)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Head, MF_Arm, MF_Tail, MF_Leg)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == pbge.scenes.movement.Flying:
             return int(base_speed * 1.1)
@@ -3841,14 +3848,14 @@ class MT_Groundcar(MT_Battroid):
     LEGAL_MOVE_MODES = (tags.Rolling, tags.Skimming)
 
     @classmethod
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(cls, part):
         if isinstance(part, Module):
             return part.form not in (MF_Arm, MF_Wing, MF_Tail, MF_Leg, MF_Head)
         else:
             return False
 
     @classmethod
-    def modify_speed(self, base_speed, move_mode):
+    def modify_speed(cls, base_speed, move_mode):
         # Return the modified speed.
         if move_mode == tags.Rolling:
             return int(base_speed * 1.25)
@@ -4185,6 +4192,13 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             return 2
         else:
             return 1
+
+    def get_bonus_action_cost_mod(self):
+        it = super().get_bonus_action_cost_mod()
+        for part in self.ok_descendants(False):
+            if hasattr(part, "bonus_action_cost_mod"):
+                it += part.bonus_action_cost_mod
+        return it
 
     def dole_experience(self, xp, xp_type=None):
         pilot = self.get_pilot()

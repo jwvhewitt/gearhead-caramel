@@ -64,29 +64,30 @@ class DungeonMaker(object):
         random.shuffle(r_levels)
         self.goal_proto_level = max(r_levels, key=lambda l: l.depth)
 
-        for proto in self.proto_levels:
-            if proto.parent and proto.parent.real_scene:
-                parent = proto.parent.real_scene
-            else:
-                parent = parent_scene
-            sp = parent_plot.add_sub_plot(nart, proto.gen, spstate=PlotState(rank=rank + proto.depth * 3, elements={
-                DG_NAME: proto.get_name(name), DG_ARCHITECTURE: architecture, DG_TEMPORARY: temporary,
-                DG_SCENE_TAGS: scene_tags, DG_MONSTER_TAGS: monster_tags, DG_PARENT_SCENE: parent,
-                DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music, DG_DECOR: decor
-            }))
-            proto.real_scene = sp.elements["LOCALE"]
-            proto.level_plot = sp
-            self.levels.append(proto.real_scene)
-            if proto.terminal:
-                sp.add_sub_plot(nart, "DUNGEON_GOAL")
-            if parent and parent is not parent_scene:
-                connector(nart, parent_plot, parent, proto.real_scene, )
-            else:
-                self.entry_level = proto.real_scene
+        if nart:
+            for proto in self.proto_levels:
+                if proto.parent and proto.parent.real_scene:
+                    parent = proto.parent.real_scene
+                else:
+                    parent = parent_scene
+                sp = parent_plot.add_sub_plot(nart, proto.gen, spstate=PlotState(rank=rank + proto.depth * 3, elements={
+                    DG_NAME: proto.get_name(name), DG_ARCHITECTURE: architecture, DG_TEMPORARY: temporary,
+                    DG_SCENE_TAGS: scene_tags, DG_MONSTER_TAGS: monster_tags, DG_PARENT_SCENE: parent,
+                    DG_EXPLO_MUSIC: explo_music, DG_COMBAT_MUSIC: combat_music, DG_DECOR: decor
+                }))
+                proto.real_scene = sp.elements["LOCALE"]
+                proto.level_plot = sp
+                self.levels.append(proto.real_scene)
+                if proto.terminal:
+                    sp.add_sub_plot(nart, "DUNGEON_GOAL")
+                if parent and parent is not parent_scene:
+                    connector(nart, parent_plot, parent, proto.real_scene, )
+                else:
+                    self.entry_level = proto.real_scene
 
-        self.goal_level = self.goal_proto_level.real_scene
-        if goal_room:
-            self.goal_level.contents.append(goal_room)
+            self.goal_level = self.goal_proto_level.real_scene
+            if goal_room:
+                self.goal_level.contents.append(goal_room)
 
     def add_a_level(self, parent, depth, branch):
         mylevel = ProtoDLevel(parent, depth, branch)
@@ -95,10 +96,23 @@ class DungeonMaker(object):
             # Add another level.
             if random.randint(1, 5) == 1 and self.hi_branch < 5:
                 # Branch this dungeon.
-                self.add_a_level(mylevel, depth + 1, self.hi_branch + 1)
-                self.add_a_level(mylevel, depth + 1, branch)
+                new_branch = self.hi_branch + 1
                 self.hi_branch += 1
+                self.add_a_level(mylevel, depth + 1, new_branch)
+                self.add_a_level(mylevel, depth + 1, branch)
             else:
                 self.add_a_level(mylevel, depth + 1, branch)
         else:
             mylevel.terminal = True
+
+    @classmethod
+    def test_names(cls):
+        mytester = cls(None, None, None, None, None, 10)
+        #mytester.add_a_level(None, 1, 0)
+        for pl in mytester.proto_levels:
+            print(pl.get_name("Test Dungeon"))
+
+
+#for t in range(10):
+#    DungeonMaker.test_names()
+#    print("...")
