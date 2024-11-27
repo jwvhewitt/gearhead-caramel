@@ -1,5 +1,264 @@
 Mecha
     name = "Buru Buru"
+    desig = "SAN-X8f"
+    imagename = "mav_buruburu_x8f.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (Ravagers, DeadzoneFederation, )
+    role_list = (Trooper,Commander)
+    desc = "An older variant of the Buru Buru mecha that sacrifices maneuverability for increased speed. The SAN-X8f is still used by regional defense forces."
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 25
+                            END
+                    END
+            END
+        Storage
+            name = "Backpack"
+            size = 2
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        STC Shaka Cannon
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Axe"
+                            reach=1
+                            damage=3
+                            accuracy=1
+                            penetration=2
+                    END
+            END
+            INV
+				Shield
+				    name = "Mecha Shield"
+                    desig = "8f"
+					size = 4
+					bonus = 2
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+
+Mecha
+    name = "Buru Buru"
+    desig = "SAN-X8cb Crossbone"
+    imagename = "mav_buruburu_x9cb.png"
+    portrait = "mecha_buruburu.png"
+    family = "Buru Buru"
+    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
+    faction_list = (BladesOfCrihna,)
+    role_list = (Trooper,Commander)
+    desc = "This variant of the ubiquitous Buru Buru is favored by pirates in the L5 region."
+
+    SUB
+        Head
+            size = 4
+            SUB
+                Armor
+                    size = 4
+                Sensor
+                    size = 2
+                BeamWeapon
+                    name = "Intercept Laser"
+                    reach = 2
+                    damage = 1
+                    accuracy = 2
+                    penetration = 0
+                    integral = True
+                    shot_anim = SmallBeam
+                    attributes = (Intercept)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Engine
+                    size = 605
+                Gyroscope
+                Cockpit
+                    SUB
+                        Armor
+                            size = 2
+                    END
+                Mount
+                    name = "Collar Mount"
+                    INV
+                        Launcher
+                            size = 4
+                            SUB
+                                Missile
+                                    name = "Swarm Missiles"
+                                    reach = 6
+                                    damage = 1
+                                    accuracy = 2
+                                    penetration = 1
+                                    quantity = 25
+                            END
+                    END
+            END
+        Storage
+            name = "Backpack"
+            size = 2
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Arm
+            name = "Right Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Right Hand"
+                    INV
+                        BallisticWeapon
+                            name = "Mecha Blunderbuss"
+                            reach = 4
+                            damage = 4
+                            accuracy = 2
+                            penetration = 2
+                            ammo_type = Ferrous_Frag
+                            attributes = (Scatter)
+                            SUB
+                                Ammo
+                                    ammo_type=Ferrous_Frag
+                                    quantity=25
+                            END
+                    END
+            END
+        Arm
+            name = "Left Arm"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                Hand
+                    name = "Left Hand"
+                    INV
+                        MeleeWeapon
+                            name="Cutlass"
+                            reach=1
+                            damage=3
+                            accuracy=2
+                            penetration=1
+                    END
+                MeleeWeapon
+                    name="Shoulder Spike"
+                    reach=1
+                    damage=2
+                    accuracy=0
+                    penetration=3
+            END
+        Leg
+            name = "Right Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+        Leg
+            name = "Left Leg"
+            size = 5
+            SUB
+                Armor
+                    size = 4
+                HoverJets
+                    size = 4
+            END
+    END
+
+
+Mecha
+    name = "Buru Buru"
     desig = "SAN-X9"
     imagename = "mav_buruburu_x9.png"
     portrait = "mecha_buruburu.png"
@@ -482,130 +741,6 @@ Mecha
             END
     END
 
-Mecha
-    name = "Buru Buru"
-    desig = "SAN-X8cb Crossbone"
-    imagename = "mav_buruburu_x9cb.png"
-    portrait = "mecha_buruburu.png"
-    family = "Buru Buru"
-    environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
-    faction_list = (BladesOfCrihna,)
-    role_list = (Trooper,Commander)
-    desc = "This variant of the ubiquitous Buru Buru is favored by pirates in the L5 region."
-
-    SUB
-        Head
-            size = 4
-            SUB
-                Armor
-                    size = 4
-                Sensor
-                    size = 2
-                BeamWeapon
-                    name = "Intercept Laser"
-                    reach = 2
-                    damage = 1
-                    accuracy = 2
-                    penetration = 0
-                    integral = True
-                    shot_anim = SmallBeam
-                    attributes = (Intercept)
-            END
-        Torso
-            size = 5
-            SUB
-                Armor
-                    size = 4
-                Engine
-                    size = 605
-                Gyroscope
-                Cockpit
-                    SUB
-                        Armor
-                            size = 2
-                    END
-                Mount
-                    name = "Collar Mount"
-                    INV
-                        Launcher
-                            size = 4
-                            SUB
-                                Missile
-                                    name = "Swarm Missiles"
-                                    reach = 6
-                                    damage = 1
-                                    accuracy = 2
-                                    penetration = 1
-                                    quantity = 25
-                            END
-                    END
-            END
-        Arm
-            name = "Right Arm"
-            size = 5
-            SUB
-                Armor
-                    size = 4
-                Hand
-                    name = "Right Hand"
-                    INV
-                        BallisticWeapon
-                            name = "Mecha Blunderbuss"
-                            reach = 4
-                            damage = 4
-                            accuracy = 2
-                            penetration = 2
-                            ammo_type = Ferrous_Frag
-                            attributes = (Scatter)
-                            SUB
-                                Ammo
-                                    ammo_type=Ferrous_Frag
-                                    quantity=25
-                            END
-                    END
-            END
-        Arm
-            name = "Left Arm"
-            size = 5
-            SUB
-                Armor
-                    size = 4
-                Hand
-                    name = "Left Hand"
-                    INV
-                        MeleeWeapon
-                            name="Cutlass"
-                            reach=1
-                            damage=3
-                            accuracy=2
-                            penetration=1
-                    END
-                MeleeWeapon
-                    name="Shoulder Spike"
-                    reach=1
-                    damage=2
-                    accuracy=0
-                    penetration=3
-            END
-        Leg
-            name = "Right Leg"
-            size = 5
-            SUB
-                Armor
-                    size = 4
-                HoverJets
-                    size = 4
-            END
-        Leg
-            name = "Left Leg"
-            size = 5
-            SUB
-                Armor
-                    size = 4
-                HoverJets
-                    size = 4
-            END
-    END
 
 Mecha
     name = "Buru Buru"

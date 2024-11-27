@@ -95,6 +95,7 @@ class AnimOb(object):
             if self.counter == 0 and self.sound_fx:
                 my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
                                             allow_multiple_copies= self.ALLOW_MULTIPLE_SOUND_FX)
+                self.sound_fx = None
             self.counter += 1
             if self.counter >= self.ticks_per_frame:
                 self.frame += 1

@@ -1,3 +1,4 @@
+from numpy import isin
 from . import materials
 from . import scale
 from . import calibre
@@ -461,6 +462,12 @@ class Combatant(KeyObject):
         return self
 
     def get_bonus_action_cost_mod(self):
+        return 0
+
+    def get_current_stamina(self):
+        return 0
+
+    def get_current_mental(self):
         return 0
 
 
@@ -995,10 +1002,8 @@ class Component(BaseGear):
     INTEGRAL_COST_REDUCTION = 0.0
     INTEGRAL_MASS_REDUCTION = 0.0
 
-    INTEGRAL_BY_DEFAULT = False
-
-    def __init__(self, **keywords):
-        self.integral = keywords.pop('integral', self.INTEGRAL_BY_DEFAULT)
+    def __init__(self, integral=False, **keywords):
+        self.integral = integral
         super(Component, self).__init__(**keywords)
 
     def can_normally_remove(self):
@@ -1284,19 +1289,87 @@ class Engine(Component, StandardDamageHandler, MakesPower):
                 , ("Power", str(self.max_power()))
                 )
 
+    def modify_speed(self, base_speed):
+        return base_speed
+
+
+class HighPerformanceEngine(Engine):
+    DEFAULT_NAME = "High Performance Engine"
+    _BONUS_ACTION_COST_MOD = 3
+    base_health = 2
+
+    def max_power(self):
+        return int(super().max_power() * 0.75)
+
+    @property
+    def base_cost(self):
+        return int(super().base_cost * 2) + 35000
+
+    @property
+    def bonus_action_cost_mod(self):
+        return self._BONUS_ACTION_COST_MOD
+
+    def modify_speed(self, base_speed):
+        return int(base_speed * 1.25)
+
+    def get_item_stats(self):
+        return (("Rating", str(self.size))
+                , ("Power", str(self.max_power()))
+                , ("Action Bonus", str(self.bonus_action_cost_mod))
+                , ("Speed Bonus", "125%")
+                )
+
+
+class HighOutputEngine(Engine):
+    DEFAULT_NAME = "Hight Output Engine"
+
+    @property
+    def base_volume(self):
+        return super().base_volume + 1
+
+    @property
+    def base_cost(self):
+        return int(super().base_cost * 1.5)
+
+    def max_power(self):
+        return self.scale.scale_power(self.size // 15)
+
 
 class Gyroscope(Component, StandardDamageHandler):
     DEFAULT_NAME = "Gyroscope"
     base_mass = 10
-    INTEGRAL_BY_DEFAULT = True
     REPORT_DESTRUCTION = True
 
     def is_legal_sub_com(self, part):
         return isinstance(part, Armor)
 
-    base_volume = 3
+    @staticmethod
+    def modify_mobility(current_score):
+        return current_score
+
+    base_volume = 2
     base_cost = 10
     base_health = 2
+
+
+class AdvancedGyroscope(Gyroscope):
+    base_cost=55000
+    base_mass = 5
+    base_health = 1
+    _BONUS_ACTION_COST_MOD = 3
+
+    @property
+    def bonus_action_cost_mod(self):
+        return self._BONUS_ACTION_COST_MOD
+
+    def get_item_stats(self):
+        return (('Action Bonus', str(self.bonus_action_cost_mod))
+                ,('Mobility Bonus', "120%")
+                )
+
+    @staticmethod
+    def modify_mobility(current_score):
+        return int(current_score * 1.2)
 
 
 class Cockpit(Component, StandardDamageHandler):
@@ -1321,6 +1394,33 @@ class Cockpit(Component, StandardDamageHandler):
     base_volume = 2
     base_cost = 5
     base_health = 2
+
+
+class DMCCockpit(Cockpit):
+    DEFAULT_NAME = "Dynamic Mecha Control Cockpit"
+    base_cost= 20000
+    _BONUS_ACTION_COST_MOD = 2
+
+    @property
+    def bonus_action_cost_mod(self):
+        return self._BONUS_ACTION_COST_MOD
+
+    def get_item_stats(self):
+        return (('Action Bonus', str(self.bonus_action_cost_mod))
+                ,
+                )
+
+
+class ReflexCockpit(DMCCockpit):
+    DEFAULT_NAME = "Reflex Control Cockpit"
+    base_cost= 50000
+    _BONUS_ACTION_COST_MOD = 4
+
+
+class MindlinkCockpit(DMCCockpit):
+    DEFAULT_NAME = "Mindlink Control Cockpit"
+    base_cost= 125000
+    _BONUS_ACTION_COST_MOD = 6
 
 
 class Sensor(SizeClassedComponent, StandardDamageHandler):
@@ -1590,7 +1690,7 @@ class PowerSource(Component, StandardDamageHandler, MakesPower):
 
     @property
     def base_cost(self):
-        return self.size * 75
+        return self.size * 95
 
     @property
     def base_health(self):
@@ -1604,7 +1704,7 @@ class PowerSource(Component, StandardDamageHandler, MakesPower):
         return self.is_not_destroyed() and mod and mod.is_operational()
 
     def max_power(self):
-        return self.scale.scale_power(self.size * 5)
+        return self.scale.scale_power(self.size * 10)
 
     def get_item_stats(self):
         return (('Power', str(self.max_power())),)
@@ -4015,9 +4115,18 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
                     if isinstance(e, Engine) and e.is_not_destroyed() and e.scale is self.scale:
                         engine_rating = e.size
                     elif isinstance(e, Gyroscope) and e.is_not_destroyed() and e.scale is self.scale:
-                        has_gyro = True
+                        has_gyro = e
                 break
         return engine_rating, has_gyro
+
+    def get_engine(self):
+        for m in self.sub_com:
+            if isinstance(m, Torso):
+                if m.is_destroyed():
+                    return None
+                for e in m.sub_com:
+                    if isinstance(e, Engine):
+                        return e
 
     def calc_mobility(self):
         """Calculate the mobility ranking of this mecha.
@@ -4045,6 +4154,9 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
             it = self.form.modify_mobility(it)
         # Add emchantment modifiers.
         it += self.ench_list.get_funval(self, 'get_mobility_bonus')
+
+        if has_gyro:
+            it = has_gyro.modify_mobility(it)
 
         if it > 50:
             it = min(it, 50 + int(math.log(it - 50, 1.2)))
@@ -4103,6 +4215,9 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
     def get_speed(self, mmode):
         if mmode in self.form.LEGAL_MOVE_MODES:
             base_speed = super().get_speed(mmode)
+            eng = self.get_engine()
+            if eng:
+                base_speed = eng.modify_speed(base_speed)
             return self.form.modify_speed(base_speed, mmode)
         else:
             return 0

@@ -28,12 +28,12 @@ Mecha
                     size = 7
                 Engine
                     size = 1650
-                Gyroscope
+                AdvancedGyroscope
                     SUB
                         Armor
                             size = 1
                     END
-                Cockpit
+                ReflexCockpit
                     SUB
                         Armor
                             size = 2

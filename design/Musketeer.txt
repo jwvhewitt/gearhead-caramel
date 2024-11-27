@@ -23,26 +23,29 @@ Mecha
             SUB
                 Armor
                     size = 4
-                Engine
+                HighOutputEngine
                     size = 630
                 Gyroscope
-                Launcher
-                    size = 6
-                    SUB
-                        Missile
-                            name = "Guided Missiles"
-                            reach = 7
-                            damage = 2
-                            accuracy = 3
-                            penetration = 1
-                            quantity = 12
+                Mount
+                    name = "Back Mount"
+                    INV
+                        Launcher
+                            size = 6
+                            SUB
+                                Missile
+                                    name = "Guided Missiles"
+                                    reach = 7
+                                    damage = 2
+                                    accuracy = 3
+                                    penetration = 1
+                                    quantity = 12
+                            END
                     END
                 PowerSource
                     desig = 'TD-4BB'
                     name = "Musketeer Batteries"
-                    size = 3
+                    size = 4
                     material = Ceramic
-                    integral = True
             END
         Arm
             name = "Right Arm"
@@ -71,7 +74,7 @@ Mecha
                     damage = 3
                     accuracy = 2
                     penetration = 2
-                    attributes = (Plasma,LinkedFire,Brutal)
+                    attributes = (Plasma,LinkedFire,Brutal)class Component
                     shot_anim = PlasmaBall
             END
         Leg

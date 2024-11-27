@@ -29,8 +29,8 @@ Mecha
             size = 5
             SUB
                 Armor
-                    size = 5
-                Engine
+                    size = 7
+                HighPerformanceEngine
                     size = 1100
                     SUB
                         Armor
@@ -59,21 +59,21 @@ Mecha
                             END
                     END
                 HoverJets
-                    size = 9
+                    size = 7
             END
         Arm
             name = "Right Arm"
-            size = 6
+            size = 5
             SUB
                 Armor
-                    size = 5
+                    size = 6
                 Hand
                     name = "Right Hand"
                     INV
                         MeleeWeapon
                             name="Mecha Wrecker"
                             reach=1
-                            damage=3
+                            damage=4
                             accuracy=2
                             penetration=4
                             attributes = (Flail,Brutal)
@@ -96,22 +96,20 @@ Mecha
                             END
                     END
                 HeavyActuators
-                    size = 6
-                    integral = True
+                    size = 2
             END
         Arm
             name = "Left Arm"
-            size = 6
+            size = 5
             SUB
                 Armor
-                    size = 5
+                    size = 6
                 Hand
                     name = "Left Hand"
                 Mount
                     name = "Left Arm Mount"
                 HeavyActuators
-                    size = 6
-                    integral = True
+                    size = 2
             END
             INV
                 Shield
@@ -133,17 +131,17 @@ Mecha
             size = 5
             SUB
                 Armor
-                    size = 5
+                    size = 6
                 HoverJets
-                    size = 5
+                    size = 4
             END
         Leg
             name = "Left Leg"
             size = 5
             SUB
                 Armor
-                    size = 5
+                    size = 6
                 HoverJets
-                    size = 5
+                    size = 4
             END
     END

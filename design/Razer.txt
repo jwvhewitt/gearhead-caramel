@@ -7,7 +7,7 @@ Mecha
     desc = "The Razer is a light bipedal walking tank that is equipped with a pair of machine guns that are suited to fighting light mecha and powered armor."
 
     environment_list = (GroundEnv,UrbanEnv)
-    faction_list = (TerranFederation,TerranDefenseForce,BoneDevils,DeadzoneFederation,ClanIronwind)
+    faction_list = (TerranFederation,TerranDefenseForce,BoneDevils,DeadzoneFederation,ClanIronwind,Ravagers)
     role_list = (Support,Trooper)
 
     SUB
@@ -211,7 +211,7 @@ Mecha
     desc = "The Razer is a light bipedal walking tank. The XS variant comes equipped with twin pulse laser cannons."
 
     environment_list = (GroundEnv,UrbanEnv)
-    faction_list = (TerranFederation,)
+    faction_list = (TerranFederation,TerranDefenseForce)
     role_list = (Support,Trooper)
 
     SUB

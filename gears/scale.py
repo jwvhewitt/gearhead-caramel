@@ -15,25 +15,25 @@ class MechaScale( object ):
     XP_MULTIPLIER = 1
     DEFAULT_DAMAGE_DIE = 4
     @classmethod
-    def scale_mass( self, mass, material ):
+    def scale_mass( cls, mass, material ):
         # Scale mass based on scale and material.
         # The universal mass unit is 100 grams.
-        return int(mass * pow( self.SIZE_FACTOR, 3 ) * material.mass_scale )
+        return int(mass * pow( cls.SIZE_FACTOR, 3 ) * material.mass_scale )
     @classmethod
-    def unscale_mass( self, mass ):
+    def unscale_mass( cls, mass ):
         # Convert a real mass to a value in scale units.
-        return int( mass / pow( self.SIZE_FACTOR, 3 ) )
+        return int( mass / pow( cls.SIZE_FACTOR, 3 ) )
     @classmethod
-    def scale_cost( self, cost , material ):
+    def scale_cost( cls, cost , material ):
         # Scale mass based on scale and material.
-        return int( cost * self.SIZE_FACTOR*self.COST_FACTOR * material.cost_scale ) // 10
+        return int( cost * cls.SIZE_FACTOR*cls.COST_FACTOR * material.cost_scale ) // 10
     @classmethod
-    def scale_health( self, hp , material ):
+    def scale_health( cls, hp , material ):
         # Scale mass based on scale and material.
-        return int( hp * self.SIZE_FACTOR ** 2 * 2.5 * material.damage_scale + 0.5 )
+        return int( hp * cls.SIZE_FACTOR ** 2 * 2.5 * material.damage_scale + 0.5 )
     @classmethod
-    def scale_power( self, power ):
-        return power * self.SIZE_FACTOR ** 2
+    def scale_power( cls, power ):
+        return power * cls.SIZE_FACTOR ** 2
     @staticmethod
     def get_mass_string( mass ):
         return '{:.1f} tons'.format(mass / 10000.0)

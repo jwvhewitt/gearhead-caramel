@@ -48,7 +48,7 @@ def start_continuous_combat(camp):
 class CombatStat(object):
     """Keep track of some stats that only matter during combat."""
 
-    def __init__(self, combatant):
+    def __init__(self, combatant: gears.base.Combatant):
         self.combatant = combatant
         self.aoo_readied = False
         self.attacks_this_round = 0
@@ -160,6 +160,20 @@ class CombatStat(object):
             self.extra_actions_taken = 0
         self.__dict__.update(state)
 
+    def bonus_action_cost(self):
+        return max(self.extra_actions_taken * 5 + 10 - self.combatant.get_bonus_action_cost_mod(), 5)
+
+    def can_buy_bonus_action(self):
+        return self.combatant.get_current_stamina() >= self.bonus_action_cost()
+
+    def buy_bonus_action(self):
+        if self.can_buy_bonus_action():
+            self.combatant.spend_stamina(self.bonus_action_cost())
+            self._ap_remaining += 1
+            self.extra_actions_taken += 1
+            pbge.my_state.view.play_anims(gears.geffects.BonusActionAnim(pos=self.combatant.pos), pbge.scenes.animobs.Caption(txt="+1 Action", pos=self.combatant.pos))
+
+
 
 class CombatDict:
     def __init__(self):
@@ -180,6 +194,36 @@ class CombatDict:
             v = CombatStat(k)
             nu_dict._entries[k] = v
         return nu_dict
+
+
+class BonusActionWidget(pbge.widgets.ButtonWidget):
+    def __init__(self, pc, camp, on_buy_action):
+        self.pc = pc
+        self.camp = camp
+        self.comrec = camp.fight.cstat[pc]
+        self.on_buy_action = on_buy_action
+        super().__init__(
+            -64, 13, 32, 32,
+            sprite=pbge.image.Image("sys_bonusaction_widget.png", 32, 32),
+            frame=0, on_frame=0, off_frame=1,
+            anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining",
+            on_click=self.buy_action
+        )
+        self.last_update = None
+
+    def buy_action(self, *args):
+        if self.comrec.can_buy_bonus_action():
+            self.comrec.buy_bonus_action()
+            self.on_buy_action()
+
+    def render(self, flash=False):
+        if self.frame == self.on_frame and not self.comrec.can_buy_bonus_action():
+            self.frame = self.off_frame
+        if self.last_update != self.comrec.extra_actions_taken:
+            self.last_update = self.comrec.extra_actions_taken
+            self.tooltip = "Spend {} SP for +1 Action".format(self.comrec.bonus_action_cost())
+
+        super().render(flash)
 
 
 class ActionClockWidget(pbge.widgets.Widget):
@@ -220,8 +264,6 @@ class ActionClockWidget(pbge.widgets.Widget):
             else:
                 frame = min(frame, actions * 32 + 8 + frame_offset)
             self.quarters.render(adest, frame)
-
-
 
     def render(self, flash=False):
         mydest = self.get_rect()
@@ -434,12 +476,21 @@ class PlayerTurn(object):
         if op:
             self.find_this_option(op)
 
+    def _update_current_nav(self):
+        if isinstance(self.active_ui, movementui.MovementUI):
+            self.active_ui.needs_tile_update = True
+        else:
+            self.active_ui.update_nav()
+
     def go(self):
         # Perform this character's turn.
         # Start by creating the movement clock, since we're gonna be passing this widget to a bunch of our UIs.
 
         myclock = ActionClockWidget(self.pc, self.camp)
         pbge.my_state.widgets.append(myclock)
+        my_bonus_action_button = BonusActionWidget(self.pc, self.camp, self._update_current_nav)
+        myclock.children.append(my_bonus_action_button)
+
 
         # How this is gonna work: There are several modes that can be switched
         #  between: movement, attack, use skill, etc. Each mode is gonna get

@@ -1,3 +1,8 @@
+* Characters can spend stamina to get extra actions
+* Added different cockpit control types
+* Added High Output Engine, High Performance Engine
+* Added Advanced Gyroscope; Gyroscopes are no longer Integral by default
+* Fixed sound effect repeat bug
 * Fixed dungeon branch naming bug
 * A biotech torso can only install a biotech engine; non-biotech mecha may not use biotech engines
 * Added Ravagers faction

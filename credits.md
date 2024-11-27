@@ -168,3 +168,4 @@ pixabay.com and other CC0 sound effect collections.
 * rock_breaking.ogg by Blender Foundation, CC-BY-3.0
 * Spell1.ogg by artisticdude, CC-BY-3.0
 * UI_Electric_00.ogg by Little Robot Sound Factory, CC-BY-3.0
+* upgrade1.ogg by KenneyNL, CC0

@@ -234,10 +234,16 @@ class SparkleBlueAnim(animobs.AnimOb):
 
 
 class SparkleRedAnim(animobs.AnimOb):
-    DEFAULT_SPRITE_NAME = "anim_gervais_sparkle_blue.png"
+    DEFAULT_SPRITE_NAME = "anim_gervais_sparkle_red.png"
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 1
     DEFAULT_SOUND_FX = "magical_1.ogg"
+
+
+class BonusActionAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_bonusaction.png"
+    DEFAULT_END_FRAME = 24
+    DEFAULT_SOUND_FX = "upgrade1.ogg"
 
 
 class SuperBoom(animobs.AnimOb):

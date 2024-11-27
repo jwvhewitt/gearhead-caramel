@@ -525,6 +525,10 @@ class InvocationUI(object):
         self.my_widget.help_on = False
         pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
 
+    def update_nav(self):
+        if self.camp.fight:
+            self.nav = self.camp.fight.get_action_nav(self.pc)
+
     def get_firing_pos(self):
         if self.targets[0] in self.legal_tiles:
             return self.pc.pos

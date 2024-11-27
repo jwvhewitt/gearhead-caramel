@@ -24,10 +24,10 @@ Mecha
             SUB
                 Armor
                     size = 5
-                Engine
+                HighPerformanceEngine
                     size = 1650
                 Gyroscope
-                Cockpit
+                DMCCockpit
                     SUB
                         Armor
                             size = 2

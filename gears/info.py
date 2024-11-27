@@ -416,7 +416,7 @@ class PrimaryStatsBlock(object):
 
 
 class MechaStatsBlock(object):
-    def __init__(self, model, font=None, width=220, **kwargs):
+    def __init__(self, model: base.Mecha, font=None, width=220, **kwargs):
         self.model = model
         self.width = width
         self.font = font or pbge.MEDIUMFONT
@@ -424,13 +424,15 @@ class MechaStatsBlock(object):
 
     def _get_text_image(self):
         return pbge.render_text(self.font,
-                                "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {}".format(
+                                "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {} \n Action Bonus: {}".format(
                                     self.model.mass / 10000.0,
                                     self.model.calc_average_armor(),
                                     self.model.calc_mobility(),
                                     self.model.get_max_speed(),
                                     self.model.get_sensor_range(self.model.scale),
-                                    self.model.get_ewar_rating()),
+                                    self.model.get_ewar_rating(),
+                                    self.model.get_bonus_action_cost_mod()
+                                    ),
                                 self.width, justify=0, color=pbge.INFO_GREEN)
 
     def render(self, x, y):
@@ -652,7 +654,7 @@ class PropStatusBlock(object):
 
 
 class MechaFeaturesAndSpriteBlock(object):
-    def __init__(self, model, width=360, additional_info="", **kwargs):
+    def __init__(self, model: base.Mecha, width=360, additional_info="", **kwargs):
         self.model = model
         self.width = width
         self.height = 136
@@ -670,13 +672,14 @@ class MechaFeaturesAndSpriteBlock(object):
         pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
         mydest = pygame.Rect(x + 140, y, self.width - 140, self.height)
         pbge.draw_text(pbge.MEDIUMFONT,
-                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {} {}".format(
+                       "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {} \n Action Bonus: {} {}".format(
                            self.model.mass / 10000.0,
                            self.model.calc_average_armor(),
                            self.model.calc_mobility(),
                            self.model.get_max_speed(),
                            self.model.get_sensor_range(self.model.scale),
                            self.model.get_ewar_rating(),
+                           self.model.get_bonus_action_cost_mod(),
                            self.additional_info),
                        mydest, color=pbge.INFO_GREEN)
 
