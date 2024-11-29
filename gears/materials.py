@@ -19,6 +19,7 @@ class Material( Singleton ):
     cost_scale = 0
     repair_type = RT_REPAIR
     repair_cost = 1
+    BONUS_ACTION_COST_MOD = 0
 
 class Metal( Material ):
     desig = "M"
@@ -61,6 +62,7 @@ class Biotech( Material ):
     cost_scale = 120
     repair_type = RT_BIOTECHNOLOGY
     repair_cost = 2
+    BONUS_ACTION_COST_MOD = 2
 
 class DamageMat(Material):
     # Only used for rolling damage. Do not use this for a gear. I'll only warn you once.

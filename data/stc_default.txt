@@ -173,12 +173,12 @@ BeamWeapon
     desig = "PHS-8"
     name = "Phase Cannon"
     reach = 8
-    damage = 2
-    accuracy = 2
+    damage = 3
+    accuracy = 3
     penetration = 5
     scale = MechaScale
     shot_anim = SmallBeam
-    attributes = (Accurate)
+    attributes = (Accurate, LinkedFire)
     attack_stat = Perception
 
 BeamWeapon
@@ -190,4 +190,5 @@ BeamWeapon
     penetration = 5
     scale = MechaScale
     shot_anim = GunBeam
+    attributes = (Accurate)
     attack_stat = Perception

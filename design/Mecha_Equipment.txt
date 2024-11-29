@@ -170,21 +170,21 @@ Shield
     faction_list = (None,)
 
 Engine
-    desig = "MP-850 High Output"
+    desig = "MP-850C"
     size = 850
     material = Ceramic
     shop_tags= ("MEXTRA",)
     faction_list = (None,)
 
 Engine
-    desig = "MP-1100 High Output"
+    desig = "MP-1100C"
     size = 1100
     material = Ceramic
     shop_tags= ("MEXTRA",)
     faction_list = (None,)
 
 Engine
-    desig = "MP-1350 High Output"
+    desig = "MP-1350C"
     size = 1350
     material = Ceramic
     shop_tags= ("MEXTRA",)
@@ -214,6 +214,97 @@ Engine
 Engine
     desig = "MP-1500 Advanced"
     size = 1500
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighOutputEngine
+    desig = "DRV-700"
+    size = 700
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighOutputEngine
+    desig = "DRV-900"
+    size = 900
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighOutputEngine
+    desig = "CI-1200"
+    size = 1200
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighOutputEngine
+    desig = "FPP-1600 Utility"
+    size = 1600
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighOutputEngine
+    desig = "Pro Combat 800"
+    size = 800
+    material = Ceramic
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+    SUB
+        Armor
+            size = 2
+    END
+
+HighPerformanceEngine
+    desig = "ZZGO-950"
+    size = 950
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighPerformanceEngine
+    desig = "ZZGO-1300"
+    size = 1300
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighPerformanceEngine
+    desig = "HMW-1750"
+    size = 1750
+    material = Ceramic
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+HighPerformanceEngine
+    desig = "Fireball 1050"
+    size = 1050
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+AdvancedGyroscope
+    desig = "G2"
+    material = Metal
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+AdvancedGyroscope
+    desig = "G3"
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+DMCCockpit
+    desig = "JMJ-30"
+    material = Advanced
+    shop_tags= ("MEXTRA",)
+    faction_list = (None,)
+
+ReflexCockpit
+    desig = "PR406"
     material = Advanced
     shop_tags= ("MEXTRA",)
     faction_list = (None,)

@@ -161,10 +161,10 @@ class CombatStat(object):
         self.__dict__.update(state)
 
     def bonus_action_cost(self):
-        return max(self.extra_actions_taken * 5 + 10 - self.combatant.get_bonus_action_cost_mod(), 5)
+        return max(self.extra_actions_taken * 5 + self.combatant.scale.BONUS_ACTION_BASE_COST - self.combatant.get_bonus_action_cost_mod(), 5)
 
     def can_buy_bonus_action(self):
-        return self.combatant.get_current_stamina() >= self.bonus_action_cost()
+        return isinstance(self.combatant, (gears.base.Character, gears.base.Mecha)) and self.combatant.get_current_stamina() >= self.bonus_action_cost()
 
     def buy_bonus_action(self):
         if self.can_buy_bonus_action():

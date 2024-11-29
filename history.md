@@ -1,4 +1,8 @@
-* Characters can spend stamina to get extra actions
+v0.975 November 29, 2024
+* Updated the Allied Armor bookshelf
+* Enchantments do not continue to update on dead/destroyed combatants
+* Biotech mecha get a +2 action bonus
+* Characters and mecha can spend stamina to get extra actions
 * Added different cockpit control types
 * Added High Output Engine, High Performance Engine
 * Added Advanced Gyroscope; Gyroscopes are no longer Integral by default

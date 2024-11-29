@@ -1244,29 +1244,24 @@ class DZD_AlliedArmor(Plot):
         thingmenu.add_item("Read white book", self._use_bookshelf)
 
     def _read_black_book(self, camp):
-        # First sentence by me, the rest of the story written by TalkToTransformer.
         pbge.alert(
-            """The black battlemech looked utterly invincible. It struck out a slash from its chest, the mercenary's chest pierced through. The mercenary found that the black battlemech's combat speed and its lethal reflexes were far surpassing that of the robot. At the same time, the mercenary could feel how quick the black battlemech was on its movements.\n \n Vayu punched back, swinging his spear, a wooden sword, even though the axe came in seconds. The black battlemech didn't even show any reaction at all.\n \n This opponent was very tough.""")
+            """The black battlemech looked utterly invincible. It stood twenty three meters high, with five gauss cannons and a mighty sword the length of a cargo train. As it strode across the battlefield, mowing down all opposition with ease, one cavalier steeled her resolve and prepared to charge.\n\n Deftly evading multiple blasts from the gauss cannons, she came within range and plunged her plasma lance deep into the heart of the black mecha. For a moment there was only silence.\n\n Then the black mecha's powerplant blew up in a spectacular fusion explosion, taking out both armies in a gigantic fireball.""")
 
     def _read_blue_book(self, camp):
-        # First sentence by me, the rest of the story written by TalkToTransformer.
         pbge.alert(
-            """All that stood between the space pirates and the treasure was a lone blue mecha. It seemed to be at the point of becoming an ordinary mecha.\n \n That was the one the pirates had called a new type of mecha, one that defeated enemy machines in a single blow. They were machines that changed shapes and could create weapons.\n \n These were ZEBES, what the space pirates had named this mecha.\n \n Thinking of ZEBES, Thomas muttered "All the metal on that one is metal. Looks like its ability is to take the energy".""")
+            """All that stood between the space pirates and the treasure was a lone blue mecha. Hadron recognized the blue- this was an agent of L5Law, presumably the same agent who had been trailing them since the Mukluk Incident.\n\n "Follow my lead", he said to his teammates.\n\n As one the team turned and fled. The blue mecha gave chase. No doubt there would be more police waiting outside the derelict.\n\n When the pirates emerged into open space, they found themselves surrounded. "What do we do now?!" yelled Iolo. Hadron pushed the detonator for the bombs they had planted in the aft end of the wreck.\n\n In a flash, half of the L5Law patrol was vaporized and the derelict ship was moving on a course to the intercept point. The detective in the blue mecha could do nothing but look on in horror.\n\n "We fight or we die", said Hadron. "Same as always." """)
 
     def _read_green_book(self, camp):
-        # First sentence by me, the rest of the story written by TalkToTransformer.
         pbge.alert(
-            """A green mecha rolled into the dead zone. He was an Angel wearing a cape. A great horned helmet with a great ornate skull appeared on his head. He raised his arms, each joint jutting out sharply.\n \n Sasha ripped through space at speeds faster than bullets, but could only manage to keep up with one of the machines, and even then he only managed a glimpse of his face. The Angel helmet had received damage, and was covered in more scars. It made him look scarier.\n \n "Now, this will be fun!" the Angel said.""")
+            """A green mecha rolled into the small dead zone community of Trouser Falls. The pilot descended from the cockpit, spit on the ground, and walked into the nearest bar.\n\n "My name is Verdan Hooks and I'm the toughest, meanest bandit in the wastes!" he shouted. "If any of you wangtta have a problem with that, we can take it outside!"\n\n His body was never found. """)
 
     def _read_purple_book(self, camp):
-        # First sentence by me, the rest of the story written by TalkToTransformer.
         pbge.alert(
-            """Carolyn stepped out from the cockpit of her purple mecha. "So he's not being as good as before?"\n \n "Er... well, not in the way you might think," said the mechanic, lowering his shoulder visor and turning his sunglasses to face her.\n \n "Then why is he still so confident?" asked Carolyn. "It doesn't make any sense."\n \n "His taste for politics is legendary," said the mechanic, indicating the facade that had kept Kiri's consciousness isolated and that had been the victim of Kimberly's advances.""")
+            """Carolyn stepped out from the cockpit of her purple mecha. She brushed her mauve hair out of her eyes and called to her mechanic Violet, asking "Do you have any idea how long I've been marooned out there?!"\n\n "No, but I bet you're going to tell me", Violet responded. """)
 
     def _read_red_book(self, camp):
-        # First sentence by me, the rest of the story written by TalkToTransformer.
         pbge.alert(
-            """The battle was going poorly for the defenders, when out of nowhere a red mecha appeared. In the hands of this mecha the industrial city was seemingly taken over by metal, lifting everything that was in the way of the construction project above the buildings. The clock tower and factory buildings were falling in on themselves.\n \n A smile spread on Jondal's face as he saw this. "By the Emperor's clock... this is a miracle of construction."\n \n Conde winced. "What's a miracle of construction? I was raised as an engineer, and our government has a contract that we need a certain percentage to receive." """)
+            """The battle was going poorly for the defenders, when out of nowhere a red mecha appeared. Neither side knew the identity of this mystery pilot, and combat halted momentarily as intel officers on both sides consulted CavNet on their phones to try and identify the interloper's heraldry.\n\n The attacking commander made a rash move. Deciding that this red mecha must be working for the defenders, he ordered his troops to attack. As quickly as the attackers moved to intercept, they were cut down by the red mecha's nova scythe.\n\n After that things got a bit chaotic. Neither side knew who the red mecha was working for, nor where it was going. The attackers sent wave after wave to avenge their fallen commander. The defenders fired wildly, trying to maintain their battle lines. Soon the conflict descended into utter anarchy.\n\n And still the red mecha drew closer to its target. """)
 
     def _use_bookshelf(self, camp):
         pbge.alert("Moving the white book activates a hidden staircase!")

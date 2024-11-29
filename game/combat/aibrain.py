@@ -366,6 +366,11 @@ class BasicAI(object):
 
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
 
+        # Maybe buy an extra action or two?
+        if camp.fight.cstat[self.npc].can_buy_bonus_action():
+            while random.randint(1,10) == 5 and (self.npc.get_current_stamina() - camp.fight.cstat[self.npc].bonus_action_cost()) > random.randint(10,20):
+                camp.fight.cstat[self.npc].buy_bonus_action()
+
         # Attempt to use a skill first.
         if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1, 2) == 1:
             self.try_to_use_a_skill(camp)

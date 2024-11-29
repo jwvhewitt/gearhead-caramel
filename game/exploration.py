@@ -472,7 +472,7 @@ class Explorer(object):
 
     def update_enchantments(self):
         for thing in self.scene.contents:
-            if hasattr(thing, 'ench_list'):
+            if hasattr(thing, 'ench_list') and hasattr(thing, "is_operational") and thing.is_operational():
                 thing.ench_list.update(self.camp, thing)
 
     def get_item(self):

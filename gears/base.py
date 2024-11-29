@@ -3518,9 +3518,9 @@ class Module(BaseGear, StandardDamageHandler):
 
     def is_legal_sub_com(self, part):
         if isinstance(part, Engine):
-            if self.material is materials.Biotech and part.material is not materials.Biotech:
+            if self.material.repair_type == materials.RT_BIOTECHNOLOGY and part.material.repair_type != materials.RT_BIOTECHNOLOGY:
                 return False
-            elif part.material is materials.Biotech:
+            elif part.material.repair_type == materials.RT_BIOTECHNOLOGY:
                 return False
 
         return self.form.is_legal_sub_com(part)
@@ -3993,10 +3993,10 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         self.pilot = None
 
     def _material_matches(self, part):
-        if self.material is materials.Biotech:
-            return part.material is materials.Biotech
+        if self.material.repair_type == materials.RT_BIOTECHNOLOGY:
+            return part.material.repair_type == materials.RT_BIOTECHNOLOGY
         else:
-            return part.material is not materials.Biotech
+            return part.material.repair_type != materials.RT_BIOTECHNOLOGY
 
     def is_legal_sub_com(self, part):
         return self.form.is_legal_sub_com(part) and self._material_matches(part)
@@ -4313,7 +4313,7 @@ class Mecha(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
         for part in self.ok_descendants(False):
             if hasattr(part, "bonus_action_cost_mod"):
                 it += part.bonus_action_cost_mod
-        return it
+        return it + self.material.BONUS_ACTION_COST_MOD
 
     def dole_experience(self, xp, xp_type=None):
         pilot = self.get_pilot()
