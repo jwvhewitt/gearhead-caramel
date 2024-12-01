@@ -1,0 +1,74 @@
+Mecha
+  form = MT_Groundcar
+  environment_list = [GroundEnv, UrbanEnv]
+  scale = MechaScale
+  material = Metal
+  shop_tags = [MECHA]
+  portrait = mecha_doombuggy.png
+  imagename = mav_doombuggy.png
+  name = 'Doom Buggy'
+  family = 'None'
+  desc = ""
+  role_list = [Trooper]
+  faction_list = [BoneDevils, DeadzoneFederation, Ravagers]
+  desig = TP0-X1
+  SUB
+    Torso
+      size = 3
+      SUB
+        Engine
+          size = 300
+        Cockpit
+        Gyroscope
+        Mount
+          name = 'Hood Mount'
+          INV
+            Launcher
+              size = 2
+              SUB
+                Missile
+                  name = 'Light Rockets'
+                  accuracy = 1
+                  penetration = 2
+                  quantity = 20
+                  reach = 4
+                  damage = 1
+              END
+          END
+        Armor
+          size = 2
+        Wheels
+          size = 3
+          integral = True
+        Sensor
+          size = 2
+      END
+    Turret
+      size = 1
+      SUB
+        Armor
+          size = 1
+        Mount
+          name = 'Turret Mount'
+          INV
+            BallisticWeapon
+              shot_anim = SmallBullet
+              attributes = [BurstFire3, Accurate]
+              accuracy = 3
+              magazine = 12
+              ammo_type = Shells_25mm
+              penetration = 2
+              area_anim = BigBoom
+              name = 'Mech Cannon'
+              reach = 3
+              damage = 1
+              SUB
+                Ammo
+                  ammo_type = Shells_25mm
+                  quantity = 12
+              END
+          END
+      END
+  END
+
+

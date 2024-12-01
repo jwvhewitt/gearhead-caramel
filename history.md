@@ -1,3 +1,5 @@
+* Added Doom Buggy mecha
+
 v0.975 November 29, 2024
 * Updated the Allied Armor bookshelf
 * Enchantments do not continue to update on dead/destroyed combatants
