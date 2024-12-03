@@ -16,6 +16,10 @@ from .shops_plus import get_building
 import collections
 
 
+# **************************
+# ***   THE  DOCKYARDS   ***
+# **************************
+
 class DockyardsPlot(Plot):
     LABEL = "ROPP_DOCKYARDS_PLOT"
     scope = "METRO"
@@ -31,8 +35,36 @@ class RoppDockHouseOfBlades(Plot):
     active = True
 
     def custom_init(self, nart):
-        locale = self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A7'])
+        locale: gears.GearHeadScene = self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A7'])
         room = self.register_element("_ROOM", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A8'])
 
+        shopkeeper = self.register_element("SHOPKEEPER", gears.selector.random_character(
+            self.rank, local_tags=(gears.personality.L5DustyRing,), faction=gears.factions.BladesOfCrihna,
+            job=gears.jobs.ALL_JOBS["Smuggler"]))
+
+        mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
+        room.contents.append(mycounter)
+        salesteam = self.register_element("SALES_TEAM", teams.Team(name="Sales Team", allies=[locale.civilian_team]))
+        mycounter.contents.append(salesteam)
+
+        shopkeeper.place(locale, team=salesteam)
+
+        self.shop = services.Shop(npc=shopkeeper, ware_types=services.GENERAL_STORE_PLUS_MECHA, rank=self.rank + 25,
+                                  shop_faction=gears.factions.BladesOfCrihna, buy_stolen_items=True)
 
         return True
+
+    def SHOPKEEPER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] Welcome to {LOCALE}, where we stock only the finest items manufactured offworld in the L5 Region.".format(**self.elements),
+            context=ContextTag([context.HELLO]),
+        ))
+
+        mylist.append(Offer("[OPENSHOP]",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.shop,
+                            data={"shop_name": str(self.elements["LOCALE"]), "wares": "imported luxury goods"},
+                            ))
+
+        return mylist

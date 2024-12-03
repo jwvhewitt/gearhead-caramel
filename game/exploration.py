@@ -686,6 +686,8 @@ class Explorer(object):
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
                             print("{}".format(thing.__class__.__name__))
+                    elif gdi.unicode == "t" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        print(self.camp.time)
                     elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.all_plots():
                             print("{}".format(thing.__class__.__name__))

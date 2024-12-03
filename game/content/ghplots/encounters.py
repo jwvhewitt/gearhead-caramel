@@ -111,6 +111,7 @@ class RandoMonsterEncounter(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
+        print(camp.time)
         self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
@@ -125,3 +126,34 @@ class RandoMonsterEncounter(Plot):
                 self.last_update = camp.time
 
 
+#  **************************************
+#  ***   ONE_SHOT_MONSTER_ENCOUNTER   ***
+#  **************************************
+#
+#  As above, but monsters don't regenerate.
+#
+
+class OneShotMonsterEncounter(Plot):
+    # Fight some random monsters. What do they want? To pad the adventure.
+    LABEL = "ONE_SHOT_MONSTER_ENCOUNTER"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        if not self.elements.get("ROOM"):
+            self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+        team2.contents += gears.selector.RandomMonsterUnit(self.rank, 100, myscene.environment,
+                                                           self.elements["TYPE_TAGS"], myscene.scale).contents
+        self.last_update = 0
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        self.last_update = camp.time + 1
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        myteam: game.teams.Team = self.elements["_eteam"]
+        if camp.time > self.last_update and len(myteam.get_members_in_play(camp)) < 1:
+            dungeonmaker.dungeon_cleaner(self.elements["LOCALE"])
+            self.end_plot(camp, True)

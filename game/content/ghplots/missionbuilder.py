@@ -209,6 +209,13 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     def can_do_mission(self, camp: gears.GearHeadCampaign):
         return bool(camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=self.environment))
 
+    @staticmethod
+    def _combatant_name(camp: gears.GearHeadCampaign, pc):
+        if hasattr(pc, "pilot"):
+            return "{}'s {}".format(pc.pilot, pc)
+        else:
+            return str(pc)
+
     def __call__(self, camp: gears.GearHeadCampaign):
         # Start with the total party list for this map scale.
         total_party = camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=None)
@@ -219,7 +226,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
             if benchwarmers:
                 mymenu = pbge.rpgmenu.AlertMenu(
                     "{} will be left behind. The environment for this mission is {} so all combatants must be able to {}.".format(
-                        pbge.dialogue.list_nouns(benchwarmers), self.environment,
+                        pbge.dialogue.list_nouns([self._combatant_name(camp, bw) for bw in benchwarmers]), self.environment,
                         pbge.dialogue.list_nouns(self.environment.LEGAL_MOVEMODES, conjunction="or")))
                 mymenu.add_item("Do the mission without them.", True)
                 mymenu.add_item("Come back to the mission later", False)

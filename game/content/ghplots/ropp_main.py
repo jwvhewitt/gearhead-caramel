@@ -3572,7 +3572,7 @@ class Room_ropp_53(Plot):
         #: plot_actions
 
         self.add_sub_plot(nart,
-                          "MONSTER_ENCOUNTER",
+                          "ONE_SHOT_MONSTER_ENCOUNTER",
                           elements=dict(TYPE_TAGS=['CITY', 'DEVO', 'VERMIN']))
         return True
 

@@ -214,3 +214,14 @@ the_world[{ROOM_UID}].contents.append(the_world[{NPC_UID}])
 *SCRIPT plot_subplots
 self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements=dict(TYPE_TAGS={monster_type}))
 
+
+*NEW ROOM_FEATURE
+    "name": "One Shot Monster Encounter",
+    "desc": "Adds some monsters to this room that will not be replaced if killed.",
+    "vars": {
+      "monster_type": {"default_val": ["ANIMAL"], "var_type": "list:monster_tags"}
+    },
+    "sorting_rank": 1000
+
+*SCRIPT plot_subplots
+self.add_sub_plot(nart, "ONE_SHOT_MONSTER_ENCOUNTER", elements=dict(TYPE_TAGS={monster_type}))

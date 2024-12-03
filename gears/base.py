@@ -1975,6 +1975,8 @@ class MeleeWeapon(Weapon):
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 12
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
 
+    DEFAULT_SHOT_ANIM = geffects.SlashShot
+
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL
 
@@ -2087,6 +2089,8 @@ class EnergyWeapon(Weapon):
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+
+    DEFAULT_SHOT_ANIM = geffects.BeamSlashShot
 
     def get_attack_skill(self):
         return self.scale.MELEE_SKILL

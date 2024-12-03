@@ -159,6 +159,7 @@ class Shop(object):
         """The sale price of an item depends on friendliness. Min price = 70%"""
         # If this item is in your inventory already, return 0. Needed for cyberdoc unit.
         if item.parent:
+            print(item.parent)
             return 0
         it = item.cost
         if self.npc:
@@ -205,7 +206,7 @@ class Shop(object):
 
             for ammo_mod in protoammo.ammo_type.modifiers:
                 nu_ammo = gears.base.Ammo(
-                    name="{} ({})".format(protoammo.name, ammo_mod.name),
+                    name="{} ({})".format(protoammo, ammo_mod.name),
                     scale=protoammo.scale, ammo_type=protoammo.ammo_type, quantity=protoammo.quantity,
                     attributes=tuple(ammo_mod.atts), material=protoammo.material
                 )

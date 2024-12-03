@@ -192,10 +192,27 @@
   {
     "label": "ROOM_FEATURE",
     "scripts": {
-      "plot_subplots": "self.add_sub_plot(nart, \"MONSTER_ENCOUNTER\", elements=dict(TYPE_TAGS={monster_type}))\n\n"
+      "plot_subplots": "self.add_sub_plot(nart, \"MONSTER_ENCOUNTER\", elements=dict(TYPE_TAGS={monster_type}))\n\n\n"
     },
     "name": "Monster Encounter",
     "desc": "Adds some monsters to this room.",
+    "vars": {
+      "monster_type": {
+        "default_val": [
+          "ANIMAL"
+        ],
+        "var_type": "list:monster_tags"
+      }
+    },
+    "sorting_rank": 1000
+  },
+  {
+    "label": "ROOM_FEATURE",
+    "scripts": {
+      "plot_subplots": "self.add_sub_plot(nart, \"ONE_SHOT_MONSTER_ENCOUNTER\", elements=dict(TYPE_TAGS={monster_type}))\n"
+    },
+    "name": "One Shot Monster Encounter",
+    "desc": "Adds some monsters to this room that will not be replaced if killed.",
     "vars": {
       "monster_type": {
         "default_val": [

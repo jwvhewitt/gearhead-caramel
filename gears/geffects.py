@@ -505,6 +505,15 @@ class FireBolt(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
     DEFAULT_SOUND_FX = "foom_0.ogg"
 
+class SlashShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_slash.png"
+    DEFAULT_SOUND_FX = "cqcmelee.ogg"
+
+class BeamSlashShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_beamslash.png"
+    DEFAULT_SOUND_FX = "cqclaserswordhit.ogg"
+
+
 
 # For the v0.900 series; can probably cut after 1.000.
 FireBall = FireBolt
@@ -684,12 +693,13 @@ class DashFactory(object):
     def __call__(self, start_pos, end_pos, delay=0):
         # Return the spot anim.
         mydash = animobs.Dash(self.dasher, end_pos=end_pos, delay=delay)
-        mydust = DustCloud(pos=self.dasher.pos, delay=2)
+        mydust = DustCloud(pos=self.dasher.pos, delay=2, sound_fx="swoosh.ogg")
         return AnimBox([mydash, mydust])
 
 
 class FlyingHammer(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_hammer.png"
+    DEFAULT_SOUND_FX = "swoosh.ogg"
 
 
 class ReturningHammer(ReturnAnim):
@@ -700,6 +710,7 @@ class FlyingDeathwing(animobs.AnimatedShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_deathwing.png"
     DEFAULT_END_FRAME = 2
     DEFAULT_LOOP = 99999
+    DEFAULT_SOUND_FX = "whipy-woosh.ogg"
 
 
 class ReturningDeathwing(ReturnAnim):
@@ -804,7 +815,7 @@ class JumpModel(object):
 
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
-              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBolt)
+              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBolt, SlashShot, BeamSlashShot)
 AREA_ANIMS = (
     BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
 

@@ -82,13 +82,37 @@ WESTWARD = (-1,0)
 
 class CivilianWaterShip(MegaProp):
     POSITIONS = ((2,0), (1,0), (0,0), (-1,0), (-2, 0), (-3, 0))
-    FRAMES = (4,6,5)
-    def __init__(self, *args, rank=50, **kwargs):
+    POSITION_PRESETS = {
+        NORTHWARD: ((0,-2),(0,-1),(0,0),(0,1),(0,2)),
+        SOUTHWARD: ((0,2),(0,1),(0,0),(0,-1),(0,-2)),
+        EASTWARD: ((2,0), (1,0), (0,0), (-1,0), (-2, 0)),
+        WESTWARD: ((-2,0), (-1,0), (0,0), (1,0), (2, 0)),
+    }
+    FRONT_FRAME = {
+        NORTHWARD: 3, SOUTHWARD: 1, EASTWARD: 0, WESTWARD: 2
+    }
+    BACK_FRAME = {
+        NORTHWARD: 7, SOUTHWARD: 5, EASTWARD: 4, WESTWARD: 6
+    }
+    MIDDLE_FRAMES = {
+        NORTHWARD: (12,13,14,15),
+        SOUTHWARD: (12,13,14,15),
+        EASTWARD: (8,9,10,11),
+        WESTWARD: (8,9,10,11),
+    }
+    def __init__(self, *args, rank=50, direction=EASTWARD, colors=(gears.color.ShiningWhite, gears.color.Azure, gears.color.HunterOrange, gears.color.BattleshipGrey, gears.color.DeepSeaBlue), **kwargs):
         super().__init__(*args, **kwargs)
         self.rank = rank
         size = max(min(rank//10 + 1, 10), 2)
         length = max(min(rank//20 + 1, 5), 2)
-        for t in range(3):
-            self.contents.append(gears.base.Prop(size=size, name="Ship", imagename="prop_ferry.png", altitude=0, frame=self.FRAMES[t]))
+        self.POSITIONS = self.POSITION_PRESETS.get(direction, ((2,0), (1,0), (0,0), (-1,0), (-2, 0), (-3, 0)))
+        for t in range(length):
+            if t == 0:
+                frame = self.FRONT_FRAME[direction]
+            elif t == length - 1:
+                frame = self.BACK_FRAME[direction]
+            else:
+                frame = random.choice(self.MIDDLE_FRAMES[direction])
+            self.contents.append(gears.base.Prop(size=size, name="Ship", imagename="prop_ferry.png", altitude=0, frame=frame, destroyed_frame=frame+16, colors=colors))
 
 #print(MegaProp._generate_spiral(20))

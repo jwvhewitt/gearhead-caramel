@@ -183,9 +183,11 @@ class Damage(object):
                                      y_off=-self.camp.scene.model_altitude(self.target_root, *self.target_root.pos))
             self.animlist.append(myanim)
             if self.operational_at_start and not self.target_root.is_operational():
-                myanim = geffects.BigBoom(pos=self.target_root.pos, delay=num_booms * 2,
-                                          y_off=-self.camp.scene.model_altitude(self.target_root,
-                                                                                *self.target_root.pos))
+                myanim = geffects.BigBoom(
+                    pos=self.target_root.pos, delay=num_booms * 2,
+                    y_off=-self.camp.scene.model_altitude(self.target_root, *self.target_root.pos),
+                    sound_fx=self.target_root.material.DESTROYED_SOUND_FX or "hq-explosion-6288.ogg"
+                    )
                 self.animlist.append(myanim)
             else:
                 # Record the destroyed parts, as appropriate.

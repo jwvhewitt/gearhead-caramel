@@ -748,7 +748,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             usable_party.append(mysquad)
             self.party.append(mysquad)
         else:
-            usable_party += self.get_usable_party(self.scene.scale, tags.SCENE_SOLO in self.scene.attributes)
+            usable_party += self.get_usable_party(self.scene.scale, tags.SCENE_SOLO in self.scene.attributes, enviro=self.scene.environment)
         return usable_party
 
     def place_party(self, entrance):
@@ -1125,7 +1125,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def get_pets(self, pc):
         pc = pc.get_pilot()
-        mypets = list
+        mypets = list()
         for pet in self.party + self.incapacitated_party:
             if isinstance(pet, base.Monster) and pet.pet_data.trainer is pc:
                 mypets.append(pet)

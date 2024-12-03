@@ -1,3 +1,7 @@
+* Destroyed sound fx now based on material
+* Added slash anim for melee attacks
+* Fixed bug with mecha being excluded from missions due to movement modes
+* Added civilian ship megaprop
 * Added Doom Buggy mecha
 
 v0.975 November 29, 2024
