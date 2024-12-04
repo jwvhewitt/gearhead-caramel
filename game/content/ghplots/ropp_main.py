@@ -2998,11 +2998,6 @@ class City_ropp_8(Plot):
                               elements=dict([(a, self.elements[b])
                                              for a, b in element_alias_list]),
                               ident="")
-        self.add_sub_plot(nart,
-                          'LOCAL_PROBLEM',
-                          elements=dict([(a, self.elements[b])
-                                         for a, b in element_alias_list]),
-                          ident="PROBLEM87")
         #: plot_actions
 
         self.add_sub_plot(nart,
@@ -3021,6 +3016,7 @@ class City_ropp_8(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_NOGOS_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -3039,8 +3035,7 @@ class City_ropp_8(Plot):
                               ident="")
         return True
 
-    def PROBLEM87_WIN(self, camp):
-        camp.campdata[LOCAL_PROBLEMS_SOLVED] += 1
+    #: plot_methods
 
 
 class EmptyBuilding_ropp_40(Plot):

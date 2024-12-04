@@ -26,6 +26,7 @@ class DockyardsPlot(Plot):
     active = True
 
     def custom_init(self, nart):
+        self.elements["METROSCENE"] = self.elements["LOCALE"]
         self.add_sub_plot(nart, "ROPP_DOCKYARDS_HOUSEOFBLADES")
         return True
 
@@ -39,8 +40,8 @@ class RoppDockHouseOfBlades(Plot):
         room = self.register_element("_ROOM", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A8'])
 
         shopkeeper = self.register_element("SHOPKEEPER", gears.selector.random_character(
-            self.rank, local_tags=(gears.personality.L5DustyRing,), faction=gears.factions.BladesOfCrihna,
-            job=gears.jobs.ALL_JOBS["Smuggler"]))
+            self.rank, local_tags=(gears.personality.L5DustyRing,), job=gears.jobs.ALL_JOBS["Smuggler"]
+        ))
 
         mycounter = ghrooms.ShopCounterArea(random.randint(4, 6), random.randint(3, 5), anchor=pbge.randmaps.anchors.north)
         room.contents.append(mycounter)
@@ -68,3 +69,26 @@ class RoppDockHouseOfBlades(Plot):
                             ))
 
         return mylist
+
+
+# **********************
+# ***   THE  NOGOS   ***
+# **********************
+
+class NogosPlot(Plot):
+    LABEL = "ROPP_NOGOS_PLOT"
+    scope = "METRO"
+    active = True
+    QOL = gears.QualityOfLife(prosperity=-2, stability=-3, health=-1)
+
+    def custom_init(self, nart):
+        self.elements["METROSCENE"] = self.elements["LOCALE"]
+        self.add_sub_plot(nart, "LOCAL_PROBLEM", ident="LOCALPROBLEM")
+        self.finished_local_problem = False
+        return True
+
+    def LOCALPROBLEM_WIN(self, camp):
+        if not self.finished_local_problem:
+            self.finished_local_problem = True
+            camp.campdata["hero_points"] += 1
+

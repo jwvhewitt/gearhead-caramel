@@ -1,4 +1,3 @@
-from numpy import isin
 from . import materials
 from . import scale
 from . import calibre
@@ -309,6 +308,15 @@ class Mover(KeyObject):
         else:
             return 0
 
+    def calc_cruising(self):
+        norm_mass = self.scale.unscale_mass(self.mass)
+        thrust = self.count_thrust_points(tags.Cruising)
+
+        if thrust > (norm_mass * 20):
+            return thrust // norm_mass
+        else:
+            return 0
+
     def get_speed(self, mmode):
         # This method returns the mover's movement points; under normal conditions
         # it costs 2MP to move along a cardinal direction or 3MP to move diagonally.
@@ -323,6 +331,8 @@ class Mover(KeyObject):
             speed = self.calc_flight()
         elif mmode is tags.Jumping:
             speed = (self.calc_flight() * 2) // 3
+        elif mmode is tags.Cruising:
+            speed = self.calc_cruising()
         else:
             return 0
         speed = self.apply_speed_bonus(speed)
@@ -4664,6 +4674,13 @@ class Monster(Being, MakesPower):
         # Return the character's personality, job, and faction tags.
         # If include_all is True, also include those tags the PC might not need to see.
         return self.type_tags
+
+    def calc_cruising(self):
+        if tags.AquaticEnv in self.environment_list:
+            speed = super().calc_cruising() + self.get_stat(stats.Speed) * 5
+            return speed
+        else:
+            return 0
 
 
 class Character(Being):

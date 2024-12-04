@@ -22,7 +22,7 @@ def trait_absorb(mygram, nugram, traits):
                 mygram[pat] += v
 
 
-def build_grammar(mygram, camp: gears.GearHeadCampaign, speaker, audience):
+def build_grammar(mygram, camp: gears.GearHeadCampaign, speaker, audience, add_plot_grammar=False):
     speaker = speaker.get_pilot()
     tags = list(speaker.get_tags())
     if speaker.relationship and not speaker.relationship.met_before:
@@ -47,10 +47,11 @@ def build_grammar(mygram, camp: gears.GearHeadCampaign, speaker, audience):
                 tags.append(ghgrammar.UNFAVORABLE)
 
     trait_absorb(mygram, ghgrammar.DEFAULT_GRAMMAR, tags)
-    #for p in camp.active_plots():
-    #    pgram = p.get_dialogue_grammar(speaker, camp)
-    #    if pgram:
-    #        mygram.absorb(pgram)
+    if add_plot_grammar:
+        for p in camp.active_plots():
+            pgram = p.get_dialogue_grammar(speaker, camp)
+            if pgram:
+                mygram.absorb(pgram)
     if speaker.relationship and audience is camp.pc:
         mygram.absorb(speaker.relationship.get_grammar())
     if speaker is camp.pc and audience and audience.relationship:

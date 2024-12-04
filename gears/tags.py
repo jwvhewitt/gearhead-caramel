@@ -29,6 +29,7 @@ class Jumping(movement.MoveMode):
 
 class Cruising(movement.MoveMode):
     name = 'cruise'
+    altitude = 1
 
 
 class Crashed(movement.MoveMode):
@@ -73,7 +74,7 @@ class SpaceEnv(Singleton):
 
 class AquaticEnv(Singleton):
     name = "Aquatic"
-    LEGAL_MOVEMODES = (Skimming, movement.Flying)
+    LEGAL_MOVEMODES = (Skimming, Cruising, movement.Flying)
     HAS_CEILING = False
     DEEP_SPACE = False
 

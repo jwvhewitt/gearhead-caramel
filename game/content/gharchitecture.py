@@ -242,7 +242,7 @@ class MechaScaleSemiDeadzoneRuins(GearHeadArchitecture):
 class MechaScaleOcean(GearHeadArchitecture):
     ENV = gears.tags.AquaticEnv
     DEFAULT_CONVERTER = pbge.randmaps.converter.BasicConverter(None)
-    DEFAULT_FLOOR_TERRAIN = ghterrain.Water
+    DEFAULT_FLOOR_TERRAIN = ghterrain.DeepWater
     DEFAULT_ROOM_CLASSES = (pbge.randmaps.rooms.OpenRoom,)
 
 

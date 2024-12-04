@@ -371,7 +371,7 @@ class DoomedTown(Plot):
             self.memo = None
             self.found_egg = True
 
-    def _inform_biocorp(self, camp: gears):
+    def _inform_biocorp(self, camp: gears.GearHeadCampaign):
         camp.campdata["INFORM_BIOCORP_ANGEL_EGG"] = self.elements["LOCALE"]
 
     def get_road_adventure(self, camp, dest_node):

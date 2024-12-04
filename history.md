@@ -1,3 +1,5 @@
+* Added cruise movemode
+* Fixed SimpleMonologueDisplay grammar error
 * Destroyed sound fx now based on material
 * Added slash anim for melee attacks
 * Fixed bug with mecha being excluded from missions due to movement modes

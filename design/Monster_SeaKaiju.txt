@@ -1,0 +1,318 @@
+Monster
+    name = "Sparnox"
+    statline = {Reflexes = 8, Body=12, Speed=8, Perception=12, Craft=6, Knowledge=2, Ego=8, Charm = 8,
+			MechaFighting = 4, Dodge = 1
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 1
+	colors = (SandyBrown, RosyBrown, Alabaster, ShiningWhite, Eggplant)
+    threat = 10
+    type_tags = ("ANIMAL", "FISH")
+    families = ("FISH",)
+    environment_list = (AquaticEnv)
+
+	SUB
+        Torso
+            size = 3
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=2
+					accuracy=1
+					penetration=3
+					integral = True
+					shot_anim = JawShot
+
+                Armor
+                    size = 3
+            END
+    END
+
+Monster
+    name = "Pearl Serpent"
+    statline = {Reflexes = 12, Body=13, Speed=10, Perception=8, Craft=2, Knowledge=2, Ego=10, Charm = 2,
+			MechaGunnery = 4, MechaFighting = 8, Dodge = 3
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 0
+	colors = (White, StarViolet, FreedomBlue, Cream, Aquamarine)
+    threat = 25
+    type_tags = ("ANIMAL", "REPTILE")
+    families = ("REPTILE",)
+    environment_list = (AquaticEnv)
+
+	SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 2
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=2
+					accuracy=3
+					penetration=2
+					integral = True
+
+				BeamWeapon
+					name="Fire Breath"
+					reach=6
+					damage=2
+					accuracy=2
+					penetration=3
+					integral = True
+                    shot_anim = FireBolt
+                    area_anim = Fireball
+                    attributes = (Plasma, BurnAttack)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 2
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 2
+            END
+    END
+
+
+Monster
+    name = "Sculpinox"
+    statline = {Reflexes = 10, Body=14, Speed=10, Perception=12, Craft=6, Knowledge=2, Ego=8, Charm = 8,
+			MechaFighting = 6, Dodge = 3
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 1
+	colors = (Sandstone, DesertYellow, Alabaster, ShiningWhite, Eggplant)
+    threat = 35
+    type_tags = ("ANIMAL", "FISH")
+    families = ("FISH",)
+    environment_list = (AquaticEnv)
+
+	SUB
+        Torso
+            size = 5
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=3
+					accuracy=2
+					penetration=4
+					integral = True
+					shot_anim = JawShot
+
+                Armor
+                    size = 4
+            END
+    END
+
+
+Monster
+    name = "Pirhanox"
+    statline = {Reflexes = 12, Body=16, Speed=11, Perception=12, Craft=6, Knowledge=2, Ego=10, Charm = 8,
+			MechaFighting = 6, Dodge = 5
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 1
+	colors = (BrightRed, Saffron, Cream, ShiningWhite, Eggplant)
+    threat = 55
+    type_tags = ("ANIMAL", "FISH")
+    families = ("FISH",)
+    environment_list = (AquaticEnv)
+    actions = 3
+
+	SUB
+        Torso
+            size = 7
+            SUB
+				MeleeWeapon
+					name="Jaws"
+					reach=1
+					damage=4
+					accuracy=2
+					penetration=4
+					integral = True
+					shot_anim = JawShot
+
+                Armor
+                    size = 4
+            END
+    END
+
+
+Monster
+    name = "Shadow Serpent"
+    statline = {Reflexes = 12, Body=14, Speed=12, Perception=8, Craft=2, Knowledge=2, Ego=10, Charm = 2,
+			MechaGunnery = 5, MechaFighting = 8, Dodge = 3, Stealth = 6
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 0
+	colors = (Charcoal, DeepSeaBlue, HunterOrange, Cream, HeavyPurple)
+    threat = 45
+    type_tags = ("ANIMAL", "REPTILE")
+    families = ("REPTILE",)
+    environment_list = (AquaticEnv)
+
+	SUB
+        Head
+            size = 5
+            SUB
+                Armor
+                    size = 3
+                    integral = True
+
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=3
+					accuracy=3
+					penetration=2
+					integral = True
+
+				BeamWeapon
+					name="Fire Breath"
+					reach=6
+					damage=3
+					accuracy=2
+					penetration=3
+					integral = True
+                    shot_anim = FireBolt
+                    area_anim = Fireball
+                    attributes = (Plasma, BurnAttack)
+            END
+        Torso
+            size = 5
+            SUB
+                Armor
+                    size = 4
+            END
+        Tail
+            size = 5
+            SUB
+                Armor
+                    size = 3
+            END
+    END
+
+
+Monster
+    name = "Emerald Serpent"
+    statline = {Reflexes = 13, Body=15, Speed=13, Perception=9, Craft=2, Knowledge=2, Ego=12, Charm = 2,
+			MechaGunnery = 6, MechaFighting = 9, Dodge = 5
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 0
+	colors = (MassiveGreen, DesertYellow, GunRed, Cream, ArmyDrab)
+    threat = 65
+    type_tags = ("ANIMAL", "REPTILE")
+    families = ("REPTILE",)
+    environment_list = (AquaticEnv)
+
+	SUB
+        Head
+            size = 6
+            SUB
+                Armor
+                    size = 4
+                    integral = True
+
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=3
+					accuracy=3
+					penetration=2
+					integral = True
+
+				BeamWeapon
+					name="Acid Breath"
+					reach=6
+					damage=3
+					accuracy=2
+					penetration=3
+					integral = True
+                    shot_anim = AcidSpray
+                    area_anim = MiasmaAnim
+                    attributes = (Plasma, DisintegrateAttack)
+            END
+        Torso
+            size = 7
+            SUB
+                Armor
+                    size = 5
+            END
+        Tail
+            size = 6
+            SUB
+                Armor
+                    size = 4
+            END
+    END
+
+
+Monster
+    name = "Sea Serpent"
+    statline = {Reflexes = 14, Body=16, Speed=14, Perception=12, Craft=2, Knowledge=2, Ego=14, Charm = 2,
+			MechaGunnery = 7, MechaFighting = 10, Dodge = 6
+	}
+	scale = MechaScale
+	imagename = 'mon_seakaiju.png'
+	frame = 0
+	colors = (SkyBlue, AeroBlue, BrightRed, Cream, Turquoise)
+    threat = 85
+    type_tags = ("ANIMAL", "REPTILE")
+    families = ("REPTILE",)
+    environment_list = (AquaticEnv)
+
+	SUB
+        Head
+            size = 6
+            SUB
+                Armor
+                    size = 4
+                    integral = True
+
+				MeleeWeapon
+					name="Fangs"
+					reach=1
+					damage=3
+					accuracy=3
+					penetration=2
+					integral = True
+
+				BeamWeapon
+					name="Plasma Breath"
+					reach=6
+					damage=3
+					accuracy=2
+					penetration=3
+					integral = True
+                    shot_anim = PlasmaBeam
+                    attributes = (Plasma, SwarmFire2, HaywireAttack)
+            END
+        Torso
+            size = 7
+            SUB
+                Armor
+                    size = 5
+            END
+        Tail
+            size = 6
+            SUB
+                Armor
+                    size = 4
+            END
+    END

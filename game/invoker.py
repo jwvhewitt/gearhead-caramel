@@ -165,6 +165,9 @@ class InvocationsWidget(pbge.widgets.Widget):
         target_invo = button.data + self.shelf_offset
         if self.shelf and target_invo < len(self.shelf.invo_list) and self.shelf.invo_list[target_invo].can_be_invoked(
                 self.pc, self.camp.fight):
+            if target_invo == self.invo:
+                pass
+                # print("Selecting again")
             self.set_shelf_invo(self.shelf, self.shelf.invo_list[target_invo])
 
     def pop_invo_menu(self, button=None, ev=None):

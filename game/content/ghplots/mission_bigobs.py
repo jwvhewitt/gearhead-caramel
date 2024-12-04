@@ -19,9 +19,13 @@ from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, D
     DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 import copy
 
+from game.content.ghplots import missionbuilder
+
 BAMO_BREAK_THROUGH = "BAMO_BREAK_THROUGH"
 BAMO_DEFEND_FORTRESS = "BAMO_DEFEND_FORTRESS"
 BAMO_ESCORT_SHIP = "BAMO_ESCORT_SHIP"
+BAME_THREAT_TYPE = "BAME_THREAT_TYPE"
+
 
 class BAM_ToTheOtherSide(Plot):
     LABEL = BAMO_BREAK_THROUGH
@@ -371,7 +375,10 @@ class BAM_EscortShip(Plot):
         )
         self.register_element(CTE_INITIAL_ROOM, ghrooms.OpenRoom(10,10, anchor=pbge.randmaps.anchors.middle),
                               dident=std_dident)
-        self.add_sub_plot(nart, CTHREAT_MECHA, ident="THREAT")
+
+        threat_type = self.elements.get(BAME_THREAT_TYPE, CTHREAT_MECHA)
+        self.elements[CTE_MONSTER_TAGS] = self.elements.get(missionbuilder.BAME_MONSTER_TAGS, ("FISH", "ANIMAL", "MUTANT", "SYNTH", "WATER"))
+        self.add_sub_plot(nart, threat_type, ident="THREAT")
         self.did_init = False
 
         self.obj = adventureseed.MissionObjective("Escort ship to safe zone", MAIN_OBJECTIVE_VALUE * 3)
@@ -498,6 +505,63 @@ class CTMecha(Plot):
         mek1 = myunit.mecha_list[0]
         team2 = self.elements.get("ENEMY_TEAM", teams.Team(enemies=(myscene.player_team,)))
         camp.scene.deploy_team(myunit.mecha_list, team2, random.choice(myrooms).area)
+        game.combat.enter_combat(camp, mek1)
+
+    def t_COMBATROUND(self, camp):
+        if self.reinforcements_counter > 0:
+            self.reinforcements_counter -= 1
+        else:
+            self.add_reinforcements(camp)
+            self.reinforcements_counter = self.elements.get(CTE_REINFOCEMENT_DELAY, 1)
+
+
+class CTMonsters(Plot):
+    LABEL = CTHREAT_MONSTERS
+    active = False
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        if CTE_REINFORCEMENT_ROOMS not in self.elements or not self.elements[CTE_REINFORCEMENT_ROOMS]:
+            roomtype = self.elements["ARCHITECTURE"].get_a_room()
+            myroom = self.register_element("ROOM", roomtype(10, 10), dident="LOCALE")
+            self.elements[CTE_REINFORCEMENT_ROOMS] = [myroom,]
+
+        if CTE_INITIAL_ROOM in self.elements and self.elements[CTE_INITIAL_ROOM]:
+            myteam = self.elements.get(CTE_ENEMY_TEAM, teams.Team(enemies=(self.elements["LOCALE"].player_team,)))
+            myunit = gears.selector.RandomMonsterUnit(
+                self.rank, 100, self.elements["LOCALE"].environment,
+                self.elements.get(CTE_MONSTER_TAGS, ("ANIMAL", "SYNTH", "MUTANT")),
+                self.elements["LOCALE"].scale
+            )
+            myteam.deploy_in_room(self.elements["LOCALE"], self.elements[CTE_INITIAL_ROOM], myunit.contents)
+
+        self.reinforcements_counter = 1
+
+        return True
+
+    def t_START(self, camp: gears.GearHeadCampaign):
+        game.combat.start_continuous_combat(camp)
+
+    def activate(self, camp):
+        game.combat.start_continuous_combat(camp)
+        super().activate(camp)
+
+    def deactivate(self, camp):
+        if camp.fight:
+            camp.fight.keep_going_without_enemies = False
+        super().deactivate(camp)
+
+    def add_reinforcements(self, camp):
+        myscene = self.elements["LOCALE"]
+        myrooms = self.elements[CTE_REINFORCEMENT_ROOMS]
+        myunit = gears.selector.RandomMonsterUnit(
+                self.rank, 100, self.elements["LOCALE"].environment,
+                self.elements.get(CTE_MONSTER_TAGS, ("ANIMAL", "SYNTH", "MUTANT")),
+                self.elements["LOCALE"].scale
+            )
+        mek1 = myunit.contents[0]
+        team2 = self.elements.get("ENEMY_TEAM", teams.Team(enemies=(myscene.player_team,)))
+        camp.scene.deploy_team(myunit.contents, team2, random.choice(myrooms).area)
         game.combat.enter_combat(camp, mek1)
 
     def t_COMBATROUND(self, camp):

@@ -944,7 +944,7 @@ class RabbleRouser(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         return "METRO" in pstate.elements and isinstance(pstate.elements["METRO"].city_leader, gears.base.Character)
 
     def custom_init(self, nart):

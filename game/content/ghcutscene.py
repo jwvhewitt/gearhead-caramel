@@ -183,7 +183,7 @@ class SimpleMonologueDisplay( object ):
         if do_rollout:
             myviz.rollout()
         mygrammar = pbge.dialogue.grammar.Grammar()
-        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc, True)
         myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
         pbge.alert_display(myviz.render)
 

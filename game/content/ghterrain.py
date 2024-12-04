@@ -1,7 +1,7 @@
 import pbge
 import gears
 from pbge.scenes.movement import Walking, Flying, Vision
-from gears.tags import Skimming, Rolling
+from gears.tags import Skimming, Rolling, Cruising, SpaceFlight
 
 
 class Forest(pbge.scenes.terrain.VariableTerrain):
@@ -14,7 +14,7 @@ class Forest(pbge.scenes.terrain.VariableTerrain):
 class Bushes(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_bushes.png'
     movement_cost = {pbge.scenes.movement.Vision: 5}
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising)
 
 
 class Water(pbge.scenes.terrain.AnimTerrain):
@@ -22,7 +22,16 @@ class Water(pbge.scenes.terrain.AnimTerrain):
     image_bottom = 'terrain_water1.png'
     altitude = -24
     transparent = True
-    movement_cost = {pbge.scenes.movement.Walking: 3.0, gears.tags.Rolling: 3.0}
+    movement_cost = {pbge.scenes.movement.Walking: 3.0, gears.tags.Rolling: 3.0, Cruising: 1.0}
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_beach.png')
+    border_priority = 1000
+
+class DeepWater(pbge.scenes.terrain.AnimTerrain):
+    image_biddle = 'terrain_water2.png'
+    image_bottom = 'terrain_water1.png'
+    altitude = -24
+    transparent = True
+    blocks = (Walking, Rolling, SpaceFlight)
     border = pbge.scenes.terrain.FloorBorder('terrain_border_beach.png')
     border_priority = 1000
 
@@ -85,7 +94,7 @@ class BorderMarkerS(pbge.scenes.terrain.AnimTerrain):
 
 class ToxicSludge(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_sludge.png'
-    blocks = (Walking, Rolling)
+    blocks = (Walking, Rolling, Cruising)
     border = pbge.scenes.terrain.FloorBorder('terrain_border_sludge.png')
     border_priority = 1200
 
@@ -93,14 +102,14 @@ class ToxicSludge(pbge.scenes.terrain.VariableTerrain):
 class MSWreckage(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_decor_mswreckage.png'
     frames = (0, 1)
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising)
     movement_cost = {pbge.scenes.movement.Vision: 10}
 
 
 class MSResidentialBuildings(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_buildings_residential.png'
     frames = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
@@ -111,91 +120,107 @@ class Smoke(pbge.scenes.terrain.AnimTerrain):
     movement_cost = {pbge.scenes.movement.Vision: 10}
 
     @classmethod
-    def render_top(self, original_dest, view, x, y):
+    def render_top(cls, dest, view, x, y):
         """Custom rendering, because we can do that."""
-        dest = original_dest.move(0, -32)
-        spr = view.get_terrain_sprite(self.image_top, (x, y), transparent=self.transparent)
-        spr.render(dest, self.frames[(view.phase // self.anim_delay + (x + y) * 4) % len(self.frames)])
+        new_dest = dest.move(0, -32)
+        spr = view.get_terrain_sprite(cls.image_top, (x, y), transparent=cls.transparent)
+        spr.render(new_dest, cls.frames[(view.phase // cls.anim_delay + (x + y) * 4) % len(cls.frames)])
 
 
 class GreenZoneGrass(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_grass.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_grassy.png')
     border_priority = 200
+    blocks = (Cruising, SpaceFlight)
 
 
 class Sand(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_sand.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_sand.png')
     border_priority = 100
+    blocks = (Cruising, SpaceFlight)
 
 
 class Flagstone(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_flagstone.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class DeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
     border_priority = 80
+    blocks = (Cruising, SpaceFlight)
 
 
 class SemiDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
     border_priority = 75
+    blocks = (Cruising, SpaceFlight)
 
 
 class Pavement(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_pavement.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_dzground2.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground2.png')
     border_priority = 45
+    blocks = (Cruising, SpaceFlight)
 
 
 class TechnoRubble(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_technorubble.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_technoedge.png')
     border_priority = 55
+    blocks = (Cruising, SpaceFlight)
 
 
 class OldTilesFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_oldtiles.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class MSConcreteSlabFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_ground_msconcreteslab.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class WhiteTileFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_whitetile.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class HardwoodFloor(pbge.scenes.terrain.VariableTerrain):
+    blocks = (Cruising, SpaceFlight)
     image_bottom = 'terrain_floor_hardwood.png'
 
 
 class GrateFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_grate.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class CrackedEarth(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_crackedearth.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_crackedearth.png')
     border_priority = 50
+    blocks = (Cruising, SpaceFlight)
 
 
 class WorldMapRoad(pbge.scenes.terrain.RoadTerrain):
     image_bottom = 'terrain_decor_worldroad.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class Snow(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_snow.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_snowline.png')
     border_priority = 300
+    blocks = (Cruising, SpaceFlight)
 
 
 class SmallSnow(pbge.scenes.terrain.VariableTerrain):
@@ -203,6 +228,7 @@ class SmallSnow(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_snow_small.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_snowline.png')
     border_priority = 300
+    blocks = (Cruising, SpaceFlight)
 
 
 class Bones(pbge.scenes.terrain.VariableTerrain):
@@ -214,7 +240,7 @@ class Mountain(pbge.scenes.terrain.HillTerrain):
     image_middle = 'terrain_hill_1.png'
     # image_bottom = 'terrain_hill_1.png'
     bordername = ''
-    blocks = ()
+    blocks = (Cruising, SpaceFlight)
 
 
 class VendingMachineTerrain(pbge.scenes.terrain.OnTheWallTerrain):
@@ -242,71 +268,72 @@ class WinterMochaToolboxTerrain(pbge.scenes.terrain.Terrain):
 class ExitTerrain(pbge.scenes.terrain.AnimTerrain):
     image_top = 'terrain_wp_exit.png'
     transparent = True
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     frames = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
     anim_delay = 1
 
 
 class AegisWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_aegis.png'
-    blocks = (Walking, Skimming, Rolling, Vision)
+    blocks = (Walking, Skimming, Rolling, Vision, Cruising, SpaceFlight)
 
 
 class AegisFloor(pbge.scenes.terrain.Terrain):
     image_bottom = 'terrain_floor_aegis.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 
 class FortressWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_fortress.png'
-    blocks = (Walking, Skimming, Rolling, Vision)
+    blocks = (Walking, Skimming, Rolling, Vision, Cruising, SpaceFlight)
 
 
 class ScrapIronWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_rusty.png'
-    blocks = (Walking, Skimming, Rolling, Vision)
+    blocks = (Walking, Skimming, Rolling, Vision, Cruising, SpaceFlight)
 
 
 class DefaultWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_default.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class CommercialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_commercial.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class ResidentialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_residential.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class DingyResidentialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_residential_dingy.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class WoodenWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_wood.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class HospitalWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_hospital.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class IndustrialWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_industrial.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class DragonTeethWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dragonteeth.png'
     bordername = None
     altitude = 20
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
@@ -314,7 +341,7 @@ class MechaFortressWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_mechfort.png'
     bordername = None
     #altitude = 20
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 50}
     
 
@@ -323,7 +350,7 @@ class JunkyardWall(pbge.scenes.terrain.VariableTerrain):
     bordername = None
     altitude = 20
     frames = tuple(range(16))
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
@@ -331,148 +358,153 @@ class SandDuneWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_dune.png'
     bordername = None
     altitude = 20
-    blocks = (Walking, Skimming, Rolling)
+    blocks = (Walking, Skimming, Rolling, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
 class MSRuinedWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_msruins.png'
-    blocks = (Walking, Skimming, Rolling, Vision)
+    blocks = (Walking, Skimming, Rolling, Vision, Cruising, SpaceFlight)
 
 
 class StoneWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_stone.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class EarthWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_redearth.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class VehicleWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_vehicle.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class TentWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_tent.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class WarmColorsWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_warmcolors.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class CoolColorsWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_coolcolors.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class WallStones(pbge.scenes.terrain.OnTheWallVariableTerrain):
     image_top = 'terrain_decor_wallstones.png'
     south_frames = (8, 9, 10, 11, 12, 13, 14, 15)
     east_frames = (0, 1, 2, 3, 4, 5, 6, 7)
+    blocks = (Cruising, SpaceFlight)
 
 
 class FloorStones(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_decor_floorstones.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class OrganicWall(pbge.scenes.terrain.WallTerrain):
     image_top = 'terrain_wall_organic.png'
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class OrganicFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_organic.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class GreenTileFloor(pbge.scenes.terrain.Terrain):
     image_bottom = 'terrain_floor_greentile.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class GravelFloor(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_gravel.png'
+    blocks = (Cruising, SpaceFlight)
 
 
 class OrganicTubeTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'prop_biotech.png'
     frame = 1
-    blocks = (Walking, Skimming, Rolling, Vision, Flying)
+    blocks = (Walking, Skimming, Rolling, Vision, Flying, Cruising, SpaceFlight)
 
 
 class DZDTownTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class DZDWCommTowerTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'
     frame = 1
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class DZDCommTowerTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_mechaprops.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class VictimTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_default.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class OldCrateTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class OpenOldCrateTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 1
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class AmmoBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 2
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class OpenAmmoBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 3
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class StorageBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 4
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class OpenStorageBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_containers.png'
     frame = 5
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class SteelBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_gervais_decor.png'
     frame = 4
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class OpenSteelBoxTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_gervais_decor.png'
     frame = 5
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class Window(pbge.scenes.terrain.OnTheWallTerrain):
@@ -565,31 +597,31 @@ class Tekdebris(pbge.scenes.terrain.VariableTerrain):
 class DZDWConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_worldprops.png'
     frame = 2
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class DZDConcreteBuilding(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_mechaprops.png'
     frame = 1
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class MechaScaleMineBuildingTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'prop_dzd_buildings.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class DZDDefiledFactoryTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_dzd_mechaprops.png'
     frame = 2
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class MetalDoorClosed(pbge.scenes.terrain.DoorTerrain):
     image_top = 'terrain_door_metal.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying, Vision)
+    blocks = (Walking, Skimming, Rolling, Flying, Vision, Cruising, SpaceFlight)
 
 
 class MetalDoorOpen(pbge.scenes.terrain.DoorTerrain):
@@ -601,7 +633,7 @@ class MetalDoorOpen(pbge.scenes.terrain.DoorTerrain):
 class ScrapIronBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_scrapiron_b.png'
     image_top = 'terrain_building_scrapiron.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class ScrapIronDoorTerrain(pbge.scenes.terrain.OnTheWallTerrain):
@@ -1069,7 +1101,7 @@ class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
 class BrickBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_middle = 'terrain_building_brick_b.png'
     image_top = 'terrain_building_brick.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class BrickBuilding(pbge.randmaps.terrset.BuildingSet):
@@ -1084,7 +1116,7 @@ class BrickBuilding(pbge.randmaps.terrset.BuildingSet):
 class WhiteBrickBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_brick_b.png'
     image_top = 'terrain_building_whitebrick.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class WhiteBrickBuilding(BrickBuilding):
@@ -1094,7 +1126,7 @@ class WhiteBrickBuilding(BrickBuilding):
 class ResidentialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_residential_b.png'
     image_top = 'terrain_building_residential.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
@@ -1117,7 +1149,7 @@ class ResidentialBuilding(pbge.randmaps.terrset.BuildingSet):
 class IndustrialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_industrial_b.png'
     image_top = 'terrain_building_industrial.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class IndustrialBuilding(pbge.randmaps.terrset.BuildingSet):
@@ -1139,7 +1171,7 @@ class IndustrialBuilding(pbge.randmaps.terrset.BuildingSet):
 class CommercialBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_commercial_b.png'
     image_top = 'terrain_building_commercial.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class CommercialBuilding(pbge.randmaps.terrset.BuildingSet):
@@ -1159,7 +1191,7 @@ class CommercialBuilding(pbge.randmaps.terrset.BuildingSet):
 class ConcreteBuildingTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_bottom = 'terrain_building_concrete_b.png'
     image_top = 'terrain_building_concrete.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class ConcreteBuilding(pbge.randmaps.terrset.BuildingSet):
@@ -1186,43 +1218,43 @@ class ScreenWindow(pbge.scenes.terrain.OnTheWallTerrain):
 class KojedoModelTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_mechamodels.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class BuruBuruModelTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_mechamodels.png'
     frame = 1
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class GladiusModelTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_mechamodels.png'
     frame = 2
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class VadelModelTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_mechamodels.png'
     frame = 3
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class HarpyModelTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_mechamodels.png'
     frame = 4
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class ClaymoreModelTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_mechamodels.png'
     frame = 5
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class MechaModelTerrain(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_decor_mechamodels.png'
     frames = (0, 1, 2, 3, 4, 5)
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class MapTerrain(pbge.scenes.terrain.OnTheWallTerrain):
@@ -1251,7 +1283,7 @@ class LoungeTableTerrain(pbge.scenes.terrain.OnTheWallVariableTerrain):
 
 class NorthSouthShelvesTerrain(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_decor_nsshelves.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 10}
 
 
@@ -1366,34 +1398,34 @@ class HamsterCageTerrain(pbge.scenes.terrain.OnTheWallTerrain):
 
 class StairsUpTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_stairs.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
 class StairsDownTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_stairs.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
     frame = 1
 
 
 class TrapdoorTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_stairs.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
     frame = 2
 
 
 class TrailSignTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_stairs.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
     frame = 3
 
 
 class StoneStairsUpTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_stonestairs.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
 
 
@@ -1461,32 +1493,32 @@ class UndergroundEntranceTerrain(pbge.scenes.terrain.Terrain):
 class OldMainframeTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_oldmainframe.png'
     frame = 0
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class OldTerminalTerrain(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_default.png'
     frame = 2
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class BiotankTerrain(pbge.scenes.terrain.AnimTerrain):
     frames = (0, 1, 2, 3, 1, 2, 4, 2, 5, 2, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 2, 3, 2, 1)
     image_top = 'terrain_decor_biotank.png'
     anim_delay = 6
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class EmptyBiotankTerrain(pbge.scenes.terrain.Terrain):
     frame = 6
     image_top = 'terrain_decor_biotank.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class BrokenBiotankTerrain(pbge.scenes.terrain.Terrain):
     frame = 7
     image_top = 'terrain_decor_biotank.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class PZHoloTerrain(pbge.scenes.terrain.AnimTerrain):
@@ -1498,16 +1530,16 @@ class PZHoloTerrain(pbge.scenes.terrain.AnimTerrain):
         1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 4, 5, 6, 5, 4, 3,
         2)
     image_top = "terrain_decor_pzholo.png"
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
     anim_delay = 3
 
     @classmethod
-    def render_top(self, dest, view, x, y):
+    def render_top(cls, dest, view, x, y):
         """Draw terrain that should appear in front of a model in the same tile"""
-        spr = view.get_terrain_sprite(self.image_top, (x, y), transparent=False)
+        spr = view.get_terrain_sprite(cls.image_top, (x, y), transparent=False)
         spr.render(dest, 0)
-        spr = view.get_terrain_sprite(self.image_top, (x, y), transparent=True)
-        spr.render(dest, self.frames[(view.phase // self.anim_delay + (x + y) * 4) % len(self.frames)])
+        spr = view.get_terrain_sprite(cls.image_top, (x, y), transparent=True)
+        spr.render(dest, cls.frames[(view.phase // cls.anim_delay + (x + y) * 4) % len(cls.frames)])
 
 
 class BarTerrain(pbge.scenes.terrain.WallTerrain):
@@ -1587,7 +1619,7 @@ class HerbsTerrain(pbge.scenes.terrain.Terrain):
 
 class CorsairTDFTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_top = 'terrain_terrset_corsair_tdf.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class CorsairDuckDict(dict):
@@ -1613,7 +1645,7 @@ class CorsairTerrset(pbge.randmaps.terrset.TerrSet):
 
 class TentTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_top = 'terrain_terrset_tent.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class TentTerrset(pbge.randmaps.terrset.TerrSet):
@@ -1631,7 +1663,7 @@ class TentTerrset(pbge.randmaps.terrset.TerrSet):
 
 class MobileHQTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_top = 'terrain_terrset_mobilehq.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class MobileHQTerrset(pbge.randmaps.terrset.TerrSet):
@@ -1652,7 +1684,7 @@ class MobileHQTerrset(pbge.randmaps.terrset.TerrSet):
 
 class FieldHospitalTerrain(pbge.scenes.terrain.TerrSetTerrain):
     image_top = 'terrain_terrset_fieldhospital.png'
-    blocks = (Walking, Skimming, Rolling, Flying)
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 
 class FieldHospitalTerrset(pbge.randmaps.terrset.TerrSet):

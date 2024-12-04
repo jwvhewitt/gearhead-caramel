@@ -34,7 +34,7 @@ class Accurate(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         base = weapon.get_basic_attack(name='Aim +20', attack_icon=12)
         base.price.append(geffects.MentalPrice(4))
         base.data.thrill_power = base.data.thrill_power + 10
@@ -51,7 +51,7 @@ class Agonize(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         attack.fx.children[0].children.append(
             geffects.DoDrainStamina(1, 6)
         )
@@ -66,7 +66,7 @@ class Automatic(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         return [weapon.get_basic_attack(name='2 shots, x5 ammo', targets=2, ammo_cost=5, attack_icon=3),
                 weapon.get_basic_attack(name='3 shots, x10 ammo', targets=3, ammo_cost=10, attack_icon=6)]
 
@@ -80,13 +80,13 @@ class Blast1(Singleton):
     BLAST_RADIUS = 1
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Change the area to blast.
         if hasattr(attack.area, "reach"):
             reach = attack.area.reach
         else:
             reach = weapon.reach
-        attack.area = pbge.scenes.targetarea.Blast(radius=self.BLAST_RADIUS, reach=reach, delay_from=1)
+        attack.area = pbge.scenes.targetarea.Blast(radius=cls.BLAST_RADIUS, reach=reach, delay_from=1)
         attack.fx.anim = weapon.get_area_anim()
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
         attack.fx.children[0].scatter = True
@@ -112,10 +112,10 @@ class BonusStrike1(Singleton):
     STRIKE_NUMBER = 1
 
     @classmethod
-    def replace_primary_attack(self, weapon):
-        base = weapon.get_basic_attack(name='Bonus Strike +{}'.format(self.STRIKE_NUMBER),
-                                       attack_icon=9, bonus_strike=self.STRIKE_NUMBER)
-        base.data.thrill_power = base.data.thrill_power + 5 * self.STRIKE_NUMBER
+    def replace_primary_attack(cls, weapon):
+        base = weapon.get_basic_attack(name='Bonus Strike +{}'.format(cls.STRIKE_NUMBER),
+                                       attack_icon=9, bonus_strike=cls.STRIKE_NUMBER)
+        base.data.thrill_power = base.data.thrill_power + 5 * cls.STRIKE_NUMBER
         return [base, ]
 
 
@@ -137,7 +137,7 @@ class BurnAttack(Singleton):
     POWER_MODIFIER = 1.5
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a burn status to the children.
         attack.fx.children.append(geffects.AddEnchantment(geffects.Burning, ))
 
@@ -150,7 +150,7 @@ class Brutal(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add brutality to the damage.
         attack.fx.children[0].is_brutal = True
 
@@ -165,24 +165,24 @@ class BurstFire2(Singleton):
     BURST_VALUE = 2
 
     @classmethod
-    def replace_primary_attack(self, weapon):
-        base = weapon.get_basic_attack(name='Burst x{}'.format(self.BURST_VALUE), ammo_cost=self.BURST_VALUE,
+    def replace_primary_attack(cls, weapon):
+        base = weapon.get_basic_attack(name='Burst x{}'.format(cls.BURST_VALUE), ammo_cost=cls.BURST_VALUE,
                                        attack_icon=9)
         old_fx = base.fx
-        base.shot_anim = geffects.BulletFactory(self.BURST_VALUE, base.shot_anim)
+        base.shot_anim = geffects.BulletFactory(cls.BURST_VALUE, base.shot_anim)
         base.fx = geffects.MultiAttackRoll(
             att_stat=old_fx.att_stat,
             att_skill=old_fx.att_skill,
-            num_attacks=self.BURST_VALUE,
+            num_attacks=cls.BURST_VALUE,
             children=old_fx.children,
             anim=old_fx.anim,
-            accuracy=old_fx.accuracy + self.BURST_VALUE * 3,
+            accuracy=old_fx.accuracy + cls.BURST_VALUE * 3,
             penetration=old_fx.penetration - 10,
             modifiers=old_fx.modifiers,
             defenses=old_fx.defenses,
             apply_hit_modifier=False,
         )
-        base.data.thrill_power = base.data.thrill_power + 3 * self.BURST_VALUE
+        base.data.thrill_power = base.data.thrill_power + 3 * cls.BURST_VALUE
         return [base, ]
 
 
@@ -228,7 +228,7 @@ class ChargeAttack(Singleton):
     COST_EFFECTIVE_REACH_MIN = 3
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         aa = weapon.get_basic_attack(name='Charge', attack_icon=15)
         replace_attack_roll(aa)
         aa.fx.modifiers.append(geffects.GenericBonus('Charge', 10))
@@ -247,7 +247,7 @@ class ConeAttack(Singleton):
     POWER_MODIFIER = 3.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Change the area to cone.
         attack.area = pbge.scenes.targetarea.Cone(reach=weapon.reach * 2, delay_from=-1)
         attack.shot_anim = None
@@ -257,7 +257,7 @@ class ConeAttack(Singleton):
         attack.fx.can_crit = False
 
     @classmethod
-    def get_reach_str(self, weapon):
+    def get_reach_str(cls, weapon):
         return '{}-{} cone'.format(weapon.reach, weapon.reach * 2)
 
 
@@ -278,7 +278,7 @@ class Designator(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a Sensor Lock status to the children.
         attack.fx.children[0].children.append(
             geffects.IfEnchantmentOK(
@@ -303,7 +303,7 @@ class DisintegrateAttack(Singleton):
     POWER_MODIFIER = 2.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a disintegration status to the children.
         attack.fx.children[0].children.append(
             geffects.IfEnchantmentOK(
@@ -329,7 +329,7 @@ class FastAttack(Singleton):
     BURST_VALUE = 2
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         aa: pbge.effects.Invocation = weapon.get_basic_attack(name='{} attacks', attack_icon=9)
         aa.targets = max(aa.targets + 1, 2)
         aa.name = aa.name.format(aa.targets)
@@ -347,7 +347,7 @@ class Flail(Singleton):
     NO_PARRY = True
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Flails cannot be blocked or parried.
         attack.fx.defenses[geffects.PARRY] = None
         attack.fx.defenses[geffects.BLOCK] = None
@@ -361,7 +361,7 @@ class HaywireAttack(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a burn status to the children.
         attack.fx.children[0].children.append(
             geffects.IfEnchantmentOK(
@@ -385,7 +385,7 @@ class DrainsPower(Singleton):
     POWER_MODIFIER = 0.8
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a drain power effect to the children.
         # Construct an invocation that is invoked after damage is dealt,
         # otherwise the -100Pw caption will overlap with the damage caption.
@@ -418,7 +418,7 @@ class LineAttack(Singleton):
     POWER_MODIFIER = 2.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Change the area to cone.
         attack.area = pbge.scenes.targetarea.Line(reach=weapon.reach * 3, delay_from=-1)
         attack.shot_anim = None
@@ -498,7 +498,7 @@ class OverloadAttack(Singleton):
     POWER_MODIFIER = 1.5
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a burn status to the children.
         attack.fx.children[0].children.append(
             geffects.IfEnchantmentOK(
@@ -517,7 +517,7 @@ class Plasma(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Plasma scatters on a successful hit, but travels in a coherent beam. This means it's a scatter weapon
         # that can potentially critical hit. This also means it loses the ReflexSave never-miss ability.
         attack.fx.children[0].scatter = True
@@ -531,7 +531,7 @@ class PoisonAttack(Singleton):
     POWER_MODIFIER = 2.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Add a disintegration status to the children.
         attack.fx.children[0].children.append(
             geffects.IfEnchantmentOK(
@@ -554,7 +554,7 @@ class Scatter(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Change the damage type to scatter. That was easy.
         attack.fx.children[0].scatter = True
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
@@ -567,7 +567,7 @@ class Smash(Scatter):
     name = "Smash"
 
     @classmethod
-    def modify_basic_attack(self, weapon, attack):
+    def modify_basic_attack(cls, weapon, attack):
         # Change the damage type to scatter. That was easy.
         attack.fx.children[0].scatter = True
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
@@ -583,9 +583,9 @@ class SwarmFire2(Singleton):
     SWARM_VALUE = 2
 
     @classmethod
-    def replace_primary_attack(self, weapon):
-        base = weapon.get_basic_attack(name='Swarm x{}'.format(self.SWARM_VALUE), ammo_cost=self.SWARM_VALUE,
-                                       targets=self.SWARM_VALUE, attack_icon=9)
+    def replace_primary_attack(cls, weapon):
+        base = weapon.get_basic_attack(name='Swarm x{}'.format(cls.SWARM_VALUE), ammo_cost=cls.SWARM_VALUE,
+                                       targets=cls.SWARM_VALUE, attack_icon=9)
         return [base, ]
 
 
@@ -608,7 +608,7 @@ class VariableFire2(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         base = BurstFire2.replace_primary_attack(weapon)[0]
         return [base]
 
@@ -622,7 +622,7 @@ class VariableFire3(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         base = BurstFire3.replace_primary_attack(weapon)[0]
         return [base]
 
@@ -636,7 +636,7 @@ class VariableFire4(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         base = BurstFire4.replace_primary_attack(weapon)[0]
         return [base]
 
@@ -650,6 +650,6 @@ class VariableFire5(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(self, weapon):
+    def get_attacks(cls, weapon):
         base = BurstFire5.replace_primary_attack(weapon)[0]
         return [base]

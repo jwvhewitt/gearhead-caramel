@@ -16,5 +16,10 @@ class Flying( MoveMode ):
     name = 'fly'
     altitude = 25
 
+class Swimming( MoveMode ):
+    climb_penalty = 1.0
+    name = 'swim'
+    altitude = 1
+
 class Vision( MoveMode ):
     pass
