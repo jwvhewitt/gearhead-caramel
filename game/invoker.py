@@ -40,7 +40,7 @@ class InvocationsWidget(pbge.widgets.Widget):
 
     def __init__(
             self, camp, pc, build_library_function, update_callback, start_source=None,
-            top_shelf_fun=None, bottom_shelf_fun=None, **kwargs
+            top_shelf_fun=None, bottom_shelf_fun=None, auto_launch_fun=None, **kwargs
     ):
         # This widget holds the attack library and determines what invocation
         # from the library is going to be used.
@@ -58,6 +58,7 @@ class InvocationsWidget(pbge.widgets.Widget):
         self.update_callback = update_callback
         self.top_shelf_fun = top_shelf_fun
         self.bottom_shelf_fun = bottom_shelf_fun
+        self.auto_launch_fun = auto_launch_fun
         self.shelf = None
         self.invo = 0
         # The shelf_offset tells the index of the first invocation in the menu.
@@ -117,15 +118,17 @@ class InvocationsWidget(pbge.widgets.Widget):
     def prev_invo(self):
         usable_invos = [i for i in self.shelf.invo_list if
                         i.can_be_invoked(self.pc, bool(self.camp.fight)) or i is self.shelf.invo_list[self.invo]]
-        if len(usable_invos) > 1:
-            new_i = max(self.shelf.invo_list.index(self.shelf.invo_list[self.invo]) - 1, 0)
+        current_invo_uix = usable_invos.index(self.shelf.invo_list[self.invo])
+        if len(usable_invos) > 1 and current_invo_uix > 0:
+            new_i = current_invo_uix - 1
             self.set_shelf_invo(self.shelf, usable_invos[new_i])
 
     def next_invo(self):
         usable_invos = [i for i in self.shelf.invo_list if
                         i.can_be_invoked(self.pc, bool(self.camp.fight)) or i is self.shelf.invo_list[self.invo]]
-        if len(usable_invos) > 1:
-            new_i = min(self.shelf.invo_list.index(self.shelf.invo_list[self.invo]) + 1, len(usable_invos) - 1)
+        current_invo_uix = usable_invos.index(self.shelf.invo_list[self.invo])
+        if len(usable_invos) > 1 and current_invo_uix < (len(usable_invos) - 1):
+            new_i = current_invo_uix + 1
             self.set_shelf_invo(self.shelf, usable_invos[new_i])
 
     def prev_shelf(self):
@@ -165,10 +168,11 @@ class InvocationsWidget(pbge.widgets.Widget):
         target_invo = button.data + self.shelf_offset
         if self.shelf and target_invo < len(self.shelf.invo_list) and self.shelf.invo_list[target_invo].can_be_invoked(
                 self.pc, self.camp.fight):
-            if target_invo == self.invo:
-                pass
+            if target_invo == self.invo and self.auto_launch_fun:
+                self.auto_launch_fun()
                 # print("Selecting again")
-            self.set_shelf_invo(self.shelf, self.shelf.invo_list[target_invo])
+            else:
+                self.set_shelf_invo(self.shelf, self.shelf.invo_list[target_invo])
 
     def pop_invo_menu(self, button=None, ev=None):
         mymenu = pbge.rpgmenu.Menu(*self.MENU_POS, anchor=pbge.frects.ANCHOR_UPPERRIGHT, font=pbge.BIGFONT)
@@ -312,7 +316,8 @@ class InvocationUI(object):
 
         self.my_widget = self.LIBRARY_WIDGET(
             camp, pc, build_library_function, self.change_invo, source,
-            top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun
+            top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun,
+            auto_launch_fun=self.auto_launch
         )
         self.name = name
         self.my_widget.active = False
@@ -384,17 +389,21 @@ class InvocationUI(object):
 
         pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, self.SC_ORIGIN)
 
-        if self.invo and pbge.my_state.view.mouse_tile in self.legal_tiles:
+        if self.invo and self.invo.area.AUTOMATIC:
             aoe = self.invo.area.get_area(self.camp, self.pc.pos, pbge.my_state.view.mouse_tile)
             for p in aoe:
                 pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = None
-        if self.invo and self.targets:
-            for t in self.targets:
-                aoe = self.invo.area.get_area(self.camp, self.pc.pos, t)
+        else:
+            if self.invo and pbge.my_state.view.mouse_tile in self.legal_tiles:
+                aoe = self.invo.area.get_area(self.camp, self.pc.pos, pbge.my_state.view.mouse_tile)
                 for p in aoe:
                     pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
-            #pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = None
+                pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = None
+            if self.invo and self.targets:
+                for t in self.targets:
+                    aoe = self.invo.area.get_area(self.camp, self.pc.pos, t)
+                    for p in aoe:
+                        pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             if self.clock:
                 self.clock.set_ap_mp_costs(ap_to_spend=1)
@@ -482,6 +491,13 @@ class InvocationUI(object):
         if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, True):
             self.launch()
 
+    def auto_launch(self):
+        # Auto-launch will automatically launch an automatically targeted invocation.
+        # Otherwise, it does nothing.
+        if self.invo and self.invo.area.AUTOMATIC and self.invo.can_be_invoked(self.pc, self.camp.fight):
+            while len(self.targets) < self.num_targets:
+                self.targets.append(self.pc.pos)
+            self.launch()
 
     def update(self, ev, player_turn):
         # We just got an event. Deal with it.
@@ -503,6 +519,9 @@ class InvocationUI(object):
                 # self.camp.save(self.screen)
                 self.record = True
                 print("Recording")
+
+            elif pbge.my_state.is_key_for_action(ev, "select") and not pbge.my_state.widget_clicked:
+                self.auto_launch()
 
             elif pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_clicked:
                 self.click_left(player_turn)

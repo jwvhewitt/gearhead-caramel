@@ -1,3 +1,6 @@
+* Automatic area invocations can be invoked with "accept" key or clicking icon
+* Automatic area targeters no longer need to be targeted
+* Fixed prev_invo invoker UI bug
 * Added cruise movemode
 * Fixed SimpleMonologueDisplay grammar error
 * Destroyed sound fx now based on material

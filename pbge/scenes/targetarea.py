@@ -85,10 +85,7 @@ class SelfOnly( object ):
     def get_area( self, camp, origin, target ):
         return ( origin, )
     def get_delay_point( self, origin, target ):
-        if self.delay_from < 0:
-            return origin
-        elif self.delay_from > 0:
-            return target
+        return origin
     def get_reach( self ):
         return 0
     def get_firing_points(self,camp,desired_target):
@@ -114,10 +111,7 @@ class SelfCentered( object ):
     def get_targets( self, camp, origin ):
         return self.get_area(camp,origin,(0,0))
     def get_delay_point( self, origin, target ):
-        if self.delay_from < 0:
-            return origin
-        elif self.delay_from > 0:
-            return target
+        return origin
     def get_reach( self ):
         return self.radius
     def get_firing_points(self,camp,desired_target):

@@ -111,7 +111,6 @@ class RandoMonsterEncounter(Plot):
         return True
 
     def _eteam_ACTIVATETEAM(self, camp):
-        print(camp.time)
         self.last_update = camp.time
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
