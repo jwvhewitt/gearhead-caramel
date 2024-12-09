@@ -177,6 +177,9 @@ class Relationship(object):
                 self.expectation in UNFAVORABLE_TAGS
         )
 
+    def is_interesting(self):
+        return self.is_favorable() or (self.is_unfavorable() and len(self.history) >= 5)
+
     def make_not_unfavorable(self):
         if self.attitude in UNFAVORABLE_TAGS:
             self.attitude = None

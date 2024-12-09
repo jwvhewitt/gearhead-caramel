@@ -707,6 +707,13 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     self.egg.stuff.append(pc)
                     if hasattr(pc, "pilot"):
                         pc.pilot = None
+        npcs = [candidate for candidate in self.all_contents(self) if (
+                isinstance(candidate, gears.base.Character) and
+                candidate.relationship and candidate.relationship.is_interesting()
+        )]
+        for pc in npcs:
+            self.egg.dramatis_personae.add(pc)
+
         self.egg.save()
         self.egg = None
         self.delete_save_file()

@@ -659,13 +659,13 @@ class Explorer(object):
                                 self.scene.set_visible(x, y, True)
 
                     elif gdi.unicode == "!" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.egg.credits += 1000000
+                        #self.camp.egg.credits += 1000000
                         for mpc in self.camp.get_active_party():
                             pc = mpc.get_pilot()
-                            if pc:
-                                for skill in pc.statline:
-                                    if skill in gears.stats.ALL_SKILLS:
-                                        pc.statline[skill] += 10
+                        #    if pc:
+                        #        for skill in pc.statline:
+                        #            if skill in gears.stats.ALL_SKILLS and pc.statline[skill] > 10:
+                        #                pc.statline[skill] -= 10
 
                     elif gdi.key == pygame.K_F1 and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         pygame.image.save(pbge.my_state.screen, pbge.util.user_dir("screenshot.png"))

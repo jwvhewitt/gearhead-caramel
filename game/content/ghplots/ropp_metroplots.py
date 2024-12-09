@@ -25,10 +25,13 @@ class DockyardsPlot(Plot):
     scope = "METRO"
     active = True
 
+    QOL = gears.QualityOfLife(prosperity=1, community=-1)
+
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
         self.add_sub_plot(nart, "ROPP_DOCKYARDS_HOUSEOFBLADES")
         return True
+
 
 class RoppDockHouseOfBlades(Plot):
     LABEL = "ROPP_DOCKYARDS_HOUSEOFBLADES"
