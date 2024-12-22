@@ -50,6 +50,7 @@ class ROPP_WarStarter(Plot):
         self.elements[worldmapwar.WORLD_MAP_TEAMS] = war_teams
         sp = self.add_sub_plot(nart, "WORLD_MAP_WAR", ident="ROPPWAR")
         self.world_map_war = self.register_element("WORLD_MAP_WAR", sp.world_map_war)
+        nart.camp.campdata["WORLD_MAP_WAR"] = self.world_map_war
 
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
             self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'])
@@ -168,7 +169,7 @@ class SolarNavyJoinerPlot(Plot):
         return mylist
 
     def _join_team(self, camp):
-        self.elements["WORLD_MAP_WAR"].player_team = gears.factions.TheSolarNavy
+        self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TheSolarNavy)
         self.RUMOR = None
         self.memo = None
         camp.credits += self.signing_bonus
@@ -225,7 +226,7 @@ class TreasureHuntersJoinerPlot(Plot):
             self.did_cutscene = True
 
     def _join_team(self, camp):
-        self.elements["WORLD_MAP_WAR"].player_team = gears.factions.TreasureHunters
+        self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TreasureHunters)
         self.RUMOR = None
         self.memo = None
         camp.credits += self.signing_bonus
@@ -295,7 +296,7 @@ class AegisJoinerPlot(Plot):
             self.did_cutscene = True
 
     def _join_team(self, camp):
-        self.elements["WORLD_MAP_WAR"].player_team = gears.factions.AegisOverlord
+        self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.AegisOverlord)
         self.RUMOR = None
         self.memo = None
         camp.party.append(gears.selector.get_design_by_full_name("CHA-03 Command Chameleon"))

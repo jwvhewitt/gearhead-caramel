@@ -36,7 +36,7 @@ class Job(object):
                 # mode is on; then you can print a warning.
                 if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     print("Warning: {} in {} is not a singleton.".format(t, self.name))
-                self.tags.add(t)
+                self.local_requirements.add(t)
         ALL_JOBS[name] = self
         #print "{} -> {}".format(name,[s.name for s in self.skills])
 

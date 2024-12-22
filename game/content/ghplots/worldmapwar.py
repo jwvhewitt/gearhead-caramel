@@ -315,6 +315,11 @@ class WorldMapWar:
         if "consolidation_scene" not in state:
             self.consolidation_scene = None
 
+    def set_player_team(self, camp: gears.GearHeadCampaign, team):
+        if team in self.war_teams:
+            self.player_team = team
+            camp.faction_relations[team].pc_relation = gears.factions.FactionRelations.ALLY
+
 
 
 class WorldMapWarTurn:

@@ -204,6 +204,16 @@ class GrateFloor(pbge.scenes.terrain.VariableTerrain):
     blocks = (Cruising, SpaceFlight)
 
 
+class BlueSlabFloor(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_blueslab.png'
+    blocks = (Cruising, SpaceFlight)
+
+
+class GreenSlabFloor(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_greenslab.png'
+    blocks = (Cruising, SpaceFlight)
+
+
 class CrackedEarth(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_crackedearth.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_crackedearth.png')
@@ -834,6 +844,20 @@ class RegExLogoTerrainEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_decor_logo_regex.png'
 
 
+class BioCorpLogoTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_biocorplogo.png'
+
+
+class BioCorpLogoTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_biocorplogo.png'
+
+
+class BioCorpLogoTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_biocorplogo.png'
+
+
 class AegisLogoSign(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_aegislogo.png'
 
@@ -1086,6 +1110,10 @@ class CyberSignSouth(pbge.scenes.terrain.Terrain):
 class CyberSignEast(pbge.scenes.terrain.Terrain):
     frame = 1
     image_top = 'terrain_gervais_decor_cybersign.png'
+
+
+class KnifeNoteTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_knifenote.png'
 
 
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):

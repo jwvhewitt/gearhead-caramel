@@ -2,7 +2,7 @@ import pbge.memos
 from game.content.plotutility import LMSkillsSelfIntro
 from game.content import backstory
 from pbge.plots import Plot, Rumor
-from pbge.dialogue import Offer, ContextTag, Reply
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
 import gears
 import game.content.gharchitecture
@@ -118,7 +118,7 @@ class DeadzonerInGreenZoneLancemate(Plot):
     UNIQUE = True
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes
 
@@ -142,7 +142,7 @@ class GladiatorLancemate(Plot):
     UNIQUE = True
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
 
@@ -158,7 +158,7 @@ class GladiatorLancemate(Plot):
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
 
-    def _is_best_scene(self, nart, candidate: gears.GearHeadScene):
+    def _is_best_scene(self, nart, candidate):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
@@ -167,7 +167,7 @@ class MutantLancemate(Plot):
     UNIQUE = True
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return {gears.personality.GreenZone, gears.personality.DeadZone}.intersection(
             pstate.elements["METROSCENE"].attributes)
@@ -289,7 +289,7 @@ class RLM_Beginner(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements["NPC"].renown < 25
 
@@ -382,7 +382,7 @@ class RLM_Medic(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements["NPC"].job and gears.tags.Medic in pstate.elements["NPC"].job.tags
 
@@ -445,7 +445,7 @@ class RLM_Mercenary(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements["NPC"].job and {gears.tags.Adventurer, gears.tags.Military}.intersection(
             pstate.elements["NPC"].job.tags)
@@ -507,7 +507,7 @@ class RLM_Professional(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements["NPC"].renown > 35
 
@@ -828,7 +828,7 @@ class RLM_HauntedByTyphon(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return gears.personality.GreenZone in pstate.elements["NPC"].personality
 
@@ -936,7 +936,7 @@ class RLM_MechaOtaku(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements["NPC"].statline[gears.stats.Knowledge] > 12
 
@@ -960,9 +960,9 @@ class RLM_MechaOtaku(Plot):
                     context=ContextTag((context.HELLO,)), subject=npc, subject_start=True
                 ))
 
-                pcmek: gears.base.Mecha = camp.get_pc_mecha(camp.pc)
+                pcmek = camp.get_pc_mecha(camp.pc)
                 if pcmek:
-                    engine, gyro = pcmek.get_engine_rating_and_gyro_status()
+                    engine, _gyro = pcmek.get_engine_rating_and_gyro_status()
                     if engine > 1700:
                         opinion = "That makes it one of the most powerful mecha out there. When an engine that size blows up, it's really something."
                     elif engine > 1100:
@@ -1066,7 +1066,7 @@ class RLM_FarmKid(Plot):
     )
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return "METROSCENE" in pstate.elements and gears.tags.Village in pstate.elements["METROSCENE"].attributes
 

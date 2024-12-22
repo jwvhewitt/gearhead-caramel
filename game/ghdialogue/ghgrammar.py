@@ -1077,8 +1077,10 @@ DEFAULT_GRAMMAR = {
 
     "[CORPORATE_JOB_SPIEL]": {
         # data block needs {corporate_faction}
-        Default: ["{corporate_faction} pays top dollar for qualified applicants.",
-                  ],
+        Default: [
+            "{corporate_faction} pays top dollar for qualified applicants.",
+            "[CORPORATE_SPIEL]",
+        ],
         personality.Cheerful: ["It's a joy working for {corporate_faction}.",
                                ],
         personality.Grim: [
@@ -1093,15 +1095,40 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Consider {corporate_faction}.",
                           ],
         gears.factions.RegExCorporation: [
-            "RegEx Corporation is the corporation of the people!",
             "RegEx is always looking for freelance cavaliers to do something or another.",
         ],
         gears.factions.KettelIndustries: [
             "Through its corporate and philanthropic activities, Kettel Industries seeks to restore the golden age of humanity.",
-            "Kettel Industries is the largest business conglomerate in the solar system."
         ],
         gears.factions.BioCorp: [
             "Biocorp provides the tools and technology you need to survive in an ever changing world.",
+        ]
+    },
+
+    "[CORPORATE_SPIEL]": {
+        # data block needs {corporate_faction}
+        Default: ["{corporate_faction} is the greatest corporation.",
+                  ],
+        personality.Cheerful: ["{corporate_faction} produces great ideas and great products.",
+                               ],
+        personality.Grim: [
+            "{corporate_faction} is not as bad as those other corporations.",
+        ],
+        personality.Easygoing: ["{corporate_faction} makes neat stuff.",
+                                ],
+        personality.Passionate: ["I am proud to work for {corporate_faction}!",
+                                 ],
+        personality.Sociable: ["Remember, {corporate_faction} is your friend.",
+                               ],
+        personality.Shy: ["{corporate_faction} is good.",
+                          ],
+        gears.factions.RegExCorporation: [
+            "RegEx Corporation is the corporation of the people!",
+        ],
+        gears.factions.KettelIndustries: [
+            "Kettel Industries is the largest business conglomerate in the solar system."
+        ],
+        gears.factions.BioCorp: [
             "Biocorp harnesses the power of nature for the future of humanity."
         ]
     },
@@ -1876,21 +1903,39 @@ DEFAULT_GRAMMAR = {
     "[GOODBYE]": {
         Default: ["Goodbye."
                   ],
-        personality.Cheerful: ["Bye bye.",
+        personality.Cheerful: ["Bye bye.", "Gotta bounce!"
                                ],
         personality.Grim: ["Until we meet again.",
                            ],
-        personality.Easygoing: ["See ya.",
+        personality.Easygoing: ["See ya.", "So long!"
                                 ],
         personality.Passionate: ["Farewell.",
                                  ],
         personality.Sociable: ["I'll see you later.", "Don't be a stranger."
                                ],
-        personality.Shy: ["Bye.",
+        personality.Shy: ["Bye.", "I'm out of here."
                           ],
         tags.Faithworker: [
-            "[God] go with you."
-        ]
+            "[God] go with you.",
+        ],
+        tags.Police: [
+            "Catch you later.",
+        ],
+        tags.Military: [
+            "Over and out."
+        ],
+        personality.DeadZone: [
+            "Survive and stay hydrated.",
+        ],
+        personality.Peace: [
+            "Peace out.",
+        ],
+        personality.Fellowship: [
+            "Take care!",
+        ],
+        personality.Glory: [
+            "Gotta go."
+        ],
     },
 
     "[GOOD]": {
@@ -3251,7 +3296,7 @@ DEFAULT_GRAMMAR = {
         personality.Passionate: [
             "[IP_STATUS] [IP_Pleasure], and also [IP_Business]. [IP_BadNews] but that doesn't worry me.",
             "[IP_STATUS] Would you believe that [IP_GoodNews]? Also, [IP_Pleasure]!",
-            "[IP_STATUS] [IP_NEWS] [IP_Worry], but [IP_Hope]!"
+            "[IP_STATUS] [IP_NEWS] [IP_Worry], but [IP_Hope]!",
             "[IP_STATUS] I've been working hard; [IP_Business]. [IP_OPINION]"
         ],
         personality.Sociable: [
@@ -3571,7 +3616,7 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Sociable: [
             "In my opinion, {it} is good.",
-            "I was talking with [foaf] recently, and we both agree it's good."
+            "I was talking with [foaf] recently, and we both agree it's good.",
             "As far as I'm concerned, it's good."
         ],
         personality.Shy: [
@@ -3603,7 +3648,7 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Sociable: [
             "In my opinion, it's mediocre.",
-            "According to [foaf], people don't care about {it} much."
+            "According to [foaf], people don't care about {it} much.",
             "As far as I'm concerned, {it} is acceptable."
         ],
         personality.Shy: [

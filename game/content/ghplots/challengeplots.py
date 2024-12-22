@@ -513,11 +513,12 @@ class BasicFightChallenge(ChallengePlot):
                 subject=self, subject_start=True
             ))
 
-            mylist.append(Offer(
-                "[IWillSendMissionDetails]; [GOODLUCK]",
-                ContextTag([context.ACCEPT]), effect=self.activate_mission,
-                subject=self
-            ))
+            if not camp.is_favorable_to_pc(self.elements["ENEMY_FACTION"]):
+                mylist.append(Offer(
+                    "[IWillSendMissionDetails]; [GOODLUCK]",
+                    ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                    subject=self
+                ))
 
             mylist.append(Offer(
                 "[UNDERSTOOD] [GOODBYE]",
@@ -535,8 +536,11 @@ class BasicFightChallenge(ChallengePlot):
         if self.mission_seed.ended:
             self.end_plot(camp)
 
-    def activate_mission(self,camp):
+    def activate_mission(self,camp: gears.GearHeadCampaign):
         self.mission_active = True
+        allied_faction = self.elements["NPC"].faction
+        if allied_faction and camp.are_faction_enemies(allied_faction, self.elements["ENEMY_FACTION"]):
+            camp.faction_relations[allied_faction].pc_relation = gears.factions.FactionRelations.ALLY
         missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
     def MISSION_GATE_menu(self, camp, thingmenu):
@@ -896,11 +900,12 @@ class ReconMissionToFindBase(ChallengePlot):
                 subject=self, subject_start=True
             ))
 
-            mylist.append(Offer(
-                "[IWillSendMissionDetails]; [GOODLUCK]",
-                ContextTag([context.ACCEPT]), effect=self.activate_mission,
-                subject=self
-            ))
+            if not camp.is_favorable_to_pc(self.elements["ENEMY_FACTION"]):
+                mylist.append(Offer(
+                    "[IWillSendMissionDetails]; [GOODLUCK]",
+                    ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                    subject=self
+                ))
 
             ghdialogue.SkillBasedPartyReply(
                 Offer(
@@ -984,7 +989,7 @@ class RecoverTheSupplies(ChallengePlot):
                 allied_faction=npc.faction,
                 enemy_faction=plotutility.RandomBanditCircle(nart.camp), rank=self.rank,
                 objectives=[missionbuilder.BAMO_DEFEAT_THE_BANDITS, missionbuilder.BAMO_RECOVER_CARGO],
-                one_chance=True,
+                one_chance=True, make_enemies=False,
                 scenegen=sgen, architecture=archi, mission_grammar=mgram,
                 cash_reward=120,
                 on_win=self._win_the_mission, defeat_trigger_on=False

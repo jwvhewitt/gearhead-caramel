@@ -5,7 +5,7 @@ import gears
 import pbge
 import random
 from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints,backstory
+from game.content import gharchitecture,ghterrain,ghwaypoints,ghwaypoints
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -24,7 +24,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         "DEBRIEFING_MISSION": "I'd like for you to head to Wujung. Hire some lancemates. Find someone who can help us with our energy problems. Then come back here and we'll see if we can put a permanent stop to those raiders."
     }
     @classmethod
-    def matches( self, pstate: pbge.plots.PlotState ):
+    def matches( cls, pstate: pbge.plots.PlotState ):
         """Returns True if this plot matches the current plot state."""
         return not pstate.adv.world.pc.has_badge("Criminal")
 
@@ -50,7 +50,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         self.adv = pbge.plots.Adventure(world=myscene)
 
         myroom = self.register_element("_EROOM",pbge.randmaps.rooms.ClosedRoom(10,7),dident="LOCALE")
-        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
+        myent = self.register_element( "ENTRANCE", pbge.scenes.waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
         mychute = self.register_element("CHUTE",ghwaypoints.BoardingChute(plot_locked=True),dident="_EROOM")
         myroom.contents.append(ghwaypoints.ClosedBoardingChute())
         myroom.contents.append(ghwaypoints.VentFan())
@@ -255,7 +255,7 @@ class DZDIntro_CousinIntro(DZDIntro_GetInTheMekShimli):
     scope = True
 
     @classmethod
-    def matches( self, pstate: pbge.plots.PlotState ):
+    def matches( cls, pstate: pbge.plots.PlotState ):
         """Returns True if this plot matches the current plot state."""
         return gears.personality.DeadZone in pstate.adv.world.pc.personality
 
@@ -353,7 +353,7 @@ class DZDIntro_SoldierIntro(DZDIntro_GetInTheMekShimli):
     }
 
     @classmethod
-    def matches( self, pstate: pbge.plots.PlotState ):
+    def matches( cls, pstate: pbge.plots.PlotState ):
         """Returns True if this plot matches the current plot state."""
         return pstate.adv.world.pc.has_badge("Soldier")
 
@@ -458,7 +458,7 @@ class DZDIntro_PopStarIntro(DZDIntro_GetInTheMekShimli):
     }
 
     @classmethod
-    def matches( self, pstate: pbge.plots.PlotState ):
+    def matches( cls, pstate: pbge.plots.PlotState ):
         """Returns True if this plot matches the current plot state."""
         return pstate.adv.world.pc.has_badge("Pop Star")
 
@@ -573,7 +573,7 @@ class DZDIntro_NotSoSmoothCriminal(DZDIntro_GetInTheMekShimli):
 
 
     @classmethod
-    def matches( self, pstate: pbge.plots.PlotState ):
+    def matches( cls, pstate: pbge.plots.PlotState ):
         """Returns True if this plot matches the current plot state."""
         return pstate.adv.world.pc.has_badge("Criminal")
 
@@ -749,7 +749,7 @@ class DZDIntroMission( Plot ):
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 
         self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
-        myent = self.register_element( "ENTRANCE", game.content.ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
+        myent = self.register_element( "ENTRANCE", pbge.scenes.waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
 
         enemy_room = self.register_element("ENEMY_ROOM",game.content.ghrooms.MSRuinsRoom(15,15,anchor=enemy_a),dident="LOCALE")
         team2 = self.register_element("_eteam",teams.Team(enemies=(myscene.player_team,)),dident="ENEMY_ROOM")

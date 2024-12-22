@@ -199,7 +199,15 @@ SCENE_VEHICLE = "VEHICLE"
 SCENE_WAREHOUSE = "WAREHOUSE"
 SCENE_TEMPLE = "TEMPLE"
 
-CITY_NAUTICAL = "NAUTICAL" # A city by the sea
+CITY_CORRUPT = "CITY_CORRUPT"           # A city dominated by criminal interests
+CITY_DANGEROUS = "CITY_DANGEROUS"       # A city riddled with crime, monsters, or other hazards
+CITY_INDUSTRIAL = "CITY_INDUSTRIAL"     # A city dominated by factories or other industrial stuff
+CITY_MARTIAL = "CITY_MARTIAL"           # This city functions as a military base or defense point
+CITY_NAUTICAL = "CITY_NAUTICAL"         # A city by the sea
+CITY_TRADE = "CITY_TRADE"               # A city where a lot of business is conducted; probably lots of shops
+CITY_TRANSPORT_HUB = "CITY_TRANSPORT_HUB"    # A city that is a major center for transportation
+CITY_UNDERCLASS = "CITY_UNDERCLASS"     # A city that has been neglected or shunned
+CITY_UNINHABITED = "CITY_UNINHABITED"   # A ghost town or a city that has been mostly abandoned. May still be a few people.
 
 # Shop Tags
 

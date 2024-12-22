@@ -11,6 +11,8 @@ MECHA_STORE = (tags.ST_MECHA,)
 MEXTRA_STORE = (tags.ST_MECHA,tags.ST_MECHA_WEAPON)
 ARMOR_STORE = (tags.ST_CLOTHING,)
 WEAPON_STORE = (tags.ST_WEAPON,)
+MELEE_WEAPON_STORE = (tags.ST_MELEEWEAPON,)
+MISSILE_WEAPON_STORE = (tags.ST_MISSILEWEAPON,)
 GENERAL_STORE = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL)
 MECHA_PARTS_STORE = (tags.ST_MECHA_EQUIPMENT,)
 MECHA_WEAPON_STORE = (tags.ST_MECHA_WEAPON,)
@@ -38,7 +40,13 @@ class Shop(object):
         self.npc = npc
         self.shopper = None
         self.shop_faction = shop_faction
-        self.mecha_colors = mecha_colors or gears.color.random_mecha_colors()
+        if not mecha_colors:
+            if shop_faction:
+                self.mecha_colors = shop_faction.mecha_colors
+            else:
+                self.mecha_colors = gears.color.random_mecha_colors()
+        else:
+            self.mecha_colors = mecha_colors
         self.customer = None
         self.sell_champion_equipment = sell_champion_equipment
         self.buy_stolen_items = buy_stolen_items

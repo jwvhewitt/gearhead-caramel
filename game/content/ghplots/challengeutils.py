@@ -1,9 +1,7 @@
 import random
-import game.content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
-    ghchallenges
+from game.content import ghchallenges
 from game import teams, ghdialogue
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag

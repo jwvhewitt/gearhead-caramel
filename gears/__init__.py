@@ -712,7 +712,11 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 candidate.relationship and candidate.relationship.is_interesting()
         )]
         for pc in npcs:
-            self.egg.dramatis_personae.add(pc)
+            if pc is not self.pc:
+                if hasattr(pc, "container") and pc.container:
+                    pc.container.remove(pc)
+                if pc not in self.egg.dramatis_personae:
+                    self.egg.dramatis_personae.add(pc)
 
         self.egg.save()
         self.egg = None

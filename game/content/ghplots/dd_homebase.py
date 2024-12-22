@@ -72,6 +72,7 @@ class DZD_Wujung(Plot):
         # tplot = self.add_sub_plot(nart, "TEST_CHAR_MOVER")
         self.add_sub_plot(nart, "DZD_BLACK_ISLE_PUB")
         self.add_sub_plot(nart, "RANDOM_SHOP")
+        self.add_sub_plot(nart, "TEST_SHOP", necessary=False)
         # Hwang-Sa Mission
         # Reconstruction Site
         tplot = self.add_sub_plot(nart, "QOL_REPORTER")
@@ -1059,13 +1060,14 @@ class DZD_BlueFortressHQ(Plot):
                 )
             )
 
-            mylist.append(
-                Offer(
-                    "{}. You can start the mission by heading to the West Gate.".format(self.mission_description),
-                    context=ContextTag([context.ACCEPT, ]), subject=self, effect=self._activate_mission,
-                    data={"enemy_faction": self.next_enemy_faction.name}
+            if not camp.is_favorable_to_pc(self.next_enemy_faction):
+                mylist.append(
+                    Offer(
+                        "{}. You can start the mission by heading to the West Gate.".format(self.mission_description),
+                        context=ContextTag([context.ACCEPT, ]), subject=self, effect=self._activate_mission,
+                        data={"enemy_faction": self.next_enemy_faction.name}
+                    )
                 )
-            )
 
             mylist.append(
                 Offer(

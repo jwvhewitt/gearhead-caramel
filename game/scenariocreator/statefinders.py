@@ -148,7 +148,10 @@ SINGULAR_TYPES = {
         "personality.L5Spinners", "personality.L5DustyRing", "personality.Luna", "personality.Mars",
         "gears.tags.SCENE_SOLO", "gears.tags.SCENE_DUNGEON", "gears.tags.SCENE_SEMIPUBLIC", "gears.tags.SCENE_FACTORY",
         "gears.tags.SCENE_OUTDOORS", "gears.tags.SCENE_ARENARULES", "gears.tags.City", "gears.tags.Village",
-        "gears.tags.SCENE_VEHICLE", "gears.tags.CITY_NAUTICAL", "gears.tags.SCENE_WAREHOUSE"
+        "gears.tags.SCENE_VEHICLE", "gears.tags.CITY_NAUTICAL", "gears.tags.SCENE_WAREHOUSE", 
+        "gears.tags.CITY_UNDERCLASS", "gears.tags.CITY_DANGEROUS", "gears.tags.CITY_UNINHABITED",
+        "gears.tags.CITY_MARTIAL", "gears.tags.CITY_TRANSPORT_HUB", "gears.tags.CITY_TRADE",
+        "gears.tags.CITY_CORRUPT", "gears.tags.CITY_INDUSTRIAL"
     ),
     "city_scene_generator": (
         "pbge.randmaps.CityGridGenerator", "pbge.randmaps.PartlyUrbanGenerator", "pbge.randmaps.SceneGenerator"
@@ -183,7 +186,8 @@ SINGULAR_TYPES = {
         "ghwaypoints.HarpyModel", "ghwaypoints.VadelModel", "ghwaypoints.KojedoModel",
         "ghwaypoints.GladiusModel", "ghwaypoints.BuruBuruModel", "ghwaypoints.ClaymoreModel",
         "ghwaypoints.ParkStatueSynth", "ghwaypoints.ParkStatueSerpent", "ghwaypoints.ParkStatueMecha",
-        "ghwaypoints.ParkStatueWoman", "ghwaypoints.ParkStatueMan", "ghwaypoints.StatueF", "ghwaypoints.StatueM"
+        "ghwaypoints.ParkStatueWoman", "ghwaypoints.ParkStatueMan", "ghwaypoints.StatueF", "ghwaypoints.StatueM",
+        "ghwaypoints.KnifeNote"
     ),
     "door_type": (
         "ghwaypoints.ScrapIronDoor", "ghwaypoints.GlassDoor", "ghwaypoints.ScreenDoor", "ghwaypoints.WoodenDoor",

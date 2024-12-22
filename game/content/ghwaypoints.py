@@ -280,7 +280,7 @@ class LockedReinforcedDoor(Exit):
 
     def combat_use(self, camp, pc):
         if self.unlocked:
-            super().combat_use(camp)
+            super().combat_use(camp, pc)
         else:
             pbge.alert("This door is locked!")
 
@@ -451,10 +451,31 @@ class ShippingShelves(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.ShippingShelvesTerrain)
     ATTACH_TO_WALL = True
 
+
 class RegExLogo(Waypoint):
     name = "RegEx Corporation Logo"
     TILE = pbge.scenes.Tile(None,None,ghterrain.RegExLogoTerrain)
     ATTACH_TO_WALL = True
+
+
+class KettelLogo(Waypoint):
+    name = "Kettel Industries Logo"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.KettelLogoTerrain)
+    ATTACH_TO_WALL = True
+
+
+class BioCorpLogo(Waypoint):
+    name = "BioCorp Logo"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.BioCorpLogoTerrain)
+    ATTACH_TO_WALL = True
+
+
+class KnifeNote(Waypoint):
+    name = "Pinned Note"
+    TILE = pbge.scenes.Tile(None,None,ghterrain.KnifeNoteTerrain)
+    ATTACH_TO_WALL = True
+
+
 
 class HamsterCage(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.HamsterCageTerrain)

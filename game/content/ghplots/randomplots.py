@@ -360,7 +360,7 @@ class MechaMissionForCity(Plot):
             scene_ok = gears.tags.SCENE_PUBLIC in candidate.scene.attributes
             return faction_ok and scene_ok
 
-    def NPC_offers(self, camp):
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
 
         if not self.mission_active:
@@ -376,11 +376,12 @@ class MechaMissionForCity(Plot):
                 subject=self, subject_start=True
             ))
 
-            mylist.append(Offer(
-                "[IWillSendMissionDetails]; [GOODLUCK]",
-                ContextTag([context.ACCEPT]), effect=self.activate_mission,
-                subject=self
-            ))
+            if not camp.is_favorable_to_pc(self.elements["ENEMY_FACTION"]):
+                mylist.append(Offer(
+                    "[IWillSendMissionDetails]; [GOODLUCK]",
+                    ContextTag([context.ACCEPT]), effect=self.activate_mission,
+                    subject=self
+                ))
 
             mylist.append(Offer(
                 "[UNDERSTOOD] [GOODBYE]",

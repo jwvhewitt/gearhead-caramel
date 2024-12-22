@@ -56,6 +56,8 @@ class CutsceneState:
         # tasks now than usual, which is pretty bad considering that all of my jobs are language-intensive.
         # Anyhow, this comment is left here as a time capsule from December 2022. Also so if there are any really
         # stupid bugs in the following code at least you know I was stoned on codeine when I wrote it.
+        # December 2024 update: It was brain fog, folks. I got Long Covid and ended up not being able to program
+        # at all until mid-2023. Still recovering now.
         candidates = [ib for ib in self.info_blocks if all([req(camp, self) for req in ib.requirements])]
         priority_info = list()
         optional_info = list()
@@ -158,7 +160,7 @@ class CutscenePlan:
         return self._get_next_nodes(camp, current_state)
 
     def play(self, camp):
-        presentation = self.build(camp)
+        presentation: list[PresentationNode] = self.build(camp)
         for pn in presentation:
             pn.play(camp)
 

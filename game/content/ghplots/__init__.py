@@ -29,6 +29,7 @@ from . import ghstories
 from . import lancedev
 from . import lancedev_objectives
 from . import lancemates
+from . import lanceutil
 from . import localproblems
 from . import mechadungeons
 from . import military_places
@@ -101,6 +102,7 @@ harvest(ghstories)
 harvest(lancedev)
 harvest(lancedev_objectives)
 harvest(lancemates)
+harvest(lanceutil)
 harvest(localproblems)
 harvest(mechadungeons)
 harvest(military_places)

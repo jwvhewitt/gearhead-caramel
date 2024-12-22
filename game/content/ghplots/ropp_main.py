@@ -154,7 +154,7 @@ class ropp_Scenario(Plot):
             faction=gears.factions.TheSolarNavy,
             attributes=[
                 personality.GreenZone, gears.tags.SCENE_PUBLIC,
-                gears.tags.SCENE_OUTDOORS
+                gears.tags.SCENE_OUTDOORS, gears.tags.CITY_MARTIAL
             ],
             exploration_music='Origami Repetika - Saxophonian March.ogg',
             combat_music='Late.ogg')
@@ -359,7 +359,8 @@ class ropp_Scenario(Plot):
             faction=gears.factions.TreasureHunters,
             attributes=[
                 gears.tags.City, personality.GreenZone,
-                gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_PUBLIC
+                gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_PUBLIC,
+                gears.tags.CITY_CORRUPT
             ],
             exploration_music='Mr Smith - Poor Mans Groove.ogg',
             combat_music='Late.ogg')
@@ -695,7 +696,8 @@ class ropp_Scenario(Plot):
             faction=None,
             attributes=[
                 gears.tags.SCENE_OUTDOORS, personality.GreenZone,
-                gears.tags.SCENE_PUBLIC
+                gears.tags.SCENE_PUBLIC, gears.tags.CITY_DANGEROUS,
+                gears.tags.CITY_UNDERCLASS
             ],
             exploration_music=
             'Anthem of Rain - Rock This House (Instrumental).ogg',
@@ -904,7 +906,8 @@ class ropp_Scenario(Plot):
             faction=None,
             attributes=[
                 gears.tags.SCENE_OUTDOORS, gears.tags.City,
-                personality.GreenZone, gears.tags.SCENE_PUBLIC
+                personality.GreenZone, gears.tags.SCENE_PUBLIC,
+                gears.tags.CITY_INDUSTRIAL
             ],
             exploration_music='Anthem of Rain - Adaptation (Instrumental).ogg',
             combat_music='HoliznaCC0 - Punk.ogg')
@@ -1065,7 +1068,8 @@ class ropp_Scenario(Plot):
             faction=None,
             attributes=[
                 gears.tags.SCENE_OUTDOORS, gears.tags.City,
-                personality.GreenZone, gears.tags.SCENE_PUBLIC
+                personality.GreenZone, gears.tags.SCENE_PUBLIC,
+                gears.tags.CITY_TRADE
             ],
             exploration_music='Anthem of Rain - So My Love - Instrumental.ogg',
             combat_music='Late.ogg')
@@ -1200,7 +1204,8 @@ class ropp_Scenario(Plot):
             faction=None,
             attributes=[
                 gears.tags.SCENE_OUTDOORS, gears.tags.City,
-                personality.GreenZone, gears.tags.SCENE_PUBLIC
+                personality.GreenZone, gears.tags.SCENE_PUBLIC,
+                gears.tags.CITY_UNINHABITED, gears.tags.CITY_INDUSTRIAL
             ],
             exploration_music='HoliznaCC0 - Anxiety.ogg',
             combat_music='HoliznaCC0 - Punk.ogg')
@@ -1445,7 +1450,7 @@ class ropp_Scenario(Plot):
             attributes=[
                 gears.tags.SCENE_OUTDOORS, gears.tags.City,
                 personality.GreenZone, gears.tags.SCENE_PUBLIC,
-                gears.tags.CITY_NAUTICAL
+                gears.tags.CITY_NAUTICAL, gears.tags.CITY_TRANSPORT_HUB
             ],
             exploration_music='Anthem of Rain - Adaptation (Instrumental).ogg',
             combat_music='HoliznaCC0 - Punk.ogg')
@@ -1579,7 +1584,8 @@ class ropp_Scenario(Plot):
             faction=None,
             attributes=[
                 gears.tags.SCENE_OUTDOORS, gears.tags.City,
-                personality.GreenZone, gears.tags.SCENE_PUBLIC
+                personality.GreenZone, gears.tags.SCENE_PUBLIC,
+                gears.tags.CITY_TRANSPORT_HUB
             ],
             exploration_music='HoliznaCC0 - Lost In Space.ogg',
             combat_music='HoliznaCC0 - Punk.ogg')
@@ -1716,6 +1722,7 @@ class City_ropp_2(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_SOLARNAVY_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -2326,6 +2333,7 @@ class City_ropp_3(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_UPTOWN_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -2680,6 +2688,7 @@ class City_ropp_7(Plot):
                               elements=dict([(a, self.elements[b])
                                              for a, b in element_alias_list]),
                               ident="")
+        self.add_sub_plot(nart, 'ROPP_LUNARDISTRICT_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -3667,6 +3676,7 @@ class City_ropp_9(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_SCRAPYARD_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -3955,11 +3965,6 @@ class City_ropp_10(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
-        self.add_sub_plot(nart,
-                          'LOCAL_PROBLEM',
-                          elements=dict([(a, self.elements[b])
-                                         for a, b in element_alias_list]),
-                          ident="PROBLEM92")
         for t in range(3):
             self.add_sub_plot(nart,
                               'ADD_BORING_NPC',
@@ -3972,7 +3977,8 @@ class City_ropp_10(Plot):
                                          for a, b in element_alias_list]),
                           ident="")
         #: plot_actions
-        #: plot_subplots
+
+        self.add_sub_plot(nart, 'ROPP_SHOPPINGDISTRICT_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -3991,8 +3997,7 @@ class City_ropp_10(Plot):
                               ident="")
         return True
 
-    def PROBLEM92_WIN(self, camp):
-        camp.campdata[LOCAL_PROBLEMS_SOLVED] += 1
+    #: plot_methods
 
 
 class WeaponStore_ropp_48(Plot):
@@ -4177,6 +4182,7 @@ class City_ropp_11(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_WAREHOUSEDISTRICT_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -4271,11 +4277,6 @@ class City_ropp_12(Plot):
                                              for a, b in element_alias_list]),
                               ident="")
         self.add_sub_plot(nart,
-                          'LOCAL_PROBLEM',
-                          elements=dict([(a, self.elements[b])
-                                         for a, b in element_alias_list]),
-                          ident="PROBLEM95")
-        self.add_sub_plot(nart,
                           'TAVERN_ropp_96',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
@@ -4297,6 +4298,7 @@ class City_ropp_12(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_RESIDENTIAL_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])
@@ -4315,8 +4317,7 @@ class City_ropp_12(Plot):
                               ident="")
         return True
 
-    def PROBLEM95_WIN(self, camp):
-        camp.campdata[LOCAL_PROBLEMS_SOLVED] += 1
+    #: plot_methods
 
 
 class Tavern_ropp_96(Plot):
@@ -4693,6 +4694,7 @@ class City_ropp_14(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart, 'ROPP_SPACEPORT_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
                           elements=dict([(a, self.elements[b])

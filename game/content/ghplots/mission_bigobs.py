@@ -325,7 +325,6 @@ class BAM_TimedDefense(Plot):
 
 class BAM_EscortShip(Plot):
     LABEL = BAMO_ESCORT_SHIP
-    LABEL = BAMO_TEST_MISSION
     active = True
     scope = "LOCALE"
 

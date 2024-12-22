@@ -123,6 +123,7 @@ Character
     renown=65
     birth_year=107
     combatant=False
+    faction=TheSolarNavy
     mecha_colors=(DeepSeaBlue, Jade, OrangeRed, GullGrey, GunRed)
     mecha_pref="SAN-D1 Daum"
 
@@ -139,6 +140,7 @@ Character
     renown=65
     birth_year=114
     combatant=False
+    faction=TerranDefenseForce
     mecha_colors=(ArmyDrab, Olive, ElectricYellow, GullGrey, Chocolate)
     mecha_pref="SAN-D1 Daum"
 
@@ -170,6 +172,7 @@ Character
     renown=85
     birth_year=93
     combatant=True
+    faction=Guardians
     mecha_colors=(BattleshipGrey, PrussianBlue, BrightRed, WarmGrey, Black)
     mecha_pref="SAN-D1 Daum"
 
@@ -186,6 +189,7 @@ Character
     renown=90
     birth_year=84
     combatant=True
+    faction=TreasureHunters
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
 
@@ -201,6 +205,7 @@ Character
     renown=80
     birth_year=128
     combatant=True
+    faction=AegisOverlord
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
 
@@ -208,7 +213,7 @@ Character
     name = "Carnelio"
     mnpcid = "Carnelio"
     statline = {Reflexes=15, Body=16, Speed=17, Perception=12, Knowledge=14, Craft=6, Ego=13, Charm=13}
-    colors = (HeavyPurple, MediumSkin, Beige, Saffron, PirateSunrise)
+    colors = (PirateSunrise, MediumSkin, Beige, Saffron, StarViolet)
     personality=[Cheerful, Sociable, Glory, L5DustyRing]
     portrait='card_m_jjangbogo.png'
     gender=Nonbinary
@@ -219,3 +224,19 @@ Character
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
 
+Character
+    name = "Segard"
+    mnpcid = "CaptainSegard"
+    statline = {Reflexes=20, Body=12, Speed=13, Perception=11, Knowledge=14, Craft=8, Ego=17, Charm=15}
+    colors = (MidnightBlue, ForRami, Ebony, Gold, GriffinGreen)
+    personality=[Passionate, Sociable, Justice, L5DustyRing]
+    gender=Male
+    job=PirateCaptain
+    renown=65
+    birth_year=116
+    combatant=True
+    faction=BladesOfCrihna
+    mecha_colors=(MidnightBlue, GriffinGreen, PirateSunrise, Black, StarViolet)
+    mecha_pref="SAN-D1 Daum"
+    portrait = card_m_captainsegard.png
+    
