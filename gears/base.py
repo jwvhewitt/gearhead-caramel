@@ -4774,6 +4774,8 @@ class Character(Being):
                 myscene = camp.scene.get_metro_scene()
                 if myscene:
                     rs += myscene.metrodat.local_reputation
+            for cmod in camp.custom_reaction_modifiers:
+                rs += cmod(self, camp)
         else:
             rs = 0
         for a, b in personality.OPPOSED_PAIRS:

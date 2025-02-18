@@ -537,7 +537,7 @@ class LMSkillsSelfIntro(Offer):
         if len(specialties) > 1:
             items.append("[SELFINTRO_SKILLS]")
             if len(specialties) > 2:
-                prefix = ", ".join([s.name for s in specialties[:2]])
+                prefix = ", ".join([s.name for s in specialties[:-1]])
             else:
                 prefix = specialties[0].name
             data["skills"] = ' and '.join([prefix, specialties[-1].name])

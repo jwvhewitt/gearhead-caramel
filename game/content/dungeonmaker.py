@@ -79,7 +79,7 @@ class DungeonMaker(object):
                 proto.level_plot = sp
                 self.levels.append(proto.real_scene)
                 if proto.terminal:
-                    sp.add_sub_plot(nart, "DUNGEON_GOAL")
+                    sp.add_sub_plot(nart, "DUNGEON_GOAL", elements={DG_MONSTER_TAGS: monster_tags}, rank=proto.level_plot.rank)
                 if parent and parent is not parent_scene:
                     connector(nart, parent_plot, parent, proto.real_scene, )
                 else:

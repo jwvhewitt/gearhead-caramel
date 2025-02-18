@@ -10,7 +10,7 @@ from . import container
 from . import util, dialogue
 import pickle
 import os
-from . import scenes, challenges
+from . import scenes, challenges, randmaps
 
 ALL_CONTENTS_SEARCH_PATH = ["contents", "sub_scenes"]
 
@@ -212,6 +212,9 @@ class Campaign(object):
                     if (check_temp_scenes or not (isinstance(t, scenes.Scene) and t.is_temporary)) and (check_subscenes or not isinstance(t, scenes.Scene)):
                         for tt in self.all_contents(t, check_subscenes):
                             yield tt
+        if isinstance(thing, randmaps.terrset.BuildingSet):
+            for v in thing.waypoints.values():
+                yield v
 
     def get_memos(self):
         mymemos = list()

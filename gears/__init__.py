@@ -472,6 +472,8 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
         self.version = version
 
+        self.custom_reaction_modifiers = list()
+
         if egg:
             self.egg = egg
             self.party = [egg.pc, ]
@@ -482,6 +484,13 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 mek = egg.stuff.pop()
                 self.party.append(mek)
             self.pc: base.Character = egg.pc
+
+    def __setstate__(self, state):
+        # For saves from V0.975 or earlier, add custom reaction modifiers.
+        # A custom reaction modifier is a callable of form (npc, camp) which returns a reaction modifier.
+        if "custom_reaction_modifers" not in state:
+            self.custom_reaction_modifiers = list()
+        self.__dict__.update(state)
 
     def save(self):
         with open(pbge.util.user_dir(pbge.util.sanitize_filename("rpg_" + self.name + ".sav")), "wb") as f:

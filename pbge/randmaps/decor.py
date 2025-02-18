@@ -116,7 +116,7 @@ class ColumnsDecor(OmniDec):
             for t in range(num_columns):
                 x = t * 2 + room.area.x + 2
                 for y in range(room.area.y + 2, room.area.bottom - 2):
-                    if random.random() <= self.FLOOR_FILL_FACTOR:
+                    if random.random() <= self.FLOOR_FILL_FACTOR and not (gb.get_decor(x,y) or gb.get_wall(x,y)):
                         self.draw_floor_decor(gb, x, y)
         if self.WALL_DECOR and good_wall_spots:
             for t in range(max(int(len(good_wall_spots) * self.WALL_FILL_FACTOR), random.randint(1, 6))):

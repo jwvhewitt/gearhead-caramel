@@ -1,10 +1,11 @@
+from ast import Pass
 from pbge.plots import Plot, PlotState
 import game.content.ghwaypoints
 import game.content.ghterrain
 import gears
 import pbge
 from game import teams,ghdialogue
-from game.content import gharchitecture,ghwaypoints
+from game.content import dungeonmaker, gharchitecture,ghwaypoints
 from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag,Offer
@@ -32,31 +33,9 @@ class MultipurposeRoom(Plot):
         return True
 
 
-#   **********************
-#   ***  DUNGEON_GOAL  ***
-#   **********************
+#   ************************************************************
+#   ***  Former DUNGEON_GOAL... now moved to dungeon_extras  ***
+#   ************************************************************
 
-class StandardTreasureChest(Plot):
-    # Fight some random monsters. What do they want? To pad the adventure.
-    LABEL = "DUNGEON_GOAL"
-
-    def custom_init(self, nart):
-        myscene = self.elements["LOCALE"]
-        self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
-        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
-        mychest.contents += gears.selector.get_random_loot(self.rank,200,(gears.tags.ST_TREASURE,))
-        return True
-
-
-class NonsenseGoal(Plot):
-    # Fight some random monsters. What do they want? To pad the adventure.
-    LABEL = "zDUNGEON_GOAL"
-    UNIQUE = True
-
-    def custom_init(self, nart):
-        myscene = self.elements["LOCALE"]
-        self.register_element("ROOM", pbge.randmaps.rooms.OpenRoom(5, 5), dident="LOCALE")
-        self.register_element("GOAL", ghwaypoints.VendingMachine(name="Vending Machine", plot_locked=True, desc="You stand before the shrine of refreshment.", anchor=pbge.randmaps.anchors.middle), dident="ROOM")
-
-        return True
-
+# TypeAlias to prevent pickle errors.
+StandardTreasureChest = MultipurposeRoom

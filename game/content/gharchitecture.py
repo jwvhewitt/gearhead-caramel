@@ -178,6 +178,11 @@ class MilitaryOfficeDecor(OfficeDecor):
         ghterrain.MapTerrain, ghterrain.EarthMapTerrain
     )
 
+class WarehouseDecor(OmniDec):
+    WALL_DECOR = (ghterrain.ShippingShelvesTerrain, ghterrain.ShippingShelvesTerrain, ghterrain.ShippingShelvesTerrain,
+                  ghterrain.VentFanTerrain)
+    FLOOR_DECOR = (ghterrain.KenneyCrates, ghterrain.KenneyCrates)
+
 
 class WorldScaleDeadzone(GearHeadArchitecture):
     ENV = gears.tags.GroundEnv

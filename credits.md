@@ -69,6 +69,7 @@ Slightly Smiling Face, Beaming Face with Smiling Eyes by Emily Jäger
 * computer bug by Laymik from Noun Project (CC BY 3.0)
 * up by Rizalwale from Noun Project (CC BY 3.0)
 * Backpack by M. Adebadal from Noun Project (CC BY 3.0)
+* Horse by G-CAT from Noun Project (CC BY 3.0)
 
 MUSIC
 =====
@@ -122,6 +123,7 @@ MUSIC
 * three stems remixt by Martin Cee (softmartin) (c) copyright 2020 Licensed under a Creative Commons Attribution (3.0) license. http://dig.ccmixter.org/files/softmartin/61013 Ft: canton
 * This One is Tough by Komiku, Public Domain
 * Way Of The Samurai by HoliznaCC0, Public Domain
+* "Shiny Tech" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
 
 NON-CC MUSIC
 ============

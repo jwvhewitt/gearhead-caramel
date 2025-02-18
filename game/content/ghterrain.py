@@ -2,6 +2,7 @@ import pbge
 import gears
 from pbge.scenes.movement import Walking, Flying, Vision
 from gears.tags import Skimming, Rolling, Cruising, SpaceFlight
+import random
 
 
 class Forest(pbge.scenes.terrain.VariableTerrain):
@@ -1112,6 +1113,20 @@ class CyberSignEast(pbge.scenes.terrain.Terrain):
     image_top = 'terrain_gervais_decor_cybersign.png'
 
 
+class BronzeHorseSignTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_bronzehorse.png'
+
+
+class BronzeHorseTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_bronzehorse.png'
+
+
+class BronzeHorseTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_bronzehorse.png'
+
+
 class KnifeNoteTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_knifenote.png'
 
@@ -1730,3 +1745,36 @@ class FieldHospitalTerrset(pbge.randmaps.terrset.TerrSet):
     WAYPOINT_POS = {
         "DOOR": (3, 5)
     }
+
+
+class PersonalCargoContainerTerrain(pbge.scenes.terrain.TerrSetTerrain):
+    image_top = 'terrain_terrset_pscargo.png'
+    blocks = (Walking, Skimming, Rolling, Cruising, SpaceFlight)
+    movement_cost = {pbge.scenes.movement.Vision: 5}
+
+
+class PersonalCargoContainerTerrset(pbge.randmaps.terrset.TerrSet):
+    TERRAIN_TYPE = PersonalCargoContainerTerrain
+    TERRAIN_MAP = (
+        (3,),
+        (2,),
+        (1,),
+        (0,),
+    )
+    WAYPOINT_POS = {
+        "DOOR": (0, 3)
+    }
+    def __init__(self, colors=None, **kwargs):
+        if not colors:
+            colors = gears.color.random_mecha_colors()
+        my_duck_dict = dict(
+            blocks=PersonalCargoContainerTerrain.blocks, colors=colors, image_top=PersonalCargoContainerTerrain.image_top,
+            movement_cost=PersonalCargoContainerTerrain.movement_cost
+            )
+        self.TERRAIN_MAP = list()
+        self.TERRAIN_MAP.append([3,])
+        for t in range(min(random.randint(1,3), random.randint(1,3))):
+            self.TERRAIN_MAP.append([random.randint(1,2)])
+        self.TERRAIN_MAP.append([0,])
+        self.WAYPOINT_POS["DOOR"] = (0, len(self.TERRAIN_MAP)-1)
+        super().__init__(duck_dict=my_duck_dict, **kwargs)

@@ -1,3 +1,4 @@
+import trace
 from pbge.plots import Plot
 import gears
 import pbge
@@ -8,6 +9,18 @@ from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, D
     DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
+
+
+#   **********************
+#   ***  DUNGEON_GOAL  ***
+#   **********************
+
+class TreasureGoal(Plot):
+    LABEL = "DUNGEON_GOAL"
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, "DUNGEON_TREASURE", rank=self.rank + 5)
+        return True
 
 
 #   ***********************
@@ -75,8 +88,8 @@ class GuardedWarehouseStuff(Plot):
                                                            ("ROBOT", "GUARD"), myscene.scale).contents
         self.last_update = 0
 
-        mychest = self.register_element("GOAL", ghwaypoints.SteelBox(name="Crate", anchor=pbge.randmaps.anchors.middle,
-                                                                     treasure_rank=self.rank),
+        mychest = self.register_element("GOAL", ghwaypoints.StorageBox(name="Box", anchor=pbge.randmaps.anchors.middle,
+                                                                     treasure_rank=self.rank, treasure_type=(gears.tags.ST_ESSENTIAL, gears.tags.ST_MINERAL)),
                                         dident="ROOM")
 
         return True
@@ -428,9 +441,27 @@ class LevelGuide(Plot):
             self.last_update = camp.time
 
 
+class SpecialDungeonTreasure(Plot):
+    # Just call a DUNGEON_TREASURE plot.
+    LABEL = "DUNGEON_EXTRA"
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, "DUNGEON_TREASURE")
+        return True
+
+
+#   ***************************
+#   ***  DUNGEON_TREASURE   ***
+#   ***************************
+#
+# Add a treasure, or at least some kind of cash bonus for the PCs.
+#
+
 class GuardedTreasure(Plot):
     # Fight some random monsters. They have stuff.
-    LABEL = "DUNGEON_EXTRA"
+    LABEL = "DUNGEON_TREASURE"
     active = True
     scope = "LOCALE"
 
@@ -442,7 +473,7 @@ class GuardedTreasure(Plot):
                                                            self.elements[DG_MONSTER_TAGS], myscene.scale).contents
         self.last_update = 0
 
-        mychest = self.register_element("GOAL", ghwaypoints.Crate(name="Crate", anchor=pbge.randmaps.anchors.middle),
+        mychest = self.register_element("GOAL", ghwaypoints.SteelBox(name="Box", anchor=pbge.randmaps.anchors.middle),
                                         dident="ROOM")
         mychest.contents += gears.selector.get_random_loot(self.rank, 50, (gears.tags.ST_TREASURE,))
 
@@ -459,3 +490,94 @@ class GuardedTreasure(Plot):
                                                  self.elements[DG_MONSTER_TAGS], camp.scene.scale).contents, myteam
             )
             self.last_update = camp.time
+
+
+class AmmoTreasureChest(Plot):
+    LABEL = "DUNGEON_TREASURE"
+
+    DUNGEON_TYPES = {gears.tags.SCENE_BASE, gears.tags.SCENE_WAREHOUSE, gears.tags.SCENE_FACTORY, gears.tags.SCENE_GARAGE, gears.tags.SCENE_SHOP}
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                cls.DUNGEON_TYPES.intersection(pstate.elements["LOCALE"].attributes) or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
+        )
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        mychest = self.register_element("GOAL", ghwaypoints.AmmoBox(treasure_rank=self.rank, anchor=pbge.randmaps.anchors.middle), dident="ROOM")
+        if random.randint(1,3) != 2:
+            self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"TYPE_TAGS": self.elements[DG_MONSTER_TAGS]})
+        return True
+
+
+class LockedTreasureChest(Plot):
+    LABEL = "DUNGEON_TREASURE"
+
+    DUNGEON_TYPES = {gears.tags.SCENE_RUINS, gears.tags.SCENE_WAREHOUSE, gears.tags.SCENE_BUILDING}
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                cls.DUNGEON_TYPES.intersection(pstate.elements["LOCALE"].attributes) or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
+        )
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        mychest = self.register_element("GOAL", ghwaypoints.LockedSteelBox(treasure_rank=self.rank, anchor=pbge.randmaps.anchors.middle,), dident="ROOM")
+        if random.randint(1,3) == 2:
+            self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"TYPE_TAGS": self.elements[DG_MONSTER_TAGS]})
+        return True
+
+
+class StorageRoomRansack(Plot):
+    LABEL = "DUNGEON_TREASURE"
+
+    DUNGEON_TYPES = {gears.tags.SCENE_BASE, gears.tags.SCENE_WAREHOUSE}
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                cls.DUNGEON_TYPES.intersection(pstate.elements["LOCALE"].attributes) or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
+        )
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myroom = self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(8,15), random.randint(8,15)), dident="LOCALE")
+        for t in range(random.randint(3,6)):
+            mychest = ghwaypoints.StorageBox(treasure_rank=self.rank, treasure_amount=50, treasure_type=(
+                gears.tags.ST_CONTRABAND, gears.tags.ST_ANTIQUE, gears.tags.ST_LOSTECH, gears.tags.ST_ESSENTIAL,
+                gears.tags.ST_TREASURE, gears.tags.ST_SURVIVAL, gears.tags.ST_TOOL, gears.tags.ST_MEDICINE, gears.tags.ST_MINERAL
+            ))
+        if random.randint(1,5) != 1:
+            self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"TYPE_TAGS": self.elements[DG_MONSTER_TAGS]}, rank=self.rank+5)
+        return True
+
+
+class PreZeroChest(Plot):
+    LABEL = "DUNGEON_TREASURE"
+
+    DUNGEON_TYPES = {gears.tags.SCENE_RUINS, gears.tags.SCENE_TEMPLE}
+
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                cls.DUNGEON_TYPES.intersection(pstate.elements["LOCALE"].attributes) or
+                cls.LABEL == "TEST_DUNGEON_EXTRA"
+        )
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        mychest = self.register_element("GOAL", ghwaypoints.OldCrate(
+            treasure_rank=self.rank, anchor=pbge.randmaps.anchors.middle, treasure_amount=125,
+            treasure_type=(gears.tags.ST_ANTIQUE, gears.tags.ST_JEWELRY, gears.tags.ST_LOSTECH)
+        ), dident="ROOM")
+        if random.randint(1,5) != 2:
+            self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"TYPE_TAGS": self.elements[DG_MONSTER_TAGS]})
+        return True

@@ -1087,3 +1087,11 @@ def generate_random_lifepath(cgen):
             current = random.choice(current.next)
         else:
             break
+
+
+
+class LifePathEvent:
+    def __init__(self, name, stage):
+        self.name = name
+        self.stage = stage
+        

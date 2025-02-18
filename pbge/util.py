@@ -39,6 +39,25 @@ def sanitize_filename(fname):
     return ''.join(mychars)
 
 
+def and_join_string(mylist):
+    # Concatenates a list of items into a comma separated string with "and" if needed.
+    if len(mylist) > 1:
+        if len(mylist) > 2:
+            prefix = ", ".join([str(s) for s in mylist[:-1]])
+            return ', and '.join([prefix, str(mylist[-1])])
+        else:
+            return ' and '.join([str(s) for s in mylist])
+    elif len(mylist) == 1:
+        return str(mylist[0])
+
+#print(and_join_string(["Bob", "Dick", "Harry"]))
+#print(and_join_string(["the strippers", "JFK", "Stalin"]))
+#print(and_join_string(["Hearts", "Clubs", "Diamonds", "Spades"]))
+#print(and_join_string(["Gundam", "Macross"]))
+#print(and_join_string(["Dougram"]))
+
+
+
 def game_dir(*args):
     return os.path.join(GAMEDIR, *args)
 

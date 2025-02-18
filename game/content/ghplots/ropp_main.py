@@ -871,7 +871,8 @@ class ropp_Scenario(Plot):
                 DG_EXPLO_MUSIC=
                 'Anthem of Rain - Rock This House (Instrumental).ogg',
                 DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
-                DG_DECOR=gharchitecture.ResidentialDecor()))
+                DG_DECOR=gharchitecture.ResidentialDecor()),
+            rank=self.rank + 0)
         the_world['0000009A'] = splot.elements["LOCALE"]
         scutils.SCSceneConnection(the_world['00000007'],
                                   splot.elements["LOCALE"],
@@ -1004,7 +1005,8 @@ class ropp_Scenario(Plot):
                 DG_PARENT_SCENE=the_world['00000009'],
                 DG_EXPLO_MUSIC='Anthem of Rain - Adaptation (Instrumental).ogg',
                 DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
-                DG_DECOR=None))
+                DG_DECOR=None),
+            rank=self.rank + 0)
         the_world['0000006F'] = splot.elements["LOCALE"]
         scutils.SCSceneConnection(
             the_world['00000009'],
@@ -1260,7 +1262,8 @@ class ropp_Scenario(Plot):
                           DG_PARENT_SCENE=the_world['0000000D'],
                           DG_EXPLO_MUSIC='HoliznaCC0 - Anxiety.ogg',
                           DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
-                          DG_DECOR=None))
+                          DG_DECOR=gharchitecture.WarehouseDecor()),
+            rank=self.rank + 0)
         the_world['00000077'] = splot.elements["LOCALE"]
         scutils.SCSceneConnection(
             the_world['0000000D'],
@@ -1273,8 +1276,8 @@ class ropp_Scenario(Plot):
                                                anchor=None),
             door1=ghwaypoints.LockedReinforcedDoor(
                 name='Warehouse 4', anchor=pbge.randmaps.anchors.middle),
-            room2=pbge.randmaps.rooms.FuzzyRoom(
-                width=3, height=3, anchor=pbge.randmaps.anchors.south),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
             door2=ghwaypoints.Exit(name='Exit',
                                    anchor=pbge.randmaps.anchors.south))
         splot = self.add_sub_plot(
@@ -1294,7 +1297,8 @@ class ropp_Scenario(Plot):
                           DG_PARENT_SCENE=the_world['0000000D'],
                           DG_EXPLO_MUSIC='HoliznaCC0 - Anxiety.ogg',
                           DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
-                          DG_DECOR=None))
+                          DG_DECOR=gharchitecture.WarehouseDecor()),
+            rank=self.rank + 0)
         the_world['0000009B'] = splot.elements["LOCALE"]
         scutils.SCSceneConnection(
             the_world['0000000D'],
@@ -1307,8 +1311,78 @@ class ropp_Scenario(Plot):
                                                anchor=None),
             door1=ghwaypoints.ReinforcedDoor(
                 name='Warehouse 13', anchor=pbge.randmaps.anchors.middle),
-            room2=pbge.randmaps.rooms.ClosedRoom(
-                width=3, height=3, anchor=pbge.randmaps.anchors.south),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
+            door2=ghwaypoints.Exit(name='Exit',
+                                   anchor=pbge.randmaps.anchors.south))
+        splot = self.add_sub_plot(
+            nart,
+            "DUNGEON_GENERIC",
+            elements=dict(METROSCENE=the_world['0000000D'],
+                          METRO=the_world['0000000D'].metrodat,
+                          MISSION_GATE=the_world['0000000E'],
+                          DG_NAME='Warehouse 9',
+                          DG_ARCHITECTURE=gharchitecture.IndustrialBuilding(),
+                          DG_SCENE_TAGS=[
+                              gears.tags.SCENE_DUNGEON,
+                              gears.tags.SCENE_BUILDING,
+                              gears.tags.SCENE_WAREHOUSE
+                          ],
+                          DG_MONSTER_TAGS=['GUARD', 'ROBOT', 'SYNTH'],
+                          DG_PARENT_SCENE=the_world['0000000D'],
+                          DG_EXPLO_MUSIC='HoliznaCC0 - Anxiety.ogg',
+                          DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
+                          DG_DECOR=gharchitecture.WarehouseDecor()),
+            rank=self.rank + 5)
+        the_world['000000AA'] = splot.elements["LOCALE"]
+        scutils.SCSceneConnection(
+            the_world['0000000D'],
+            splot.elements["LOCALE"],
+            room1=ghterrain.IndustrialBuilding(tags=[
+                pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM
+            ],
+                                               door_sign=None,
+                                               anchor=None),
+            door1=ghwaypoints.ReinforcedDoor(
+                name='Warehouse 9', anchor=pbge.randmaps.anchors.middle),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
+            door2=ghwaypoints.Exit(name='Exit',
+                                   anchor=pbge.randmaps.anchors.south))
+        splot = self.add_sub_plot(
+            nart,
+            "DUNGEON_GENERIC",
+            elements=dict(
+                METROSCENE=the_world['0000000D'],
+                METRO=the_world['0000000D'].metrodat,
+                MISSION_GATE=the_world['0000000E'],
+                DG_NAME='Warehouse 2',
+                DG_ARCHITECTURE=gharchitecture.IndustrialBuilding(),
+                DG_SCENE_TAGS=[
+                    gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+                    gears.tags.SCENE_WAREHOUSE
+                ],
+                DG_MONSTER_TAGS=['GUARD', 'ROBOT', 'SYNTH', 'HUNTER-X'],
+                DG_PARENT_SCENE=the_world['0000000D'],
+                DG_EXPLO_MUSIC='HoliznaCC0 - Anxiety.ogg',
+                DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
+                DG_DECOR=gharchitecture.WarehouseDecor()),
+            rank=self.rank + 15)
+        the_world['000000AC'] = splot.elements["LOCALE"]
+        scutils.SCSceneConnection(
+            the_world['0000000D'],
+            splot.elements["LOCALE"],
+            room1=ghterrain.IndustrialBuilding(tags=[
+                pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM
+            ],
+                                               door_sign=None,
+                                               anchor=None),
+            door1=ghwaypoints.ReinforcedDoor(
+                name='Warehouse 2', anchor=pbge.randmaps.anchors.middle),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
             door2=ghwaypoints.Exit(name='Exit',
                                    anchor=pbge.randmaps.anchors.south))
         # Build the city here, store it in the_world
@@ -1570,6 +1644,41 @@ class ropp_Scenario(Plot):
                 INTERIOR_DECOR=gharchitecture.FactoryDecor()))
         the_world['000000A7'] = splot.elements["INTERIOR"]
         the_world['000000A8'] = splot.elements["FOYER"]
+        splot = self.add_sub_plot(
+            nart,
+            "DUNGEON_GENERIC",
+            elements=dict(METROSCENE=the_world['00000011'],
+                          METRO=the_world['00000011'].metrodat,
+                          MISSION_GATE=the_world['00000013'],
+                          DG_NAME='Warehouse 45',
+                          DG_ARCHITECTURE=gharchitecture.IndustrialBuilding(),
+                          DG_SCENE_TAGS=[
+                              gears.tags.SCENE_DUNGEON,
+                              gears.tags.SCENE_WAREHOUSE,
+                              gears.tags.SCENE_BUILDING
+                          ],
+                          DG_MONSTER_TAGS=['GUARD', 'SYNTH', 'ROBOT', 'WATER'],
+                          DG_PARENT_SCENE=the_world['00000011'],
+                          DG_EXPLO_MUSIC='HoliznaCC0 - Anxiety.ogg',
+                          DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
+                          DG_DECOR=gharchitecture.WarehouseDecor()),
+            rank=self.rank + 5)
+        the_world['000000A9'] = splot.elements["LOCALE"]
+        scutils.SCSceneConnection(
+            the_world['00000011'],
+            splot.elements["LOCALE"],
+            room1=ghterrain.IndustrialBuilding(tags=[
+                pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM
+            ],
+                                               door_sign=None,
+                                               anchor=None),
+            door1=ghwaypoints.ReinforcedDoor(
+                name='Warehouse 45', anchor=pbge.randmaps.anchors.middle),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
+            door2=ghwaypoints.Exit(name='Exit',
+                                   anchor=pbge.randmaps.anchors.south))
         # Build the city here, store it in the_world
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1, ))
@@ -1666,6 +1775,41 @@ class ropp_Scenario(Plot):
         the_world['0000005C'] = splot.elements["INTERIOR"]
         the_world['0000005D'] = splot.elements["FOYER"]
         the_world['0000005E'] = splot.elements["SHOPKEEPER"]
+        splot = self.add_sub_plot(
+            nart,
+            "DUNGEON_GENERIC",
+            elements=dict(
+                METROSCENE=the_world['00000014'],
+                METRO=the_world['00000014'].metrodat,
+                MISSION_GATE=the_world['00000015'],
+                DG_NAME='Warehouse 24',
+                DG_ARCHITECTURE=gharchitecture.IndustrialBuilding(),
+                DG_SCENE_TAGS=[
+                    gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+                    gears.tags.SCENE_WAREHOUSE
+                ],
+                DG_MONSTER_TAGS=['CITY', 'AIR', 'SYNTH', 'ROBOT', 'VERMIN'],
+                DG_PARENT_SCENE=the_world['00000014'],
+                DG_EXPLO_MUSIC='HoliznaCC0 - Anxiety.ogg',
+                DG_COMBAT_MUSIC='HoliznaCC0 - Punk.ogg',
+                DG_DECOR=gharchitecture.WarehouseDecor()),
+            rank=self.rank + 10)
+        the_world['000000AB'] = splot.elements["LOCALE"]
+        scutils.SCSceneConnection(
+            the_world['00000014'],
+            splot.elements["LOCALE"],
+            room1=ghterrain.IndustrialBuilding(tags=[
+                pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM
+            ],
+                                               door_sign=None,
+                                               anchor=None),
+            door1=ghwaypoints.ReinforcedDoor(
+                name='Warehouse 24', anchor=pbge.randmaps.anchors.middle),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
+            door2=ghwaypoints.Exit(name='Exit',
+                                   anchor=pbge.randmaps.anchors.south))
 
 
 class City_ropp_2(Plot):
@@ -3616,6 +3760,15 @@ class DungeonLevel_ropp_162(Plot):
         self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['0000009A']
         element_alias_list = [('PARENT_SCENE', 'LOCALE')]
 
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Abandoned Building'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_RUINS
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'ANIMAL', 'DEVO', 'CITY', 'VERMIN'
+        ]
         # Do the connection here.
         #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.BrickBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ScrapIronDoor(name='Abandoned Building', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(width=3, height=3, anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
         #: plot_init
@@ -3790,6 +3943,15 @@ class DungeonLevel_ropp_122(Plot):
         self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['0000006F']
         element_alias_list = [('PARENT_SCENE', 'LOCALE')]
 
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'The Scrap Maze'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_OUTDOORS
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'BUG', 'CITY', 'MUTANT', 'VERMIN'
+        ]
         # Do the connection here.
         #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=pbge.randmaps.rooms.OpenRoom(width=3, height=3, anchor=pbge.randmaps.anchors.north), door1=ghwaypoints.Exit(name='To the Crash Site', anchor=pbge.randmaps.anchors.north), room2=pbge.randmaps.rooms.OpenRoom(width=3, height=3, anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='To the Scrapyard', anchor=pbge.randmaps.anchors.south))
         #: plot_init
@@ -3815,6 +3977,16 @@ class Dungeon_ropp_123(Plot):
         self.elements['DUNGEON'] = nart.camp.campdata[THE_WORLD]['00000071']
         element_alias_list = []
 
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Crashed Spaceship'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_VEHICLE,
+            gears.tags.SCENE_RUINS
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'BUG', 'DEVO', 'MUTANT', 'ROBOT', 'RUINS'
+        ]
         #: plot_init
         #: plot_actions
 
@@ -4182,6 +4354,16 @@ class City_ropp_11(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'DUNGEONLEVEL_ropp_193',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'DUNGEONLEVEL_ropp_200',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         self.add_sub_plot(nart, 'ROPP_WAREHOUSEDISTRICT_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
@@ -4214,11 +4396,26 @@ class DungeonLevel_ropp_130(Plot):
         self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['00000077']
         element_alias_list = [('PARENT_SCENE', 'LOCALE')]
 
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Warehouse 4'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+            gears.tags.SCENE_WAREHOUSE
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'GUARD', 'SYNTH', 'ROBOT'
+        ]
         # Do the connection here.
-        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.LockedReinforcedDoor(name='Warehouse 4', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.FuzzyRoom(width=3, height=3, anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.LockedReinforcedDoor(name='Warehouse 4', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
         #: plot_init
         #: plot_actions
-        #: plot_subplots
+
+        self.add_sub_plot(nart,
+                          'DUNGEON_TREASURE',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         return True
 
 
@@ -4233,11 +4430,94 @@ class DungeonLevel_ropp_168(Plot):
         self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['0000009B']
         element_alias_list = [('PARENT_SCENE', 'LOCALE')]
 
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Warehouse 13'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_WAREHOUSE,
+            gears.tags.SCENE_BUILDING
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'GUARD', 'SYNTH', 'ROBOT'
+        ]
         # Do the connection here.
-        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ReinforcedDoor(name='Warehouse 13', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.ClosedRoom(width=3, height=3, anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ReinforcedDoor(name='Warehouse 13', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
         #: plot_init
         #: plot_actions
-        #: plot_subplots
+
+        self.add_sub_plot(nart,
+                          'DUNGEON_TREASURE',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+
+    #: plot_methods
+class DungeonLevel_ropp_193(Plot):
+    LABEL = "DUNGEONLEVEL_ropp_193"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000AA']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Warehouse 9'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+            gears.tags.SCENE_WAREHOUSE
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'GUARD', 'ROBOT', 'SYNTH'
+        ]
+        # Do the connection here.
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ReinforcedDoor(name='Warehouse 9', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'DUNGEON_TREASURE',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+
+    #: plot_methods
+class DungeonLevel_ropp_200(Plot):
+    LABEL = "DUNGEONLEVEL_ropp_200"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000AC']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Warehouse 2'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+            gears.tags.SCENE_WAREHOUSE
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'GUARD', 'ROBOT', 'SYNTH', 'HUNTER-X'
+        ]
+        # Do the connection here.
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ReinforcedDoor(name='Warehouse 2', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'DUNGEON_TREASURE',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         return True
 
 
@@ -4482,6 +4762,11 @@ class City_ropp_13(Plot):
                           ident="")
         #: plot_actions
 
+        self.add_sub_plot(nart,
+                          'DUNGEONLEVEL_ropp_192',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         self.add_sub_plot(nart, 'ROPP_DOCKYARDS_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
@@ -4648,6 +4933,40 @@ class EmptyBuilding_ropp_180(Plot):
 
 
     #: plot_methods
+class DungeonLevel_ropp_192(Plot):
+    LABEL = "DUNGEONLEVEL_ropp_192"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000A9']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Warehouse 45'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_WAREHOUSE,
+            gears.tags.SCENE_BUILDING
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'GUARD', 'SYNTH', 'ROBOT', 'WATER'
+        ]
+        # Do the connection here.
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ReinforcedDoor(name='Warehouse 45', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'DUNGEON_TREASURE',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+
+    #: plot_methods
 class City_ropp_14(Plot):
     LABEL = "CITY_ropp_14"
     active = True
@@ -4691,6 +5010,11 @@ class City_ropp_14(Plot):
                           ident="")
         self.add_sub_plot(nart,
                           'ROOM_ropp_99',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'DUNGEONLEVEL_ropp_198',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
@@ -4801,5 +5125,39 @@ class BlackMarket_ropp_101(Plot):
         mylist = list()
         #: npc_offers
         return mylist
+
+
+    #: plot_methods
+class DungeonLevel_ropp_198(Plot):
+    LABEL = "DUNGEONLEVEL_ropp_198"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000AB']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Warehouse 24'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+            gears.tags.SCENE_WAREHOUSE
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'CITY', 'AIR', 'SYNTH', 'ROBOT', 'VERMIN'
+        ]
+        # Do the connection here.
+        #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], room1=ghterrain.IndustrialBuilding(tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM], door_sign=None, anchor=None), door1=ghwaypoints.ReinforcedDoor(name='Warehouse 24', anchor=pbge.randmaps.anchors.middle), room2=pbge.randmaps.rooms.OpenRoom(anchor=pbge.randmaps.anchors.south), door2=ghwaypoints.Exit(name='Exit', anchor=pbge.randmaps.anchors.south))
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'DUNGEON_TREASURE',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
 
     #: plot_methods

@@ -219,7 +219,8 @@ SINGULAR_TYPES = {
         "gharchitecture.ResidentialDecor", "gharchitecture.OrganicStructureDecor", "gharchitecture.SewerDecor",
         "gharchitecture.RundownChemPlantDecor", "gharchitecture.RundownFactoryDecor",
         "gharchitecture.StorageRoomDecor", "gharchitecture.TechDungeonDecor", "gharchitecture.ToxicCaveDecor",
-        "gharchitecture.StoneUndercityDecor", "gharchitecture.UlsaniteOfficeDecor", "None"
+        "gharchitecture.StoneUndercityDecor", "gharchitecture.UlsaniteOfficeDecor", "None",
+        "gharchitecture.WarehouseDecor"
     ),
     "door_sign": (
         "AlliedArmorSign", "FixitShopSign", "RustyFixitShopSign", "CrossedSwordsTerrain", "KettelLogoTerrain",

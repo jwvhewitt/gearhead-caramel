@@ -10,10 +10,15 @@ from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
+from pbge.scenes import waypoints
 from . import missionbuilder, mission_bigobs
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
+
+ROPPCD_HERO_POINTS = "hero_points"
+ROPPCD_FOUND_CARGO = "found_cargo"
+ROPPCD_SPENT_CARGO = "spent_cargo"
 
 
 # ***************************
@@ -50,7 +55,7 @@ class ResidentialPlot(Plot):
     def LOCALPROBLEM_WIN(self, camp):
         if not self.finished_local_problem:
             self.finished_local_problem = True
-            camp.campdata["hero_points"] += 1
+            camp.campdata[ROPPCD_HERO_POINTS] += 1
 
 
 # ******************************
@@ -74,7 +79,7 @@ class ShoppingDistrictPlot(Plot):
     def LOCALPROBLEM_WIN(self, camp):
         if not self.finished_local_problem:
             self.finished_local_problem = True
-            camp.campdata["hero_points"] += 1
+            camp.campdata[ROPPCD_HERO_POINTS] += 1
 
 
 # *****************************
@@ -262,7 +267,7 @@ class RefugeeShip(Plot):
 
     def deny_mission(self, camp):
         self.end_plot(camp, True)
-        camp.campdata["hero_points"] -= 1
+        camp.campdata[ROPPCD_HERO_POINTS] -= 1
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
@@ -272,7 +277,7 @@ class RefugeeShip(Plot):
         if not self.won_mission:
             self.memo = Memo("You helped {NPC} provide safe passage to refugees fleeing the war in Pirate's Point.".format(**self.elements), location=self.elements["NPC_SCENE"])
             self.won_mission = True
-            camp.campdata["hero_points"] += 1
+            camp.campdata[ROPPCD_HERO_POINTS] += 1
             relation = camp.get_relationship(self.elements["NPC"])
             relation.tags.add(gears.relationships.RT_LANCEMATE)
             relation.history.append(gears.relationships.Memory(
@@ -363,7 +368,7 @@ class NogosPlot(Plot):
     def LOCALPROBLEM_WIN(self, camp):
         if not self.finished_local_problem:
             self.finished_local_problem = True
-            camp.campdata["hero_points"] += 1
+            camp.campdata[ROPPCD_HERO_POINTS] += 1
 
 
 # **************************
@@ -433,20 +438,175 @@ class WarehousePasswordsPlot(Plot):
     active = True
 
     def custom_init(self, nart):
-        self.door_codes = [".".join([str(random.randint(0,9)) for t in range(6)]) for t in range(5)]
-        print(self.door_codes)
+        self.door_codes = ["".join([str(random.randint(0,9)) for t in range(6)]) for t in range(5)]
+        self.known_warehouse_codes = list()
         self.elements["WH13"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000009B']
         myroom = self.register_element(
-            "_room13", pbge.randmaps.rooms.ClosedRoom(10,8, decorate=gharchitecture.StorageRoomDecor()), 
-            dident="WH13"
+            "_room13", self._get_warehouse_room(), dident="WH13"
         )
-        for t in range(random.randint(3,6)):
-            myroom.contents.append(ghwaypoints.Lockers())
         self.register_element("FIRST_NOTE", ghwaypoints.KnifeNote(
-            desc="Dagmar-\nYou've been assigned to warehouse 49 tonight. Don't forget that the door code is {}. The big cheese is expecting an important package from down south; if security blows this, we'll be looking for new jobs on Titan.".format(self.door_codes[0])
+            desc="Dagmar-\n\nYou've been assigned to warehouse 45 tonight. Don't forget that the door code is {}. Please try to remember it this time.".format(self.door_codes[0])
         ), dident="_room13")
+
+        self.elements["WH45"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A9']
+        mydoor = self.seek_element(nart, "WH45_DOOR", lambda n,c: self._seek_door(n,c,"Warehouse 45"), scope=nart.camp)
+        mydoor.plot_locked = True
+        self.wh45_locked = True
+
+        self.register_element("_room45", self._get_warehouse_room(), dident="WH45")
+        self.register_element("SECOND_NOTE", ghwaypoints.KnifeNote(
+            desc="Dagmar-\n\nI agree with you that writing down the door code is bad OpSec, but forgetting it entirely and leaving a shipment in front of the door overnight is *much worse*. The code for #9 is {}.".format(self.door_codes[1])
+        ), dident="_room45")
+
+        self.elements["WH9"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000AA']
+
+        mydoor = self.seek_element(nart, "WH9_DOOR", lambda n,c: self._seek_door(n,c,"Warehouse 9"), scope=nart.camp)
+        mydoor.plot_locked = True
+        self.wh9_locked = True
+
+        self.register_element("_room9", self._get_warehouse_room(), dident="WH9")
+        self.register_element("THIRD_NOTE", ghwaypoints.KnifeNote(
+            desc="Dagmar-\n \n Situation has changed. The big cheese from down south is moving a high security package into warehouse 24.\n \n It's very very important that no unauthorized people learn about this package; we've got to be on our \"Super S\" game for this one. That's why it's very very very important that you remember the door code is {}. Make sure you don't forget. Tattoo it on your arm if you have to. I'm counting on you, Dag; I know you can do it.".format(self.door_codes[2])
+        ), dident="_room9")
+
+        mydoor = self.seek_element(nart, "WH24_DOOR", lambda n,c: self._seek_door(n,c,"Warehouse 24"), scope=nart.camp)
+        mydoor.plot_locked = True
+        self.wh24_locked = True
+
+        self.elements["WH24"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000AB']
+        self.register_element("_room24", self._get_warehouse_room(), dident="WH24")
+        self.register_element("FOURTH_NOTE", ghwaypoints.KnifeNote(
+            desc="Dagmar-\n \n Sorry about last night. Your team was the decoy so we could move the ruby in safety. I honestly didn't expect anyone to attack. If you need a good deal on a new eyeball, tell Kira I sent you.\n \n Anyhow, you've got overtime at warehouse 2 tonight. The passcode is {}.".format(self.door_codes[3])
+        ), dident="_room24")
+
+        mydoor = self.seek_element(nart, "WH2_DOOR", lambda n,c: self._seek_door(n,c,"Warehouse 2"), scope=nart.camp)
+        mydoor.plot_locked = True
+        self.wh2_locked = True
+
+        self.elements["WH2"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000AC']
+        self.register_element("_room2", self._get_warehouse_room(), dident="WH2")
+        self.register_element("FIFTH_NOTE", ghwaypoints.KnifeNote(
+            desc="Nancy-\n \n Thank you for being my manager at Bowser Security, but I'm afraid it's time for me to pursue new challenges elsewhere. I got a generous offer for that ruby everyone was so enamoured with. The cash will more than cover my medical bills and relocation to someplace decent.\n\n *Love, Dagmar*".format(self.door_codes[3])
+        ), dident="_room2")
+        self.register_element("RUBY_CHEST", ghwaypoints.SteelBox(
+            desc="This steel case contains a foam insert for a large hexagonal prism. The prism itself is long gone.", plot_locked=True
+        ), dident="_room2")
+
+        cargo_room = self.register_element("_room2b", pbge.randmaps.rooms.ClosedRoom(8,12, decorate=gharchitecture.WarehouseDecor()), dident="WH2")
+        mydoor = self.register_element("CARGO", ghwaypoints.Waypoint(
+            name="Cargo Container", plot_locked=True,
+            desc="This cargo container is loaded with packaged food, medicine, and consumer goods."
+            ))
+        my_cargo = ghterrain.PersonalCargoContainerTerrset(waypoints={"DOOR": mydoor})
+        cargo_room.contents.append(my_cargo)
 
         return True
 
+    def _get_warehouse_room(self):
+        myroom = pbge.randmaps.rooms.ClosedRoom(10,8, decorate=gharchitecture.StorageRoomDecor())
+        for t in range(random.randint(3,6)):
+            myroom.contents.append(ghwaypoints.Lockers())
+        return myroom
+
+    def _seek_door(self, nart, candidate, door_name):
+        return isinstance(candidate, ghwaypoints.ReinforcedDoor) and candidate.name == door_name
+
+    def CARGO_menu(self, camp, thingmenu):
+        if camp.campdata.get(ROPPCD_SPENT_CARGO, False):
+            self.elements["CARGO"].desc = "This cargo container is now empty."
+            thingmenu.desc = self.elements["CARGO"].desc
+        
+        elif not camp.campdata.get(ROPPCD_FOUND_CARGO, False):
+            thingmenu.desc += " These items could be a great boon to the war effort."
+            thingmenu.add_item("[Continue]", self._get_cargo)
+
+    def _get_cargo(self, camp: gears.GearHeadCampaign):
+        camp.campdata[ROPPCD_FOUND_CARGO] = True
+        pbge.alert("You gain 100XP.")
+        camp.dole_xp(100)
+        self.memo = "You have discovered a shipment of food and medicine that might be useful to somebody in Pirate's Point."
+
+    def update_memo(self, camp):
+        if self.known_warehouse_codes and not camp.campdata.get(ROPPCD_FOUND_CARGO, False):
+            self.memo = "You have learned the keycode for {}.".format(pbge.util.and_join_string(self.known_warehouse_codes))
+
     def FIRST_NOTE_BUMP(self, camp):
-        print("Bump recieved.")
+        if self.wh45_locked:
+            self.wh45_locked = False
+            pbge.BasicNotification("You have discovered the keycode for Warehouse 45.", count=150)
+            self.known_warehouse_codes.append("Warehouse 45")
+            self.update_memo(camp)
+
+    def SECOND_NOTE_BUMP(self, camp):
+        if self.wh9_locked:
+            self.wh9_locked = False
+            pbge.BasicNotification("You have discovered the keycode for Warehouse 9.", count=150)
+            self.known_warehouse_codes.append("Warehouse 9")
+            self.update_memo(camp)
+
+    def THIRD_NOTE_BUMP(self, camp):
+        if self.wh24_locked:
+            self.wh24_locked = False
+            pbge.BasicNotification("You have discovered the keycode for Warehouse 24.", count=150)
+            self.known_warehouse_codes.append("Warehouse 24")
+            self.update_memo(camp)
+
+    def FOURTH_NOTE_BUMP(self, camp):
+        if self.wh2_locked:
+            self.wh2_locked = False
+            pbge.BasicNotification("You have discovered the keycode for Warehouse 2.", count=150)
+            self.known_warehouse_codes.append("Warehouse 2")
+            self.update_memo(camp)
+
+    def WH45_DOOR_menu(self, camp, thingmenu):
+        thingmenu.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH45_DOOR"))
+        if not self.wh45_locked:
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[0]), lambda c: self._unlock_door(c, "WH45_DOOR"))
+
+        thingmenu.add_item("Leave it alone.", None)
+
+    def WH9_DOOR_menu(self, camp, thingmenu):
+        thingmenu.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH9_DOOR"))
+        if not self.wh9_locked:
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[1]), lambda c: self._unlock_door(c, "WH9_DOOR"))
+
+        thingmenu.add_item("Leave it alone.", None)
+
+    def WH24_DOOR_menu(self, camp, thingmenu):
+        thingmenu.desc = "This door is locked, and it is too strong to break down. There are signs that someone tried to break it down before you arrived. What do you want to do?"
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH24_DOOR"))
+        if not self.wh24_locked:
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[2]), lambda c: self._unlock_door(c, "WH24_DOOR"))
+
+        thingmenu.add_item("Leave it alone.", None)
+
+    def WH2_DOOR_menu(self, camp, thingmenu):
+        thingmenu.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH2_DOOR"))
+        if not self.wh2_locked:
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[3]), lambda c: self._unlock_door(c, "WH2_DOOR"))
+
+        thingmenu.add_item("Leave it alone.", None)
+
+    def _attempt_hack_door(self, camp: gears.GearHeadCampaign, door_ident):
+        # Lambda this method for all the different doors.
+        pc = camp.do_skill_test(
+            gears.stats.Craft, gears.stats.Knowledge, gears.stats.get_skill_target(self.rank, difficulty=gears.stats.DIFFICULTY_LEGENDARY),
+            no_random=True
+        )
+        if pc:
+            if pc is camp.pc:
+                pbge.alert("You hack the lock. The door can now be opened.")
+            else:
+                pbge.alert("{} hacks the lock. The door can now be opened.".format(pc))
+            self.elements[door_ident].plot_locked = False
+        else:
+            pbge.alert("You are not skilled enough to hack this lock.")
+
+    def _unlock_door(self, camp: gears.GearHeadCampaign, door_ident):
+        # Lambda this method for all the different doors too.
+        pbge.alert("The code unlocks the door.")
+        self.elements[door_ident].plot_locked = False
+

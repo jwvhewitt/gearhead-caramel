@@ -1,3 +1,4 @@
+* Columns decor should not overwrite waypoint terrain
 * Fixed bug with non-singleton city tags in bugs
 * PC should now automatically reject most missions against favorable factions
 * Automatic area invocations can be invoked with "accept" key or clicking icon

@@ -622,7 +622,9 @@ class DZD_BronzeHorseInn(Plot):
         # Create a building within the town.
         building = self.register_element("_EXTERIOR", game.content.ghterrain.ResidentialBuilding(
             waypoints={"DOOR": ghwaypoints.ScreenDoor(name="Bronze Horse Inn")},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]), dident="LOCALE")
+            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP], 
+            door_sign=(game.content.ghterrain.BronzeHorseTerrainEast, game.content.ghterrain.BronzeHorseTerrainSouth)
+        ), dident="LOCALE")
 
         # Add the interior scene.
         team1 = teams.Team(name="Player Team")
@@ -637,7 +639,7 @@ class DZD_BronzeHorseInn(Plot):
         self.register_scene(nart, intscene, intscenegen, ident="INTERIOR", dident="LOCALE")
         foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=10, height=10,
                                                                                  anchor=pbge.randmaps.anchors.south,
-                                                                                 decorate=game.content.gharchitecture.ResidentialDecor()),
+                                                                                 decorate=game.content.gharchitecture.BreakRoomDecor()),
                                       dident="INTERIOR")
         foyer.contents.append(team2)
 

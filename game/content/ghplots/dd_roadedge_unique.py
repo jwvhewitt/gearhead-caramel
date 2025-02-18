@@ -278,7 +278,7 @@ class KerberosEncounterPlot(DZDREBasicPlotWithEncounterStuff):
     active = True
     scope = True
     UNIQUE = True
-    BASE_RANK = 50
+    BASE_RANK = 40
     ENCOUNTER_CHANCE = BASE_RANK
     ENCOUNTER_ARCHITECTURE = gharchitecture.MechaScaleDeadzone
 

@@ -139,8 +139,8 @@ class LockedSteelBox(Crate):
                 self.unlock_rank = max(camp.renown + random.randint(1,10) - random.randint(1,10), 5)
             rpm = self.MENU_CLASS(camp, self)
             rpm.desc = "This crate is locked. What do you want to do?"
-            rpm.add_item("Attempt to hack the lock.", 1)
-            rpm.add_item("Break into the crate with brute force", 2)
+            rpm.add_item("Attempt to hack the lock. [Computers + Craft]", 1)
+            rpm.add_item("Break into the crate with brute force. [Athletics + Body]", 2)
             rpm.add_item("Leave it alone.", False)
             fx = rpm.query()
             if fx == 1:
@@ -155,7 +155,7 @@ class LockedSteelBox(Crate):
                     pbge.alert("You are not skilled enough to hack this lock.")
             elif fx == 2:
                 pc = camp.do_skill_test(gears.stats.Body, gears.stats.Athletics, self.unlock_rank,
-                                        difficulty=gears.stats.DIFFICULTY_HARD, no_random=True)
+                                        difficulty=gears.stats.DIFFICULTY_HARD, no_random=True, untrained_ok=True)
                 if pc:
                     if pc is camp.pc:
                         pbge.alert("You smash the lock. The crate can now be opened.")
@@ -264,7 +264,7 @@ class LockedReinforcedDoor(Exit):
                 self.unlock_rank = max(camp.renown + random.randint(1,10) - random.randint(1,10), 5)
             rpm = self.MENU_CLASS(camp, self)
             rpm.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
-            rpm.add_item("Attempt to hack the lock.", True)
+            rpm.add_item("Attempt to hack the lock. [Computers + Craft]", True)
             rpm.add_item("Leave it alone.", False)
             fx = rpm.query()
             if fx:
