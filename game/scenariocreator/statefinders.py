@@ -53,6 +53,7 @@ CONTEXT_INFO = {
     context.HELLO: DialogueContextDescription("Hello", "The NPC greets the PC."),
     context.ASK_FOR_ITEM: DialogueContextDescription("Ask For Item", "The NPC responds to the PC asking for an item.", {"item",}),
     context.INFO: DialogueContextDescription("Info", "The NPC tells the PC about a certain subject.", {"subject",}),
+    context.OPINION: DialogueContextDescription("Opinion", "The NPC tells the PC what they think about a certain subject.", {"subject",}),
     context.SELFINTRO: DialogueContextDescription("Self Introduction", "The NPC tells the PC about themself."),
     context.REVEAL: DialogueContextDescription("React to Reveal", "The NPC reacts to information given by the PC.", {"reveal",}),
     context.MISSION: DialogueContextDescription("Mission", "The NPC describes a mission."),
@@ -227,7 +228,7 @@ SINGULAR_TYPES = {
         "RegExLogoTerrain", "HospitalSign", "TownBanner", "GoldTownHallSign", "MilitarySign", "GeneralStoreSign1",
         "TavernSign1", "CafeSign1", "MechaModelSign", "SkullWallSign", "JollyRogerSign", "AegisLogoSign",
         "SolarNavyLogoSign", "DragonSign", "None", "KirasTattoosSign", "GunShopSign", "YeOldeShopSign", "ShieldSign",
-        "BladesOfCrihnaSign"
+        "BladesOfCrihnaSign", "HotelSignTerrain", "UnionSignTerrain"
     ),
     "shop_type": (
         "game.services.GENERAL_STORE", "game.services.GENERAL_STORE_PLUS_MECHA", "game.services.MECHA_STORE",

@@ -1131,6 +1131,37 @@ class KnifeNoteTerrain(pbge.scenes.terrain.OnTheWallTerrain):
     image_top = 'terrain_decor_knifenote.png'
 
 
+class HotelSignTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    image_top = 'terrain_decor_hotelsign.png'
+
+
+class HotelSignTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_hotelsign.png'
+
+
+class HotelSignTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_hotelsign.png'
+
+
+class UnionSignTerrain(pbge.scenes.terrain.OnTheWallTerrain):
+    # A tricolor grid representing solidarity and the power of the people. Each row and
+    # column contains one red, one blue, and one white tile.
+    image_top = 'terrain_decor_unionsign.png'
+
+
+class UnionSignTerrainSouth(pbge.scenes.terrain.Terrain):
+    frame = 0
+    image_top = 'terrain_decor_unionsign.png'
+
+
+class UnionSignTerrainEast(pbge.scenes.terrain.Terrain):
+    frame = 1
+    image_top = 'terrain_decor_unionsign.png'
+
+
+
 class ScrapIronBuilding(pbge.randmaps.terrset.BuildingSet):
     TERRAIN_TYPE = ScrapIronBuildingTerrain
     DEFAULT_DECOR_OPTIONS = (pbge.randmaps.terrset.WallDecor((JunkWindowSouth,), (JunkWindowEast,)),
@@ -1561,6 +1592,19 @@ class EmptyBiotankTerrain(pbge.scenes.terrain.Terrain):
 class BrokenBiotankTerrain(pbge.scenes.terrain.Terrain):
     frame = 7
     image_top = 'terrain_decor_biotank.png'
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
+
+
+class FusionCoreOnTerrain(pbge.scenes.terrain.AnimTerrain):
+    frames = (0, 1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1)
+    image_top = 'terrain_decor_fusioncore.png'
+    anim_delay = 3
+    blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
+
+
+class FusionCoreOffTerrain(pbge.scenes.terrain.Terrain):
+    frame = 7
+    image_top = 'terrain_decor_fusioncore.png'
     blocks = (Walking, Skimming, Rolling, Flying, Cruising, SpaceFlight)
 
 

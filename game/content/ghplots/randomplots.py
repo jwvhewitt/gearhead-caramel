@@ -560,7 +560,7 @@ class OddJobsBiotechnology(Plot):
                         **self.elements))
                 ghcutscene.SimpleMonologueDisplay(
                     "Well that's disappointing. Still, here's a reward for helping with my research.", npc)(camp)
-            camp.credits += self.reward
+            plotutility.CashRewardWithNotification(camp, self.reward)
             pbge.BasicNotification("You earn ${:,}.".format(self.reward))
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(5, 10)
@@ -725,8 +725,7 @@ class OddJobsPerformance(Plot):
             ghcutscene.SimpleMonologueDisplay(
                 "[THAT_WAS_INCREDIBLE] Here, you attracted so many people that I can pay twice what we agreed to.",
                 npc)(camp)
-            camp.credits += self.reward * 2
-            pbge.BasicNotification("You earn ${:,}.".format(self.reward * 2))
+            plotutility.CashRewardWithNotification(camp, self.reward*2)
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(5, 10)
             self.elements["METRO"].local_reputation += random.randint(1, 6)
@@ -734,9 +733,9 @@ class OddJobsPerformance(Plot):
 
         elif skroll > gears.stats.get_skill_target(self.rank, gears.stats.DIFFICULTY_AVERAGE):
             pbge.alert(random.choice(self.AVERAGE_CONCERT).format(**self.elements))
+            plotutility.CashRewardWithNotification(camp, self.reward)
             ghcutscene.SimpleMonologueDisplay("[GOOD_JOB] Here's the pay we agreed to.", npc)(camp)
-            camp.credits += self.reward
-            pbge.BasicNotification("You earn ${:,}.".format(self.reward))
+
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(1, 8)
             camp.dole_xp(50)
@@ -750,7 +749,7 @@ class OddJobsPerformance(Plot):
             relationship.reaction_mod -= random.randint(1, 10)
             for pc in camp.get_lancemates():
                 relationship = camp.get_relationship(pc)
-                relationship.reaction_mod -= random.randint(1, 6)
+                relationship.reaction_mod -= random.randint(1, 8)
             camp.renown -= random.randint(1, 4)
             camp.dole_xp(50)
 
@@ -813,8 +812,7 @@ class OddJobsRepair(Plot):
         if skroll > gears.stats.get_skill_target(self.rank, gears.stats.DIFFICULTY_AVERAGE):
             pbge.alert("You fix it!")
             ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_HELP] Here's a reward for you.", npc)(camp)
-            camp.credits += self.reward
-            pbge.BasicNotification("You earn ${:,}.".format(self.reward))
+            plotutility.CashRewardWithNotification(camp, self.reward)
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(1, 4)
             camp.dole_xp(25)

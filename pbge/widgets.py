@@ -828,7 +828,7 @@ class TextEditorPanel(ScrollColumnWidget):
                                          on_backspace_at_zero=self._on_backspace_at_zero,
                                          on_change=self._change_line, draw_border=False)
             self.add_interior(textwidget)
-            my_state.active_widget = textwidget
+            self.active_widget = 0
 
     def _on_left_at_zero(self):
         if self.active_widget > 0:
@@ -857,8 +857,8 @@ class TextEditorPanel(ScrollColumnWidget):
             self.update_text()
 
     def _set_active_widget(self, widindex):
-        if 0 <= widindex < len(self._interior_widgets) and widindex != self._active_widget:
-            # self._active_widget = widindex
+        if 0 <= widindex < len(self._interior_widgets): # and widindex != self._active_widget:
+            self._active_widget = widindex
             wid = self._interior_widgets[widindex]
             my_state.active_widget = wid
             if not wid.active:
@@ -905,14 +905,14 @@ class TextEditorPanel(ScrollColumnWidget):
                 self.active_widget -= 1
                 self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.active_widget].char_list))
-                my_state.active_widget = self._interior_widgets[self.active_widget]
+                #my_state.active_widget = self._interior_widgets[self.active_widget]
                 my_state.widget_responded = True
             elif my_state.is_key_for_action(ev, "down") and self.active_widget < (len(self._interior_widgets) - 1):
                 cursor_i = self._interior_widgets[self.active_widget].cursor_i
                 self.active_widget += 1
                 self._interior_widgets[self.active_widget].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.active_widget].char_list))
-                my_state.active_widget = self._interior_widgets[self.active_widget]
+                #my_state.active_widget = self._interior_widgets[self.active_widget]
                 my_state.widget_responded = True
 
     def is_kb_selectable(self):

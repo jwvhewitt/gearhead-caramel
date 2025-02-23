@@ -623,7 +623,7 @@ def please_stand_by(caption=None):
         if caption:
             mytext = BIGFONT.render(caption, True, TEXT_COLOR)
             dest2 = mytext.get_rect(topleft=(dest.x + 32, dest.y + 32))
-            default_border.render(my_state.screen, dest2)
+            default_border.render(dest2)
             my_state.screen.blit(mytext, dest2)
         my_state.standing_by = True
         my_state.do_flip(False, reset_standing_by=False)

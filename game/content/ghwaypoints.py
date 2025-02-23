@@ -576,6 +576,24 @@ class BrokenBiotank(Biotank):
     TILE = pbge.scenes.Tile(None, None, ghterrain.BrokenBiotankTerrain)
 
 
+class FusionCore(Waypoint):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.FusionCoreOnTerrain)
+
+    def deactivate_core(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], ghterrain.FusionCoreOffTerrain)
+
+    def activate_core(self):
+        scene = self.scene
+        if scene and scene.on_the_map(*self.pos):
+            scene.set_decor(self.pos[0], self.pos[1], ghterrain.FusionCoreOnTerrain)
+
+
+class DeactivatedFusionCore(FusionCore):
+    TILE = pbge.scenes.Tile(None, None, ghterrain.FusionCoreOffTerrain)
+
+
 class OrganicTube(Waypoint):
     TILE = pbge.scenes.Tile(None, None, ghterrain.OrganicTubeTerrain)
 

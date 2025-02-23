@@ -1,3 +1,4 @@
+from re import L
 import gears.factions
 from gears import personality, relationships, tags
 
@@ -205,6 +206,31 @@ DEFAULT_GRAMMAR = {
                           "Remember when [MEM_LoseToPC]? Today I [defeat_you].",
                           "I won't forget [MEM_Clash]."
                           ],
+    },
+
+    # The data block should include "subject"; if not a proper noun, subject should have "the".
+    "[ANY:OPINION]": {
+        Default: ["What's your opinion about {subject}?",
+                  "Tell me what you think about {subject}."
+                  ],
+        personality.Cheerful: [
+            "So, do you like {subject} or what?",
+        ],
+        personality.Grim: [
+            "Give me your unvarnished opinion about {subject}.",
+        ],
+        personality.Easygoing: [
+            "What do you think about {subject}?",
+        ],
+        personality.Passionate: [
+            "I must know your opinion of {subject}!",
+        ],
+        personality.Sociable: [
+            "I hear that you have some feelings about {subject}.",
+        ],
+        personality.Shy: [
+            "Tell me about {subject}.",
+        ],
     },
 
     "[ARE_YOU_WILLING_TO_BET_YOUR_LIFE_ON_THAT]": {
@@ -4599,7 +4625,7 @@ DEFAULT_GRAMMAR = {
         # A not necessarily enthusiastic agreement or assent...
         Default: ["Okay.", "Alright."
                   ],
-        personality.Cheerful: ["Okay!",
+        personality.Cheerful: ["Okay!", "Good enough."
                                ],
         personality.Grim: ["Whatever...",
                            ],
@@ -4719,6 +4745,31 @@ DEFAULT_GRAMMAR = {
                           ],
         personality.Peace: [
             "Of course I want peace with {enemy_faction}!"
+        ],
+    },
+
+    # The data block should include "subject"; if not a proper noun, subject should have "the".
+    "[OPINION:OPINION]": {
+        Default: ["In that case, what do you think about {subject}?",
+                  "So how do you feel about {subject}?"
+                  ],
+        personality.Cheerful: [
+            "I'd also love to hear your thoughts on {subject}.",
+        ],
+        personality.Grim: [
+            "Well where does that leave {subject}?",
+        ],
+        personality.Easygoing: [
+            "Neat. So do you feel the same about {subject}?",
+        ],
+        personality.Passionate: [
+            "So, you must hold a different view about {subject}!",
+        ],
+        personality.Sociable: [
+            "I see; so how do you feel about {subject}, then?",
+        ],
+        personality.Shy: [
+            "What about {subject}, then?",
         ],
     },
 
@@ -5522,6 +5573,31 @@ DEFAULT_GRAMMAR = {
                           ],
         DISLIKE: ["Okay, I guess..."],
         LIKE: ["Fantastic!"]
+    },
+
+    "[THATS_GREAT]": {
+        # Character reacts to *very* good news.
+        Default: ["Very good!",
+                  "That's great!", "[THATS_GOOD]"
+                  ],
+        personality.Cheerful: [
+            "Very nice!",
+        ],
+        personality.Grim: ["Huh, I did not see that coming.",
+                           ],
+        personality.Easygoing: [
+            "Neat-o!",
+        ],
+        personality.Passionate: [
+            "That's amazing!", "Absolutely blazing fantastic!"
+        ],
+        personality.Sociable: [
+            "You don't know how glad I am to hear that!",
+        ],
+        personality.Shy: ["Good to know!",
+                          ],
+        LOVE: ["That's such great news I could kiss you!",],
+        LIKE: ["Thank you so much for letting me know!"]
     },
 
     "[THATS_INTERESTING]": {

@@ -1049,13 +1049,11 @@ class ropp_Scenario(Plot):
         the_world['00000075'] = the_world['00000071'].entry_level
         the_world['00000078'] = the_world['00000071'].goal_level
 
-        the_world['000000A2'] = pbge.randmaps.rooms.FuzzyRoom(
-            name='Engineering Room', anchor=None, decorate=None)
+        the_world['000000A2'] = pbge.randmaps.rooms.OpenRoom(
+            name='Engineering Room',
+            anchor=None,
+            decorate=gharchitecture.DefiledFactoryDecor())
         the_world['00000078'].contents.append(the_world['000000A2'])
-
-        the_world['000000A3'] = ghwaypoints.OldMainframe(
-            name='Fusion Control Core', desc='', anchor=None)
-        the_world['000000A2'].contents.append(the_world['000000A3'])
         # Build the city here, store it in the_world
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1, ))
@@ -1385,6 +1383,66 @@ class ropp_Scenario(Plot):
                 anchor=pbge.randmaps.anchors.south),
             door2=ghwaypoints.Exit(name='Exit',
                                    anchor=pbge.randmaps.anchors.south))
+        splot = self.add_sub_plot(
+            nart,
+            "EMPTY_BUILDING",
+            elements=dict(
+                LOCALE=the_world['0000000D'],
+                METROSCENE=the_world['0000000D'],
+                METRO=the_world['0000000D'].metrodat,
+                MISSION_GATE=the_world['0000000E'],
+                CITY_COLORS=(gears.color.Straw, gears.color.Aquamarine,
+                             gears.color.DeepGrey, gears.color.AeroBlue,
+                             gears.color.Cream),
+                INTERIOR_NAME='Bowser Officetel',
+                INTERIOR_TAGS=[
+                    gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                    gears.tags.SCENE_HOSPITAL, gears.tags.SCENE_GARAGE,
+                    gears.tags.SCENE_MEETING
+                ],
+                DOOR_SIGN=(ghterrain.HotelSignTerrainEast,
+                           ghterrain.HotelSignTerrainSouth),
+                DOOR_TYPE=ghwaypoints.GlassDoor,
+                INTERIOR_FACTION=None,
+                EXTERIOR_TERRSET=ghterrain.IndustrialBuilding,
+                INTERIOR_ARCHITECTURE=gharchitecture.
+                WarmColorsWallArchitecture,
+                INTERIOR_DECOR=gharchitecture.ResidentialDecor()))
+        the_world['000000B0'] = splot.elements["INTERIOR"]
+        the_world['000000B1'] = splot.elements["FOYER"]
+
+        the_world['000000B2'] = gears.selector.random_character(
+            self.rank,
+            local_tags=the_world['0000000D'].attributes,
+            camp=nart.camp,
+            name='',
+            job=gears.jobs.ALL_JOBS['Innkeeper'],
+            faction=None,
+            combatant=False)
+        the_world['000000B1'].contents.append(the_world['000000B2'])
+        the_world['000000B3'] = pbge.randmaps.rooms.ClosedRoom(
+            name='Business Center',
+            anchor=None,
+            decorate=gharchitecture.UlsaniteOfficeDecor())
+        the_world['000000B0'].contents.append(the_world['000000B3'])
+        the_world['000000B4'] = pbge.randmaps.rooms.ClosedRoom(
+            name='Makeshift Clinic',
+            anchor=None,
+            decorate=gharchitecture.WarehouseDecor())
+        the_world['000000B0'].contents.append(the_world['000000B4'])
+
+        the_world['000000B5'] = ghwaypoints.RecoveryBed(
+            name='', desc='', anchor=pbge.randmaps.anchors.middle)
+        the_world['000000B4'].contents.append(the_world['000000B5'])
+        the_world['000000B6'] = gears.selector.random_character(
+            self.rank,
+            local_tags=the_world['0000000D'].attributes,
+            camp=nart.camp,
+            name='',
+            job=gears.jobs.ALL_JOBS['Nurse'],
+            faction=None,
+            combatant=False)
+        the_world['000000B4'].contents.append(the_world['000000B6'])
         # Build the city here, store it in the_world
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1, ))
@@ -1509,6 +1567,27 @@ class ropp_Scenario(Plot):
         the_world['0000009F'] = splot.elements["INTERIOR"]
         the_world['000000A0'] = splot.elements["FOYER"]
         the_world['000000A1'] = splot.elements["SHOPKEEPER"]
+        splot = self.add_sub_plot(
+            nart,
+            "TOWNHALL",
+            elements=dict(
+                LOCALE=the_world['0000000F'],
+                METROSCENE=the_world['0000000F'],
+                METRO=the_world['0000000F'].metrodat,
+                MISSION_GATE=the_world['00000010'],
+                CITY_COLORS=(gears.color.GothSkin, gears.color.FreedomBlue,
+                             gears.color.Ebony, gears.color.Charcoal,
+                             gears.color.PlasmaBlue),
+                LEADER_NAME='',
+                LEADER_JOB=gears.jobs.ALL_JOBS['Mayor'],
+                HALL_NAME='Citizens Union',
+                DOOR_SIGN=(ghterrain.UnionSignTerrainEast,
+                           ghterrain.UnionSignTerrainSouth),
+                HALL_FACTION=None,
+                HALL_ARCHITECTURE=gharchitecture.CoolColorsWallArchitecture))
+        the_world['000000AD'] = splot.elements["INTERIOR"]
+        the_world['000000AE'] = splot.elements["FOYER"]
+        the_world['000000AF'] = splot.elements["LEADER"]
         # Build the city here, store it in the_world
         team1 = teams.Team(name="Player Team")
         team2 = teams.Team(name="Civilian Team", allies=(team1, ))
@@ -4066,29 +4145,6 @@ class Room_ropp_177(Plot):
 
         #: plot_init
         #: plot_actions
-
-        self.add_sub_plot(nart,
-                          'WAYPOINT_ropp_178',
-                          elements=dict([(a, self.elements[b])
-                                         for a, b in element_alias_list]),
-                          ident="")
-        return True
-
-    #: plot_methods
-
-
-class Waypoint_ropp_178(Plot):
-    LABEL = "WAYPOINT_ropp_178"
-    active = True
-    scope = "LOCALE"
-
-    #: plot_properties
-    def custom_init(self, nart):
-        self.elements['WAYPOINT'] = nart.camp.campdata[THE_WORLD]['000000A3']
-        element_alias_list = []
-
-        #: plot_init
-        #: plot_actions
         #: plot_subplots
         return True
 
@@ -4341,7 +4397,12 @@ class City_ropp_11(Plot):
             for e in edge_params:
                 nart.camp.campdata['WORLDMAP_6'].connect_entrance_to_entrance(
                     self.elements["MISSION_GATE"], **e)
-        #: plot_init
+
+        self.add_sub_plot(nart,
+                          'EMPTYBUILDING_ropp_209',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         #: plot_actions
 
         self.add_sub_plot(nart,
@@ -4522,6 +4583,204 @@ class DungeonLevel_ropp_200(Plot):
 
 
     #: plot_methods
+class EmptyBuilding_ropp_209(Plot):
+    LABEL = "EMPTYBUILDING_ropp_209"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['ROOM'] = nart.camp.campdata[THE_WORLD]['000000B1']
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000B0']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'NPC_ropp_210',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'ROOM_ropp_213',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'ROOM_ropp_214',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+    #: plot_methods
+
+
+class NonPlayerCharacter_ropp_210(Plot):
+    LABEL = "NPC_ropp_210"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['NPC'] = nart.camp.campdata[THE_WORLD]['000000B2']
+        element_alias_list = []
+
+        self.elements["NPC_SCENE"] = self.elements["LOCALE"]
+
+        self._offer211 = scutils.DialogueOfferHandler(211, single_use=False)
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if self._offer211.can_add_offer():
+            mylist.append(
+                Offer(
+                    '[HELLO] Welcome to the Bowser Officetel. We have no vacancies at the moment, but a bunch of our long term guests have set up shop in the business center until this war thing calms down.',
+                    context=ContextTag(["HELLO"]),
+                    data={},
+                    subject='',
+                    subject_start=True,
+                    effect=self._offer211.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
+        return mylist
+
+
+class Room_ropp_213(Plot):
+    LABEL = "ROOM_ropp_213"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['ROOM'] = nart.camp.campdata[THE_WORLD]['000000B3']
+        element_alias_list = []
+
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+
+    #: plot_methods
+class Room_ropp_214(Plot):
+    LABEL = "ROOM_ropp_214"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['ROOM'] = nart.camp.campdata[THE_WORLD]['000000B4']
+        element_alias_list = []
+
+        #: plot_init
+        #: plot_actions
+
+        self.add_sub_plot(nart,
+                          'WAYPOINT_ropp_215',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'NPC_ropp_216',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        return True
+
+    #: plot_methods
+
+
+class Waypoint_ropp_215(Plot):
+    LABEL = "WAYPOINT_ropp_215"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['WAYPOINT'] = nart.camp.campdata[THE_WORLD]['000000B5']
+        element_alias_list = []
+
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+
+    #: plot_methods
+class NonPlayerCharacter_ropp_216(Plot):
+    LABEL = "NPC_ropp_216"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['NPC'] = nart.camp.campdata[THE_WORLD]['000000B6']
+        element_alias_list = []
+
+        self.elements["NPC_SCENE"] = self.elements["LOCALE"]
+
+        self._offer217 = scutils.DialogueOfferHandler(217, single_use=True)
+        self._offer218 = scutils.DialogueOfferHandler(218, single_use=False)
+        self._offer219 = scutils.DialogueOfferHandler(219, single_use=False)
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if self._offer217.can_add_offer():
+            mylist.append(
+                Offer(
+                    "Sorry, I don't have anything to spare, but if you run into any trouble I'll do my best to patch you up.",
+                    context=ContextTag(["CUSTOM"]),
+                    data={'reply': "I'd like to buy some medicine."},
+                    subject='',
+                    subject_start=True,
+                    effect=self._offer217.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
+        if self._offer218.can_add_offer():
+            mylist.append(
+                Offer(
+                    "[HELLO] We've converted this storage room into a makeshift clinic. It's not much, but I've already managed to save a couple of lives.",
+                    context=ContextTag(["HELLO"]),
+                    data={},
+                    subject='',
+                    subject_start=True,
+                    effect=self._offer218.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
+        if self._offer219.can_add_offer():
+            mylist.append(
+                Offer(
+                    "Now I don't know for certain, but when the fighting started it seems like whoever is in charge of these warehouses pushed the big red button and got the hell out. There are guardbots sniping at each other from across the street, hunter synths running wild, and [God] knows what else.",
+                    context=ContextTag(["CUSTOM"]),
+                    data={'reply': "What's going on in this district?"},
+                    subject="raid on pirate's point",
+                    subject_start=True,
+                    effect=self._offer219.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
+        return mylist
+
+
 class City_ropp_12(Plot):
     LABEL = "CITY_ropp_12"
     active = True
@@ -4568,6 +4827,11 @@ class City_ropp_12(Plot):
                           ident="")
         self.add_sub_plot(nart,
                           'GENERALSTORE_ropp_170',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'TOWNHALL_ropp_202',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
@@ -4719,6 +4983,71 @@ class GeneralStore_ropp_170(Plot):
     def NPC_offers(self, camp):
         mylist = list()
         #: npc_offers
+        return mylist
+
+
+    #: plot_methods
+class TownHall_ropp_202(Plot):
+    LABEL = "TOWNHALL_ropp_202"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['NPC'] = nart.camp.campdata[THE_WORLD]['000000AF']
+        self.elements['ROOM'] = nart.camp.campdata[THE_WORLD]['000000AE']
+        self.elements['LOCALE'] = nart.camp.campdata[THE_WORLD]['000000AD']
+        element_alias_list = [('PARENT_SCENE', 'LOCALE')]
+
+        self._offer206 = scutils.DialogueOfferHandler(206, single_use=True)
+        self._offer207 = scutils.DialogueOfferHandler(207, single_use=True)
+        self._offer208 = scutils.DialogueOfferHandler(208, single_use=True)
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    def NPC_offers(self, camp):
+        mylist = list()
+
+        if self._offer206.can_add_offer():
+            mylist.append(
+                Offer(
+                    "Those greenzoners want to see this city destroyed. They talk about rescuing the people of Pirate's Point from tyrranical rule, then use that as an excuse to bomb our homes. The admiral can't be trusted.",
+                    context=ContextTag(["OPINION"]),
+                    data={'subject': 'the Solar Navy'},
+                    subject='the Solar Navy',
+                    subject_start=True,
+                    effect=self._offer206.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
+        if self._offer207.can_add_offer():
+            mylist.append(
+                Offer(
+                    "They're crooks, what do you expect? This city was supposed to be a haven for outcasts and pariahs. Under Bogo's rule it's only the paying customers- the bandits and pirates who trade with the guild- that really count. The rest of us just trying to get by are second class citizens, if that.",
+                    context=ContextTag(["OPINION"]),
+                    data={'subject': 'the Treasure Hunters Guild'},
+                    subject='the Treasure Hunters Guild',
+                    subject_start=True,
+                    effect=self._offer207.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
+        if self._offer208.can_add_offer():
+            mylist.append(
+                Offer(
+                    "Aegis are more trouble than any of the criminals passing through here. Bogo wants to smuggle contraband to Lunar aristos, but I suspect he's the one getting played. The people I feel bad for are the expats in the Lunar district. They've got a better shot at life on Earth than they would on the moon, but even here Aegis is constantly up in their business.",
+                    context=ContextTag(["OPINION"]),
+                    data={'subject': 'Aegis Overlord'},
+                    subject='Aegis Overlord',
+                    subject_start=True,
+                    effect=self._offer208.get_effect(
+                        #: dialogue_effect
+                    ),
+                    no_repeats=True,
+                    dead_end=False))
         return mylist
 
 

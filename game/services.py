@@ -22,6 +22,8 @@ GENERAL_STORE_PLUS_MECHA = (tags.ST_WEAPON,tags.ST_CLOTHING,tags.ST_ESSENTIAL,ta
 BARE_ESSENTIALS_STORE = (tags.ST_ESSENTIAL,)
 PHARMACY = (tags.ST_MEDICINE,)
 BLACK_MARKET = (tags.ST_WEAPON, tags.ST_CLOTHING, tags.ST_ESSENTIAL, tags.ST_CONTRABAND)
+ARMS_DEALER = (tags.ST_MECHA, tags.ST_MECHA_WEAPON, tags.ST_WEAPON, tags.ST_MELEEWEAPON, tags.ST_MISSILEWEAPON)
+CURIO_SHOP = (tags.ST_ANTIQUE, tags.ST_ODDITY, tags.ST_LOSTECH, tags.ST_TREASURE)
 
 class Shop(object):
     MENU_AREA = pbge.frects.Frect(50, -200, 300, 300)
@@ -54,6 +56,8 @@ class Shop(object):
     def item_matches_shop(self, item, camp):
         myfaction = self.shop_faction or camp.scene.get_metro_scene().faction
         if item.get_full_name() in [a.get_full_name() for a in self.wares]:
+            return False
+        elif hasattr(item, "faction_list") and "ReallyNone" in item.faction_list:
             return False
         elif myfaction and hasattr(item, "faction_list"):
             if (myfaction.get_faction_tag() in item.faction_list) or (None in item.faction_list):

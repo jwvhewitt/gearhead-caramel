@@ -115,6 +115,10 @@ HELLO_INFOPERSONAL = Reply("[HELLO:INFO_PERSONAL]",
                            context=ContextTag([context.HELLO]),
                            destination=Cue(ContextTag([context.INFO, context.PERSONAL])))
 
+HELLO_OPINION = Reply("[ANY:OPINION]",
+                   context=ContextTag([context.HELLO]),
+                   destination=Cue(ContextTag([context.OPINION])))
+
 HELLO_JOIN = Reply("[HELLO:JOIN]",
                    context=ContextTag([context.HELLO]),
                    destination=Cue(ContextTag([context.JOIN])))
@@ -187,6 +191,10 @@ INFO_INFO = Reply("[INFO:INFO]",
                   context=ContextTag([context.INFO]),
                   destination=Cue(ContextTag([context.INFO])))
 
+INFO_OPINION = Reply("[ANY:OPINION]",
+                    destination=Cue(ContextTag([context.OPINION])),
+                    context=ContextTag([context.INFO]))
+
 MISSION_ACCEPT = Reply("[MISSION:ACCEPT]",
                        context=ContextTag([context.MISSION]),
                        destination=Cue(ContextTag([context.ACCEPT])))
@@ -210,6 +218,26 @@ MISSIONPROBLEM_GOODBYE = Reply("[MISSION_PROBLEM:GOODBYE]",
 PERSONAL_GOODBYE = Reply("[INFO_PERSONAL:GOODBYE]",
                          context=ContextTag([context.PERSONAL]),
                          destination=Cue(ContextTag([context.GOODBYE])))
+
+OPINION_OPINION = Reply("[OPINION:OPINION]",
+                    destination=Cue(ContextTag([context.OPINION])),
+                    context=ContextTag([context.OPINION]))
+
+OPINION_CUSTOM = Reply("{reply}",
+                    destination=Cue(ContextTag([context.CUSTOM])),
+                    context=ContextTag([context.OPINION]))
+
+OPINION_CUSTOMREPLY = Reply("{reply}",
+                         destination=Cue(ContextTag([context.CUSTOMREPLY])),
+                         context=ContextTag([context.OPINION]))
+
+OPINION_GOODBYE = Reply("[INFO:GOODBYE]",
+                  context=ContextTag([context.OPINION]),
+                  destination=Cue(ContextTag([context.GOODBYE])))
+
+OPINION_INFO = Reply("[INFO:INFO]",
+                  context=ContextTag([context.OPINION]),
+                  destination=Cue(ContextTag([context.INFO])))
 
 PERSONAL_JOIN = Reply("[INFO_PERSONAL:JOIN]",
                       context=ContextTag([context.PERSONAL]),

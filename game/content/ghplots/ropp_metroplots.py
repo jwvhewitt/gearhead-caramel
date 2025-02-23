@@ -1,7 +1,9 @@
 # City plots for Raid on Pirate's Point, since I am still working on the scenario editor.
 
 import random
+from typing import override
 from game import content, services, teams, ghdialogue
+from game.content.ghplots import worldmapwar
 import gears
 import pbge
 from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
@@ -11,7 +13,7 @@ from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
 from pbge.scenes import waypoints
-from . import missionbuilder, mission_bigobs
+from . import missionbuilder, mission_bigobs, worldmapwar
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -49,6 +51,7 @@ class ResidentialPlot(Plot):
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
         self.add_sub_plot(nart, "LOCAL_PROBLEM", ident="LOCALPROBLEM")
+        self.add_sub_plot(nart, "RANDOM_SHOP")
         self.finished_local_problem = False
         return True
 
@@ -383,8 +386,25 @@ class ScrapyardPlot(Plot):
 
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
+        self.add_sub_plot(nart, "ROPP_SCRAPYARD_POWEROUTAGE")
         return True
 
+
+class PowerOutage(Plot):
+    LABEL = "ROPP_SCRAPYARD_POWEROUTAGE"
+    scope = "METRO"
+    active = True
+
+    RUMOR = Rumor(
+        ""
+    )
+
+    @override
+    def custom_init(self, nart):
+        self.elements["ROOM"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A2']
+        mydungeon = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000071']
+
+        return True
 
 # **************************
 # ***   THE  SPACEPORT   ***
@@ -413,6 +433,7 @@ class UptownPlot(Plot):
 
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
+        self.add_sub_plot(nart, "RANDOM_SHOP")
         return True
 
 
@@ -429,7 +450,168 @@ class WarehouseDistrictPlot(Plot):
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
         self.add_sub_plot(nart, "ROPP_PASSWORDS_PLOT")
+        self.add_sub_plot(nart, "ROPP_CARGO_PLOT")
+        self.add_sub_plot(nart, "ROPP_WAREHOUSE_HOTEL")
         return True
+
+class WarehouseHotelPlot(Plot):
+    # Folks are trying to keep the district running out of the hotel.
+    LABEL = "ROPP_WAREHOUSE_HOTEL"
+    scope = "METRO"
+    active = True
+
+    def custom_init(self, nart):
+        self.elements["BUSINESS_CENTER"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000B3']
+        self.elements["MAKESHIFT_CLINIC"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000B4']
+
+        npc1 = self.register_element("ARMSDEALER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Smuggler"]
+            ), dident="BUSINESS_CENTER")
+
+        self.arms_shop = services.Shop(
+            npc=npc1, ware_types=services.ARMS_DEALER, rank=self.rank + 10,
+            shop_faction=gears.factions.BoneDevils, buy_stolen_items=True
+        )
+
+        npc2 = self.register_element("CURIODEALER", gears.selector.random_character(
+            self.rank, local_tags=self.elements["LOCALE"].attributes,
+            job=gears.jobs.ALL_JOBS["Tekno"]
+            ), dident="BUSINESS_CENTER")
+
+        self.curio_shop = services.Shop(
+            npc=npc2, ware_types=services.CURIO_SHOP, rank=self.rank + 5,
+            shop_faction=gears.factions.DeadzoneFederation, buy_stolen_items=True
+        )
+
+        return True
+
+    def ARMSDEALER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[HELLO] There may be a war going on outside, but these weapons aren't going to sell themselves.",
+            context=ContextTag([context.HELLO]),
+        ))
+
+        mylist.append(Offer("Maybe next time we make a deal I won't be working out of a hotel lobby.",
+                            context=ContextTag([context.OPEN_SHOP]), effect=self.arms_shop,
+                            data={"wares": "arms"},
+                            ))
+
+        return mylist
+
+    def CURIODEALER_offers(self, camp):
+        mylist = list()
+
+        mylist.append(Offer(
+            "[CRYPTIC_GREETING] I have a wide selection of strange goods looking for a new owner.",
+            context=ContextTag([context.HELLO]),
+        ))
+
+        mylist.append(Offer(
+            "I cannot guarantee the safety, efficacy, or authenticity of any of these goods, but at the very least you shall be entertained.",
+            context=ContextTag([context.OPEN_SHOP]), effect=self.curio_shop,
+            data={"wares": "curios"},
+        ))
+
+        return mylist
+
+
+class WarehouseCargoPlot(Plot):
+    # Once the cargo has been discovered, the PC can hand it over to their side in the world map war or to one
+    # of the needy communities in Pirate's Point. Doing the former helps your side; doing the latter provides
+    # a hero point.
+    LABEL = "ROPP_CARGO_PLOT"
+    scope = True
+    active = True
+
+    def custom_init(self, nart):
+        self.elements['MAYOR'] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000AF']
+        self.gave_cargo_to_citizens = False
+        return True
+
+    def t_UPDATE(self, camp):
+        if not self.memo:
+            if camp.campdata.get(ROPPCD_FOUND_CARGO, False):
+                self.memo = "You discovered a shipment of food and medicine in the warehouse district. This would be useful to someone for the war."
+
+    def MAYOR_offers(self, camp):
+        mylist = list()
+
+        if not self.gave_cargo_to_citizens:
+            mylist.append(Offer(
+                "[HELLO] Welcome to Pirate's Point; if you're hoping to speak to the person in charge you'll need to go to the uptown district.",
+                context=ContextTag([context.HELLO])
+            ))
+
+            if not camp.campdata.get(ROPPCD_SPENT_CARGO, False):
+                mywar: worldmapwar.WorldMapWar = camp.campdata["WORLD_MAP_WAR"]
+                mylist.append(Offer(
+                    "I advocate for the welfare of Pirate Point's residents. Bogo prefers not to concern himself with such practical matters... not even now, when the war has made food and safety more precarious than ever. Supplies are short and tempers are even shorter.",
+                    context=ContextTag([context.CUSTOM]), data={"reply": "So what's your job as mayor, then?"},
+                    subject=self, subject_start=True
+                ))
+
+                if mywar.player_team and mywar.player_team is camp.scene.get_metro_scene().faction:
+                    mylist.append(Offer(
+                        "[OK] From now on, I will forward all of the citizens' complaints to you. There's also some paperwork I'm going to need you to sign.",
+                        context=ContextTag([context.CUSTOM]), data={"reply": "I have conquered this district and you answer to me now."},
+                        subject=self, subject_start=True
+                    ))
+
+                if camp.campdata.get(ROPPCD_FOUND_CARGO, False):
+                    mylist.append(Offer(
+                        "[THATS_GREAT] This will be a big help for us. I'm afraid I can't offer you a reward, since everything we had has already been spent, but you will have our eternal gratitude.",
+                        context=ContextTag([context.CUSTOM]), effect=self._donate_to_citizens,
+                        data={"reply": "I've found a shipment of food and medicine that could help the people who live here."}
+                    ))
+
+                    mylist.append(Offer(
+                        "[THATS_GREAT] This will be a big help for everyone in Pirate's Point. I'm afraid I can't offer you a reward, since everything we had has already been spent, but you will have our eternal gratitude.",
+                        context=ContextTag([context.CUSTOMREPLY]), effect=self._donate_to_citizens,
+                        data={"reply": "I've found a shipment of food and medicine that could help the people who live here."},
+                        subject=self
+                    ))
+        return mylist
+
+    def _donate_to_citizens(self, camp):
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000000F'].metrodat.local_reputation += 30  # Residential District
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000007'].metrodat.local_reputation += 20  # The Nogos
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000000B'].metrodat.local_reputation += 20  # Shopping District
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000009'].metrodat.local_reputation += 10  # The Scrapyard
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000014'].metrodat.local_reputation += 10  # The Spaceport
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000011'].metrodat.local_reputation += 10  # The Dockyards
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000003'].metrodat.local_reputation += 10  # Uptown District
+        camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000000D'].metrodat.local_reputation += 10  # Warehouse District
+        
+        camp.campdata[ROPPCD_HERO_POINTS] += 1
+        camp.campdata[ROPPCD_SPENT_CARGO] = True
+        self.end_plot(camp, True)
+
+    @override
+    def _get_generic_offers(self, npc, camp: gears.GearHeadCampaign):
+        mylist = list()
+        mywar: worldmapwar.WorldMapWar = camp.campdata["WORLD_MAP_WAR"]
+
+        if camp.is_not_lancemate(npc) and mywar.player_team and mywar.player_team is npc.faction:
+            if camp.campdata.get(ROPPCD_FOUND_CARGO, False) and not camp.campdata.get(ROPPCD_SPENT_CARGO, False):
+                mylist.append(Offer(
+                    "[THATS_GREAT] I'll pass this information along to the quartermaster. Here's a bonus for your service to the cause.",
+                    context=ContextTag([context.CUSTOM]), effect=self._donate_to_army,
+                    data={"reply": "I've found a container of supplies that could help our team."}
+                ))
+
+        return mylist
+
+    def _donate_to_army(self, camp: gears.GearHeadCampaign):
+        for sk in gears.stats.COMBATANT_SKILLS:
+            camp.dole_xp(50, sk)
+        reward = gears.selector.calc_mission_reward(self.rank, 75, round_it_off=True)
+        plotutility.CashRewardWithNotification(camp, reward)
+        camp.campdata[ROPPCD_SPENT_CARGO] = True
+        camp.campdata["WORLD_MAP_WAR"].war_teams[camp.campdata["WORLD_MAP_WAR"].player_team].boosted = True
+        self.memo = None
 
 
 class WarehousePasswordsPlot(Plot):
@@ -438,7 +620,7 @@ class WarehousePasswordsPlot(Plot):
     active = True
 
     def custom_init(self, nart):
-        self.door_codes = ["".join([str(random.randint(0,9)) for t in range(6)]) for t in range(5)]
+        self.door_codes = ["".join([str(random.randint(0,9)) for _ in range(6)]) for _ in range(5)]
         self.known_warehouse_codes = list()
         self.elements["WH13"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000009B']
         myroom = self.register_element(
@@ -525,6 +707,7 @@ class WarehousePasswordsPlot(Plot):
         pbge.alert("You gain 100XP.")
         camp.dole_xp(100)
         self.memo = "You have discovered a shipment of food and medicine that might be useful to somebody in Pirate's Point."
+        camp.check_trigger("UPDATE")
 
     def update_memo(self, camp):
         if self.known_warehouse_codes and not camp.campdata.get(ROPPCD_FOUND_CARGO, False):

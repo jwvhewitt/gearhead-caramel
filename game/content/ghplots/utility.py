@@ -443,7 +443,10 @@ class PlaceACommander(Plot):
         myfac = self.elements["FACTION"]
         destscene = self.seek_element(nart, "_DEST", self._is_best_scene, scope=myscene,
                                       backup_seek_func=self._is_good_scene)
-        myjob = myfac.choose_job(gears.tags.Commander)
+        if myfac:
+            myjob = myfac.choose_job(gears.tags.Commander)
+        else:
+            myjob = gears.jobs.ALL_JOBS["Commander"]
         mynpc = self.register_element("NPC", gears.selector.random_character(rank=random.randint(50, 80), job=myjob,
                                                                              local_tags=myscene.attributes,
                                                                              combatant=True, faction=myfac),

@@ -748,7 +748,7 @@ class Combat(object):
         # in a threatened area as well.
         # threat_area = self.get_threatened_area( chara )
         # started_in_threat = chara.pos in threat_area
-        chara.move(dest, pbge.my_state.view, 0.25)
+        chara.move(dest, pbge.my_state.view, 0.4)
         pbge.my_state.view.handle_anim_sequence()
         self.cstat[chara].moves_this_round += 1
 

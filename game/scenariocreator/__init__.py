@@ -1,7 +1,7 @@
 import collections
 import glob
 
-import game
+from game.content import ghplots
 import pbge
 import json
 from . import scclasses, statefinders, scvars, varwidgets, conditionals, worldmapeditor
@@ -510,7 +510,7 @@ class ScenarioEditor(pbge.widgets.Widget):
             fp.write(fullprog)
 
         pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))
-        game.content.ghplots.reload_plot_module(fname.rpartition('.')[0])
+        ghplots.reload_plot_module(fname.rpartition('.')[0])
         for k, v in myprog.items():
             if k != "main":
                 print("Leftover section: {}".format(k))

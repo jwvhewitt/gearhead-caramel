@@ -7,6 +7,8 @@ ASK_FOR_ITEM = "ASK_FOR_ITEM"   # ASK_FOR_ITEM: The NPC gives the PC an item, or
                                 #       The data property should contain "item"
 INFO = pbge.dialogue.INFO       # INFO: The NPC gives the PC some information.
                                 #       The data property should contain "subject"
+OPINION = "OPINION"             # OPINION: The NPC gives the PC their opinion on a subject.
+                                #       The data property should contain "subject"
 SELFINTRO = "SELFINTRO"         # The NPC will tell the PC about themself; mostly for lancemate intros.
 REVEAL = "REVEAL"               # The NPC receives information from the PC.
                                 #       The data property should contain "reveal"

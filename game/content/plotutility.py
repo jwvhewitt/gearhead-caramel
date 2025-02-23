@@ -37,6 +37,12 @@ class AdventureModuleData(object):
             camp.convoborder = self.convoborder
 
 
+class CashRewardWithNotification(pbge.BasicNotification):
+    def __init__(self, camp: gears.GearHeadCampaign, reward):
+        camp.credits += reward
+        super().__init__(w=400, text="You get ${:,}.".format(reward), count=160)
+
+
 class SceneConnection(object):
     DEFAULT_ROOM_1 = pbge.randmaps.rooms.OpenRoom
     DEFAULT_ROOM_1_W = 3

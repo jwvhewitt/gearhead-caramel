@@ -116,7 +116,7 @@ class DungeonLevel_{unique_id}_{_uid}( Plot ):
         self.elements[dungeonmaker.DG_NAME] = {dg_name}
         self.elements[dungeonmaker.DG_SCENE_TAGS] = {dg_scene_tags}
         self.elements[dungeonmaker.DG_MONSTER_TAGS] = {dg_monster_tags}
-`
+
         # Do the connection here.
         #scutils.SCSceneConnection(self.elements["PARENT_SCENE"], self.elements["LOCALE"], {scene_connection})
         #: plot_init

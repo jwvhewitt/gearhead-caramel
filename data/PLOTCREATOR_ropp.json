@@ -1,0 +1,3016 @@
+{
+	"brick": "Scenario",
+	"vars": {
+		"adventure_name": "Raid on Pirate's Point",
+		"adventure_desc": "The Solar Navy has decided to remove the Aegis Consulate from Pirate's Point... and if they can get rid of the pirates at the same time, so much the better.",
+		"adventure_date": "(158, 4, 13)",
+		"unique_id": "ropp",
+		"adventure_threat": 0,
+		"adventure_cover": "\"VHS_RaidOnPiratesPoint.png\"",
+		"starting_point": null,
+		"start_with_lancemate": true,
+		"world_map_encounters": true,
+		"default_mission_combat_music": "UltraCat - Disco High.ogg",
+		"default_mission_exploration_music": "Monkey Warhol - Boots and Pants Instrumental Mix.ogg",
+		"conversation_border": "\"ropp_convoborder.png\""
+	},
+	"children": [
+		{
+			"brick": "New World Map",
+			"vars": {
+				"world_map_name": "WORLD_MAP",
+				"image_file": "\"wm_map_piratespoint.png\""
+			},
+			"children": [],
+			"uid": 6
+		},
+		{
+			"brick": "New Campaign Variable",
+			"vars": {
+				"var_name": "lets_get_tattoos",
+				"value": 0
+			},
+			"children": [],
+			"uid": 55
+		},
+		{
+			"brick": "New Campaign Variable",
+			"vars": {
+				"var_name": "hero_points",
+				"value": 0
+			},
+			"children": [],
+			"uid": 174
+		},
+		{
+			"brick": "Standard Lancemate Handler",
+			"vars": {
+				"lancemate_slots": 3,
+				"lancemate_development": true
+			},
+			"children": [],
+			"uid": 47
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "The Solar Navy Base",
+				"city_faction": "gears.factions.TheSolarNavy",
+				"city_attributes": [
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.CITY_MARTIAL"
+				],
+				"scene_generator": "pbge.randmaps.SceneGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleForest",
+				"entrance_name": "To the War Zone",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							8,
+							0
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000A'"
+						},
+						{
+							"end_node": "'00000008'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.south",
+				"exploration_music": "Origami Repetika - Saxophonian March.ogg",
+				"combat_music": "Late.ogg",
+				"city_palette": [
+					"SteelBlue",
+					"BugBlue",
+					"Saffron",
+					"Ebony",
+					"AeroBlue"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.Pavement",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000001'",
+				"MISSION_GATE_UID": "'00000002'"
+			},
+			"children": [
+				{
+					"brick": "Add Military Tent",
+					"vars": {
+						"tent_name": "The Supply Depot",
+						"room_name": "Foyer",
+						"tent_faction": "gears.factions.TheSolarNavy",
+						"scene_attributes": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_GARAGE",
+							"gears.tags.SCENE_SHOP"
+						],
+						"LOCALE_UID": "'00000016'",
+						"ROOM_UID": "'00000017'"
+					},
+					"children": [
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.KenneyCratesWP",
+								"waypoint_name": "",
+								"waypoint_desc": "",
+								"anchor": null,
+								"WAYPOINT_UID": "'0000001D'"
+							},
+							"children": [],
+							"uid": 19
+						},
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.KenneyWoodenTableWP",
+								"waypoint_name": "",
+								"waypoint_desc": "",
+								"anchor": "pbge.randmaps.anchors.middle",
+								"WAYPOINT_UID": "'0000001E'"
+							},
+							"children": [],
+							"uid": 20
+						},
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.KenneyCratesWP",
+								"waypoint_name": "",
+								"waypoint_desc": "",
+								"anchor": null,
+								"WAYPOINT_UID": "'0000001F'"
+							},
+							"children": [],
+							"uid": 21
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Shopkeeper']",
+								"npc_combatant": false,
+								"npc_faction": "gears.factions.KettelIndustries",
+								"NPC_UID": "'00000020'"
+							},
+							"children": [
+								{
+									"brick": "Add Shop",
+									"vars": {
+										"shop_name": "the Supply Depot",
+										"shop_type": "game.services.GENERAL_STORE_PLUS_MECHA",
+										"shop_offer": "[OPENSHOP]",
+										"shop_wares": "wares",
+										"buy_stolen": false
+									},
+									"children": [],
+									"uid": 24
+								}
+							],
+							"uid": 22
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Mechanic']",
+								"npc_combatant": false,
+								"npc_faction": "gears.factions.TheSolarNavy",
+								"NPC_UID": "'00000021'"
+							},
+							"children": [
+								{
+									"brick": "Add Shop",
+									"vars": {
+										"shop_name": "the Supply Depot",
+										"shop_type": "game.services.MECHA_STORE",
+										"shop_offer": "[OPENSHOP]",
+										"shop_wares": "mecha",
+										"buy_stolen": false
+									},
+									"children": [],
+									"uid": 25
+								}
+							],
+							"uid": 23
+						}
+					],
+					"uid": 15
+				},
+				{
+					"brick": "Add Mobile HQ",
+					"vars": {
+						"hq_name": "",
+						"room_name": "Foyer",
+						"hq_faction": "gears.factions.TheSolarNavy",
+						"LOCALE_UID": "'00000018'",
+						"ROOM_UID": "'00000019'"
+					},
+					"children": [
+						{
+							"brick": "New Major NPC",
+							"vars": {
+								"npcid": "'Admiral Charla'",
+								"NPC_UID": "'00000022'"
+							},
+							"children": [],
+							"uid": 26
+						},
+						{
+							"brick": "New Major NPC",
+							"vars": {
+								"npcid": "'General Pinsent'",
+								"NPC_UID": "'00000023'"
+							},
+							"children": [
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "INFO",
+										"dialogue_text": "We are here to get rid of the Aegis Consulate, but the rulers of Pirate's Point aren't going to be happy about us barging in, so we'll probably have to fight them as well.",
+										"dialogue_data": {
+											"subject": "fighting the war"
+										},
+										"single_use": false,
+										"subject": "",
+										"subject_start": true,
+										"dead_end": false
+									},
+									"children": [],
+									"uid": 163
+								},
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "CUSTOM",
+										"dialogue_text": "Your job will be to capture territories one at a time. You can only attack from a territory we already control. Once a faction's home base has been captured, that faction will be eliminated. The Aegis Consulate is due south from here, along the coastline.",
+										"dialogue_data": {
+											"reply": "So how do we proceed?"
+										},
+										"single_use": false,
+										"subject": "get rid of the Aegis Consulate",
+										"subject_start": false,
+										"dead_end": false
+									},
+									"children": [],
+									"uid": 164
+								},
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "CUSTOMREPLY",
+										"dialogue_text": "That thing I said about capturing a home base? It also applies to us. During the operation, you have to make sure that enemy troops don't get too close to the Solar Navy camp. If this base is captured, we'll have no choice but to abort the operation.",
+										"dialogue_data": {
+											"reply": "Is there anything else I need to know?"
+										},
+										"single_use": false,
+										"subject": "The Aegis Consulate is due south from here",
+										"subject_start": false,
+										"dead_end": true
+									},
+									"children": [],
+									"uid": 165
+								}
+							],
+							"uid": 27
+						},
+						{
+							"brick": "New Major NPC",
+							"vars": {
+								"npcid": "'Britaine'",
+								"NPC_UID": "'00000024'"
+							},
+							"children": [],
+							"uid": 28
+						}
+					],
+					"uid": 16
+				},
+				{
+					"brick": "Add Terrain Set Decor",
+					"vars": {
+						"decor": "ghterrain.CorsairTerrset"
+					},
+					"children": [],
+					"uid": 17
+				},
+				{
+					"brick": "Add Field Hospital",
+					"vars": {
+						"hq_name": "",
+						"room_name": "Foyer",
+						"npc_name": "Owleer",
+						"hq_faction": "gears.factions.TheSolarNavy",
+						"LOCALE_UID": "'0000001A'",
+						"ROOM_UID": "'0000001B'",
+						"NPC_UID": "'0000001C'"
+					},
+					"children": [],
+					"uid": 18
+				},
+				{
+					"brick": "Add Empty Building",
+					"vars": {
+						"interior_name": "The Barracks",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_BASE",
+							"gears.tags.SCENE_MEETING",
+							"gears.tags.SCENE_BUILDING"
+						],
+						"room_name": "Foyer",
+						"interior_faction": "gears.factions.TheSolarNavy",
+						"door_sign": "SolarNavyLogoSign",
+						"door_type": "ghwaypoints.ScrapIronDoor",
+						"exterior_terrset": "ghterrain.ConcreteBuilding",
+						"interior_architecture": "gharchitecture.WarmColorsWallArchitecture",
+						"interior_decor": "gharchitecture.BunkerDecor",
+						"LOCALE_UID": "'00000025'",
+						"ROOM_UID": "'00000026'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Soldier']",
+								"npc_combatant": false,
+								"npc_faction": "gears.factions.TerranDefenseForce",
+								"NPC_UID": "'00000027'"
+							},
+							"children": [
+								{
+									"brick": "Make Possible Lancemate",
+									"vars": {},
+									"children": [],
+									"uid": 33
+								}
+							],
+							"uid": 30
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Recon Pilot']",
+								"npc_combatant": false,
+								"npc_faction": "gears.factions.TheSolarNavy",
+								"NPC_UID": "'00000028'"
+							},
+							"children": [
+								{
+									"brick": "Make Possible Lancemate",
+									"vars": {},
+									"children": [],
+									"uid": 34
+								}
+							],
+							"uid": 31
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Police Officer']",
+								"npc_combatant": false,
+								"npc_faction": "gears.factions.Guardians",
+								"NPC_UID": "'00000029'"
+							},
+							"children": [
+								{
+									"brick": "Make Possible Lancemate",
+									"vars": {},
+									"children": [],
+									"uid": 35
+								}
+							],
+							"uid": 32
+						}
+					],
+					"uid": 29
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "NPC Holder",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": null,
+						"decor": "None",
+						"ROOM_UID": "'0000002A'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Mecha Pilot']",
+								"npc_combatant": false,
+								"npc_faction": "gears.factions.TheSolarNavy",
+								"NPC_UID": "'0000002B'"
+							},
+							"children": [],
+							"uid": 37
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Commander']",
+								"npc_combatant": true,
+								"npc_faction": "gears.factions.TheSolarNavy",
+								"NPC_UID": "'0000008F'"
+							},
+							"children": [],
+							"uid": 153
+						}
+					],
+					"uid": 36
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_SOLARNAVY_PLOT"
+					},
+					"children": [],
+					"uid": 186
+				}
+			],
+			"uid": 2
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "Uptown District",
+				"city_faction": "gears.factions.TreasureHunters",
+				"city_attributes": [
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_CORRUPT"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "Uptown Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							0,
+							5
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000E'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.east",
+				"exploration_music": "Mr Smith - Poor Mans Groove.ogg",
+				"combat_music": "Late.ogg",
+				"city_palette": [
+					"RosyBrown",
+					"Ebony",
+					"DimGrey",
+					"NobleGold",
+					"CeramicColor"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000003'",
+				"MISSION_GATE_UID": "'00000004'"
+			},
+			"children": [
+				{
+					"brick": "Add Town Hall",
+					"vars": {
+						"hall_name": "Pirate's Point Guild Hall",
+						"npc_name": "",
+						"npc_job": null,
+						"room_name": "Foyer",
+						"hall_faction": "gears.factions.TreasureHunters",
+						"hall_architecture": "gharchitecture.DefaultBuilding",
+						"door_sign": "JollyRogerSign",
+						"LOCALE_UID": "'0000002C'",
+						"ROOM_UID": "'0000002D'",
+						"NPC_UID": "'0000002E'"
+					},
+					"children": [
+						{
+							"brick": "New Major NPC",
+							"vars": {
+								"npcid": "'Jjang Bogo'",
+								"NPC_UID": "'0000007E'"
+							},
+							"children": [],
+							"uid": 139
+						},
+						{
+							"brick": "Add Dialogue Offer",
+							"vars": {
+								"context": "INFO",
+								"dialogue_text": "Your mission will be to move troops into unguarded territories, and take back any territory captured by our enemies. Capturing an enemy's home base will remove them from the battle. But be careful- if the uptown district gets captured, we'll be the ones who lose.",
+								"dialogue_data": {
+									"subject": "the defence of Pirate's Point"
+								},
+								"single_use": false,
+								"subject": "",
+								"subject_start": true,
+								"dead_end": false
+							},
+							"children": [],
+							"uid": 166
+						}
+					],
+					"uid": 38
+				},
+				{
+					"brick": "Add Hospital",
+					"vars": {
+						"shop_name": "The Doctor's Lair",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "HospitalSign",
+						"LOCALE_UID": "'00000035'",
+						"ROOM_UID": "'00000036'",
+						"NPC_UID": "'00000037'"
+					},
+					"children": [],
+					"uid": 43
+				},
+				{
+					"brick": "Add Mecha Shop",
+					"vars": {
+						"shop_name": "Armor Forge",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": "gears.factions.TreasureHunters",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "MechaModelSign",
+						"LOCALE_UID": "'0000004E'",
+						"ROOM_UID": "'0000004F'",
+						"NPC_UID": "'00000050'"
+					},
+					"children": [],
+					"uid": 57
+				},
+				{
+					"brick": "Add Random City Residents",
+					"vars": {
+						"num_residents": 3
+					},
+					"children": [],
+					"uid": 88
+				},
+				{
+					"brick": "Add Random Lancemates",
+					"vars": {
+						"num_random_lancemates": "3"
+					},
+					"children": [],
+					"uid": 89
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Combatants Room",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": "None",
+						"decor": "None",
+						"ROOM_UID": "'0000008A'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Assassin']",
+								"npc_combatant": true,
+								"npc_faction": "gears.factions.TreasureHunters",
+								"NPC_UID": "'0000008B'"
+							},
+							"children": [],
+							"uid": 149
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Pirate Captain']",
+								"npc_combatant": true,
+								"npc_faction": "gears.factions.TreasureHunters",
+								"NPC_UID": "'0000008C'"
+							},
+							"children": [],
+							"uid": 150
+						}
+					],
+					"uid": 148
+				},
+				{
+					"brick": "Add Black Market",
+					"vars": {
+						"shop_name": "Needful Gear",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": "gears.factions.TreasureHunters",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "GeneralStoreSign1",
+						"LOCALE_UID": "'00000090'",
+						"ROOM_UID": "'00000091'",
+						"NPC_UID": "'00000092'"
+					},
+					"children": [],
+					"uid": 154
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_UPTOWN_PLOT"
+					},
+					"children": [],
+					"uid": 184
+				}
+			],
+			"uid": 3
+		},
+		{
+			"brick": "New Starting Plot",
+			"vars": {
+				"plot_name": "Lawful Start",
+				"entrance": "'00000002'",
+				"needed_pc_tags": [],
+				"forbidden_pc_tags": [
+					"tags.Criminal"
+				],
+				"metro_scene": "'00000001'",
+				"metro_scebe": "'00000001'"
+			},
+			"children": [
+				{
+					"brick": "Alert Message",
+					"vars": {
+						"message": "The Solar Navy has declared that it is going to remove the Aegis Consulate from Pirate's Point. You arrive at the military camp they have set up just north of the city. There should be plenty of opportunities to find good work here."
+					},
+					"children": [],
+					"uid": 171
+				}
+			],
+			"uid": 4
+		},
+		{
+			"brick": "New Starting Plot",
+			"vars": {
+				"plot_name": "Criminal Start",
+				"entrance": "'00000004'",
+				"needed_pc_tags": [
+					"tags.Criminal"
+				],
+				"forbidden_pc_tags": [],
+				"metro_scene": "'00000003'",
+				"metro_scebe": "'00000003'"
+			},
+			"children": [
+				{
+					"brick": "Alert Message",
+					"vars": {
+						"message": "You are in Pirate's Point to do some shopping and visit some old friends when suddenly the air raid siren goes off. You quickly learn that the Solar Navy has attacked, intending to destroy the Aegis Consulate in the southern part of town."
+					},
+					"children": [],
+					"uid": 172
+				},
+				{
+					"brick": "Alert Message",
+					"vars": {
+						"message": "As a freelance mecha pilot, you're not sure whether to be glad about all the missions that are likely to be available or terrified because you are standing in the middle of a bona fide war zone."
+					},
+					"children": [],
+					"uid": 173
+				}
+			],
+			"uid": 5
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "Lunar District",
+				"city_faction": "gears.factions.AegisOverlord",
+				"city_attributes": [
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.SCENE_PUBLIC"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "To Pirate's Point",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							8,
+							8
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'00000010'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.northwest",
+				"exploration_music": "Alena Smirnova - Hopeless waltz.ogg",
+				"combat_music": "Late.ogg",
+				"city_palette": [
+					"LunarGrey",
+					"AegisCrimson",
+					"GhostGrey",
+					"CeramicColor",
+					"Ebony"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.WhiteTileFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000005'",
+				"MISSION_GATE_UID": "'00000006'"
+			},
+			"children": [
+				{
+					"brick": "Add Town Hall",
+					"vars": {
+						"hall_name": "The Aegis Consulate",
+						"npc_name": "",
+						"npc_job": "gears.jobs.ALL_JOBS['Diplomat']",
+						"room_name": "Foyer",
+						"hall_faction": "gears.factions.AegisOverlord",
+						"hall_architecture": "gharchitecture.AegisArchitecture",
+						"door_sign": "AegisLogoSign",
+						"LOCALE_UID": "'0000002F'",
+						"ROOM_UID": "'00000030'",
+						"NPC_UID": "'00000031'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Commander']",
+								"npc_combatant": true,
+								"npc_faction": "gears.factions.AegisOverlord",
+								"NPC_UID": "'0000008E'"
+							},
+							"children": [],
+							"uid": 152
+						},
+						{
+							"brick": "Add Dialogue Offer",
+							"vars": {
+								"context": "INFO",
+								"dialogue_text": "Our objective is to capture the Solar Navy's base. When a faction's home base is captured, that faction loses the war. We must also defend the Lunar district. The pirate scum who run this city will also try to fight, but they may end up getting in our way.",
+								"dialogue_data": {
+									"subject": "the battle for Pirate's Point"
+								},
+								"single_use": false,
+								"subject": "",
+								"subject_start": true,
+								"dead_end": false
+							},
+							"children": [],
+							"uid": 167
+						}
+					],
+					"uid": 39
+				},
+				{
+					"brick": "Add Hospital",
+					"vars": {
+						"shop_name": "Europa Health",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "HospitalSign",
+						"LOCALE_UID": "'0000003B'",
+						"ROOM_UID": "'0000003C'",
+						"NPC_UID": "'0000003D'"
+					},
+					"children": [],
+					"uid": 45
+				},
+				{
+					"brick": "Add Garage",
+					"vars": {
+						"shop_name": "A.E.S. Mechanics",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": "gears.factions.AegisOverlord",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "FixitShopSign",
+						"LOCALE_UID": "'0000003E'",
+						"ROOM_UID": "'0000003F'",
+						"NPC_UID": "'00000040'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Test Pilot']",
+								"npc_combatant": true,
+								"npc_faction": "gears.factions.AegisOverlord",
+								"NPC_UID": "'0000008D'"
+							},
+							"children": [],
+							"uid": 151
+						}
+					],
+					"uid": 46
+				},
+				{
+					"brick": "Add Random City Residents",
+					"vars": {
+						"num_residents": 3
+					},
+					"children": [],
+					"uid": 90
+				},
+				{
+					"brick": "Add Random Lancemates",
+					"vars": {
+						"num_random_lancemates": "3"
+					},
+					"children": [],
+					"uid": 91
+				},
+				{
+					"brick": "Add Empty Building",
+					"vars": {
+						"interior_name": "The Museum of Terra",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_BUILDING",
+							"gears.tags.SCENE_CULTURE",
+							"gears.tags.SCENE_MEETING"
+						],
+						"room_name": "Foyer",
+						"interior_faction": null,
+						"door_sign": "None",
+						"door_type": "ghwaypoints.GlassDoor",
+						"exterior_terrset": "ghterrain.ConcreteBuilding",
+						"interior_architecture": "gharchitecture.CoolColorsWallArchitecture",
+						"interior_decor": "None",
+						"LOCALE_UID": "'00000093'",
+						"ROOM_UID": "'00000094'"
+					},
+					"children": [
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.WallMap",
+								"waypoint_name": "Map of Terra",
+								"waypoint_desc": "The majority of Terra's surface is uninhabitable, covered with a layer of dihydrogen monoxide that can be kilometers deep in places. The people of Terra wage endless war over the tiny scraps of inhabitable land.",
+								"anchor": null,
+								"WAYPOINT_UID": "'00000095'"
+							},
+							"children": [],
+							"uid": 156
+						},
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.ClaymoreModel",
+								"waypoint_name": "Terran Mecha",
+								"waypoint_desc": "Mecha technology on Terra has not progressed since the fall of the superpowers. Ancient designs such as the Claymore are still in common use. Even though the Terrans have lost all knowledge of how these machines work, they are able to build facsimiles in primitive workshops using blueprints passed down through the generations.",
+								"anchor": null,
+								"WAYPOINT_UID": "'00000096'"
+							},
+							"children": [],
+							"uid": 157
+						},
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.ParkStatueSynth",
+								"waypoint_name": "Mutant Monster",
+								"waypoint_desc": "The habitable areas of Terra are plagued by mutant monstrosities. It can be dangerous to go outside, even in ostensibly civilized areas such as the Lunar District.",
+								"anchor": null,
+								"WAYPOINT_UID": "'00000097'"
+							},
+							"children": [],
+							"uid": 158
+						},
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.StatueF",
+								"waypoint_name": "Terran Ravager",
+								"waypoint_desc": "The majority of Terra's population consists of wandering barbarian hordes known as ravagers. The ravagers steal what they want from an area before moving on to their next target. They obey no laws and have no knowledge of humanity's glorious past.",
+								"anchor": null,
+								"WAYPOINT_UID": "'00000098'"
+							},
+							"children": [],
+							"uid": 159
+						}
+					],
+					"uid": 155
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_LUNARDISTRICT_PLOT"
+					},
+					"children": [],
+					"uid": 187
+				}
+			],
+			"uid": 7
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "The Nogos",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_DANGEROUS",
+					"gears.tags.CITY_UNDERCLASS"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							6,
+							3
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000A'"
+						},
+						{
+							"end_node": "'00000013'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.west",
+				"exploration_music": "Anthem of Rain - Rock This House (Instrumental).ogg",
+				"combat_music": "HoliznaCC0 - Punk.ogg",
+				"city_palette": [
+					"BattleshipGrey",
+					"Straw",
+					"Beige",
+					"Celadon",
+					"DimGrey"
+				],
+				"floor_terrain": "ghterrain.CrackedEarth",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000007'",
+				"MISSION_GATE_UID": "'00000008'"
+			},
+			"children": [
+				{
+					"brick": "Add Empty Building",
+					"vars": {
+						"interior_name": "Kira's Tattoos",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_HOSPITAL",
+							"gears.tags.SCENE_SHOP"
+						],
+						"room_name": "Foyer",
+						"interior_faction": null,
+						"door_sign": "KirasTattoosSign",
+						"door_type": "ghwaypoints.ScrapIronDoor",
+						"exterior_terrset": "ghterrain.BrickBuilding",
+						"interior_architecture": "gharchitecture.DefaultBuilding",
+						"interior_decor": "gharchitecture.RundownFactoryDecor",
+						"LOCALE_UID": "'00000032'",
+						"ROOM_UID": "'00000033'"
+					},
+					"children": [
+						{
+							"brick": "New Major NPC",
+							"vars": {
+								"npcid": "'GH1 Kira'",
+								"NPC_UID": "'00000034'"
+							},
+							"children": [
+								{
+									"brick": "Add Dialogue If",
+									"vars": {
+										"conditions": [
+											[
+												"==",
+												[
+													"campaign variable",
+													"lets_get_tattoos"
+												],
+												[
+													"integer",
+													"0"
+												]
+											]
+										],
+										"context": "CUSTOM",
+										"dialogue_text": "That's what I like to hear. I offer artwork for all budgets and pain thresholds. You can get a basic tattoo for $80,000, a deluxe tattoo for $200,000, or a masterpiece for $650,000.",
+										"dialogue_data": {
+											"reply": "I'd like to get a tattoo, please."
+										},
+										"single_use": false,
+										"subject": "kira_tattoo_1234567890",
+										"subject_start": true,
+										"dead_end": false
+									},
+									"children": [
+										{
+											"brick": "Add Dialogue Else",
+											"vars": {
+												"context": "CUSTOM",
+												"dialogue_text": "You've already gotten a tattoo, and thanks to the war happening outside I've run out of needles. Sorry.",
+												"dialogue_data": {
+													"reply": "I'd like to get a tattoo, please."
+												},
+												"single_use": true,
+												"subject": "",
+												"subject_start": true,
+												"dead_end": false
+											},
+											"children": [],
+											"uid": 62
+										}
+									],
+									"uid": 59
+								},
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "HELLO",
+										"dialogue_text": "[HELLO] Welcome to Kira's Tattoos and Body Moodification.",
+										"dialogue_data": {},
+										"single_use": false,
+										"subject": "",
+										"subject_start": true,
+										"dead_end": false
+									},
+									"children": [],
+									"uid": 60
+								},
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "INFO",
+										"dialogue_text": "For that, you can use the cyber terminal over there. My robotic surgical bench will install any parts you want. It's probably safer and more hygenic than when I used to do things by hand, but not nearly as much fun.",
+										"dialogue_data": {
+											"subject": "body modification"
+										},
+										"single_use": true,
+										"subject": "",
+										"subject_start": true,
+										"dead_end": false
+									},
+									"children": [],
+									"uid": 61
+								},
+								{
+									"brick": "Add Dialogue If",
+									"vars": {
+										"conditions": [
+											[
+												">=",
+												[
+													"credits",
+													1
+												],
+												[
+													"integer",
+													"80000"
+												]
+											]
+										],
+										"context": "CUSTOMREPLY",
+										"dialogue_text": "A good choice for a beginner. This design may be small, but the quality is unsurpassed. Just lie back and try to think happy thoughts.",
+										"dialogue_data": {
+											"reply": "I would like the basic tattoo, please."
+										},
+										"single_use": false,
+										"subject": "kira_tattoo_1234567890",
+										"subject_start": false,
+										"dead_end": true
+									},
+									"children": [
+										{
+											"brick": "Add Dialogue Effect",
+											"vars": {},
+											"children": [
+												{
+													"brick": "Set Campaign Variable",
+													"vars": {
+														"var_name": "lets_get_tattoos",
+														"value": "1"
+													},
+													"children": [],
+													"uid": 66
+												},
+												{
+													"brick": "Add Credits",
+													"vars": {
+														"value": "-80000"
+													},
+													"children": [],
+													"uid": 79
+												},
+												{
+													"brick": "Give XP to the Lance",
+													"vars": {
+														"amount": "50"
+													},
+													"children": [],
+													"uid": 67
+												},
+												{
+													"brick": "Give Tag Merit Badge",
+													"vars": {
+														"badge_name": "Inked",
+														"badge_desc": "You received a basic tattoo from Kira.",
+														"badge_tagmods": [
+															[
+																"personality.Passionate",
+																"5"
+															]
+														],
+														"badge_addtags": []
+													},
+													"children": [],
+													"uid": 82
+												},
+												{
+													"brick": "Alert Message",
+													"vars": {
+														"message": "You lie on the tattoo bench and the process begins. It is a little uncomfortable, but nothing you can't handle."
+													},
+													"children": [],
+													"uid": 65
+												}
+											],
+											"uid": 64
+										}
+									],
+									"uid": 63
+								},
+								{
+									"brick": "Add Dialogue If",
+									"vars": {
+										"conditions": [
+											[
+												">=",
+												[
+													"credits",
+													1
+												],
+												[
+													"integer",
+													"200000"
+												]
+											]
+										],
+										"context": "CUSTOMREPLY",
+										"dialogue_text": "The most popular choice. Choose your design, then lie back and relax. You may feel a bit of discomfort.",
+										"dialogue_data": {
+											"reply": "I'm interested in the deluxe tattoo."
+										},
+										"single_use": false,
+										"subject": "kira_tattoo_1234567890",
+										"subject_start": false,
+										"dead_end": true
+									},
+									"children": [
+										{
+											"brick": "Add Dialogue Effect",
+											"vars": {},
+											"children": [
+												{
+													"brick": "Set Campaign Variable",
+													"vars": {
+														"var_name": "lets_get_tattoos",
+														"value": "1"
+													},
+													"children": [],
+													"uid": 70
+												},
+												{
+													"brick": "Add Credits",
+													"vars": {
+														"value": "-200000"
+													},
+													"children": [],
+													"uid": 80
+												},
+												{
+													"brick": "Give XP to the Lance",
+													"vars": {
+														"amount": "100"
+													},
+													"children": [],
+													"uid": 71
+												},
+												{
+													"brick": "Give Tag Merit Badge",
+													"vars": {
+														"badge_name": "Inked",
+														"badge_desc": "You received a deluxe tattoo from Kira. Now everyone can see your adventurous spirit.",
+														"badge_tagmods": [
+															[
+																"personality.Passionate",
+																"10"
+															]
+														],
+														"badge_addtags": []
+													},
+													"children": [],
+													"uid": 83
+												},
+												{
+													"brick": "Alert Message",
+													"vars": {
+														"message": "You lie on the tattoo bench and the process begins. Kira was wrong; you don't feel a bit of discomfort. You feel a great deal of discomfort, as though you were being attacked by a swarm of artistic hornets."
+													},
+													"children": [],
+													"uid": 72
+												}
+											],
+											"uid": 69
+										}
+									],
+									"uid": 68
+								},
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "CUSTOMREPLY",
+										"dialogue_text": "[UNDERSTOOD] If you ever change your mind, you know where to come.",
+										"dialogue_data": {
+											"reply": "On second thought, maybe I don't want a tattoo right now."
+										},
+										"single_use": false,
+										"subject": "kira_tattoo_1234567890",
+										"subject_start": false,
+										"dead_end": false
+									},
+									"children": [],
+									"uid": 73
+								},
+								{
+									"brick": "Add Dialogue If",
+									"vars": {
+										"conditions": [
+											[
+												">=",
+												[
+													"credits",
+													1
+												],
+												[
+													"integer",
+													"650000"
+												]
+											]
+										],
+										"context": "CUSTOMREPLY",
+										"dialogue_text": "Wow, it's rare that I get the chance to meet someone with such passion for art. Lie down on the tattoo bench and we'll get started right away. By the way, this is going to hurt a lot.",
+										"dialogue_data": {
+											"reply": "I can't settle for less than the masterpiece."
+										},
+										"single_use": false,
+										"subject": "kira_tattoo_1234567890",
+										"subject_start": false,
+										"dead_end": true
+									},
+									"children": [
+										{
+											"brick": "Add Dialogue Effect",
+											"vars": {},
+											"children": [
+												{
+													"brick": "Set Campaign Variable",
+													"vars": {
+														"var_name": "lets_get_tattoos",
+														"value": "1"
+													},
+													"children": [],
+													"uid": 76
+												},
+												{
+													"brick": "Add Credits",
+													"vars": {
+														"value": "-650000"
+													},
+													"children": [],
+													"uid": 81
+												},
+												{
+													"brick": "Give XP to the Lance",
+													"vars": {
+														"amount": "200"
+													},
+													"children": [],
+													"uid": 77
+												},
+												{
+													"brick": "Give Tag Merit Badge",
+													"vars": {
+														"badge_name": "Inked",
+														"badge_desc": "You received a masterpiece tattoo from Kira. Annyone who knows the value of such things will now recognize both your adventurous spirit and your good taste.",
+														"badge_tagmods": [
+															[
+																"personality.Passionate",
+																"15"
+															]
+														],
+														"badge_addtags": []
+													},
+													"children": [],
+													"uid": 84
+												},
+												{
+													"brick": "Alert Message",
+													"vars": {
+														"message": "You lie on the tattoo bench and the process begins. Kira brings you to the edge of hell. Just when you think you cannot stand any more, the tattoo is finished and you have become a living work of art."
+													},
+													"children": [],
+													"uid": 78
+												}
+											],
+											"uid": 75
+										}
+									],
+									"uid": 74
+								}
+							],
+							"uid": 41
+						},
+						{
+							"brick": "Cyberdoc Terminal",
+							"vars": {},
+							"children": [],
+							"uid": 42
+						},
+						{
+							"brick": "New Waypoint",
+							"vars": {
+								"waypoint": "ghwaypoints.TattooChair",
+								"waypoint_name": "Tattoo Chair",
+								"waypoint_desc": "You stand before Kira's tattoo chair. It looks more like a PreZero torture device.",
+								"anchor": "pbge.randmaps.anchors.middle",
+								"WAYPOINT_UID": "'00000044'"
+							},
+							"children": [],
+							"uid": 49
+						}
+					],
+					"uid": 40
+				},
+				{
+					"brick": "Add Office Building",
+					"vars": {
+						"interior_name": "Pitt Flophouse",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"room_name": "Foyer",
+						"interior_faction": null,
+						"door_sign": "None",
+						"door_type": "ghwaypoints.ScrapIronDoor",
+						"exterior_terrset": "ghterrain.ResidentialBuilding",
+						"interior_architecture": "gharchitecture.DingyResidentialArchitecture",
+						"interior_decor": "gharchitecture.ResidentialDecor",
+						"LOCALE_UID": "'00000048'",
+						"ROOM_UID": "'00000049'"
+					},
+					"children": [
+						{
+							"brick": "New Room",
+							"vars": {
+								"room_name": "Monster Room 1",
+								"room": "pbge.randmaps.rooms.ClosedRoom",
+								"anchor": "None",
+								"decor": "None",
+								"ROOM_UID": "'0000005F'"
+							},
+							"children": [
+								{
+									"brick": "Monster Encounter",
+									"vars": {
+										"monster_type": [
+											"ANIMAL",
+											"BUG",
+											"CITY",
+											"VERMIN"
+										]
+									},
+									"children": [],
+									"uid": 103
+								}
+							],
+							"uid": 102
+						},
+						{
+							"brick": "New Room",
+							"vars": {
+								"room_name": "Monster Room 2",
+								"room": "pbge.randmaps.rooms.ClosedRoom",
+								"anchor": "None",
+								"decor": "None",
+								"ROOM_UID": "'00000060'"
+							},
+							"children": [
+								{
+									"brick": "Monster Encounter",
+									"vars": {
+										"monster_type": [
+											"ANIMAL",
+											"BUG",
+											"CITY",
+											"VERMIN"
+										]
+									},
+									"children": [],
+									"uid": 105
+								}
+							],
+							"uid": 104
+						},
+						{
+							"brick": "New Room",
+							"vars": {
+								"room_name": "Apartment",
+								"room": "pbge.randmaps.rooms.ClosedRoom",
+								"anchor": "None",
+								"decor": "None",
+								"ROOM_UID": "'00000061'"
+							},
+							"children": [
+								{
+									"brick": "New Random NPC",
+									"vars": {
+										"npc_name": "",
+										"npc_job": "gears.jobs.ALL_JOBS['Citizen']",
+										"npc_combatant": false,
+										"npc_faction": null,
+										"NPC_UID": "'00000062'"
+									},
+									"children": [
+										{
+											"brick": "Add Dialogue Offer",
+											"vars": {
+												"context": "HELLO",
+												"dialogue_text": "[HELLO] The Nogos is the rowdiest part of town... Or at least it was until the war started.",
+												"dialogue_data": {},
+												"single_use": false,
+												"subject": "",
+												"subject_start": true,
+												"dead_end": false
+											},
+											"children": [],
+											"uid": 108
+										},
+										{
+											"brick": "Add Dialogue Offer",
+											"vars": {
+												"context": "INFO",
+												"dialogue_text": "It wouldn't be a bad neighborhood if not for the street gangs. And the monsters wandering in from the dead zone. Plus the lack of infrastruucture, security, hope...",
+												"dialogue_data": {
+													"subject": "the Nogos"
+												},
+												"single_use": true,
+												"subject": "",
+												"subject_start": true,
+												"dead_end": false
+											},
+											"children": [],
+											"uid": 109
+										}
+									],
+									"uid": 107
+								},
+								{
+									"brick": "New Waypoint",
+									"vars": {
+										"waypoint": "ghwaypoints.Bookshelf",
+										"waypoint_name": "Bookshelf",
+										"waypoint_desc": "You stand before a bookshelf  filled with romance novels.",
+										"anchor": null,
+										"WAYPOINT_UID": "'00000063'"
+									},
+									"children": [],
+									"uid": 110
+								},
+								{
+									"brick": "New Waypoint",
+									"vars": {
+										"waypoint": "ghwaypoints.Bunk",
+										"waypoint_name": "",
+										"waypoint_desc": "",
+										"anchor": null,
+										"WAYPOINT_UID": "'00000064'"
+									},
+									"children": [],
+									"uid": 111
+								}
+							],
+							"uid": 106
+						},
+						{
+							"brick": "New Room",
+							"vars": {
+								"room_name": "Empty Room",
+								"room": "pbge.randmaps.rooms.ClosedRoom",
+								"anchor": "None",
+								"decor": "None",
+								"ROOM_UID": "'00000065'"
+							},
+							"children": [],
+							"uid": 112
+						},
+						{
+							"brick": "New Room",
+							"vars": {
+								"room_name": "Treasure Room",
+								"room": "pbge.randmaps.rooms.ClosedRoom",
+								"anchor": "None",
+								"decor": "None",
+								"ROOM_UID": "'00000066'"
+							},
+							"children": [
+								{
+									"brick": "Monster Encounter",
+									"vars": {
+										"monster_type": [
+											"ANIMAL",
+											"BUG",
+											"CITY",
+											"VERMIN"
+										]
+									},
+									"children": [],
+									"uid": 114
+								},
+								{
+									"brick": "New Treasure Container",
+									"vars": {
+										"waypoint": "ghwaypoints.Skeleton",
+										"waypoint_desc": "",
+										"anchor": "pbge.randmaps.anchors.middle",
+										"treasure_amount": "35",
+										"WAYPOINT_UID": "'00000067'"
+									},
+									"children": [],
+									"uid": 115
+								}
+							],
+							"uid": 113
+						}
+					],
+					"uid": 52
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Monster Room",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": null,
+						"decor": "None",
+						"ROOM_UID": "'0000004A'"
+					},
+					"children": [
+						{
+							"brick": "One Shot Monster Encounter",
+							"vars": {
+								"monster_type": [
+									"CITY",
+									"DEVO",
+									"VERMIN"
+								]
+							},
+							"children": [],
+							"uid": 182
+						}
+					],
+					"uid": 53
+				},
+				{
+					"brick": "Add General Store",
+					"vars": {
+						"shop_name": "Murder is Fun",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "GunShopSign",
+						"LOCALE_UID": "'00000054'",
+						"ROOM_UID": "'00000055'",
+						"NPC_UID": "'00000056'"
+					},
+					"children": [],
+					"uid": 85
+				},
+				{
+					"brick": "Add Random City Residents",
+					"vars": {
+						"num_residents": 3
+					},
+					"children": [],
+					"uid": 86
+				},
+				{
+					"brick": "Add Random Lancemates",
+					"vars": {
+						"num_random_lancemates": "1"
+					},
+					"children": [],
+					"uid": 161
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Abandoned Building",
+						"dg_architecture": "gharchitecture.DefaultBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_RUINS"
+						],
+						"dg_monster_tags": [
+							"ANIMAL",
+							"DEVO",
+							"CITY",
+							"VERMIN"
+						],
+						"dg_explo_music": "Anthem of Rain - Rock This House (Instrumental).ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.ResidentialDecor",
+						"rank_modifier": 0,
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.BrickBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Abandoned Building",
+								"DOOR_CLASS": "ghwaypoints.ScrapIronDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 0,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'0000009A'"
+					},
+					"children": [],
+					"uid": 162
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_NOGOS_PLOT"
+					},
+					"children": [],
+					"uid": 183
+				}
+			],
+			"uid": 8
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "The Scrapyard",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_INDUSTRIAL"
+				],
+				"scene_generator": "pbge.randmaps.PartlyUrbanGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleJunkyard",
+				"entrance_name": "Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							4,
+							1
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000C'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.south",
+				"exploration_music": "Anthem of Rain - Adaptation (Instrumental).ogg",
+				"combat_music": "HoliznaCC0 - Punk.ogg",
+				"city_palette": [
+					"TannedSkin",
+					"AeroBlue",
+					"Straw",
+					"Charcoal",
+					"Cream"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000009'",
+				"MISSION_GATE_UID": "'0000000A'"
+			},
+			"children": [
+				{
+					"brick": "Add Garage",
+					"vars": {
+						"shop_name": "Rowdy Repairs",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "RustyFixitShopSign",
+						"LOCALE_UID": "'0000004B'",
+						"ROOM_UID": "'0000004C'",
+						"NPC_UID": "'0000004D'"
+					},
+					"children": [],
+					"uid": 56
+				},
+				{
+					"brick": "Add Hospital",
+					"vars": {
+						"shop_name": "The Health and Safety Office",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "None",
+						"LOCALE_UID": "'00000069'",
+						"ROOM_UID": "'0000006A'",
+						"NPC_UID": "'0000006B'"
+					},
+					"children": [],
+					"uid": 117
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Empty Room 1",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": "None",
+						"decor": "None",
+						"ROOM_UID": "'0000006C'"
+					},
+					"children": [],
+					"uid": 118
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Empty Room 2",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": "None",
+						"decor": "None",
+						"ROOM_UID": "'0000006D'"
+					},
+					"children": [],
+					"uid": 120
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "The Scrap Maze",
+						"dg_architecture": "gharchitecture.HumanScaleJunkyard",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_OUTDOORS"
+						],
+						"dg_monster_tags": [
+							"BUG",
+							"CITY",
+							"MUTANT",
+							"VERMIN"
+						],
+						"dg_explo_music": "Anthem of Rain - Adaptation (Instrumental).ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "None",
+						"rank_modifier": 0,
+						"scene_connection": [
+							{
+								"GATE_TYPE": 0,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.north",
+								"DOOR_NAME": "To the Crash Site",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": null,
+								"ANCHO": "pbge.randmaps.anchors.middle"
+							},
+							{
+								"GATE_TYPE": 0,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "To the Scrapyard",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": null,
+								"ANCHO": "pbge.randmaps.anchors.south"
+							}
+						],
+						"entrance_room": "pbge.randmaps.rooms.OpenRoom",
+						"entrance_anchor": "pbge.randmaps.anchors.south",
+						"enter_from_room": "'0000006E'",
+						"LOCALE_UID": "'0000006F'",
+						"ROOM_UID": "'00000070'"
+					},
+					"children": [
+						{
+							"brick": "New Dungeon",
+							"vars": {
+								"dg_name": "Crashed Spaceship",
+								"dg_architecture": "gharchitecture.DerelictArchitecture",
+								"dg_scene_tags": [
+									"gears.tags.SCENE_DUNGEON",
+									"gears.tags.SCENE_VEHICLE",
+									"gears.tags.SCENE_RUINS"
+								],
+								"dg_monster_tags": [
+									"BUG",
+									"DEVO",
+									"MUTANT",
+									"ROBOT",
+									"RUINS"
+								],
+								"dg_explo_music": "HoliznaCC0 - SomeWhere In The Dark.ogg",
+								"dg_combat_music": "Komiku_-_09_-_This_one_is_tough.ogg",
+								"dg_decor": "gharchitecture.TechDungeonDecor",
+								"scene_connection": [
+									{
+										"GATE_TYPE": 2,
+										"ROOM_STYLE": "pbge.randmaps.rooms.FuzzyRoom",
+										"ANCHOR": "None",
+										"DOOR_NAME": "Mysterious Hatch",
+										"DOOR_CLASS": "ghwaypoints.UndergroundEntrance",
+										"DOOR_SIGN": null
+									},
+									{
+										"GATE_TYPE": 0,
+										"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+										"ANCHOR": "None",
+										"DOOR_NAME": "Exit",
+										"DOOR_CLASS": "ghwaypoints.StairsUp",
+										"DOOR_SIGN": null
+									}
+								],
+								"DUNGEON_UID": "'00000071'",
+								"ENTRY_LEVEL_UID": "'00000072'",
+								"GOAL_LEVEL_UID": "'00000073'"
+							},
+							"children": [
+								{
+									"brick": "Add Entry Level Features",
+									"vars": {
+										"LOCALE_UID": "'00000075'"
+									},
+									"children": [
+										{
+											"brick": "Add Entry Effect",
+											"vars": {},
+											"children": [
+												{
+													"brick": "One Time Effect",
+													"vars": {},
+													"children": [
+														{
+															"brick": "Alert Message",
+															"vars": {
+																"message": "This appears to be the wreckage of the spaceship which crashed, creating the scrapyard in the first place."
+															},
+															"children": [],
+															"uid": 128
+														}
+													],
+													"uid": 127
+												}
+											],
+											"uid": 126
+										}
+									],
+									"uid": 125
+								},
+								{
+									"brick": "Add Goal Level Features",
+									"vars": {
+										"LOCALE_UID": "'00000078'"
+									},
+									"children": [
+										{
+											"brick": "New Room",
+											"vars": {
+												"room_name": "Engineering Room",
+												"room": "pbge.randmaps.rooms.FuzzyRoom",
+												"anchor": "None",
+												"decor": "None",
+												"ROOM_UID": "'000000A2'"
+											},
+											"children": [
+												{
+													"brick": "New Waypoint",
+													"vars": {
+														"waypoint": "ghwaypoints.OldMainframe",
+														"waypoint_name": "Fusion Control Core",
+														"waypoint_desc": "",
+														"anchor": null,
+														"WAYPOINT_UID": "'000000A3'"
+													},
+													"children": [],
+													"uid": 178
+												}
+											],
+											"uid": 177
+										}
+									],
+									"uid": 131
+								}
+							],
+							"uid": 123
+						}
+					],
+					"uid": 122
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_SCRAPYARD_PLOT"
+					},
+					"children": [],
+					"uid": 185
+				}
+			],
+			"uid": 9
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "Shopping District",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_TRADE"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							1,
+							2
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'00000004'"
+						},
+						{
+							"end_node": "'00000008'"
+						},
+						{
+							"end_node": "'00000010'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.southeast",
+				"exploration_music": "Anthem of Rain - So My Love - Instrumental.ogg",
+				"combat_music": "Late.ogg",
+				"city_palette": [
+					"FieldGrey",
+					"BugBlue",
+					"BattleshipGrey",
+					"Twilight",
+					"Aquamarine"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'0000000B'",
+				"MISSION_GATE_UID": "'0000000C'"
+			},
+			"children": [
+				{
+					"brick": "Add Weapon Store",
+					"vars": {
+						"shop_name": "Ye Olde Bazooka",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "YeOldeShopSign",
+						"LOCALE_UID": "'00000041'",
+						"ROOM_UID": "'00000042'",
+						"NPC_UID": "'00000043'"
+					},
+					"children": [],
+					"uid": 48
+				},
+				{
+					"brick": "Add Armor Store",
+					"vars": {
+						"shop_name": "Look Like a Pirate",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "None",
+						"LOCALE_UID": "'00000045'",
+						"ROOM_UID": "'00000046'",
+						"NPC_UID": "'00000047'"
+					},
+					"children": [],
+					"uid": 51
+				},
+				{
+					"brick": "Add General Store",
+					"vars": {
+						"shop_name": "",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "None",
+						"LOCALE_UID": "'00000051'",
+						"ROOM_UID": "'00000052'",
+						"NPC_UID": "'00000053'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Trader']",
+								"npc_combatant": true,
+								"npc_faction": null,
+								"NPC_UID": "'00000079'"
+							},
+							"children": [
+								{
+									"brick": "Make Possible Lancemate",
+									"vars": {},
+									"children": [],
+									"uid": 133
+								},
+								{
+									"brick": "Add Dialogue Offer",
+									"vars": {
+										"context": "HELLO",
+										"dialogue_text": "[HELLO] I've been stuck here because of the fighting, and haven't even been able to make any money off of it.",
+										"dialogue_data": {},
+										"single_use": false,
+										"subject": "",
+										"subject_start": true,
+										"dead_end": false
+									},
+									"children": [],
+									"uid": 134
+								}
+							],
+							"uid": 132
+						}
+					],
+					"uid": 58
+				},
+				{
+					"brick": "Add Random City Residents",
+					"vars": {
+						"num_residents": 3
+					},
+					"children": [],
+					"uid": 93
+				},
+				{
+					"brick": "Add Cyberclinic",
+					"vars": {
+						"shop_name": "",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "None",
+						"LOCALE_UID": "'0000007B'",
+						"ROOM_UID": "'0000007C'",
+						"NPC_UID": "'0000007D'"
+					},
+					"children": [],
+					"uid": 137
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_SHOPPINGDISTRICT_PLOT"
+					},
+					"children": [],
+					"uid": 188
+				}
+			],
+			"uid": 10
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "Warehouse District",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_UNINHABITED",
+					"gears.tags.CITY_INDUSTRIAL"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							2,
+							7
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000C'"
+						},
+						{
+							"end_node": "'00000015'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.northeast",
+				"exploration_music": "HoliznaCC0 - Anxiety.ogg",
+				"combat_music": "HoliznaCC0 - Punk.ogg",
+				"city_palette": [
+					"LightSkin",
+					"Fuschia",
+					"DeepGrey",
+					"Twilight",
+					"Malachite"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'0000000D'",
+				"MISSION_GATE_UID": "'0000000E'"
+			},
+			"children": [
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Warehouse 4",
+						"dg_architecture": "gharchitecture.IndustrialBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_BUILDING",
+							"gears.tags.SCENE_WAREHOUSE"
+						],
+						"dg_monster_tags": [
+							"GUARD",
+							"SYNTH",
+							"ROBOT"
+						],
+						"dg_explo_music": "HoliznaCC0 - Anxiety.ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.WarehouseDecor",
+						"rank_modifier": 0,
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.IndustrialBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Warehouse 4",
+								"DOOR_CLASS": "ghwaypoints.LockedReinforcedDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 2,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'00000077'"
+					},
+					"children": [
+						{
+							"brick": "Add Dungeon Treasure",
+							"vars": {},
+							"children": [],
+							"uid": 194
+						}
+					],
+					"uid": 130
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Warehouse 13",
+						"dg_architecture": "gharchitecture.IndustrialBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_WAREHOUSE",
+							"gears.tags.SCENE_BUILDING"
+						],
+						"dg_monster_tags": [
+							"GUARD",
+							"SYNTH",
+							"ROBOT"
+						],
+						"dg_explo_music": "HoliznaCC0 - Anxiety.ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.WarehouseDecor",
+						"rank_modifier": 0,
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.IndustrialBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Warehouse 13",
+								"DOOR_CLASS": "ghwaypoints.ReinforcedDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 2,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'0000009B'"
+					},
+					"children": [
+						{
+							"brick": "Add Dungeon Treasure",
+							"vars": {},
+							"children": [],
+							"uid": 195
+						}
+					],
+					"uid": 168
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Warehouse 9",
+						"dg_architecture": "gharchitecture.IndustrialBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_BUILDING",
+							"gears.tags.SCENE_WAREHOUSE"
+						],
+						"dg_monster_tags": [
+							"GUARD",
+							"ROBOT",
+							"SYNTH"
+						],
+						"dg_explo_music": "HoliznaCC0 - Anxiety.ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.WarehouseDecor",
+						"rank_modifier": "5",
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.IndustrialBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Warehouse 9",
+								"DOOR_CLASS": "ghwaypoints.ReinforcedDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 2,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'000000AA'"
+					},
+					"children": [
+						{
+							"brick": "Add Dungeon Treasure",
+							"vars": {},
+							"children": [],
+							"uid": 196
+						}
+					],
+					"uid": 193
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Warehouse 2",
+						"dg_architecture": "gharchitecture.IndustrialBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_BUILDING",
+							"gears.tags.SCENE_WAREHOUSE"
+						],
+						"dg_monster_tags": [
+							"GUARD",
+							"ROBOT",
+							"SYNTH",
+							"HUNTER-X"
+						],
+						"dg_explo_music": "HoliznaCC0 - Anxiety.ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.WarehouseDecor",
+						"rank_modifier": "15",
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.IndustrialBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Warehouse 2",
+								"DOOR_CLASS": "ghwaypoints.ReinforcedDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 2,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'000000AC'"
+					},
+					"children": [
+						{
+							"brick": "Add Dungeon Treasure",
+							"vars": {},
+							"children": [],
+							"uid": 201
+						}
+					],
+					"uid": 200
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_WAREHOUSEDISTRICT_PLOT"
+					},
+					"children": [],
+					"uid": 189
+				}
+			],
+			"uid": 11
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "Residential District",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							5,
+							6
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000E'"
+						},
+						{
+							"end_node": "'00000013'"
+						},
+						{
+							"end_node": "'00000008'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.north",
+				"exploration_music": "Anthem of Rain - So My Love - Instrumental.ogg",
+				"combat_music": "Late.ogg",
+				"city_palette": [
+					"GothSkin",
+					"FreedomBlue",
+					"Ebony",
+					"Charcoal",
+					"PlasmaBlue"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'0000000F'",
+				"MISSION_GATE_UID": "'00000010'"
+			},
+			"children": [
+				{
+					"brick": "Add Random City Residents",
+					"vars": {
+						"num_residents": "5"
+					},
+					"children": [],
+					"uid": 94
+				},
+				{
+					"brick": "Add Tavern",
+					"vars": {
+						"tavern_name": "Contraband Coffee",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"npc_name": "",
+						"room_name": "Foyer",
+						"door_sign": "CafeSign1",
+						"LOCALE_UID": "'00000057'",
+						"ROOM_UID": "'00000058'",
+						"NPC_UID": "'00000059'"
+					},
+					"children": [
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Hacker']",
+								"npc_combatant": true,
+								"npc_faction": null,
+								"NPC_UID": "'0000007A'"
+							},
+							"children": [
+								{
+									"brick": "Make Possible Lancemate",
+									"vars": {},
+									"children": [],
+									"uid": 136
+								}
+							],
+							"uid": 135
+						}
+					],
+					"uid": 96
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Park",
+						"room": "ghrooms.BushesRoom",
+						"anchor": "None",
+						"decor": "None",
+						"ROOM_UID": "'00000068'"
+					},
+					"children": [],
+					"uid": 116
+				},
+				{
+					"brick": "Add Hospital",
+					"vars": {
+						"shop_name": "",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "None",
+						"LOCALE_UID": "'0000009C'",
+						"ROOM_UID": "'0000009D'",
+						"NPC_UID": "'0000009E'"
+					},
+					"children": [],
+					"uid": 169
+				},
+				{
+					"brick": "Add General Store",
+					"vars": {
+						"shop_name": "",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_GARAGE"
+						],
+						"door_sign": "CrossedSwordsTerrain",
+						"LOCALE_UID": "'0000009F'",
+						"ROOM_UID": "'000000A0'",
+						"NPC_UID": "'000000A1'"
+					},
+					"children": [],
+					"uid": 170
+				},
+				{
+					"brick": "Add Town Hall",
+					"vars": {
+						"hall_name": "Citizens Union",
+						"npc_name": "",
+						"npc_job": null,
+						"room_name": "Foyer",
+						"hall_faction": null,
+						"hall_architecture": "gharchitecture.DefaultBuilding",
+						"door_sign": "TownBanner",
+						"LOCALE_UID": "'000000AD'",
+						"ROOM_UID": "'000000AE'",
+						"NPC_UID": "'000000AF'"
+					},
+					"children": [],
+					"uid": 202
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_RESIDENTIAL_PLOT"
+					},
+					"children": [],
+					"uid": 190
+				}
+			],
+			"uid": 12
+		},
+		{
+			"brick": "New Beachfront Metro Scene",
+			"vars": {
+				"city_name": "The Dockyards",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_NAUTICAL",
+					"gears.tags.CITY_TRANSPORT_HUB"
+				],
+				"room_name": "The Beach",
+				"entrance_name": "To The Docks",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							7,
+							5
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'00000006'"
+						},
+						{
+							"end_node": "'00000015'"
+						}
+					]
+				},
+				"exploration_music": "Anthem of Rain - Adaptation (Instrumental).ogg",
+				"combat_music": "HoliznaCC0 - Punk.ogg",
+				"city_palette": [
+					"Burlywood",
+					"FreedomBlue",
+					"LunarGrey",
+					"Cobalt",
+					"OrangeRed"
+				],
+				"city_terrain": "ghterrain.GreenZoneGrass",
+				"beach_terrain": "ghterrain.Sand",
+				"water_terrain": "ghterrain.Water",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000011'",
+				"ROOM_UID": "'00000012'",
+				"MISSION_GATE_UID": "'00000013'"
+			},
+			"children": [
+				{
+					"brick": "Add Garage",
+					"vars": {
+						"shop_name": "Search & Rescue HQ",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_HOSPITAL"
+						],
+						"door_sign": "RustyFixitShopSign",
+						"LOCALE_UID": "'00000083'",
+						"ROOM_UID": "'00000084'",
+						"NPC_UID": "'00000085'"
+					},
+					"children": [
+						{
+							"brick": "New Room",
+							"vars": {
+								"room_name": "Clinic",
+								"room": "pbge.randmaps.rooms.ClosedRoom",
+								"anchor": "None",
+								"decor": "gharchitecture.BunkerDecor",
+								"ROOM_UID": "'00000086'"
+							},
+							"children": [
+								{
+									"brick": "New Random NPC",
+									"vars": {
+										"npc_name": "",
+										"npc_job": "gears.jobs.ALL_JOBS['Paramedic']",
+										"npc_combatant": false,
+										"npc_faction": null,
+										"NPC_UID": "'00000087'"
+									},
+									"children": [],
+									"uid": 144
+								},
+								{
+									"brick": "New Waypoint",
+									"vars": {
+										"waypoint": "ghwaypoints.RecoveryBed",
+										"waypoint_name": "",
+										"waypoint_desc": "",
+										"anchor": "pbge.randmaps.anchors.middle",
+										"WAYPOINT_UID": "'00000088'"
+									},
+									"children": [],
+									"uid": 145
+								}
+							],
+							"uid": 143
+						},
+						{
+							"brick": "New Random NPC",
+							"vars": {
+								"npc_name": "",
+								"npc_job": "gears.jobs.ALL_JOBS['Firefighter']",
+								"npc_combatant": true,
+								"npc_faction": null,
+								"NPC_UID": "'00000089'"
+							},
+							"children": [],
+							"uid": 147
+						}
+					],
+					"uid": 142
+				},
+				{
+					"brick": "Add Empty Building",
+					"vars": {
+						"interior_name": "The House of Blades",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC",
+							"gears.tags.SCENE_GARAGE",
+							"gears.tags.SCENE_SHOP"
+						],
+						"room_name": "Foyer",
+						"interior_faction": "gears.factions.BladesOfCrihna",
+						"door_sign": "BladesOfCrihnaSign",
+						"door_type": "ghwaypoints.ScrapIronDoor",
+						"exterior_terrset": "ghterrain.ScrapIronBuilding",
+						"interior_architecture": "gharchitecture.FortressBuilding",
+						"interior_decor": "gharchitecture.FactoryDecor",
+						"LOCALE_UID": "'000000A7'",
+						"ROOM_UID": "'000000A8'"
+					},
+					"children": [],
+					"uid": 180
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Warehouse 45",
+						"dg_architecture": "gharchitecture.IndustrialBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_WAREHOUSE",
+							"gears.tags.SCENE_BUILDING"
+						],
+						"dg_monster_tags": [
+							"GUARD",
+							"SYNTH",
+							"ROBOT",
+							"WATER"
+						],
+						"dg_explo_music": "HoliznaCC0 - Anxiety.ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.WarehouseDecor",
+						"rank_modifier": "5",
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.IndustrialBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Warehouse 45",
+								"DOOR_CLASS": "ghwaypoints.ReinforcedDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 2,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'000000A9'"
+					},
+					"children": [
+						{
+							"brick": "Add Dungeon Treasure",
+							"vars": {},
+							"children": [],
+							"uid": 197
+						}
+					],
+					"uid": 192
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_DOCKYARDS_PLOT"
+					},
+					"children": [],
+					"uid": 181
+				}
+			],
+			"uid": 13
+		},
+		{
+			"brick": "New Metro Scene",
+			"vars": {
+				"city_name": "The Spaceport",
+				"city_faction": null,
+				"city_attributes": [
+					"gears.tags.SCENE_OUTDOORS",
+					"gears.tags.City",
+					"personality.GreenZone",
+					"gears.tags.SCENE_PUBLIC",
+					"gears.tags.CITY_TRANSPORT_HUB"
+				],
+				"scene_generator": "pbge.randmaps.CityGridGenerator",
+				"scene_architecture": "gharchitecture.HumanScaleGreenzone",
+				"entrance_name": "Exit",
+				"entrance_desc": "Where do you want to go?",
+				"entrance_world_map": "'WORLDMAP_6'",
+				"entrance_world_map_data": {
+					"node": {
+						"pos": [
+							4,
+							4
+						]
+					},
+					"edges": [
+						{
+							"end_node": "'0000000A'"
+						}
+					]
+				},
+				"entrance_anchor": "pbge.randmaps.anchors.south",
+				"exploration_music": "HoliznaCC0 - Lost In Space.ogg",
+				"combat_music": "HoliznaCC0 - Punk.ogg",
+				"city_palette": [
+					"White",
+					"KettelPurple",
+					"DeepGrey",
+					"Black",
+					"Celadon"
+				],
+				"floor_terrain": "ghterrain.GreenZoneGrass",
+				"road_terrain": "ghterrain.GravelFloor",
+				"allow_random_plots": true,
+				"LOCALE_UID": "'00000014'",
+				"MISSION_GATE_UID": "'00000015'"
+			},
+			"children": [
+				{
+					"brick": "Add Tavern",
+					"vars": {
+						"tavern_name": "Fafnir Pub",
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"npc_name": "",
+						"room_name": "Foyer",
+						"door_sign": "DragonSign",
+						"LOCALE_UID": "'00000038'",
+						"ROOM_UID": "'00000039'",
+						"NPC_UID": "'0000003A'"
+					},
+					"children": [],
+					"uid": 44
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Guards Room",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": "None",
+						"decor": "None",
+						"ROOM_UID": "'0000005A'"
+					},
+					"children": [
+						{
+							"brick": "Monster Encounter",
+							"vars": {
+								"monster_type": [
+									"GUARD",
+									"CITY",
+									"ROBOT"
+								]
+							},
+							"children": [],
+							"uid": 98
+						}
+					],
+					"uid": 97
+				},
+				{
+					"brick": "New Room",
+					"vars": {
+						"room_name": "Guards Room 2",
+						"room": "pbge.randmaps.rooms.FuzzyRoom",
+						"anchor": "None",
+						"decor": "None",
+						"ROOM_UID": "'0000005B'"
+					},
+					"children": [
+						{
+							"brick": "Monster Encounter",
+							"vars": {
+								"monster_type": [
+									"GUARD",
+									"CITY",
+									"ROBOT"
+								]
+							},
+							"children": [],
+							"uid": 100
+						}
+					],
+					"uid": 99
+				},
+				{
+					"brick": "Add Black Market",
+					"vars": {
+						"shop_name": "Gifts from Away",
+						"npc_name": "",
+						"room_name": "Foyer",
+						"shop_faction": null,
+						"interior_tags": [
+							"gears.tags.SCENE_PUBLIC"
+						],
+						"door_sign": "None",
+						"LOCALE_UID": "'0000005C'",
+						"ROOM_UID": "'0000005D'",
+						"NPC_UID": "'0000005E'"
+					},
+					"children": [],
+					"uid": 101
+				},
+				{
+					"brick": "New Singular Dungeon Level",
+					"vars": {
+						"dg_name": "Warehouse 24",
+						"dg_architecture": "gharchitecture.IndustrialBuilding",
+						"dg_scene_tags": [
+							"gears.tags.SCENE_DUNGEON",
+							"gears.tags.SCENE_BUILDING",
+							"gears.tags.SCENE_WAREHOUSE"
+						],
+						"dg_monster_tags": [
+							"CITY",
+							"AIR",
+							"SYNTH",
+							"ROBOT",
+							"VERMIN"
+						],
+						"dg_explo_music": "HoliznaCC0 - Anxiety.ogg",
+						"dg_combat_music": "HoliznaCC0 - Punk.ogg",
+						"dg_decor": "gharchitecture.WarehouseDecor",
+						"rank_modifier": "10",
+						"scene_connection": [
+							{
+								"GATE_TYPE": 1,
+								"ROOM_STYLE": "ghterrain.IndustrialBuilding",
+								"ANCHOR": "None",
+								"DOOR_NAME": "Warehouse 24",
+								"DOOR_CLASS": "ghwaypoints.ReinforcedDoor",
+								"DOOR_SIGN": "None"
+							},
+							{
+								"GATE_TYPE": 2,
+								"ROOM_STYLE": "pbge.randmaps.rooms.OpenRoom",
+								"ANCHOR": "pbge.randmaps.anchors.south",
+								"DOOR_NAME": "Exit",
+								"DOOR_CLASS": "ghwaypoints.Exit",
+								"DOOR_SIGN": "None"
+							}
+						],
+						"LOCALE_UID": "'000000AB'"
+					},
+					"children": [
+						{
+							"brick": "Add Dungeon Treasure",
+							"vars": {},
+							"children": [],
+							"uid": 199
+						}
+					],
+					"uid": 198
+				},
+				{
+					"brick": "Add Custom Local Subplot",
+					"vars": {
+						"subplot_name": "ROPP_SPACEPORT_PLOT"
+					},
+					"children": [],
+					"uid": 191
+				}
+			],
+			"uid": 14
+		},
+		{
+			"brick": "Add Custom Subplot",
+			"vars": {
+				"subplot_name": "ROPP_WAR_STARTER"
+			},
+			"children": [],
+			"uid": 138
+		}
+	],
+	"uid": 1,
+	"max_uid": 204,
+	"max_element_uid": 175
+}
