@@ -59,6 +59,8 @@ class Shop(object):
             return False
         elif hasattr(item, "faction_list") and "ReallyNone" in item.faction_list:
             return False
+        elif not myfaction:
+            return None in item.faction_list
         elif myfaction and hasattr(item, "faction_list"):
             if (myfaction.get_faction_tag() in item.faction_list) or (None in item.faction_list):
                 return True

@@ -1999,7 +1999,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[GOOD_JOB]": {
-        Default: ["[GOOD]", "Good job!"
+        Default: ["[GOOD]", "Good job!", 
                   ],
         personality.Cheerful: ["Good going, [audience]!",
                                ],
@@ -2013,6 +2013,9 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Good work.",
                           ],
+        personality.Duty: [
+            "Well done.",
+        ]
     },
 
     "[GOODLUCK]": {

@@ -56,7 +56,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         myroom.contents.append(ghwaypoints.VentFan())
 
         #myroom.contents.append(game.content.ghwaypoints.FusionCore())
-
+        
         npc = self.register_element("SHERIFF",
                             gears.selector.random_character(45, local_tags=self.elements["LOCALE"].attributes,
                                                             job=gears.jobs.ALL_JOBS["Sheriff"]))

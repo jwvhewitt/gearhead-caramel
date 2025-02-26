@@ -1,3 +1,4 @@
+* Fixed problems with factionless shops
 * Fixed bug with text editor widget
 * Added more quests to Raid on Pirate's Point
 * Columns decor should not overwrite waypoint terrain
