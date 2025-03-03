@@ -15,6 +15,7 @@ from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
 
+ROPPCD_DEFECTION = "ROPPCD_DEFECTION"
 
 class ROPP_WarStarter(Plot):
     LABEL = "ROPP_WAR_STARTER"
@@ -51,6 +52,7 @@ class ROPP_WarStarter(Plot):
         sp = self.add_sub_plot(nart, "WORLD_MAP_WAR", ident="ROPPWAR")
         self.world_map_war = self.register_element("WORLD_MAP_WAR", sp.world_map_war)
         nart.camp.campdata["WORLD_MAP_WAR"] = self.world_map_war
+        nart.camp.campdata[ROPPCD_DEFECTION] = 0
 
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
             self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'])
@@ -142,7 +144,9 @@ class SolarNavyJoinerPlot(Plot):
         return True
 
     def NPC_SCENE_ENTER(self, camp):
-        if not self.did_cutscene:
+        if self.elements["WORLD_MAP_WAR"].player_team:
+            self.did_cutscene = True
+        elif not self.did_cutscene:
             charla = self.elements["NPC_CHARLA"]
             pinsent = self.elements["NPC_PINSENT"]
             britaine = self.elements["NPC_BRITAINE"]
@@ -165,15 +169,41 @@ class SolarNavyJoinerPlot(Plot):
                 ContextTag([context.CUSTOM]), effect=self._join_team,
                 data={"reply": "I want to help the Solar Navy."}
             ))
+        elif self.elements["WORLD_MAP_WAR"].player_team is not gears.factions.TheSolarNavy and camp.campdata[ROPPCD_DEFECTION] == 0:
+            mylist.append(Offer(
+                "[ARE_YOU_SURE_YOU_WANT_TO] Once you switch alleigance to the Solar Navy, you will not be able to change sides again.",
+                ContextTag([context.UNFAVORABLE_CUSTOM]), 
+                data={"reply": "I want to defect to the Solar Navy."}, subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "Very well... welcome to the Solar Navy.",
+                ContextTag([context.CUSTOMREPLY]), effect=self._defect_to_team,
+                data={"reply": "Yes, I have made my decision."}, subject=self,
+            ))
+
+            mylist.append(Offer(
+                "A wise choice. [GOODBYE]",
+                ContextTag([context.CUSTOMREPLY]),
+                data={"reply": "I need to think about this some more."}, subject=self,
+            ))
+
 
         return mylist
+
+    def _defect_to_team(self, camp):
+        self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TheSolarNavy)
+        self.RUMOR = None
+        self.memo = None
+        camp.pc.add_badge(gears.meritbadges.BADGE_TURNCOAT)
+        camp.campdata[ROPPCD_DEFECTION] = 1
+        
 
     def _join_team(self, camp):
         self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TheSolarNavy)
         self.RUMOR = None
         self.memo = None
-        camp.credits += self.signing_bonus
-        pbge.BasicNotification("You receive ${:,}.".format(self.signing_bonus))
+        plotutility.CashRewardWithNotification(camp, self.signing_bonus)
 
 
 class TreasureHuntersJoinerPlot(Plot):
@@ -214,7 +244,9 @@ class TreasureHuntersJoinerPlot(Plot):
         return mylist
 
     def NPC_SCENE_ENTER(self, camp):
-        if not self.did_cutscene:
+        if self.elements["WORLD_MAP_WAR"].player_team:
+            self.did_cutscene = True
+        elif not self.did_cutscene:
             bogo = self.elements["NPC_BOGO"]
             mayor = self.elements["NPC_MAYOR"]
             pbge.alert("As you enter the hall, a heated discussion is going on between the rulers of Pirate's Point.")
@@ -286,7 +318,9 @@ class AegisJoinerPlot(Plot):
         self.can_try_to_join = False
 
     def NPC_SCENE_ENTER(self, camp):
-        if not self.did_cutscene:
+        if self.elements["WORLD_MAP_WAR"].player_team:
+            self.did_cutscene = True
+        elif not self.did_cutscene:
             diplomat = self.elements["NPC_AEGIS"]
             pbge.alert("All is silent as you enter the Aegis Consulate. The staff in the front office are hard at work, completing their tasks with tireless efficiency.")
             pbge.alert("One diplomat, obviously a {NPC_AEGIS.gender.noun} of great authority, turns to face you. You feel like {NPC_AEGIS.gender.possessive_determiner} eyes are staring directly into your soul.".format(**self.elements))

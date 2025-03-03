@@ -316,10 +316,11 @@ class WorldMapWar:
             self.consolidation_scene = None
 
     def set_player_team(self, camp: gears.GearHeadCampaign, team):
+        if self.player_team and camp.are_faction_enemies(self.player_team, team):
+            camp.faction_relations[self.player_team].pc_relation = gears.factions.FactionRelations.ENEMY
         if team in self.war_teams:
             self.player_team = team
             camp.faction_relations[team].pc_relation = gears.factions.FactionRelations.ALLY
-
 
 
 class WorldMapWarTurn:

@@ -556,9 +556,51 @@ class SpaceportScramble(Plot):
     scope = "METRO"
     active = True
 
+    RUMOR = Rumor(
+        "the spaceport has been placed on lockdown, meaning we're all locked down too",
+        offer_msg="Surely you noticed the guardbots outside? When the fighting started they set the security system to red alert. Those of us who couldn't get out in time are hunkering down here until it's safe.",
+        offer_subject="the spaceport has been placed on lockdown",
+        offer_subject_data="the spaceport",
+        memo="The spaceport has been placed on lockdown. Until the system is deactivated, it won't be safe to travel in this district.",
+        memo_location="LOCALE",
+    )
+
     def custom_init(self, nart):
+        self.elements["DUNGEON"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000B7']
+        self.elements["GOAL_LEVEL"] = self.elements["DUNGEON"].goal_level
+
+        _ = self.register_element("_room", pbge.randmaps.rooms.OpenRoom(9,9), dident="GOAL_LEVEL")
+        _ = self.register_element("COMPY", ghwaypoints.OldTerminal(
+            name="Security Computer", 
+            desc="This computer handles the automated security system for the spaceport.", 
+            plot_locked=True
+        ), dident="_room")
+
+        self.elements["SHOPKEEPER"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000005E']
+        self.elements["BLACKMARKET"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000005C']
+
+        self.hid_the_shopkeeper = False
 
         return True
+
+    def t_UPDATE(self, camp: gears.GearHeadCampaign):
+        if not self.hid_the_shopkeeper:
+            camp.freeze(self.elements["SHOPKEEPER"])
+            self.hid_the_shopkeeper = True
+
+    def BLACKMARKET_ENTER(self, camp):
+        _ = pbge.alert("This shop appears to be deserted.")
+
+    def COMPY_menu(self, camp, thingmenu):
+        thingmenu.desc += " Currently the entire spaceport and its surrounding district are highlighted in red."
+        thingmenu.add_item("Deactivate the security system.", self._deactivate_security)
+        thingmenu.add_item("Leave it alone.", None)
+
+    def _deactivate_security(self, camp):
+        _ = pbge.alert("You shut down the security alert for the spaceport district. The spaceport buildings themselves remain highlighted in red.")
+        self.elements["SHOPKEEPER"].place(self.elements["BLACKMARKET"])
+        camp.campdata[ROPPCD_HERO_POINTS] += 1
+        self.end_plot(camp, True)
 
 
 # ****************************

@@ -1,3 +1,4 @@
+* If changing team in world map war, player may become enemy of previous faction
 * Fixed problems with factionless shops
 * Fixed bug with text editor widget
 * Added more quests to Raid on Pirate's Point

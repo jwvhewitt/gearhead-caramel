@@ -124,6 +124,9 @@ MUSIC
 * This One is Tough by Komiku, Public Domain
 * Way Of The Samurai by HoliznaCC0, Public Domain
 * "Shiny Tech" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
+* MachinimaSound.com_-_Streets_of_the_Unknown by MachinimaSound, CC-BY 4.0
+* "Local Forecast - Elevator" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
+* "yoitrax - Warrior.ogg" by Yoitrax, released under Creative Commons Attribution 3.0 Unported (CC BY 3.0)
 
 NON-CC MUSIC
 ============

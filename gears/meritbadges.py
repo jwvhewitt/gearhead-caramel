@@ -1,6 +1,6 @@
 # A merit badge is a tag that the PC receives recording some achievement or life experience.
 # Usually these badges give bonuses to reaction score; some might have other effects.
-from gears import tags
+from gears import tags, personality
 
 
 class TagReactionBadge(object):
@@ -83,3 +83,5 @@ BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and an
 BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10}, tags=(tags.Media,))
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10}, tags=(tags.Military,))
 BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,))
+
+BADGE_TURNCOAT = TagReactionBadge("Turncoat", "You have shown willingness to renege on a contract.", remods={personality.Duty: -10, tags.Adventurer: -10, tags.Military: -10}, tags={personality.Irresponsible})

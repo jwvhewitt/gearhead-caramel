@@ -255,6 +255,10 @@ SINGULAR_TYPES = {
         "ghwaypoints.WoodenDoor", "ghwaypoints.Trapdoor", "ghwaypoints.StairsUp", "ghwaypoints.StairsDown",
         "ghwaypoints.StoneStairsUp", "ghwaypoints.UndergroundEntrance", "ghwaypoints.ReinforcedDoor",
         "ghwaypoints.LockedReinforcedDoor"
+    ),
+    "connection_type": (
+        "plotutility.SceneConnection", "plotutility.StairsDownToStairsUpConnector", 
+        "plotutility.TrapdoorToStairsUpConnector", "plotutility.StairsUpToStairsDownConnector"
     )
 
 }

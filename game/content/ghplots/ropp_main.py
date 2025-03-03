@@ -1034,6 +1034,7 @@ class ropp_Scenario(Plot):
             parent_scene=the_world['0000006F'],
             explo_music='HoliznaCC0 - SomeWhere In The Dark.ogg',
             combat_music='Komiku_-_09_-_This_one_is_tough.ogg',
+            connector=plotutility.StairsDownToStairsUpConnector,
             decor=gharchitecture.TechDungeonDecor())
         the_world['00000071'] = mydungeon
         scutils.SCSceneConnection(
@@ -1885,6 +1886,38 @@ class ropp_Scenario(Plot):
                                                anchor=None),
             door1=ghwaypoints.ReinforcedDoor(
                 name='Warehouse 24', anchor=pbge.randmaps.anchors.middle),
+            room2=pbge.randmaps.rooms.OpenRoom(
+                anchor=pbge.randmaps.anchors.south),
+            door2=ghwaypoints.Exit(name='Exit',
+                                   anchor=pbge.randmaps.anchors.south))
+        mydungeon = dungeonmaker.DungeonMaker(
+            nart,
+            self,
+            name='Terminal One',
+            architecture=gharchitecture.CoolColorsWallArchitecture(),
+            rank=self.rank,
+            scene_tags=[
+                gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+                gears.tags.SCENE_TRANSPORT
+            ],
+            monster_tags=['AIR', 'CITY', 'ROBOT', 'VERMIN', 'GUARD'],
+            parent_scene=the_world['00000014'],
+            explo_music='Local Forecast - Elevator.ogg',
+            combat_music='MachinimaSound.com_-_Streets_of_the_Unknown.ogg',
+            connector=plotutility.StairsUpToStairsDownConnector,
+            decor=None)
+        the_world['000000B7'] = mydungeon
+        scutils.SCSceneConnection(
+            the_world['00000014'],
+            mydungeon.entry_level,
+            room1=ghterrain.CommercialBuilding(tags=[
+                pbge.randmaps.CITY_GRID_ROAD_OVERLAP,
+                pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM
+            ],
+                                               door_sign=None,
+                                               anchor=None),
+            door1=ghwaypoints.GlassDoor(name='Terminal One',
+                                        anchor=pbge.randmaps.anchors.middle),
             room2=pbge.randmaps.rooms.OpenRoom(
                 anchor=pbge.randmaps.anchors.south),
             door2=ghwaypoints.Exit(name='Exit',
@@ -5347,6 +5380,11 @@ class City_ropp_14(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'DUNGEON_ropp_220',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         self.add_sub_plot(nart, 'ROPP_SPACEPORT_PLOT')
         self.add_sub_plot(nart,
                           'CF_METROSCENE_RECOVERY_HANDLER',
@@ -5407,8 +5445,8 @@ class Room_ropp_97(Plot):
         #: plot_actions
 
         self.add_sub_plot(nart,
-                          "MONSTER_ENCOUNTER",
-                          elements=dict(TYPE_TAGS=['GUARD', 'CITY', 'ROBOT']))
+                          "ONE_SHOT_MONSTER_ENCOUNTER",
+                          elements=dict(TYPE_TAGS=['GUARD', 'ROBOT']))
         return True
 
 
@@ -5427,8 +5465,8 @@ class Room_ropp_99(Plot):
         #: plot_actions
 
         self.add_sub_plot(nart,
-                          "MONSTER_ENCOUNTER",
-                          elements=dict(TYPE_TAGS=['GUARD', 'CITY', 'ROBOT']))
+                          "ONE_SHOT_MONSTER_ENCOUNTER",
+                          elements=dict(TYPE_TAGS=['CITY', 'GUARD', 'ROBOT']))
         return True
 
 
@@ -5487,6 +5525,33 @@ class DungeonLevel_ropp_198(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        return True
+
+
+    #: plot_methods
+class Dungeon_ropp_220(Plot):
+    LABEL = "DUNGEON_ropp_220"
+    active = True
+    scope = "METRO"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['DUNGEON'] = nart.camp.campdata[THE_WORLD]['000000B7']
+        element_alias_list = []
+
+        self.elements[dungeonmaker.DG_ARCHITECTURE] = nart.get_map_generator(
+            self.elements["LOCALE"]).archi
+        self.elements[dungeonmaker.DG_NAME] = 'Terminal One'
+        self.elements[dungeonmaker.DG_SCENE_TAGS] = [
+            gears.tags.SCENE_DUNGEON, gears.tags.SCENE_BUILDING,
+            gears.tags.SCENE_TRANSPORT
+        ]
+        self.elements[dungeonmaker.DG_MONSTER_TAGS] = [
+            'AIR', 'CITY', 'ROBOT', 'VERMIN', 'GUARD'
+        ]
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
         return True
 
     #: plot_methods

@@ -146,6 +146,7 @@ scutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], splot.elements["LOCALE"
       "dg_explo_music": {"default_val":  "Good Night.ogg", "var_type": "music"},
       "dg_combat_music": {"default_val":  "Apex.ogg", "var_type": "music"},
       "dg_decor": {"default_val": "None", "var_type": "interior_decor"},
+      "interior_connector": {"default_val": "plotutility.StairsDownToStairsUpConnector", "var_type": "connection_type"},
       "scene_connection": {"default_val": null, "var_type": "scene_connection"}
     },
     "child_types": ["DUNGEON_FEATURE"],
@@ -153,7 +154,7 @@ scutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], splot.elements["LOCALE"
       "DUNGEON": {"e_type": "dungeon", "name": "{dg_name}"}
     },
     "physicals": [
-        {"element_key": "DUNGEON", "parent": "PARENT_SCENE", "variable_keys": ["dg_name", "dg_architecture", "dg_scene_tags", "dg_monster_tags", "dg_explo_music", "dg_combat_music", "dg_decor", "scene_connection"], "child_types": ["DUNGEON_FEATURE"]}
+        {"element_key": "DUNGEON", "parent": "PARENT_SCENE", "variable_keys": ["dg_name", "dg_architecture", "dg_scene_tags", "dg_monster_tags", "dg_explo_music", "dg_combat_music", "dg_decor", "interior_connector", "scene_connection"], "child_types": ["DUNGEON_FEATURE"]}
     ]
 
 *SCRIPT plot_subplots
@@ -181,7 +182,7 @@ class Dungeon_{unique_id}_{_uid}( Plot ):
     #: plot_methods
 
 *SCRIPT scenario_build
-mydungeon = dungeonmaker.DungeonMaker(nart, self, name={dg_name}, architecture={dg_architecture}(), rank=self.rank, scene_tags={dg_scene_tags}, monster_tags={dg_monster_tags}, parent_scene=the_world[{PARENT_SCENE_UID}], explo_music={dg_explo_music}, combat_music={dg_combat_music}, decor={dg_decor})
+mydungeon = dungeonmaker.DungeonMaker(nart, self, name={dg_name}, architecture={dg_architecture}(), rank=self.rank, scene_tags={dg_scene_tags}, monster_tags={dg_monster_tags}, parent_scene=the_world[{PARENT_SCENE_UID}], explo_music={dg_explo_music}, combat_music={dg_combat_music}, connector={interior_connector}, decor={dg_decor})
 +add_physical DUNGEON mydungeon
 scutils.SCSceneConnection(the_world[{PARENT_SCENE_UID}], mydungeon.entry_level, {scene_connection})
 
