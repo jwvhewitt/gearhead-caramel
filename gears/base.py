@@ -4852,6 +4852,17 @@ class Character(Being):
     def add_badge(self, new_badge):
         meritbadges.add_badge(self.badges, new_badge)
 
+    def remove_badge(self, old_badge):
+        badge_name = str(old_badge)
+        for b in list(self.badges):
+            if b.name == badge_name:
+                self.badges.remove(b)
+
+    def remove_badges_with_tag(self, badge_tag):
+        for b in list(self.badges):
+            if badge_tag in b.tags:
+                self.badges.remove(b)
+
 
 class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame', 'action_points')

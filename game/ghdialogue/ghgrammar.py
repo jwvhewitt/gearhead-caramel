@@ -233,6 +233,23 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[ARE_YOU_SURE_YOU_WANT_TO]": {
+        Default: ["Are you certain?", "Are you sure you want to do that?"
+                  ],
+        personality.Cheerful: ["Hold on; you better make sure you're truly happy with this choice."
+                               ],
+        personality.Grim: ["Be careful; once you commit to this action, there is no backing out.",
+                           ],
+        personality.Easygoing: ["Doesn't that seem a little bit extreme to you?"
+                                ],
+        personality.Passionate: ["You are walking a dangerous path.",
+                                 ],
+        personality.Sociable: ["Have you consulted with others to see how your decision will affect them?",
+                               ],
+        personality.Shy: ["Seriously?",
+                          ],
+    },
+
     "[ARE_YOU_WILLING_TO_BET_YOUR_LIFE_ON_THAT]": {
         Default: ["Are you willing to bet your life on that?"
                   ],

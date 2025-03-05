@@ -322,6 +322,16 @@ class WorldMapWar:
             self.player_team = team
             camp.faction_relations[team].pc_relation = gears.factions.FactionRelations.ALLY
 
+    def faction_is_active(self, fac):
+        return fac in self.war_teams
+
+    def pick_a_winner(self):
+        # Choose a winner, or the team most likely to win.
+        my_teams = list(self.war_teams.keys())
+        random.shuffle(my_teams)
+        my_teams.sort(key=lambda a: (self.get_number_of_territories(a), self.get_attack_strength(a)))
+        return my_teams[-1]
+
 
 class WorldMapWarTurn:
     DEFENDER_POSITIONS = [(-6, -16), (6, -16), (-12, -8), (-4, -8), (4, -8), (12, -8),

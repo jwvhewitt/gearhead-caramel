@@ -54,6 +54,7 @@ def load_dynamic_plot(camp: gears.GearHeadCampaign, adv_type, pstate):
     nart = GHNarrativeRequest(camp,pstate,adv_type,PLOT_LIST)
     if nart.story:
         nart.build()
+        camp.check_trigger("UPDATE")
         return nart.story
 
 

@@ -1,6 +1,7 @@
 # Utility plots for Raid on Pirate's Point, since I am still working on the scenario editor.
 
 import random
+from typing import override
 from game import content, services, teams, ghdialogue
 import gears
 import pbge
@@ -8,7 +9,7 @@ from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints,
     ghchallenges, ghrooms
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
-from pbge.plots import Plot, Rumor, PlotState
+from pbge.plots import Plot, Rumor, PlotState, Adventure
 from pbge.memos import Memo
 from . import missionbuilder, rwme_objectives, campfeatures, worldmapwar, wmw_occupation
 from pbge.challenges import Challenge, AutoOffer
@@ -16,6 +17,8 @@ from .shops_plus import get_building
 import collections
 
 ROPPCD_DEFECTION = "ROPPCD_DEFECTION"
+# War status passed to the resolution plot.
+E_WAR_STATUS = "E_WAR_STATUS"
 
 class ROPP_WarStarter(Plot):
     LABEL = "ROPP_WAR_STARTER"
@@ -84,14 +87,12 @@ class ROPP_WarStarter(Plot):
         wardict[gears.factions.AegisOverlord].occtype = wmw_occupation.WMWO_IRON_FIST
 
     def ROPPWAR_WIN(self, camp: gears.GearHeadCampaign):
-        pbge.alert("Congratulations, you have won the war! Thank you for playing the early access version of Raid on Pirate's Point.")
-        pbge.alert("Later on there will be different endings and more options, but for now I just want to get a new release out the door. Please let me know if you found any problems.")
-        camp.eject()
+        pstate = PlotState(adv=Adventure("Resolution"), elements={E_WAR_STATUS: worldmapwar.WorldMapWar.WAR_WON}).based_on(self)
+        _ = content.load_dynamic_plot(camp, "ROPP_RESOLUTION", pstate)
 
     def ROPPWAR_LOSE(self, camp: gears.GearHeadCampaign):
-        pbge.alert("Your side in the war has been defeated. Thank you for playing the early access version of Raid on Pirate's Point.")
-        pbge.alert("Later on there will be different endings and more options, but for now I just want to get a new release out the door. Please let me know if you found any problems.")
-        camp.eject()
+        pstate = PlotState(adv=Adventure("Resolution"), elements={E_WAR_STATUS: worldmapwar.WorldMapWar.WAR_LOST}).based_on(self)
+        _ = content.load_dynamic_plot(camp, "ROPP_RESOLUTION", pstate)
 
     def _seek_charla(self, nart, candidate):
         return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "Admiral Charla"
@@ -106,11 +107,13 @@ class ROPP_WarStarter(Plot):
         return isinstance(candidate, gears.base.Character) and candidate.mnpcid == "Jjang Bogo"
 
     def _seek_aegis(self, nart, candidate):
-        return (isinstance(candidate, gears.base.Character) and candidate.job.name == "Diplomat" and
+        return (isinstance(candidate, gears.base.Character) and candidate.job and candidate.job.name == "Diplomat" and
                 candidate.faction is gears.factions.AegisOverlord)
 
     def COMPY_menu(self, camp, thingmenu):
         thingmenu.add_item("Start the next round", self.start_war_round)
+        thingmenu.add_item("ZZWin the war", self.ROPPWAR_WIN)
+        thingmenu.add_item("ZZLose the war", self.ROPPWAR_LOSE)
 
     def start_war_round(self, camp):
         myround = worldmapwar.WorldMapWarRound(self.world_map_war, camp)
@@ -160,6 +163,44 @@ class SolarNavyJoinerPlot(Plot):
             pbge.alert("The three leaders stop talking when they notice that you have entered the vehicle.")
             self.did_cutscene = True
 
+    def NPC_PINSENT_offers(self, camp):
+        mylist = list()
+        if self.elements["WORLD_MAP_WAR"].player_team is gears.factions.TheSolarNavy:
+            mylist.append(
+                Offer(
+                    "We are here to get rid of the Aegis Consulate, but the rulers of Pirate's Point aren't going to be happy about us barging in, so we'll probably have to fight them as well.",
+                    context=ContextTag(["INFO"]),
+                    data={'subject': 'fighting the war'},
+                    subject='',
+                    no_repeats=True,))
+
+            mylist.append(
+                Offer(
+                    "Your job will be to capture territories one at a time. You can only attack from a territory we already control. Once a faction's home base has been captured, that faction will be eliminated. The Aegis Consulate is due south from here, along the coastline.",
+                    context=ContextTag(["CUSTOM"]),
+                    data={'reply': 'So how do we proceed?'},
+                    subject='get rid of the Aegis Consulate',
+                    subject_start=False,
+                    no_repeats=True,))
+
+            mylist.append(
+                Offer(
+                    "That thing I said about capturing a home base? It also applies to us. During the operation, you have to make sure that enemy troops don't get too close to the Solar Navy camp. If this base is captured, we'll have no choice but to abort the operation.",
+                    context=ContextTag(["CUSTOMREPLY"]),
+                    data={'reply': 'Is there anything else I need to know?'},
+                    subject='The Aegis Consulate is due south from here',
+                    subject_start=False,
+                    no_repeats=True,
+                    dead_end=True))
+        else:
+            mylist.append(Offer(
+                "Admiral Charla is in command of this operation; you should direct all inquiries to her.",
+                context=ContextTag([context.HELLO])
+            ))
+
+        return mylist
+
+
     def NPC_CHARLA_offers(self, camp):
         mylist = list()
 
@@ -169,10 +210,22 @@ class SolarNavyJoinerPlot(Plot):
                 ContextTag([context.CUSTOM]), effect=self._join_team,
                 data={"reply": "I want to help the Solar Navy."}
             ))
-        elif self.elements["WORLD_MAP_WAR"].player_team is not gears.factions.TheSolarNavy and camp.campdata[ROPPCD_DEFECTION] == 0:
+
+            mylist.append(Offer(
+                "All cavaliers ready to defend the Earth are welcome on our team. Here is a signing bonus of ${:,}; you can use it to get some equipment from the supply depot. General Pinsent can fill you in on how the ground operations are proceeding.".format(self.signing_bonus),
+                ContextTag([context.UNFAVORABLE_CUSTOM]), effect=self._unfav_join_team,
+                data={"reply": "I want to help the Solar Navy."}
+            ))
+        elif self.elements["WORLD_MAP_WAR"].player_team is not gears.factions.TheSolarNavy and camp.campdata[ROPPCD_DEFECTION] == 0 and self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.TheSolarNavy):
             mylist.append(Offer(
                 "[ARE_YOU_SURE_YOU_WANT_TO] Once you switch alleigance to the Solar Navy, you will not be able to change sides again.",
                 ContextTag([context.UNFAVORABLE_CUSTOM]), 
+                data={"reply": "I want to defect to the Solar Navy."}, subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[ARE_YOU_SURE_YOU_WANT_TO] Once you switch alleigance to the Solar Navy, you will not be able to change sides again.",
+                ContextTag([context.CUSTOM]), 
                 data={"reply": "I want to defect to the Solar Navy."}, subject=self, subject_start=True
             ))
 
@@ -188,16 +241,22 @@ class SolarNavyJoinerPlot(Plot):
                 data={"reply": "I need to think about this some more."}, subject=self,
             ))
 
-
         return mylist
 
     def _defect_to_team(self, camp):
+        original_team = self.elements["WORLD_MAP_WAR"].player_team
+        if original_team and camp.are_faction_enemies(original_team, gears.factions.TheSolarNavy):
+            camp.pc.add_badge(gears.meritbadges.BADGE_TURNCOAT)
         self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TheSolarNavy)
+        camp.egg.faction_scores[gears.factions.TheSolarNavy] = max(0, camp.egg.faction_scores[gears.factions.TheSolarNavy])
         self.RUMOR = None
         self.memo = None
-        camp.pc.add_badge(gears.meritbadges.BADGE_TURNCOAT)
         camp.campdata[ROPPCD_DEFECTION] = 1
         
+    def _unfav_join_team(self, camp):
+        camp.campdata[ROPPCD_DEFECTION] = 1
+        camp.egg.faction_scores[gears.factions.TheSolarNavy] = max(0, camp.egg.faction_scores[gears.factions.TheSolarNavy])
+        self._join_team(camp)
 
     def _join_team(self, camp):
         self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TheSolarNavy)
@@ -241,7 +300,70 @@ class TreasureHuntersJoinerPlot(Plot):
                 data={"reply": "I want to help defend Pirate's Point."}
             ))
 
+            mylist.append(Offer(
+                "Bwa ha ha! Welcome to the thieves guild, [audience]! Can't be too picky about who's on our side and who isn't at the moment. Here's ${cash:,} to prepare for the upcoming battles; {NPC_MAYOR} can explain what you need to do.".format(cash=self.signing_bonus, **self.elements),
+                ContextTag([context.UNFAVORABLE_CUSTOM]), effect=self._unfav_join_team,
+                data={"reply": "I want to help defend Pirate's Point."}
+            ))
+        elif self.elements["WORLD_MAP_WAR"].player_team is not gears.factions.TreasureHunters and camp.campdata[ROPPCD_DEFECTION] == 0 and self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.TreasureHunters):
+            mylist.append(Offer(
+                "[ARE_YOU_SURE_YOU_WANT_TO] I mean, I have no trouble accepting disloyal self-serving cutthroats into our ranks, but joining our team will leave a mark on your permanent record.",
+                ContextTag([context.UNFAVORABLE_CUSTOM]), 
+                data={"reply": "I want to join the Treasure Huters Guild."}, subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "[ARE_YOU_SURE_YOU_WANT_TO] I mean, I have no trouble accepting disloyal self-serving cutthroats into our ranks, but joining our team will leave a mark on your permanent record.",
+                ContextTag([context.CUSTOM]), 
+                data={"reply": "I want to join the Treasure Huters Guild."}, subject=self, subject_start=True
+            ))
+
+            mylist.append(Offer(
+                "Bwa ha ha! Welcome aboard, then. Now get out there and fight for the glory of Pirate's Point!",
+                ContextTag([context.CUSTOMREPLY]), effect=self._defect_to_team,
+                data={"reply": "Yes, I have made my decision."}, subject=self,
+            ))
+
+            mylist.append(Offer(
+                "Suit yourself. [GOODBYE]",
+                ContextTag([context.CUSTOMREPLY]),
+                data={"reply": "Maybe I don't want to change sides."}, subject=self,
+            ))
+
         return mylist
+
+    def NPC_MAYOR_offers(self, camp):
+        mylist = list()
+        if self.elements["WORLD_MAP_WAR"].player_team is gears.factions.TreasureHunters:
+            mylist.append(
+                Offer(
+                    "We need to move reinforcements into all the districts of the city, and reclaim areas that have been captured by the enemy. You can only direct troops from a district we already control. The battle to claim a district will be more strenuous than a regular mission, so prepare for a long fight.",
+                    context=ContextTag(["CUSTOM"]),
+                    data={'reply': 'What am I supposed to do about this war?'},
+                    subject=self, subject_start=True,
+                    no_repeats=True,))
+
+            mylist.append(
+                Offer(
+                    "When you capture an enemy's home base they will be elminated from the war. This also applies to us, so make sure our opponents don't get close to uptown! The Solar Navy base is near the mountain pass to the northeast. Good luck.",
+                    context=ContextTag(["CUSTOMREPLY"]),
+                    data={'reply': 'And how do we end this?'},
+                    subject=self,
+                    subject_start=False,
+                    no_repeats=True,
+                    dead_end=True))
+
+        return mylist
+
+
+    def _defect_to_team(self, camp: gears.GearHeadCampaign):
+        self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TreasureHunters)
+        camp.egg.faction_scores[gears.factions.TreasureHunters] = max(0, camp.egg.faction_scores[gears.factions.TreasureHunters])
+        self.RUMOR = None
+        self.memo = None
+        camp.pc.add_badge(gears.meritbadges.BADGE_CRIMINAL)
+        camp.pc.remove_badges_with_tag(gears.tags.Police)
+        camp.campdata[ROPPCD_DEFECTION] = 1
 
     def NPC_SCENE_ENTER(self, camp):
         if self.elements["WORLD_MAP_WAR"].player_team:
@@ -256,6 +378,11 @@ class TreasureHuntersJoinerPlot(Plot):
             ghcutscene.SimpleMonologueDisplay("For now, at least, we need each other. The Guild lacks the power to defeat the Solar Navy in a conventional battle. Aegis has pilots and mecha but they lack the support of the people.", bogo)(camp, False)
             ghcutscene.SimpleMonologueDisplay("So we fight side by side. If the situation changes, we may choose to make different alliances.", bogo)(camp, False)
             self.did_cutscene = True
+
+    def _unfav_join_team(self, camp):
+        camp.campdata[ROPPCD_DEFECTION] = 1
+        camp.egg.faction_scores[gears.factions.TreasureHunters] = max(0, camp.egg.faction_scores[gears.factions.TreasureHunters])
+        self._join_team(camp)
 
     def _join_team(self, camp):
         self.elements["WORLD_MAP_WAR"].set_player_team(camp, gears.factions.TreasureHunters)
@@ -312,6 +439,13 @@ class AegisJoinerPlot(Plot):
                     data={"reply": "I pledge my services to Aegis Overlord Luna."}
                 ))
 
+        elif self.elements["WORLD_MAP_WAR"].player_team is not gears.factions.AegisOverlord and camp.campdata[ROPPCD_DEFECTION] == 0 and self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.AegisOverlord):
+            mylist.append(Offer(
+                "Well Aegis Overlord does not need you. Run back to your pitiful earthbound comrades and await your inevitable death.",
+                ContextTag([context.UNFAVORABLE_CUSTOM]), 
+                data={"reply": "I want to join Aegis Overlord."}, subject=self, subject_start=True
+            ))
+
         return mylist
 
     def _reject_pc(self, camp):
@@ -325,7 +459,7 @@ class AegisJoinerPlot(Plot):
             pbge.alert("All is silent as you enter the Aegis Consulate. The staff in the front office are hard at work, completing their tasks with tireless efficiency.")
             pbge.alert("One diplomat, obviously a {NPC_AEGIS.gender.noun} of great authority, turns to face you. You feel like {NPC_AEGIS.gender.possessive_determiner} eyes are staring directly into your soul.".format(**self.elements))
             ghcutscene.SimpleMonologueDisplay(
-                "Welcome to the Aegis Consulate. As you can see, we are quite busy at the moment. Please state your business here.",
+                "Welcome to the Aegis Consulate. As you can see, we are quite busy at the moment. If you have no business here then I suggest you leave.",
                 diplomat)(camp)
             self.did_cutscene = True
 
@@ -339,3 +473,80 @@ class AegisJoinerPlot(Plot):
         camp.party.append(gears.selector.get_design_by_full_name("CHA-01 Chameleon"))
 
         pbge.BasicNotification("You receive four Chameleon mecha.")
+
+
+class RoppResolutionExtravaganza(Plot):
+    # There are no separate "win" and "lose" endings because that is up to the player to decide.
+    # Instead, the consequences of the war are determined by game state regardless of which side the player fought on.
+    # Of course, the player has the ability to change things somewhat, depending on their actions...
+    LABEL = "ROPP_RESOLUTION"
+    scope = True
+    active = True
+
+    @override
+    def custom_init(self, nart):
+        # Create the meeting room.
+        team1 = teams.Team(name="Player Team")
+        team2 = teams.Team(name="Civilian Team", allies=(team1,))
+
+        # Actually, there is a difference between whether the PC won or lost- the music!
+        player_faction = self.elements["WORLD_MAP_WAR"].player_team
+        if self.elements.get(E_WAR_STATUS) == worldmapwar.WorldMapWar.WAR_WON:
+            music = "yoitrax - Warrior.ogg"
+            self.elements["WINNER"] = player_faction
+        else:
+            music = "Komiku_-_13_-_Nothing_will_grow_here.ogg"
+            self.elements["WINNER"] = self.elements["WORLD_MAP_WAR"].pick_a_winner()
+
+        myscene = gears.GearHeadScene(
+            30, 30, "Aegis Consulate", player_team=team1, civilian_team=team2,
+            scale=gears.scale.HumanScale,
+            exploration_music=music
+        )
+
+        myscenegen = pbge.randmaps.SceneGenerator(myscene, gharchitecture.AegisArchitecture(),)
+
+        self.register_scene(nart, myscene, myscenegen, ident="LOCALE")
+        _ = self.register_element("_room", pbge.randmaps.rooms.OpenRoom(20,10, decorate=gharchitecture.UlsaniteOfficeDecor()), dident="LOCALE")
+
+        aegis_team = teams.Team(name="Aegis Team", allies=(team1,))
+        aroom = self.register_element("_aegis_room", pbge.randmaps.rooms.Room(5,5, anchor=pbge.randmaps.anchors.west), dident="_room")
+        aroom.contents.append(aegis_team)
+        aegis_team.contents.append(self.elements["NPC_AEGIS"])
+
+        guild_team = teams.Team(name="Guild Team", allies=(team1, aegis_team))
+        broom = self.register_element("_guild_room", pbge.randmaps.rooms.Room(5,5, anchor=pbge.randmaps.anchors.middle), dident="_room")
+        broom.contents.append(guild_team)
+        guild_team.contents.append(self.elements["NPC_BOGO"])
+
+        navy_team = teams.Team(name="Navy Team", allies=(team1, aegis_team, guild_team))
+        croom = self.register_element("_navy_room", pbge.randmaps.rooms.Room(5,5, anchor=pbge.randmaps.anchors.east), dident="_room")
+        croom.contents.append(navy_team)
+        navy_team.contents.append(self.elements["NPC_CHARLA"])
+        navy_team.contents.append(self.elements["NPC_BRITAINE"])
+        navy_team.contents.append(self.elements["NPC_PINSENT"])
+
+        _ = self.register_element(
+            "ENTRANCE", ghwaypoints.Exit(
+                name="Exit",
+                desc="Are you ready to leave Pirate's Point?",
+                anchor=pbge.randmaps.anchors.south,
+                plot_locked=True
+            ), dident="_room"
+        )
+
+        self.started_resolution = False
+
+        return True
+
+    def t_UPDATE(self, camp: gears.GearHeadCampaign):
+        if not self.started_resolution:
+            camp.go(self.elements["ENTRANCE"])
+            self.started_resolution = True
+    def ENTRANCE_menu(self, camp, thingmenu):
+        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("Stay here a while longer", None)
+
+    def _end_adventure(self, camp):
+        pbge.alert("The fate of Pirate's Point has been settled for now, but new conflicts loom on the horizon. When the time comes you must be ready to fight again.")
+        camp.eject()

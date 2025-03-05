@@ -1831,6 +1831,25 @@ class ropp_Scenario(Plot):
         the_world['00000038'] = splot.elements["INTERIOR"]
         the_world['0000003A'] = splot.elements["SHOPKEEPER"]
         the_world['00000039'] = splot.elements["FOYER"]
+
+        the_world['000000B8'] = gears.selector.random_character(
+            self.rank,
+            local_tags=the_world['00000014'].attributes,
+            camp=nart.camp,
+            name='',
+            job=None,
+            faction=None,
+            combatant=False)
+        the_world['00000039'].contents.append(the_world['000000B8'])
+        the_world['000000B9'] = gears.selector.random_character(
+            self.rank,
+            local_tags=the_world['00000014'].attributes,
+            camp=nart.camp,
+            name='',
+            job=None,
+            faction=None,
+            combatant=False)
+        the_world['00000039'].contents.append(the_world['000000B9'])
         the_world['0000005A'] = pbge.randmaps.rooms.FuzzyRoom(
             name='Guards Room', anchor=None, decorate=None)
         the_world['00000014'].contents.append(the_world['0000005A'])
@@ -2238,10 +2257,7 @@ class MajorNonPlayerCharacter_ropp_27(Plot):
         element_alias_list = []
 
         self.elements["NPC_SCENE"] = self.elements["LOCALE"]
-
-        self._offer163 = scutils.DialogueOfferHandler(163, single_use=False)
-        self._offer164 = scutils.DialogueOfferHandler(164, single_use=False)
-        self._offer165 = scutils.DialogueOfferHandler(165, single_use=False)
+        #: plot_init
         #: plot_actions
         #: plot_subplots
         return True
@@ -2249,46 +2265,7 @@ class MajorNonPlayerCharacter_ropp_27(Plot):
     #: plot_methods
     def NPC_offers(self, camp):
         mylist = list()
-
-        if self._offer163.can_add_offer():
-            mylist.append(
-                Offer(
-                    "We are here to get rid of the Aegis Consulate, but the rulers of Pirate's Point aren't going to be happy about us barging in, so we'll probably have to fight them as well.",
-                    context=ContextTag(["INFO"]),
-                    data={'subject': 'fighting the war'},
-                    subject='',
-                    subject_start=True,
-                    effect=self._offer163.get_effect(
-                        #: dialogue_effect
-                    ),
-                    no_repeats=True,
-                    dead_end=False))
-        if self._offer164.can_add_offer():
-            mylist.append(
-                Offer(
-                    "Your job will be to capture territories one at a time. You can only attack from a territory we already control. Once a faction's home base has been captured, that faction will be eliminated. The Aegis Consulate is due south from here, along the coastline.",
-                    context=ContextTag(["CUSTOM"]),
-                    data={'reply': 'So how do we proceed?'},
-                    subject='get rid of the Aegis Consulate',
-                    subject_start=False,
-                    effect=self._offer164.get_effect(
-                        #: dialogue_effect
-                    ),
-                    no_repeats=True,
-                    dead_end=False))
-        if self._offer165.can_add_offer():
-            mylist.append(
-                Offer(
-                    "That thing I said about capturing a home base? It also applies to us. During the operation, you have to make sure that enemy troops don't get too close to the Solar Navy camp. If this base is captured, we'll have no choice but to abort the operation.",
-                    context=ContextTag(["CUSTOMREPLY"]),
-                    data={'reply': 'Is there anything else I need to know?'},
-                    subject='The Aegis Consulate is due south from here',
-                    subject_start=False,
-                    effect=self._offer165.get_effect(
-                        #: dialogue_effect
-                    ),
-                    no_repeats=True,
-                    dead_end=True))
+        #: npc_offers
         return mylist
 
 
@@ -5421,7 +5398,17 @@ class Tavern_ropp_44(Plot):
 
         #: plot_init
         #: plot_actions
-        #: plot_subplots
+
+        self.add_sub_plot(nart,
+                          'NPC_ropp_223',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'NPC_ropp_224',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         return True
 
     def NPC_offers(self, camp):
@@ -5429,8 +5416,55 @@ class Tavern_ropp_44(Plot):
         #: npc_offers
         return mylist
 
+    #: plot_methods
+
+
+class NonPlayerCharacter_ropp_223(Plot):
+    LABEL = "NPC_ropp_223"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['NPC'] = nart.camp.campdata[THE_WORLD]['000000B8']
+        element_alias_list = []
+
+        self.elements["NPC_SCENE"] = self.elements["LOCALE"]
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
 
     #: plot_methods
+    def NPC_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+
+class NonPlayerCharacter_ropp_224(Plot):
+    LABEL = "NPC_ropp_224"
+    active = True
+    scope = "LOCALE"
+
+    #: plot_properties
+    def custom_init(self, nart):
+        self.elements['NPC'] = nart.camp.campdata[THE_WORLD]['000000B9']
+        element_alias_list = []
+
+        self.elements["NPC_SCENE"] = self.elements["LOCALE"]
+        #: plot_init
+        #: plot_actions
+        #: plot_subplots
+        return True
+
+    #: plot_methods
+    def NPC_offers(self, camp):
+        mylist = list()
+        #: npc_offers
+        return mylist
+
+
 class Room_ropp_97(Plot):
     LABEL = "ROOM_ropp_97"
     active = True

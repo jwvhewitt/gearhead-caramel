@@ -1,3 +1,4 @@
+* Loading a dynamic plot now correctly sends an UPDATE trigger
 * If changing team in world map war, player may become enemy of previous faction
 * Fixed problems with factionless shops
 * Fixed bug with text editor widget

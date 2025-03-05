@@ -83,5 +83,6 @@ BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and an
 BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10}, tags=(tags.Media,))
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10}, tags=(tags.Military,))
 BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,))
+BADGE_POLICE = TagReactionBadge("Police","You have worked in law enforcement.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,))
 
 BADGE_TURNCOAT = TagReactionBadge("Turncoat", "You have shown willingness to renege on a contract.", remods={personality.Duty: -10, tags.Adventurer: -10, tags.Military: -10}, tags={personality.Irresponsible})
