@@ -420,6 +420,7 @@ class BasicFightChallenge(ChallengePlot):
         "{NPC} is looking for a pilot to fight {ENEMY_FACTION}",
         offer_msg="You can speak to {NPC} at {NPC_SCENE} if you want the mission.",
         memo="{NPC} is looking for a pilot to fight {ENEMY_FACTION}.",
+        offer_subject="{NPC} is looking for a pilot", offer_subject_data="{NPC}'s mission",
         prohibited_npcs=("NPC",)
     )
 
@@ -465,7 +466,7 @@ class BasicFightChallenge(ChallengePlot):
             sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
             # Create the mission seed. Turn the defeat_trigger off because we'll be handling that manually.
             self.mission_seed = missionbuilder.BuildAMissionSeed(
-                nart.camp, "{NPC}'s Mission".format(**self.elements),
+                nart.camp, "{}'s Mission against {}".format(self.elements["NPC"], self.elements["ENEMY_FACTION"]),
                 self.elements["METROSCENE"], self.elements["MISSION_GATE"],
                 allied_faction=npc.faction,
                 enemy_faction=self.elements["ENEMY_FACTION"], rank=self.rank,

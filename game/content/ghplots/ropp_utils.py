@@ -17,8 +17,12 @@ from .shops_plus import get_building
 import collections
 
 ROPPCD_DEFECTION = "ROPPCD_DEFECTION"
+ROPPCD_AIDED_DISSIDENTS = "ROPPCD_AIDED_DISSIDENTS"
 # War status passed to the resolution plot.
 E_WAR_STATUS = "E_WAR_STATUS"
+
+
+
 
 class ROPP_WarStarter(Plot):
     LABEL = "ROPP_WAR_STARTER"
@@ -491,6 +495,7 @@ class RoppResolutionExtravaganza(Plot):
 
         # Actually, there is a difference between whether the PC won or lost- the music!
         player_faction = self.elements["WORLD_MAP_WAR"].player_team
+        self.elements["PLAYER_FACTION"] = player_faction
         if self.elements.get(E_WAR_STATUS) == worldmapwar.WorldMapWar.WAR_WON:
             music = "yoitrax - Warrior.ogg"
             self.elements["WINNER"] = player_faction
@@ -513,11 +518,19 @@ class RoppResolutionExtravaganza(Plot):
         aroom = self.register_element("_aegis_room", pbge.randmaps.rooms.Room(5,5, anchor=pbge.randmaps.anchors.west), dident="_room")
         aroom.contents.append(aegis_team)
         aegis_team.contents.append(self.elements["NPC_AEGIS"])
+        for t in range(2):
+            npc = self.seek_element(nart, "ANPC{}".format(t), self._is_aegis_character, must_find=False, lock=True)
+            if npc:
+                aegis_team.contents.append(npc)
 
         guild_team = teams.Team(name="Guild Team", allies=(team1, aegis_team))
         broom = self.register_element("_guild_room", pbge.randmaps.rooms.Room(5,5, anchor=pbge.randmaps.anchors.middle), dident="_room")
         broom.contents.append(guild_team)
         guild_team.contents.append(self.elements["NPC_BOGO"])
+        for t in range(2):
+            npc = self.seek_element(nart, "GNPC{}".format(t), self._is_guild_character, must_find=False, lock=True)
+            if npc:
+                guild_team.contents.append(npc)
 
         navy_team = teams.Team(name="Navy Team", allies=(team1, aegis_team, guild_team))
         croom = self.register_element("_navy_room", pbge.randmaps.rooms.Room(5,5, anchor=pbge.randmaps.anchors.east), dident="_room")
@@ -535,14 +548,60 @@ class RoppResolutionExtravaganza(Plot):
             ), dident="_room"
         )
 
+        if self.elements["WINNER"] is gears.factions.TheSolarNavy:
+            if nart.camp.are_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters):
+                self.add_sub_plot(nart, "ROPP_RESOLUTION_SOLARGUILD")
+            else:
+                self.add_sub_plot(nart, "ROPP_RESOLUTION_SOLARNAVY")
+        elif self.elements["WINNER"] is gears.factions.TreasureHunters:
+            if nart.camp.are_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters):
+                self.add_sub_plot(nart, "ROPP_RESOLUTION_SOLARGUILD")
+            elif nart.camp.are_faction_allies(gears.factions.AegisOverlord, gears.factions.TreasureHunters):
+                self.add_sub_plot(nart, "ROPP_RESOLUTION_AEGISHUNTER")
+            else:
+                self.add_sub_plot(nart, "ROPP_RESOLUTION_TREASUREHUNTER")
+        else:
+            self.add_sub_plot(nart, "ROPP_RESOLUTION_AEGIS")
+
+        # For the final scene, set all factions as allies so we can have a good chat.
+        nart.camp.faction_relations[gears.factions.TheSolarNavy].set_pc_ally()
+        nart.camp.faction_relations[gears.factions.TerranDefenseForce].set_pc_ally()
+        nart.camp.faction_relations[gears.factions.Guardians].set_pc_ally()
+        nart.camp.faction_relations[gears.factions.AegisOverlord].set_pc_ally()
+        nart.camp.faction_relations[gears.factions.TreasureHunters].set_pc_ally()
+        nart.camp.faction_relations[gears.factions.BoneDevils].set_pc_ally()
+        nart.camp.faction_relations[gears.factions.BladesOfCrihna].set_pc_ally()
+
         self.started_resolution = False
 
         return True
 
+    def _is_aegis_character(self, nart, candidate):
+        return (isinstance(candidate, gears.base.Character) and candidate.faction is gears.factions.AegisOverlord)
+
+    def _is_guild_character(self, nart, candidate):
+        return (isinstance(candidate, gears.base.Character) and candidate.faction in {gears.factions.TreasureHunters, gears.factions.BoneDevils, gears.factions.BladesOfCrihna})
+
+
+    WIN_ALERT = (
+        "You are victorious! With the battle over, {WINNER} moves swiftly to consolidate their hold on Pirate's Point.",
+        "You have secured victory for {WINNER}! Reports come in from all across Pirate's Point; the war is over."
+    )
+    LOSE_ALERT = (
+        "As the battle ends, you receive orders to fall back. The forces of {PLAYER_FACTION} withdraw from the city as {WINNER} siezes control.",
+        "You are contacted by {PLAYER_FACTION} with bad news; their foothold in Pirate's Point has been broken by {WINNER}. You escape the city along with other retreating units.",
+    )
     def t_UPDATE(self, camp: gears.GearHeadCampaign):
         if not self.started_resolution:
+            if self.elements["PLAYER_FACTION"] is self.elements["WINNER"]:
+                _ = pbge.alert(random.choice(self.WIN_ALERT).format(**self.elements))
+            else:
+                _ = pbge.alert(random.choice(self.LOSE_ALERT).format(**self.elements))
+
+            _ = pbge.alert("A short time later, the leaders of all involved factions meet at the Aegis Consulate to negotiate the new conditions of peace.")
             camp.go(self.elements["ENTRANCE"])
             self.started_resolution = True
+
     def ENTRANCE_menu(self, camp, thingmenu):
         thingmenu.add_item("End this adventure", self._end_adventure)
         thingmenu.add_item("Stay here a while longer", None)
@@ -550,3 +609,248 @@ class RoppResolutionExtravaganza(Plot):
     def _end_adventure(self, camp):
         pbge.alert("The fate of Pirate's Point has been settled for now, but new conflicts loom on the horizon. When the time comes you must be ready to fight again.")
         camp.eject()
+
+
+# Things that will change depending on the ending...
+# - Who controls Pirate's Point? Fed, THG, Aegis, DZF
+# - Aegis status on Earth
+# - Treasure Hunters relationship with Federation: Status Quo, Enemies, Allies
+
+EGGDAT_PIRATE_POINT_LEADER = "EGGDAT_PIRATE_POINT_LEADER"
+EGGDAT_TREASURE_HUNTER_FED_ALLIANCE = "EGGDAT_TREASURE_HUNTER_FED_ALLIANCE"
+ROPP_ENEMIES = "ENEMIES"
+ROPP_ALLIES = "ALLIES"
+EGGDAT_ROPP_WARNING_ISSUED = "EGGDAT_ROPP_WARNING_ISSUED"
+
+class ROPPSolarNavyVictory(Plot):
+    # Federation controls PP, Aegis no victory, Treasure Hunters enemies of Federation
+    LABEL = "ROPP_RESOLUTION_SOLARNAVY"
+    scope = True
+    active = True
+
+    did_intro = False
+
+    @override
+    def custom_init(self, nart):
+        return True
+
+    def LOCALE_ENTER(self, camp):
+        if not self.did_intro:
+            pbge.alert("{NPC_CHARLA} stands before the leaders and warriors who now fill this room.".format(**self.elements))
+            ghcutscene.SimpleMonologueDisplay("Pirate's Point is now under the direct control of the Terran Federation. Let it be known that the enemies of Earth will find no refuge on this world.", self.elements["NPC_CHARLA"])(camp, True)
+            ghcutscene.SimpleMonologueDisplay("Typical greenzoner arrogance... you think that putting 'Terra' in the name means you speak for the entire planet.", self.elements["NPC_BOGO"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("Silence, thief.", self.elements["NPC_BRITAINE"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("Not yet, old foe. You have robbed me of my home but may yet discover that the prize you grabbed is a hornet's nest. The guild does not forget, and does not forgive easily.", self.elements["NPC_BOGO"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("As for Aegis, we concede that you have caused Luna a minor setback. But be warned, Admiral, that soon you will face far greater threats from much closer to home.", self.elements["NPC_AEGIS"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("I will keep that in mind. Everyone has had their say; this meeting is now ended.", self.elements["NPC_CHARLA"])(camp, False)
+            camp.egg.data[EGGDAT_PIRATE_POINT_LEADER] = gears.factions.TerranFederation
+            camp.egg.data[EGGDAT_ROPP_WARNING_ISSUED] = True
+            camp.egg.data[EGGDAT_TREASURE_HUNTER_FED_ALLIANCE] = ROPP_ENEMIES
+            self.did_intro = True
+
+    def NPC_BOGO_offers(self, camp):
+        mylist = list()
+
+        if self.elements["PLAYER_FACTION"] is gears.factions.TheSolarNavy:
+            pass
+
+        return mylist
+
+    def GNPC0_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def GNPC1_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_AEGIS_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def ANPC0_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def ANPC1_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_CHARLA_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_PINSENT_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_BRITAINE_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+
+class ROPPSolarGuildVictory(Plot):
+    # The Solar Navy/Treasure Hunters Guild alliance won.
+    # Guild controls PP, Aegis no victory, Treasure Hunters neutral with Federation
+    LABEL = "ROPP_RESOLUTION_SOLARGUILD"
+    scope = True
+    active = True
+
+    did_intro = False
+
+    @override
+    def custom_init(self, nart):
+        return True
+
+    def LOCALE_ENTER(self, camp):
+        if not self.did_intro:
+            if self.elements["WINNER"] is gears.factions.TheSolarNavy:
+                pbge.alert("{NPC_CHARLA} stands before the leaders and warriors who now fill this room. At her side, {NPC_BOGO} smiles mischeviously.".format(**self.elements))
+                ghcutscene.SimpleMonologueDisplay("Pirate's Point has been liberated from the machinations of Aegis Overlord. Let it be known that the enemies of Earth will find no refuge on this world.", self.elements["NPC_CHARLA"])(camp, True)
+                ghcutscene.SimpleMonologueDisplay("You really have no-one to blame but yourself, {NPC_AEGIS}. Or should I say the Overlord Council will have no-one to blame but you?".format(**self.elements), self.elements["NPC_BOGO"])(camp, False)
+            else:
+                pbge.alert("{NPC_BOGO} enters the room beaming like an arena champion. {NPC_CHARLA} takes her place beside him, as stoic and steely eyed as ever.".format(**self.elements))
+                ghcutscene.SimpleMonologueDisplay("The war is over. You, {NPC_AEGIS}, have lost. I want all of your Aegis lackeys out of my city by tomorrow.", self.elements["NPC_BOGO"])(camp, True)
+                ghcutscene.SimpleMonologueDisplay("The Terran Federation welcomes our new truce with Pirate's Point. It is in all of our best interests to keep Earth free from Lunar aggression.", self.elements["NPC_CHARLA"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("We will withdraw for now. But be warned, Terrans, that soon you will face far greater threats from much closer to home. When that time comes you will beg Aegis to protect you.", self.elements["NPC_AEGIS"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("With all due respect, you can take your empty threats and stuff them, Ambassador.", self.elements["NPC_PINSENT"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("That's enough fighting; is anyone else hungry? Tonight, we feast on Vesuvian honey and {NPC_AEGIS}'s secret liquor stash. Tomorrow will bring what it brings.".format(**self.elements), self.elements["NPC_BOGO"])(camp, False)
+            camp.egg.data[EGGDAT_PIRATE_POINT_LEADER] = gears.factions.TreasureHunters
+            camp.egg.data[EGGDAT_ROPP_WARNING_ISSUED] = True
+            camp.egg.data[EGGDAT_TREASURE_HUNTER_FED_ALLIANCE] = ROPP_ALLIES
+            self.did_intro = True
+
+
+class ROPPTreasureHuntersVictory(Plot):
+    # Guild controls PP, Aegis no victory, Relationships remain at status quo
+    LABEL = "ROPP_RESOLUTION_TREASUREHUNTER"
+    scope = True
+    active = True
+
+    did_intro = False
+
+    @override
+    def custom_init(self, nart):
+        return True
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.did_intro:
+            pbge.alert("{NPC_BOGO} strides into the meeting hall as if he owns the place... which, technically, he now does.".format(**self.elements))
+            ghcutscene.SimpleMonologueDisplay("Pirate's Point remains as it has been, as it should be, a den of thieves and cutthroats. I expect both the Solar Navy and Aegis Overlord to withdraw from our city within 24 hours.", self.elements["NPC_BOGO"])(camp, True)
+            ghcutscene.SimpleMonologueDisplay("With Aegis gone, the Solar Navy has no further business in this area. We will be out of your way as soon as possible.", self.elements["NPC_CHARLA"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("This was a convenient base of operations, but Terra is vast and Aegis will have no trouble establishing a new outpost.", self.elements["NPC_AEGIS"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("Am I the only one who's not thrilled about this outcome?! We lost, these pirates are still going to be doing all kinds of illegal drokk down here...", self.elements["NPC_BRITAINE"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("Britaine, old foe, you must know by now that you can't defeat us with brute force. For every bandit you catch two more will rise to oppose your suffocating laws.", self.elements["NPC_BOGO"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("But I've had enough of fighting. Tonight, we dine on Vesuvian honey and {NPC_AEGIS}'s secret liquor stash. Tomorrow will bring what it brings.".format(**self.elements), self.elements["NPC_BOGO"])(camp, False)
+            camp.egg.data[EGGDAT_PIRATE_POINT_LEADER] = gears.factions.TreasureHunters
+            self.did_intro = True
+
+    def NPC_BOGO_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def GNPC0_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def GNPC1_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_AEGIS_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def ANPC0_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def ANPC1_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_CHARLA_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_PINSENT_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+    def NPC_BRITAINE_offers(self, camp):
+        mylist = list()
+
+        return mylist
+
+
+class ROPPAegisHuntersVictory(Plot):
+    # Aegis controls PP, Aegis minor victory, Relationships remain at status quo
+    LABEL = "ROPP_RESOLUTION_AEGISHUNTER"
+    scope = True
+    active = True
+
+    did_intro = False
+
+    @override
+    def custom_init(self, nart):
+        return True
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.did_intro:
+            _ = pbge.alert("The Aegis meeting hall buzzes with awkward silence. Despite the end of hostilities, all those attending remain on guard.".format(**self.elements))
+            ghcutscene.SimpleMonologueDisplay("I hope you're happy, Charla. For all the lives lost and money wasted your pet war has accomplished exactly nothing.", self.elements["NPC_BOGO"])(camp, True)
+            ghcutscene.SimpleMonologueDisplay("...", self.elements["NPC_CHARLA"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("I think you are being too hard on the admiral, old man. Her foolish war has accomplished one thing- it has demonstrated that you are no longer fit to rule Pirate's Point.", self.elements["NPC_AEGIS"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("What are you saying?!", self.elements["NPC_BOGO"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("You failed to defend our spaceport from these Terran barbarians. From this point forward, Pirate's Point is under the protection of Aegis Overlord Luna. I advise you all to leave this place while you still can.", self.elements["NPC_AEGIS"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("We won't let you do this!".format(**self.elements), self.elements["NPC_PINSENT"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("General, we have already done it. Reinforcements from Luna are arriving as we speak. This city will be our bastion of civilization on the birthworld. If you had the power to stop us you already would have.", self.elements["NPC_AEGIS"])(camp, False)
+            _ = pbge.alert("{NPC_AEGIS} sips {NPC_AEGIS.gender.possessive_determiner} drink and smiles. The rest of the hall stands in shocked silence.".format(**self.elements))
+            camp.egg.data[EGGDAT_PIRATE_POINT_LEADER] = gears.factions.AegisOverlord
+            camp.egg.data[gears.eggs.EGGDAT_AEGIS_VICTORIES_ON_EARTH] = camp.egg.data.get(gears.eggs.EGGDAT_AEGIS_VICTORIES_ON_EARTH, 0) + 1
+            self.did_intro = True
+
+
+class ROPPAegisVictory(Plot):
+    # Aegis controls PP, Aegis major victory, Relationships remain at status quo
+    LABEL = "ROPP_RESOLUTION_AEGIS"
+    scope = True
+    active = True
+
+    did_intro = False
+
+    @override
+    def custom_init(self, nart):
+        return True
+
+    def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.did_intro:
+            _ = pbge.alert("The Aegis meeting hall is decorated as if for a festival, though few of those in attendance are in a festive mood. Ambassador {NPC_AEGIS} enters with the swagger of an aristocrat.".format(**self.elements))
+            ghcutscene.SimpleMonologueDisplay("Pirate's Point has been placed under the protection of Aegis Overlord. We generously offer you 24 hours to withdraw any surviving forces and personnel. After that, you will be hunted and killed as intruders on Lunar territory.", self.elements["NPC_AEGIS"])(camp, True)
+            ghcutscene.SimpleMonologueDisplay("I wouldn't be so certain, you arrogant worm. The underworld has controlled this area since the Age of Superpowers. You may yet find that the prize you've won is a hornet's nest.", self.elements["NPC_BOGO"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("Already dealt with. Your little club for lawbreakers? It has been thoroughly infiltrated by Aegis Intelligence. Our agents will begin phase two of the cleanup shortly.", self.elements["NPC_AEGIS"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("The Terran Federation will not allow this to stand. The enemies of Earth....", self.elements["NPC_CHARLA"])(camp, False)
+            ghcutscene.SimpleMonologueDisplay("Admiral, please. What are you planning to do? Nuke another city? We both know that your hands are tied. Reinforcements from Luna are arriving as we speak.", self.elements["NPC_AEGIS"])(camp, False)
+            _ = pbge.alert("The ambassador pauses; a wry grin crosses {NPC_AEGIS.gender.possessive_determiner} face.".format(**self.elements))
+            ghcutscene.SimpleMonologueDisplay("I would advise you all to forget about Pirate's Point. The Aegis Council asks for so little, this one small city. And soon you will have a far greater threat to face. One born of your world, not mine.", self.elements["NPC_AEGIS"])(camp, False)
+
+            camp.egg.data[EGGDAT_PIRATE_POINT_LEADER] = gears.factions.AegisOverlord
+            camp.egg.data[EGGDAT_ROPP_WARNING_ISSUED] = True
+            camp.egg.data[gears.eggs.EGGDAT_AEGIS_VICTORIES_ON_EARTH] = camp.egg.data.get(gears.eggs.EGGDAT_AEGIS_VICTORIES_ON_EARTH, 0) + 2
+            self.did_intro = True

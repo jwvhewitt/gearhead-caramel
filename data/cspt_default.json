@@ -36,7 +36,7 @@
     ]
   },
 
-        {
+  {
     "name": "Just the Mission Details, Please",
     "type": "AlertPresentation",
     "node_type": "Alert",
@@ -85,7 +85,7 @@
     ]
   },
 
-        {
+  {
     "name": "Cheer Up",
     "type": "MonologuePresentation",
     "node_type": "Monologue",

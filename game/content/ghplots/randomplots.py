@@ -411,21 +411,30 @@ class MercenaryPassingThrough(Plot):
     scope = "METRO"
 
     RUMOR = Rumor(
-        "{NPC} is a mercenary pilot just passing through {METROSCENE}",
+        "{NPC} is a {NPC.job} just passing through {METROSCENE}",
         offer_msg="If you need a new lancemate, you can find {NPC.gender.object_pronoun} at {NPC_SCENE}.",
-        memo="{NPC} is a mercenary pilot who can be found at {NPC_SCENE}.",
+        memo="{NPC} is a {NPC.job} who is looking for a lance to join. {NPC.gender.subject_pronoun} can be found at {NPC_SCENE}.",
         prohibited_npcs=("NPC",)
     )
 
+    POSSIBLE_JOBS = (
+        "Mecha Pilot", "Soldier", "Arena Pilot", "Recon Pilot", "Explorer", "Bandit", 
+        "Bounty Hunter", "Martial Artist"
+    )
+
     def custom_init(self, nart):
+        if random.randint(1,10) == 1:
+            my_job = gears.jobs.ALL_JOBS[random.choice(self.POSSIBLE_JOBS)]
+        else:
+            my_job = gears.jobs.ALL_JOBS["Mercenary"]
         npc = gears.selector.random_character(max(self.rank + random.randint(-10,10), 10),
-                                              camp=nart.camp, can_cyberize=True,
-                                              job=gears.jobs.ALL_JOBS["Mercenary"])
+                                              camp=nart.camp, can_cyberize=True, combatant=True,
+                                              job=my_job)
         if random.randint(1,23) == 5:
             npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1,5)
-        self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"],
+        _ = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"],
                           backup_seek_func=self._is_okay_scene)
-        self.register_element("NPC", npc, dident="NPC_SCENE", lock=True)
+        _ = self.register_element("NPC", npc, dident="NPC_SCENE", lock=True)
         self.expiration = TimeExpiration(nart.camp, time_limit=5)
         self.call_on_end.append(self._delete_mercenary)
         return True

@@ -42,6 +42,7 @@ from . import mocha
 from . import peopleplots
 from . import randomplots
 from . import recovery
+from . import relayplots
 from . import romance
 from . import ropp_main
 from . import ropp_metroplots
@@ -115,6 +116,7 @@ harvest(mocha)
 harvest(peopleplots)
 harvest(randomplots)
 harvest(recovery)
+harvest(relayplots)
 harvest(romance)
 harvest(ropp_main)
 harvest(ropp_metroplots)

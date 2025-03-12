@@ -18,7 +18,7 @@ Memo = pbge.memos.Memo
 
 
 def get_hire_cost(camp, npc):
-    return (npc.renown * npc.renown * (200 - npc.get_reaction_score(camp.pc, camp))) // 10
+    return max((npc.renown * npc.renown * (200 - npc.get_reaction_score(camp.pc, camp))) // 10, 10000)
 
 
 #   **************************

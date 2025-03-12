@@ -34,7 +34,7 @@ class EliminateScoutsConsolidation(Plot):
         self.elements["ALLIED_FACTION"] = self.elements["WORLD_MAP_WAR"].player_team
         self.elements["ENEMY_FACTION"] = self.elements["WORLD_MAP_WAR"].get_enemy_faction(nart.camp, self.elements["WORLD_MAP_WAR"].player_team)
 
-        self.register_element("CHALLENGE", Challenge(
+        _ = self.register_element("CHALLENGE", Challenge(
             "Fight {ENEMY_FACTION} in {METROSCENE}".format(**self.elements),
             ghchallenges.FIGHT_CHALLENGE, [self.elements["ENEMY_FACTION"]],
             involvement=ghchallenges.InvolvedMetroFactionNPCs(self.elements["METROSCENE"], self.elements["ALLIED_FACTION"]),
@@ -123,7 +123,7 @@ class SleeperCellConsolidation(Plot):
     def custom_init(self, nart):
         self.elements["ALLIED_FACTION"] = self.elements["WORLD_MAP_WAR"].player_team
 
-        self.register_element("CHALLENGE", Challenge(
+        _ = self.register_element("CHALLENGE", Challenge(
             "Locate {FORMER_FACTION} Sleeper Cell".format(**self.elements),
             ghchallenges.LOCATE_ENEMY_BASE_CHALLENGE,
             (self.elements["FORMER_FACTION"],),
@@ -202,16 +202,27 @@ class DiplomaticConsolidation(Plot):
     def custom_init(self, nart):
         self.elements["ALLIED_FACTION"] = self.elements["WORLD_MAP_WAR"].player_team
 
-        self.register_element("CHALLENGE", Challenge(
+        _ = self.register_element("CHALLENGE", Challenge(
             "Promote {ALLIED_FACTION} in {METROSCENE}".format(**self.elements),
             ghchallenges.PR_CHALLENGE, [self.elements["WORLD_MAP_WAR"].player_team],
             involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["METROSCENE"]), active=False,
             data={
-                "challenge_subject": None,
-                "pc_promotions": (),
-                "npc_opinions": (),
-                "npc_agreement": (),
-                "npc_disagreement": ()
+                "challenge_subject": "{ALLIED_FACTION} in {METROSCENE}".format(**self.elements),
+                "pc_promotions": (
+                    "{ALLIED_FACTION} will bring peace to {METROSCENE}".format(**self.elements),
+                    "{ALLIED_FACTION} will bring stability to {METROSCENE}".format(**self.elements),
+                    "{ALLIED_FACTION} will bring prosperity to {METROSCENE}".format(**self.elements),
+                    "{ALLIED_FACTION} will protect {METROSCENE}".format(**self.elements),
+                ),
+                "npc_opinions": (
+                    "{ALLIED_FACTION} doesn't belong in {METROSCENE}".format(**self.elements),
+                ),
+                "npc_agreement": (
+                    "{ALLIED_FACTION} might not be so bad".format(**self.elements),
+                ),
+                "npc_disagreement": (
+                    "{METROSCENE} is better off without {ALLIED_FACTION}".format(**self.elements),
+                )
             },
             oppoffers=(
                 AutoOffer(
