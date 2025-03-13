@@ -120,8 +120,15 @@ class DockyardsPlot(Plot):
 
 class RoppDockHouseOfBlades(Plot):
     LABEL = "ROPP_DOCKYARDS_HOUSEOFBLADES"
-    scope = "METRO"
+    scope = True
     active = True
+
+    SENTENCE_FORMS = [
+        "the spy passed information about the Blades to Luna",
+        "the spy made sure one of the guild pilots got killed in combat",
+        "Aegis bought off one of Bogo's trusted henchmen",
+        "the spy has been tracking contraband that goes through the spaceport"
+    ]
 
     def custom_init(self, nart):
         locale: gears.GearHeadScene = self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000A7'])
@@ -143,9 +150,35 @@ class RoppDockHouseOfBlades(Plot):
 
         npc = self.register_element("NPC", nart.camp.get_major_npc("CaptainSegard"), dident="_ROOM")
 
+        _ = self.seek_element(nart, "NEXT_METROSCENE", self._is_best_next, backup_seek_func=self._is_okay_next)
+
+        # Needed elements for the Aegis Infiltrator subplot
+        self.elements["INFO_LIST"] = random.sample(self.SENTENCE_FORMS, 3)
+        self.elements["INFO_SUBJECT"] = "the Aegis infiltrator"
+        self.elements["ALLIED_FACTION"] = gears.factions.BladesOfCrihna
+        self.elements["ENEMY_FACTION"] = gears.factions.AegisOverlord
+
         self.did_crihna_talk = False
+        self.gave_advice = False
 
         return True
+
+    def _is_best_next(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.GearHeadScene) and candidate is not self.elements["METROSCENE"] and 
+            hasattr(candidate, "metrodat") and 
+            gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.CITY_UNINHABITED not in candidate.attributes
+            )
+
+    def _is_okay_next(self, nart, candidate):
+        return (
+            isinstance(candidate, gears.GearHeadScene) and candidate is not self.elements["METROSCENE"] and 
+            hasattr(candidate, "metrodat") and gears.tags.SCENE_PUBLIC in candidate.attributes
+            )
+
+    def INFO_LIST_WIN(self, camp):
+        print("Won the info relay")
+        pass
 
     def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
@@ -190,10 +223,23 @@ class RoppDockHouseOfBlades(Plot):
                 effect=self._do_crihna_talk, subject=self
             ))
 
+        if not camp.is_favorable_to_pc(gears.factions.AegisOverlord) and not self.gave_advice:
+            mylist.append(Offer(
+                "There's a rumor passing among the Blades in town that the Guild's inner circle has been infiltrated by Aegis spies. You can probably learn more in {NEXT_METROSCENE}...".format(**self.elements),
+                ContextTag([context.CUSTOM,]), data={"reply": "What advice do you have for fighting Aegis?"},
+                effect=self._start_search
+            ))
+
         return mylist
+
+    def _start_search(self, camp):
+        pstate = PlotState(adv=self.adv, elements={"METROSCENE": self.elements["NEXT_METROSCENE"]}, rank=self.rank+2).based_on(self)
+        _ = content.load_dynamic_plot(camp, "INFO_RELAY", pstate)
+        self.gave_advice = True
 
     def _do_crihna_talk(self, camp):
         self.did_crihna_talk = True
+        camp.faction_relations[gears.factions.BladesOfCrihna].set_pc_ally()
 
     def SHOPKEEPER_offers(self, camp):
         mylist = list()

@@ -42,7 +42,7 @@ class TalkRelay(Plot):
     @override
     def custom_init(self, nart):
         self.fight_ready = bool(self.elements["ENEMY_FACTION"])
-        self.memo = Memo("You should travel to {METROSCENE} to learn more about {INFO_SUBJECT}.".format("".format(**self.elements)), self.elements["METROSCENE"])
+        self.memo = Memo("You should travel to {METROSCENE} to learn more about {INFO_SUBJECT}.".format(**self.elements), self.elements["METROSCENE"])
         npc = gears.selector.random_character(
             self.rank, camp=nart.camp, faction=self.elements.get("ALLIED_FACTION")
         )
@@ -63,15 +63,16 @@ class TalkRelay(Plot):
 
     def _is_best_next(self, nart, candidate):
         return (
-            isinstance(candidate, gears.GearHeadScene) and hasattr(candidate, "metrodat") and 
+            isinstance(candidate, gears.GearHeadScene) and candidate is not self.elements["METROSCENE"] and 
+            hasattr(candidate, "metrodat") and 
             gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.CITY_UNINHABITED not in candidate.attributes
             and not nart.camp.are_faction_enemies(candidate, self.elements["ALLIED_FACTION"])
             )
 
     def _is_okay_next(self, nart, candidate):
         return (
-            isinstance(candidate, gears.GearHeadScene) and hasattr(candidate, "metrodat") and 
-            gears.tags.SCENE_PUBLIC in candidate.attributes
+            isinstance(candidate, gears.GearHeadScene) and candidate is not self.elements["METROSCENE"] and 
+            hasattr(candidate, "metrodat") and gears.tags.SCENE_PUBLIC in candidate.attributes
             )
 
     def NPC_offers(self, camp):
@@ -85,16 +86,18 @@ class TalkRelay(Plot):
         myinfo = self.elements["INFO_LIST"]
         if len(myinfo) > 1:
             mylist.append(Offer(
-                "[THIS_IS_A_SECRET] {}; you can learn more in {}. ".format(myinfo[0], self.elements["NEXT_METROSCENE"]),
+                "[THIS_IS_A_SECRET] {}; you can learn more in {}.".format(myinfo[0], self.elements["NEXT_METROSCENE"]),
                 context=ContextTag([context.INFO,]), effect=self._get_info,
-                data={"subject": self.elements["INFO_SUBJECT"], "stuff": self.elements["INFO_SUBJECT"]}
+                data={"subject": self.elements["INFO_SUBJECT"], "stuff": self.elements["INFO_SUBJECT"]},
+                no_repeats=True
             ))
 
         else:
             mylist.append(Offer(
-                "[I_KNOW_THINGS_ABOUT_STUFF] {}. ".format(myinfo[0]),
+                "[I_KNOW_THINGS_ABOUT_STUFF] {}.".format(myinfo[0]),
                 context=ContextTag([context.INFO,]), effect=self._get_info,
-                data={"subject": self.elements["INFO_SUBJECT"], "stuff": self.elements["INFO_SUBJECT"]}
+                data={"subject": self.elements["INFO_SUBJECT"], "stuff": self.elements["INFO_SUBJECT"]},
+                no_repeats=True
             ))
 
         return mylist
