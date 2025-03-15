@@ -15,11 +15,37 @@ from pbge.memos import Memo
 #   **********************
 #
 #  METROSCENE: The next location in the relay.
-#  INFO_LIST: The list of information strings to pass to the PC, in order. When the last info is passed a WIN trigger is called.
-#  INFO_SUBJECT: A string describing the general topic being investigated.
+#  INFO: An InfoRelayTracker object. When the last info is passed a WIN trigger is called.
 #  ALLIED_FACTION: The faction providing the information. May be None.
 #  ENEMY_FACTION: The faction seeking to hide the information. May be None.
 #
+
+class InfoRelayTracker:
+    def __init__(self, subject, info_list):
+        self.subject = subject
+        self.info_list = list(info_list)
+
+    @override
+    def __str__(self) -> str:
+        return str(self.subject)
+
+    @property
+    def text(self):
+        if len(self.info_list) > 0:
+            return str(self.info_list[0])
+        else:
+            return "Whoops empty info tracker; this is a bug"
+
+    def pop(self, camp, plot):
+        if len(self.info_list) > 1:
+            self.info_list.pop(0)
+            pstate = PlotState(adv=self.adv, elements={"METROSCENE": self.elements["NEXT_METROSCENE"]}, rank=self.rank+2).based_on(self)
+            _ = content.load_dynamic_plot(camp, "INFO_RELAY", pstate)
+        else:
+            camp.check_trigger("WIN", self)
+        plot.end_plot(camp, True)
+
+
 
 class TalkRelay(Plot):
     LABEL = "INFO_RELAY"
@@ -31,18 +57,18 @@ class TalkRelay(Plot):
         return bool(npc.faction and camp.are_faction_allies(npc, plot.elements.get("ENEMY_FACTION")))
 
     RUMOR = Rumor(
-        "{NPC} knows something about {INFO_SUBJECT}",
+        "{NPC} knows something about {INFO}",
         offer_msg="If you want to know more, speak to {NPC} at {NPC_SCENE}.",
         offer_subject="{NPC} knows something about",
-        offer_subject_data="{INFO_SUBJECT}",
-        memo="{NPC} at {NPC_SCENE} knows something about {INFO_SUBJECT}.",
+        offer_subject_data="{NPC} and {INFO}",
+        memo="{NPC} at {NPC_SCENE} knows something about {INFO}.",
         prohibited_npcs=("NPC",), npc_is_prohibited_fun=is_enemy_character
     )
 
     @override
     def custom_init(self, nart):
         self.fight_ready = bool(self.elements["ENEMY_FACTION"])
-        self.memo = Memo("You should travel to {METROSCENE} to learn more about {INFO_SUBJECT}.".format(**self.elements), self.elements["METROSCENE"])
+        self.memo = Memo("You should travel to {METROSCENE} to learn more about {INFO}.".format(**self.elements), self.elements["METROSCENE"])
         npc = gears.selector.random_character(
             self.rank, camp=nart.camp, faction=self.elements.get("ALLIED_FACTION")
         )
@@ -79,39 +105,32 @@ class TalkRelay(Plot):
         mylist = list()
 
         mylist.append(Offer(
-            "[HELLO] I hear you've been asking about {INFO_SUBJECT}.".format(**self.elements),
+            "[HELLO] I hear you've been asking about {INFO}.".format(**self.elements),
             context=ContextTag([context.HELLO,])
         ))
 
-        myinfo = self.elements["INFO_LIST"]
-        if len(myinfo) > 1:
+        myinfo = self.elements["INFO"]
+        if len(myinfo.info_list) > 1:
             mylist.append(Offer(
-                "[THIS_IS_A_SECRET] {}; you can learn more in {}.".format(myinfo[0], self.elements["NEXT_METROSCENE"]),
+                "[THIS_IS_A_SECRET] {INFO.text}; you can learn more in {NEXT_METROSCENE}.".format(**self.elements),
                 context=ContextTag([context.INFO,]), effect=self._get_info,
-                data={"subject": self.elements["INFO_SUBJECT"], "stuff": self.elements["INFO_SUBJECT"]},
+                data={"subject": str(self.elements["INFO"]), "stuff": str(self.elements["INFO"])},
                 no_repeats=True
             ))
 
         else:
             mylist.append(Offer(
-                "[I_KNOW_THINGS_ABOUT_STUFF] {}.".format(myinfo[0]),
+                "[I_KNOW_THINGS_ABOUT_STUFF] {INFO.text}.".format(**self.elements),
                 context=ContextTag([context.INFO,]), effect=self._get_info,
-                data={"subject": self.elements["INFO_SUBJECT"], "stuff": self.elements["INFO_SUBJECT"]},
+                data={"subject": str(self.elements["INFO"]), "stuff": str(self.elements["INFO"])},
                 no_repeats=True
             ))
 
         return mylist
 
     def _get_info(self, camp: gears.GearHeadCampaign):
-        myinfo = self.elements["INFO_LIST"]
-        myinfo.pop(0)
-        if len(myinfo) > 0:
-            pstate = PlotState(adv=self.adv, elements={"METROSCENE": self.elements["NEXT_METROSCENE"]}, rank=self.rank+2).based_on(self)
-            _ = content.load_dynamic_plot(camp, self.LABEL, pstate)
-        else:
-            camp.check_trigger("WIN", myinfo)
-        self.end_plot(camp, True)
-
+        myinfo = self.elements["INFO"]
+        myinfo.pop(camp, self)
 
     def generate_world_map_encounter(self, camp: gears.GearHeadCampaign, metroscene, return_wp, dest_scene, dest_wp,
                                      scenegen=gharchitecture.DeadZoneHighwaySceneGen,

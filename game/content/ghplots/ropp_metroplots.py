@@ -13,7 +13,7 @@ from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
 from pbge.scenes import waypoints
-from . import missionbuilder, mission_bigobs, worldmapwar
+from . import missionbuilder, mission_bigobs, worldmapwar, relayplots
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
@@ -153,8 +153,7 @@ class RoppDockHouseOfBlades(Plot):
         _ = self.seek_element(nart, "NEXT_METROSCENE", self._is_best_next, backup_seek_func=self._is_okay_next)
 
         # Needed elements for the Aegis Infiltrator subplot
-        self.elements["INFO_LIST"] = random.sample(self.SENTENCE_FORMS, 3)
-        self.elements["INFO_SUBJECT"] = "the Aegis infiltrator"
+        self.elements["INFO"] = relayplots.InfoRelayTracker("the Aegis infiltrator", random.sample(self.SENTENCE_FORMS, 1))
         self.elements["ALLIED_FACTION"] = gears.factions.BladesOfCrihna
         self.elements["ENEMY_FACTION"] = gears.factions.AegisOverlord
 
@@ -176,7 +175,7 @@ class RoppDockHouseOfBlades(Plot):
             hasattr(candidate, "metrodat") and gears.tags.SCENE_PUBLIC in candidate.attributes
             )
 
-    def INFO_LIST_WIN(self, camp):
+    def INFO_WIN(self, camp):
         print("Won the info relay")
         pass
 
