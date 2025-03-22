@@ -1,3 +1,7 @@
+* Rewrote name generator for hopefully more readable results
+* Configured nuitka build, in case I ever need to change packager again
+* Added ending to Raid on Pirate's Point
+* Added relay plots
 * Lancemate hire cost is at least $10,000
 * Loading a dynamic plot now correctly sends an UPDATE trigger
 * If changing team in world map war, player may become enemy of previous faction

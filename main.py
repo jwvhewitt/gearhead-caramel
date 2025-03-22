@@ -1,3 +1,19 @@
+# nuitka-project: --output-filename=ghcaramel
+# nuitka-project: --mode=onefile
+# nuitka-project: --follow-imports
+# nuitka-project: --include-data-dir={MAIN_DIRECTORY}/data=data
+# nuitka-project: --include-data-dir={MAIN_DIRECTORY}/design=design
+# nuitka-project: --include-data-dir={MAIN_DIRECTORY}/image=image
+# nuitka-project: --include-data-dir={MAIN_DIRECTORY}/music=music
+# nuitka-project: --include-data-dir={MAIN_DIRECTORY}/soundfx=soundfx
+# nuitka-project: --include-package=pygame
+# nuitka-project: --include-package=numpy
+# nuitka-project: --include-package=yapf
+# nuitka-project: --include-package=caramel-recolor-cython
+# nuitka-project: --nofollow-import-to=setuptools
+# nuitka-project: --nofollow-import-to=Cython
+
+
 import pbge
 import sys
 import os
@@ -7,13 +23,19 @@ import os
 if getattr(sys, "_MEIPASS", False):
     # PyInstaller build.
     gamedir = sys._MEIPASS
+    neargamedir = os.path.dirname(sys.argv[0])
 elif getattr(sys, "frozen", False):
     # cx_Freeze build.
     gamedir = os.path.dirname(sys.executable)
+    neargamedir = gamedir
 else:
     # The application is not frozen
     gamedir = os.path.dirname(__file__)
-#print(gamedir)
+    #neargamedir = gamedir
+    neargamedir = os.path.dirname(sys.argv[0])
+
+print(gamedir)
+print(neargamedir)
 
 pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
 pbge.please_stand_by()
@@ -30,7 +52,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.975"
+VERSION = "v0.976"
 
 class TitleScreenRedraw(object):
 
@@ -346,6 +368,15 @@ def test_map_generator(_tsrd):
     intscene.contents.append(pbge.randmaps.rooms.ClosedRoom())
     pbge.randmaps.debugviewer.DebugViewer.test_map_generation(intscene, intscenegen)
 
+def gen_names(namegen: pbge.namegen.NameGen):
+    print(namegen.filename)
+    start = len(namegen.forbidden.splitlines())
+    with open(pbge.util.user_dir("{}.txt".format(namegen.filename)), "w") as f:
+        for _ in range(1000):
+            f.write("{}\n".format(namegen.gen_word()))
+    print("Unique Names: {}".format(len(namegen.forbidden.splitlines()) - start))
+
+
 def play_the_game():
     gears.init_gears()
     game.init_game()
@@ -364,10 +395,13 @@ def play_the_game():
     logging.basicConfig(level=logging.DEBUG, filename=pbge.util.user_dir("errors.log"))
 
     #pbge.namegen.KoreanNameGen.generate_library2(pbge.util.data_dir("KoreanNames.txt"), pbge.util.data_dir("ng_korean2.json"))
-    #mynamegen = pbge.namegen.KoreanNameGen(pbge.util.data_dir("ng_korean2.json"))
+    #mynamegen = gears.selector.LUNA_NAMES
     #for t in range(200):
-    #    print(mynamegen.gen_word2())
-
+    #    print(mynamegen.gen_word())
+    #gen_names(gears.selector.LUNA_NAMES)
+    #gen_names(gears.selector.EARTH_NAMES)
+    #gen_names(gears.selector.MARS_NAMES)
+    #gen_names(gears.selector.ORBITAL_NAMES)
     #print(os.getenv("APPDATA"))
 
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)

@@ -85,22 +85,32 @@ OPPOSED_PAIRS = (
 class GreenZone(Singleton):
     name = "Green Zone"
 
+
 class DeadZone(Singleton):
     name = "Dead Zone"
+
 
 class L5Spinners(Singleton):
     name = "L5 Spinners"
 
+
 class L5DustyRing(Singleton):
     name = "L5 Dusty Ring"
+
 
 class Luna(Singleton):
     name = "Luna"
 
+
 class Mars(Singleton):
     name = "Mars"
 
-ORIGINS = (GreenZone,DeadZone,L5Spinners,L5DustyRing,Luna,Mars)
+
+class Venus(Singleton):
+    name = "Venus"
+
+
+ORIGINS = (GreenZone, DeadZone, L5Spinners, L5DustyRing, Luna, Mars, Venus)
 
 
 # Mutation Tags- Important for the portrait generator.

@@ -5570,6 +5570,75 @@ DEFAULT_GRAMMAR = {
                   ],
     },
 
+    "[THAT_IS_A_SERIOUS_ALLEGATION]": {
+        # Character reacts to a serious allegation with gravitas but caution.
+        Default: [
+            "That is a serious allegation.",
+            "That is important news, if true."
+        ],
+        personality.Cheerful: [
+            "This is not the sort of thing you ought to joke about.",
+        ],
+        personality.Grim: [
+            "If what you say is true, this could be a disaster.",
+        ],
+        personality.Easygoing: [
+            "Is that so? Interesting.",
+        ],
+        personality.Passionate: [
+            "What?! I can't believe it... but I can't deny it, either."
+        ],
+        personality.Sociable: [
+            "Who told you that?! This could be very serious.",
+        ],
+        personality.Shy: [
+            "I see.",
+        ],
+        personality.Peace: [
+            "This is disturbing news.",
+        ],
+        personality.Glory: [
+            "It's a good thing you brought this to me; it may not be too late.",
+        ],
+        personality.Justice: [
+            "Do you have proof? We must discern the truth of this matter.",
+        ],
+        personality.Duty: [
+            "I can hardly believe it, but must take your words seriously.",
+        ],
+        personality.Fellowship: [
+            "This news could tear us apart.",
+        ],
+        tags.Police: [
+            "An investigation must begin at once.",
+        ]
+    },
+
+    "[THAT_IS_FUNNY]": {
+        Default: [
+            "Ha! That's funny.", "Really? That's hilarious."
+        ],
+        personality.Cheerful: [
+            "BWA HA HA!!!", "ROFL!!!", "OMG WOW LMAO!"
+        ],
+        personality.Grim: [
+            "Heh... that is amusing.",
+        ],
+        personality.Easygoing: [
+            "Ha!", "This brings a smile to my face."
+        ],
+        personality.Passionate: [
+            "Just a minute... BWAA HA HA HA BWA HA HA!!!",
+        ],
+        personality.Sociable: [
+            "Oh, that's funny. I can't wait to tell everyone about this.",
+        ],
+        personality.Shy: [
+            "Amusing.",
+        ],
+    },
+
+
     "[THATS_GOOD]": {
         # Character reacts to good news.
         Default: ["Very good.",

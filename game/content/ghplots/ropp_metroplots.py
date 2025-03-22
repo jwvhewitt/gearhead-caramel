@@ -17,10 +17,8 @@ from . import missionbuilder, mission_bigobs, worldmapwar, relayplots
 from pbge.challenges import Challenge, AutoOffer
 from .shops_plus import get_building
 import collections
-
-ROPPCD_HERO_POINTS = "hero_points"
-ROPPCD_FOUND_CARGO = "found_cargo"
-ROPPCD_SPENT_CARGO = "spent_cargo"
+from .ropp_utils import ROPPCD_AEGIS_INFILTRATOR, ROPPCD_FOUND_CARGO, ROPPCD_SPENT_CARGO, ROPPCD_HERO_POINTS, \
+    ROPPCD_AIDED_DISSIDENTS
 
 
 # ***************************
@@ -153,7 +151,15 @@ class RoppDockHouseOfBlades(Plot):
         _ = self.seek_element(nart, "NEXT_METROSCENE", self._is_best_next, backup_seek_func=self._is_okay_next)
 
         # Needed elements for the Aegis Infiltrator subplot
-        self.elements["INFO"] = relayplots.InfoRelayTracker("the Aegis infiltrator", random.sample(self.SENTENCE_FORMS, 1))
+        self.elements["AEGIS_INFILTRATOR"] = gears.selector.random_character(
+            rank=self.rank+25, local_tags=(gears.personality.GreenZone,), camp=nart.camp,
+            can_cyberize=True, faction=gears.factions.AegisOverlord, job=gears.jobs.ALL_JOBS["Assassin"],
+            combatant=True
+        )
+        self.elements["INFO"] = relayplots.InfoRelayTracker(
+            "the Aegis infiltrator", 
+            random.sample(self.SENTENCE_FORMS, 2) + ["{} is the Aegis infiltrator".format(self.elements["AEGIS_INFILTRATOR"])]
+            )
         self.elements["ALLIED_FACTION"] = gears.factions.BladesOfCrihna
         self.elements["ENEMY_FACTION"] = gears.factions.AegisOverlord
 
@@ -175,9 +181,8 @@ class RoppDockHouseOfBlades(Plot):
             hasattr(candidate, "metrodat") and gears.tags.SCENE_PUBLIC in candidate.attributes
             )
 
-    def INFO_WIN(self, camp):
-        print("Won the info relay")
-        pass
+    def INFO_WIN(self, camp: gears.GearHeadCampaign):
+        camp.campdata[ROPPCD_AEGIS_INFILTRATOR] = self.elements["AEGIS_INFILTRATOR"]
 
     def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()

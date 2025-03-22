@@ -22,6 +22,10 @@ ROPPCD_AIDED_DISSIDENTS = "ROPPCD_AIDED_DISSIDENTS"
 E_WAR_STATUS = "E_WAR_STATUS"
 
 
+ROPPCD_HERO_POINTS = "hero_points"
+ROPPCD_FOUND_CARGO = "found_cargo"
+ROPPCD_SPENT_CARGO = "spent_cargo"
+ROPPCD_AEGIS_INFILTRATOR = "ROPPCD_AEGIS_INFILTRATOR"
 
 
 class ROPP_WarStarter(Plot):
@@ -76,9 +80,13 @@ class ROPP_WarStarter(Plot):
         self.seek_element(nart, "NPC_BOGO", self._seek_bogo, lock=True)
         self.seek_element(nart, "NPC_AEGIS", self._seek_aegis, lock=True)
 
+        # Add the joiner plots
         self.add_sub_plot(nart, "ROPP_SOLAR_NAVY_JOINER")
         self.add_sub_plot(nart, "ROPP_TREASURE_HUNTERS_JOINER")
         self.add_sub_plot(nart, "ROPP_AEGIS_JOINER")
+
+        # Add other plots which may require the major NPCs.
+        self.add_sub_plot(nart, "ROPP_AEGIS_INFILTRATOR")
 
         return True
 
@@ -123,6 +131,119 @@ class ROPP_WarStarter(Plot):
         myround = worldmapwar.WorldMapWarRound(self.world_map_war, camp)
         while myround.keep_going():
             result = myround.perform_turn()
+
+
+class AegisInfiltratorPlot(Plot):
+    LABEL = "ROPP_AEGIS_INFILTRATOR"
+    scope = True
+    active = True
+
+    def custom_init(self, nart):
+        self.have_informed_guild = False
+        self.have_informed_navy = False
+        self.have_activated_peace_offer = False
+        self.have_activated_alliance_offer = False
+        return True
+
+    def NPC_PINSENT_offers(self, camp):
+        mylist = list()
+
+        ainpc = camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR, None)
+        if ainpc:
+            pass
+
+        return mylist
+
+    def NPC_BRITAINE_offers(self, camp):
+        mylist = list()
+        ainpc = camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR, None)
+        if ainpc:
+            mylist.append(Offer(
+                "[THAT_IS_FUNNY] So Aegis pulled one over on the fox-king of the dust sea? What I'd give to see Jjang Bogo's face when he finds out...",
+                ContextTag([context.CUSTOM]),
+                data={"reply": "Aegis spy {} has infiltrated the Treasure Hunters Guild.".format(ainpc)}
+            ))
+
+        return mylist
+
+    def NPC_CHARLA_offers(self, camp):
+        mylist = list()
+        if not self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.AegisOverlord) and not self.have_activated_peace_offer:
+            if camp.are_faction_allies(gears.factions.AegisOverlord, gears.factions.TreasureHunters):
+                mylist.append(Offer(
+                    "That may be so, but as long as they maintain an alliance with the Treasure Hunter's Guild we must continue to fight.",
+                    ContextTag([context.CUSTOM]),
+                    data={"reply": "Aegis Overlord has been defeated."}
+                ))
+                mylist.append(Offer(
+                    "That may be so, but as long as the Treasure Hunter's Guild counts them as allies we will continue to fight.",
+                    ContextTag([context.UNFAVORABLE_CUSTOM]),
+                    data={"reply": "Aegis Overlord has been defeated."}
+                ))
+            else:
+                mylist.append(Offer(
+                    "Since the alliance between Aegis and the Treasure Hunters Guild has been broken, our objectives have been satisfied. If Jjang Bogo were willing to sign a peace agreement this war could be over soon.",
+                    ContextTag([context.CUSTOM]),
+                    data={"reply": "Aegis Overlord has been defeated."},
+                    effect=self._activate_peace_offer
+                ))
+
+                mylist.append(Offer(
+                    "Since the alliance between Aegis and the Treasure Hunters Guild has been broken, our objectives have been satisfied. If Jjang Bogo were willing to sign a peace agreement this war could be over soon.",
+                    ContextTag([context.UNFAVORABLE_CUSTOM]),
+                    data={"reply": "Aegis Overlord has been defeated."},
+                    effect=self._activate_peace_offer
+                ))
+
+        return mylist
+
+    def _activate_peace_offer(self, camp):
+        self.have_activated_peace_offer = True
+        self._update_memo()
+
+    def _update_memo(self):
+        if self.have_activated_peace_offer and self.have_activated_alliance_offer:
+            self.memo = ""
+        elif self.have_activated_alliance_offer:
+            self.memo = ""
+        elif self.have_activated_peace_offer:
+            self.memo = "Now that Aegis Overlord has been driven from Pirate's Point, Admiral Charla has expressed willingness to accept peace with the Treasure Hunters Guild."
+
+    def NPC_BOGO_offers(self, camp: gears.GearHeadCampaign):
+        mylist = list()
+
+        ainpc = camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR, None)
+        if ainpc:
+            if camp.are_faction_allies(gears.factions.TreasureHunters, gears.factions.AegisOverlord) and not self.have_informed_guild:
+                mylist.append(Offer(
+                    "[THAT_IS_A_SERIOUS_ALLEGATION] I will attend to this personally, and if what you say is true, the Guild's relationship with Aegis is over.",
+                    context=ContextTag([context.CUSTOM,]),
+                    data={"reply": "{} is a spy for Aegis; the Guild's inner circle has been compromised.".format(ainpc)},
+                    effect=self._inform_guild, subject=self, subject_start=True
+                ))
+
+                mylist.append(Offer(
+                    "[THAT_IS_A_SERIOUS_ALLEGATION] I will attend to this personally, and if what you say is true, the Guild's relationship with Aegis is over.",
+                    context=ContextTag([context.UNFAVORABLE_CUSTOM,]),
+                    data={"reply": "Aegis has compromized your guild; {} is the name of their agent.".format(ainpc)},
+                    effect=self._inform_guild, subject=self, subject_start=True
+                ))
+
+        return mylist
+
+    def _inform_guild(self, camp: gears.GearHeadCampaign):
+        self.have_informed_guild = True
+        camp.set_faction_enemies(gears.factions.TreasureHunters, gears.factions.AegisOverlord)
+        _ = pbge.BasicNotification("The Treasure Hunters Guild and Aegis Overlord are now enemies.", count=150)
+        mynpc = camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR, None)
+        myrelationship = camp.get_relationship(mynpc)
+        myrelationship.role = gears.relationships.R_ADVERSARY
+        myrelationship.history.append(gears.relationships.Memory(
+            "you told Jjang Bogo that I was working for Aegis",
+            "I got you thrown out of the Treasure Hunters Guild for spying",
+            -10, (gears.relationships.MEM_Clash, gears.relationships.MEM_Ideological)
+        ))
+        camp.egg.dramatis_personae.add(mynpc)
 
 
 class SolarNavyJoinerPlot(Plot):

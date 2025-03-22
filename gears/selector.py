@@ -10,6 +10,7 @@ from . import color
 from . import jobs
 import math
 import collections
+import pbge
 
 DESIGN_LIST = list()
 STC_LIST = list()
@@ -17,12 +18,16 @@ MONSTER_LIST = list()
 
 DESIGN_BY_NAME = dict()
 MAJOR_NPCS = dict()
-EARTH_NAMES = None
-LUNA_NAMES = None
-ORBITAL_NAMES = None
-MARS_NAMES = None
-GENERIC_NAMES = None
-DEADZONE_TOWN_NAMES = None
+
+EARTH_NAMES: pbge.namegen.NameGen = None
+DEADZONE_NAMES: pbge.namegen.NameGen = None
+LUNA_NAMES: pbge.namegen.NameGen = None
+ORBITAL_NAMES: pbge.namegen.NameGen = None
+MARS_NAMES: pbge.namegen.NameGen = None
+VENUS_NAMES: pbge.namegen.NameGen = None
+GENERIC_NAMES: pbge.namegen.NameGen = None
+DEADZONE_TOWN_NAMES: pbge.namegen.NameGen = None
+GREENZONE_TOWN_NAMES: pbge.namegen.NameGen = None
 
 
 def calc_threat_points(level, percent=50):
@@ -58,14 +63,18 @@ def check_design_list(echo_on=False):
 
 def random_name(npc):
     candidates = list()
-    if personality.GreenZone in npc.personality or personality.DeadZone in npc.personality:
+    if personality.GreenZone in npc.personality:
         candidates.append(EARTH_NAMES)
+    if personality.DeadZone in npc.personality:
+        candidates.append(DEADZONE_NAMES)
     if personality.L5Spinners in npc.personality or personality.L5DustyRing in npc.personality:
         candidates.append(ORBITAL_NAMES)
     if personality.Mars in npc.personality:
         candidates.append(MARS_NAMES)
     if personality.Luna in npc.personality:
         candidates.append(LUNA_NAMES)
+    if personality.Venus in npc.personality:
+        candidates.append(VENUS_NAMES)
     if random.randint(1, 10) == 7 or not candidates:
         candidates.append(GENERIC_NAMES)
     ngen = random.choice(candidates)

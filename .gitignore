@@ -18,6 +18,8 @@ develop-eggs
 lib
 lib64
 __pycache__
+main.bin
+ghcaramel
 
 # Installer logs
 pip-log.txt
@@ -44,6 +46,9 @@ caramel-recolor-cython/pbgerecolor.c
 *.py~
 *.code-workspace
 .vscode
+main.build
+main.dist
+main.onefile-build
 
 
 

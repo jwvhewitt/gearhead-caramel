@@ -909,7 +909,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             repair_total += pc.restore_all()
         return repair_total
 
-    def get_relationship(self, npc: base.Character):
+    def get_relationship(self, npc: base.Character) -> relationships.Relationship:
         if npc.mnpcid:
             npc.relationship = self.egg.major_npc_records.setdefault(npc.mnpcid, relationships.Relationship())
             return npc.relationship
@@ -1547,12 +1547,15 @@ def string_tags_to_singletons(tag_list):
 #  ******************************
 
 def init_gears():
-    selector.EARTH_NAMES = pbge.namegen.NameGen("ng_earth.txt")
-    selector.ORBITAL_NAMES = pbge.namegen.NameGen("ng_orbital.txt")
-    selector.MARS_NAMES = pbge.namegen.NameGen("ng_mars.txt")
-    selector.LUNA_NAMES = pbge.namegen.NameGen("ng_lunar.txt")
-    selector.GENERIC_NAMES = pbge.namegen.NameGen("ng_generic.txt")
-    selector.DEADZONE_TOWN_NAMES = pbge.namegen.NameGen("ng_dztowns.txt")
+    selector.DEADZONE_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_deadzone.json"))
+    selector.EARTH_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_earth.json"))
+    selector.ORBITAL_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_orbital.json"))
+    selector.MARS_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_mars.json"))
+    selector.LUNA_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_lunar.json"))
+    selector.VENUS_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_venus.json"))
+    selector.GENERIC_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_generic.json"))
+    selector.DEADZONE_TOWN_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_dztowns.json"))
+    selector.GREENZONE_TOWN_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_gztowns.json"))
 
     if not os.path.exists(pbge.util.user_dir('design')):
         os.mkdir(pbge.util.user_dir('design'))
