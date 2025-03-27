@@ -3993,6 +3993,23 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[LET_ME_GET_THIS_STRAIGHT]": {
+        Default: ["Let me get this straight.",
+                  ],
+        personality.Cheerful: ["Humor me for a bit; I want to make sure I understand.",
+                               ],
+        personality.Grim: ["Are you seriously saying what I think you are?",
+                           ],
+        personality.Easygoing: ["Hey, I just want to make sure we're both clear about this.",
+                                ],
+        personality.Passionate: ["There can be no mistakes about this!"
+                                 ],
+        personality.Sociable: ["Let me make sure that I'm understanding you correctly."
+                               ],
+        personality.Shy: ["Ok, so...",
+                          ],
+    },
+
     "[LET_ME_KNOW_IF_YOU_HEAR_ANYTHING]": {
         Default: ["Let me know if you hear anything about this.",
                   ],

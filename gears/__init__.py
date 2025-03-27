@@ -3,6 +3,7 @@ import pbge
 import random
 import copy
 import pygame
+import math
 
 GEAR_TYPES = dict()
 SINGLETON_TYPES = dict()
@@ -1063,9 +1064,20 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         if fac:
             self.egg.faction_scores[fac.get_faction_tag()] += delta
 
+    @staticmethod
+    def scale_raw_faction_mod(x):
+        if x != 0:
+            if x > 0:
+                sign = 1
+            else:
+                sign = -1
+            return round(sign * math.log(abs(x), 1.25))
+        else:
+            return 0
+
     def get_faction_reaction_modifier(self, fac):
         if fac:
-            return self.egg.faction_scores.get(fac.get_faction_tag(), 0)
+            return min(max(self.scale_raw_faction_mod(self.egg.faction_scores.get(fac.get_faction_tag(), 0)), -30), 30)
         else:
             return 0
 

@@ -33,6 +33,10 @@ class LunarDistrictPlot(Plot):
 
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
+        for t in range(random.randint(2, 5)):
+            npc = gears.selector.random_character(random.randint(1,50), local_tags=(gears.personality.Luna,))
+            npc.place(self.elements["LOCALE"], team=self.elements["LOCALE"].civilian_team)
+
         return True
 
 
@@ -51,6 +55,8 @@ class ResidentialPlot(Plot):
         self.add_sub_plot(nart, "LOCAL_PROBLEM", ident="LOCALPROBLEM")
         self.add_sub_plot(nart, "RANDOM_SHOP")
         self.finished_local_problem = False
+        for t in range(random.randint(2, 5)):
+            self.add_sub_plot(nart, "ADD_PERSON_TO_LOCALE", necessary=False)
         return True
 
     def LOCALPROBLEM_WIN(self, camp):
@@ -75,6 +81,8 @@ class ShoppingDistrictPlot(Plot):
         self.add_sub_plot(nart, "RANDOM_SHOP")
         self.add_sub_plot(nart, "SHOP_SPECIALIST")
         self.finished_local_problem = False
+        for t in range(random.randint(1, 3)):
+            self.add_sub_plot(nart, "ADD_PERSON_TO_LOCALE", necessary=False)
         return True
 
     def LOCALPROBLEM_WIN(self, camp):
@@ -666,6 +674,9 @@ class UptownPlot(Plot):
     def custom_init(self, nart):
         self.elements["METROSCENE"] = self.elements["LOCALE"]
         self.add_sub_plot(nart, "RANDOM_SHOP")
+        for t in range(random.randint(2, 5)):
+            self.add_sub_plot(nart, "ADD_PERSON_TO_LOCALE", necessary=False)
+
         return True
 
 

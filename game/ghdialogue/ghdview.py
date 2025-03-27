@@ -86,7 +86,7 @@ class ConvoVisualizer(object):
         draw_text(my_state.small_font,self.npc_desc,name_rect,color=pbge.GREY,justify=0)
 
         if self.pc:
-            react_level = ( self.npc.get_reaction_score(self.pc,self.camp) + 99 )//40
+            react_level = min(max(( self.npc.get_reaction_score(self.pc,self.camp) + 99 )//40, 0), 4)
             self.react_sprite.render(self.REACT_AREA.get_rect(),react_level)
 
     def rollout(self):

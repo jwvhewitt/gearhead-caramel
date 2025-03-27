@@ -218,7 +218,7 @@ class BAM_TimedDefense(Plot):
         self.reinforcement_rooms = list()
         for t, anc in enumerate(pbge.randmaps.anchors.EDGES):
             if anc is not entry_anchor:
-                roomtype = self.elements["ARCHITECTURBAME_ME"].get_a_room()
+                roomtype = self.elements["ARCHITECTURE"].get_a_room()
                 myroom = self.register_element("CORNER_ROOM_{}".format(t), roomtype(10, 10, anchor=anc), dident="LOCALE")
                 self.reinforcement_rooms.append(myroom)
                 if anc is pbge.randmaps.anchors.OPPOSITE_EDGE[entry_anchor]:

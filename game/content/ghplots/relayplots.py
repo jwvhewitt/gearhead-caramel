@@ -39,7 +39,7 @@ class InfoRelayTracker:
     def pop(self, camp, plot):
         if len(self.info_list) > 1:
             self.info_list.pop(0)
-            pstate = PlotState(adv=self.adv, elements={"METROSCENE": self.elements["NEXT_METROSCENE"]}, rank=self.rank+2).based_on(self)
+            pstate = PlotState(adv=plot.adv, elements={"METROSCENE": plot.elements["NEXT_METROSCENE"]}, rank=plot.rank+2).based_on(plot)
             _ = content.load_dynamic_plot(camp, "INFO_RELAY", pstate)
         else:
             camp.check_trigger("WIN", self)
@@ -53,8 +53,8 @@ class TalkRelay(Plot):
     active = True
 
     @staticmethod
-    def is_enemy_character(plot, camp, npc):
-        return bool(npc.faction and camp.are_faction_allies(npc, plot.elements.get("ENEMY_FACTION")))
+    def is_bad_character(plot, camp, npc):
+        return bool(npc.faction and camp.are_faction_allies(npc, plot.elements.get("ENEMY_FACTION"))) or npc.scene.get_metro_scene() is not plot.elements["METROSCENE"]
 
     RUMOR = Rumor(
         "{NPC} knows something about {INFO}",
@@ -62,7 +62,7 @@ class TalkRelay(Plot):
         offer_subject="{NPC} knows something about",
         offer_subject_data="{NPC} and {INFO}",
         memo="{NPC} at {NPC_SCENE} knows something about {INFO}.",
-        prohibited_npcs=("NPC",), npc_is_prohibited_fun=is_enemy_character
+        prohibited_npcs=("NPC",), npc_is_prohibited_fun=is_bad_character
     )
 
     @override
@@ -145,14 +145,15 @@ class TalkRelay(Plot):
             myadv = missionbuilder.BuildAMissionSeed(
                 camp, "{} Ambush".format(dest_scene), metroscene, return_wp,
                 enemy_faction=self.elements.get("ENEMY_FACTION"), rank=myrank,
-                objectives=(missionbuilder.BAMO_DEFEAT_COMMANDER,),
+                objectives=(missionbuilder.BAMO_DEFEAT_BLOCKADE,),
                 adv_type="BAM_ROAD_MISSION",
                 custom_elements={"ADVENTURE_GOAL": dest_wp, "DEST_SCENE": dest_scene, "ENTRANCE_ANCHOR": myanchor},
                 scenegen=scenegen,
                 architecture=architecture(room_classes=(pbge.randmaps.rooms.FuzzyRoom,)),
                 cash_reward=0,
                 mission_grammar=missionbuilder.MissionGrammar(
-                    objective_ep="keep you away from {}".format(dest_scene),
+                    objective_ep="prevent you from investigating {INFO}".format(**self.elements),
+                    objective_pp="get to {}".format(dest_scene),
                     win_pp="I got past your lance",
                     win_ep="you fought your way into {}".format(dest_scene),
                     lose_pp="you stopped me from entering {}".format(dest_scene),

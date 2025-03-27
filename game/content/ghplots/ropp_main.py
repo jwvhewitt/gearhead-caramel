@@ -514,8 +514,8 @@ class ropp_Scenario(Plot):
             is_metro=True,
             faction=gears.factions.AegisOverlord,
             attributes=[
-                gears.tags.City, personality.GreenZone,
-                gears.tags.SCENE_OUTDOORS, gears.tags.SCENE_PUBLIC
+                gears.tags.City, gears.tags.SCENE_OUTDOORS,
+                gears.tags.SCENE_PUBLIC, personality.Luna
             ],
             exploration_music='Alena Smirnova - Hopeless waltz.ogg',
             combat_music='Late.ogg')

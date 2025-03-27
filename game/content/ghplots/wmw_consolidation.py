@@ -91,7 +91,7 @@ class EliminateScoutsConsolidation(Plot):
             },
             memo=pbge.challenges.ChallengeMemo(
                 "You must eliminate the scout team from {ENEMY_FACTION} who have been spotted near {METROSCENE}.".format(**self.elements)
-            ), memo_active=True, deactivate_on_win=True, num_simultaneous_plots=2
+            ), memo_active=True, deactivate_on_win=True, num_simultaneous_plots=2, points_target=6
         ))
 
         return True

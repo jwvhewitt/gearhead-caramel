@@ -707,6 +707,17 @@ class Explorer(object):
                                 print("{} ({}): {}\n --{}\n --Renown {}, {}\n --Memories: {}".format(pc, pc.faction, pc.get_text_desc(self.camp), pc.get_tags(False), pc.renown, pc.relationship.hilights(), len(pc.relationship.history)))
                                 for mem in pc.relationship.history:
                                     print(mem)
+                    elif gdi.unicode == "J" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        print("Checking Unemployment")
+                        all_plots = list(self.camp.all_plots())
+                        npcs = [candidate for candidate in self.camp.all_contents(self.camp) if (
+                            isinstance(candidate, gears.base.Character) and not candidate.job
+                        )]
+                        for pc in npcs:
+                            print("{} ({}) @{}".format(pc, pc.get_text_desc(self.camp), pc.scene))
+                            for p in all_plots:
+                                if p.get_element_idents(p):
+                                    print(" -> {} [{}]".format(p, p.get_element_idents()))
                     elif gdi.unicode == "V" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for pc in list(self.camp.party):
                             if pc in self.scene.contents and isinstance(pc,

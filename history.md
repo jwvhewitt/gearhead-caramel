@@ -1,3 +1,6 @@
+* Fixed error causing jobless NPCs
+* Faction based reaction modifier has been adjusted
+* Fixed bug with conversation visualizer when NPC has reaction score of -100
 * Rewrote name generator for hopefully more readable results
 * Configured nuitka build, in case I ever need to change packager again
 * Added ending to Raid on Pirate's Point

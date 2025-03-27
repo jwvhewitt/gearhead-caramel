@@ -20,6 +20,7 @@ BAMO_AID_ALLIED_FORCES = "BAMO_AidAlliedForces"
 BAMO_CAPTURE_THE_MINE = "BAMO_CaptureMine"
 BAMO_CAPTURE_BUILDINGS = "BAMO_CaptureBuildings"
 BAMO_DEFEAT_ARMY = "BAMO_DefeatArmy"  # 3 points
+BAMO_DEFEAT_BLOCKADE = "BAMO_DefeatBlockade"    # 2 points
 BAMO_DEFEAT_COMMANDER = "BAMO_DefeatCommander"  # 2 points
 BAMO_DEFEAT_NPC = "BAMO_DefeatNPC"  # 2 points
 BAMO_DUEL_NPC = "BAMO_DuelNPC"
@@ -736,6 +737,60 @@ class BAM_DefeatArmy(Plot):
 
     def _assistant_monologue(self, camp):
         SimpleMonologueDisplay("[NO_PROBLEM_FOR_TWO_OF_US]", self.elements["_assistant"])(camp)
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+
+
+class BAM_DefeatBlockade(Plot):
+    LABEL = BAMO_DEFEAT_BLOCKADE
+    active = True
+    scope = "LOCALE"
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        myfac = self.elements.get("ENEMY_FACTION")
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        self.register_element("ROOM", roomtype(15, 15, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        if myfac:
+            mynpc = self.seek_element(nart, "_commander", self.adv.is_good_enemy_npc, must_find=False, lock=True,
+                                      backup_seek_func=self.adv.is_good_backup_enemy)
+        else:
+            mynpc = None
+        if mynpc:
+            unit_size = 120
+            if mynpc.renown > self.rank:
+                unit_size = max(unit_size + self.rank - mynpc.renown, 50)
+            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+            myunit = gears.selector.RandomMechaUnit(self.rank, unit_size, myfac, myscene.environment,
+                                                    add_commander=False)
+            self.add_sub_plot(nart, "MC_ENEMY_DEVELOPMENT", elements={"NPC": mynpc})
+
+        else:
+            myunit = gears.selector.RandomMechaUnit(self.rank, 150, myfac, myscene.environment, add_commander=True)
+            mynpc = self.register_element("_commander", myunit.commander)
+            self.add_sub_plot(nart, "MC_NDBCONVERSATION", elements={"NPC": myunit.commander.get_pilot()})
+
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Defeat {}'s Lance".format(mynpc.get_pilot()), MAIN_OBJECTIVE_VALUE*2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements["_commander"]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]

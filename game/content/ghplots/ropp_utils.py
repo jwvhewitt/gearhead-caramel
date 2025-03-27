@@ -98,6 +98,10 @@ class ROPP_WarStarter(Plot):
         wardict[gears.factions.TheSolarNavy].unpopular = False
         wardict[gears.factions.AegisOverlord].occtype = wmw_occupation.WMWO_IRON_FIST
 
+    def WORLD_MAP_WAR_PEACE(self, camp):
+        pstate = PlotState(adv=Adventure("Resolution"), elements={E_WAR_STATUS: worldmapwar.WorldMapWar.WAR_WON, "WINNER": gears.factions.TreasureHunters}).based_on(self)
+        _ = content.load_dynamic_plot(camp, "ROPP_RESOLUTION", pstate)
+
     def ROPPWAR_WIN(self, camp: gears.GearHeadCampaign):
         pstate = PlotState(adv=Adventure("Resolution"), elements={E_WAR_STATUS: worldmapwar.WorldMapWar.WAR_WON}).based_on(self)
         _ = content.load_dynamic_plot(camp, "ROPP_RESOLUTION", pstate)
@@ -143,14 +147,35 @@ class AegisInfiltratorPlot(Plot):
         self.have_informed_navy = False
         self.have_activated_peace_offer = False
         self.have_activated_alliance_offer = False
+        self.have_accepted_peace = False
+        self.set_initial_memo = False
         return True
+
+    def t_UPDATE(self, camp):
+        if camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR) and not self.memo and not self.set_initial_memo:
+            self.memo = "You have learned that {} of the Treasure Hunter's Guild is secretly working for Aegis Overlord.".format(camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR))
+            self.set_initial_memo = True
+        if self.elements["WORLD_MAP_WAR"].get_war_status(camp):
+            self.end_plot(camp, True)
 
     def NPC_PINSENT_offers(self, camp):
         mylist = list()
 
-        ainpc = camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR, None)
-        if ainpc:
-            pass
+        if self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.AegisOverlord) and not self.have_activated_alliance_offer:
+            if camp.are_faction_enemies(gears.factions.AegisOverlord, gears.factions.TreasureHunters):
+                mylist.append(Offer(
+                    "So now both of us face a common enemy... If Jjang Bogo could be persuaded to form a temporary alliance with the Solar Navy, we could make short work of Aegis.",
+                    ContextTag([context.CUSTOM]),
+                    data={"reply": "Aegis Overlord and the Treasure Hunters are no longer aligned."},
+                    effect=self._activate_alliance_offer
+                ))
+
+                mylist.append(Offer(
+                    "So now both of us face a common enemy... If Jjang Bogo could be persuaded to form a temporary alliance with the Solar Navy, we could make short work of Aegis.",
+                    ContextTag([context.UNFAVORABLE_CUSTOM]),
+                    data={"reply": "Aegis Overlord has broken their alliance with the Treasure Hunters."},
+                    effect=self._activate_alliance_offer
+                ))
 
         return mylist
 
@@ -201,11 +226,15 @@ class AegisInfiltratorPlot(Plot):
         self.have_activated_peace_offer = True
         self._update_memo()
 
+    def _activate_alliance_offer(self, camp):
+        self.have_activated_alliance_offer = True
+        self._update_memo()
+
     def _update_memo(self):
         if self.have_activated_peace_offer and self.have_activated_alliance_offer:
-            self.memo = ""
+            self.memo = "With Aegis both defeated and no longer aligned with the Treasure Hunter's Guild, now would be a good time to broker a peace deal."
         elif self.have_activated_alliance_offer:
-            self.memo = ""
+            self.memo = "Now that the Treasure Hunter's Guild is fighting Aegis Overlord, it may be possible to broker a truce with the Solar Navy to drive Aegis out of Pirate's Point for good."
         elif self.have_activated_peace_offer:
             self.memo = "Now that Aegis Overlord has been driven from Pirate's Point, Admiral Charla has expressed willingness to accept peace with the Treasure Hunters Guild."
 
@@ -219,17 +248,138 @@ class AegisInfiltratorPlot(Plot):
                     "[THAT_IS_A_SERIOUS_ALLEGATION] I will attend to this personally, and if what you say is true, the Guild's relationship with Aegis is over.",
                     context=ContextTag([context.CUSTOM,]),
                     data={"reply": "{} is a spy for Aegis; the Guild's inner circle has been compromised.".format(ainpc)},
-                    effect=self._inform_guild, subject=self, subject_start=True
+                    effect=self._inform_guild, 
                 ))
 
                 mylist.append(Offer(
                     "[THAT_IS_A_SERIOUS_ALLEGATION] I will attend to this personally, and if what you say is true, the Guild's relationship with Aegis is over.",
                     context=ContextTag([context.UNFAVORABLE_CUSTOM,]),
                     data={"reply": "Aegis has compromized your guild; {} is the name of their agent.".format(ainpc)},
-                    effect=self._inform_guild, subject=self, subject_start=True
+                    effect=self._inform_guild, 
                 ))
 
+        if not self.have_accepted_peace:
+            if self.have_activated_peace_offer:
+                mylist.append(Offer(
+                    "[LET_ME_GET_THIS_STRAIGHT] The Solar Navy will cease all hostilities and withdraw from Pirate's Point? The Treasure Hunter's Guild will remain in control of the city?",
+                    context=ContextTag([context.CUSTOM,]),
+                    data={"reply": "I come to you with a peace offer from the Solar Navy."}, 
+                    subject=self, subject_start=True
+                ))
+
+                mylist.append(Offer(
+                    "Your offer is accepted. Let's call the troops and tell them they can stop shooting now.",
+                    context=ContextTag([context.CUSTOMREPLY,]),
+                    data={"reply": "Yes, that's correct. The war is over."}, 
+                    subject=self, effect=self._accept_peace, dead_end=True
+                ))
+
+                mylist.append(Offer(
+                    "Don't wait too long. [GOODBYE]",
+                    context=ContextTag([context.CUSTOMREPLY,]),
+                    data={"reply": "[I_WILL_COME_BACK_LATER]"}, 
+                    subject=self, dead_end=True
+                ))
+
+                mylist.append(Offer(
+                    "[LET_ME_GET_THIS_STRAIGHT] The Solar Navy will cease all hostilities and withdraw from Pirate's Point? The Treasure Hunter's Guild will remain in control of the city?",
+                    context=ContextTag([context.UNFAVORABLE_CUSTOM,]),
+                    data={"reply": "I come to you with a peace offer from the Solar Navy."}, 
+                    subject=self, subject_start=True
+                ))
+
+ 
+            elif self.have_activated_alliance_offer:
+                if self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.AegisOverlord):
+                    if self.have_informed_guild or self.elements["WORLD_MAP_WAR"].player_team is gears.factions.TreasureHunters:
+                        mylist.append(Offer(
+                            "[LET_ME_GET_THIS_STRAIGHT] The Solar Navy and the Treasure Hunter's Guild will fight side by side to rid Pirate's Point of Aegis Overlord. It may be a challenge convincing our troops to go along, as there is a lot of mistrust on both sides.",
+                            context=ContextTag([context.CUSTOM,]),
+                            data={"reply": "I come to you with an alliance offer from the Solar Navy."}, 
+                            subject=self, subject_start=True
+                        ))
+
+                        mylist.append(Offer(
+                            "[LET_ME_GET_THIS_STRAIGHT] The Solar Navy and the Treasure Hunter's Guild will fight side by side to rid Pirate's Point of Aegis Overlord. It may be a challenge convincing our troops to go along, as there is a lot of mistrust on both sides.",
+                            context=ContextTag([context.UNFAVORABLE_CUSTOM,]),
+                            data={"reply": "I come to you with an alliance offer from the Solar Navy."}, 
+                            subject=self, subject_start=True
+                        ))
+
+                        mylist.append(Offer(
+                            "I think you're right. For now, the Treasure Hunter's Guild and the Solar Navy will work side by side... to kick treacherous Lunar arse.",
+                            context=ContextTag([context.CUSTOMREPLY,]),
+                            data={"reply": "True, but I think it's worth trying."}, 
+                            subject=self, effect=self._accept_alliance, dead_end=True
+                        ))
+
+                        mylist.append(Offer(
+                            "Don't wait too long. [GOODBYE]",
+                            context=ContextTag([context.CUSTOMREPLY,]),
+                            data={"reply": "[I_WILL_COME_BACK_LATER]"}, 
+                            subject=self, dead_end=True
+                        ))
+                    else:
+                        mylist.append(Offer(
+                            "What reason do I have to trust this alliance? I have already been betrayed by one ally, and we're now fighting a war on two fronts. I'll need a demonstration of your goodwill before I'm willing to take this seriously.",
+                            context=ContextTag([context.CUSTOM,]),
+                            data={"reply": "I come to you with an alliance offer from the Solar Navy."}, 
+                            dead_end=True
+                        ))
+
+                        mylist.append(Offer(
+                            "What reason do I have to trust this alliance? I have already been betrayed by one ally, and we're now fighting a war on two fronts. I'll need a demonstration of your goodwill before I'm willing to take this seriously.",
+                            context=ContextTag([context.UNFAVORABLE_CUSTOM,]),
+                            data={"reply": "I come to you with an alliance offer from the Solar Navy."}, 
+                            dead_end=True
+                        ))
+
+                else:
+                    mylist.append(Offer(
+                        "Here are my terms. The Solar Navy will cease their aggression immediately. After helping us clean up the stragglers from Aegis, they will withdraw from Pirate's Point and leave the Treasure Hunter's Guild in peace. Can you guarantee this?",
+                        context=ContextTag([context.CUSTOM,]),
+                        data={"reply": "I come to you with an alliance offer from the Solar Navy."}, 
+                        subject=self, subject_start=True
+                    ))
+
+                    mylist.append(Offer(
+                        "In that case, I welcome this new friendship with the Terran Federation. Let's put an end to all this unpleasantness.",
+                        context=ContextTag([context.CUSTOMREPLY,]),
+                        data={"reply": "Yes, that's correct. The war is over."}, 
+                        subject=self, effect=self._accept_peace, dead_end=True
+                    ))
+
+                    mylist.append(Offer(
+                        "Be quick about it. [GOODBYE]",
+                        context=ContextTag([context.CUSTOMREPLY,]),
+                        data={"reply": "[I_WILL_COME_BACK_LATER]"}, 
+                        subject=self, dead_end=True
+                    ))
+
+                    mylist.append(Offer(
+                        "Here are my terms. The Solar Navy will cease their aggression immediately. After helping us clean up the stragglers from Aegis, they will withdraw from Pirate's Point and leave the Treasure Hunter's Guild in peace. Can you guarantee this?",
+                        context=ContextTag([context.UNFAVORABLE_CUSTOM,]),
+                        data={"reply": "I come to you with an alliance offer from the Solar Navy."}, 
+                        subject=self, subject_start=True
+                    ))
+
         return mylist
+
+    def _accept_peace(self, camp: gears.GearHeadCampaign):
+        self.have_accepted_peace = True
+        camp.check_trigger("PEACE", self.elements["WORLD_MAP_WAR"])
+        self.memo = None
+
+    def _accept_alliance(self, camp):
+        camp.set_faction_allies(gears.factions.TreasureHunters, gears.factions.TheSolarNavy)
+        camp.set_faction_allies(gears.factions.TreasureHunters, gears.factions.TerranDefenseForce)
+        camp.set_faction_allies(gears.factions.TreasureHunters, gears.factions.Guardians)
+        camp.set_faction_allies(gears.factions.TreasureHunters, gears.factions.TerranFederation)
+        self.have_accepted_peace = True
+
+        if not self.elements["WORLD_MAP_WAR"].faction_is_active(gears.factions.AegisOverlord):
+            camp.check_trigger("PEACE", self.elements["WORLD_MAP_WAR"])
+        self.memo = None
 
     def _inform_guild(self, camp: gears.GearHeadCampaign):
         self.have_informed_guild = True
@@ -237,6 +387,7 @@ class AegisInfiltratorPlot(Plot):
         _ = pbge.BasicNotification("The Treasure Hunters Guild and Aegis Overlord are now enemies.", count=150)
         mynpc = camp.campdata.get(ROPPCD_AEGIS_INFILTRATOR, None)
         myrelationship = camp.get_relationship(mynpc)
+        myrelationship.attitude = random.choice((gears.relationships.A_RESENT, gears.relationships.A_EQUAL, gears.relationships.A_DISTANT))
         myrelationship.role = gears.relationships.R_ADVERSARY
         myrelationship.history.append(gears.relationships.Memory(
             "you told Jjang Bogo that I was working for Aegis",
@@ -244,6 +395,7 @@ class AegisInfiltratorPlot(Plot):
             -10, (gears.relationships.MEM_Clash, gears.relationships.MEM_Ideological)
         ))
         camp.egg.dramatis_personae.add(mynpc)
+        camp.freeze(mynpc)
 
 
 class SolarNavyJoinerPlot(Plot):
@@ -617,12 +769,15 @@ class RoppResolutionExtravaganza(Plot):
         # Actually, there is a difference between whether the PC won or lost- the music!
         player_faction = self.elements["WORLD_MAP_WAR"].player_team
         self.elements["PLAYER_FACTION"] = player_faction
-        if self.elements.get(E_WAR_STATUS) == worldmapwar.WorldMapWar.WAR_WON:
-            music = "yoitrax - Warrior.ogg"
-            self.elements["WINNER"] = player_faction
+        if not self.elements.get("WINNER"):
+            if self.elements.get(E_WAR_STATUS) == worldmapwar.WorldMapWar.WAR_WON:
+                music = "yoitrax - Warrior.ogg"
+                self.elements["WINNER"] = player_faction
+            else:
+                music = "Komiku_-_13_-_Nothing_will_grow_here.ogg"
+                self.elements["WINNER"] = self.elements["WORLD_MAP_WAR"].pick_a_winner()
         else:
-            music = "Komiku_-_13_-_Nothing_will_grow_here.ogg"
-            self.elements["WINNER"] = self.elements["WORLD_MAP_WAR"].pick_a_winner()
+            music = "Mr Smith - Poor Mans Groove.ogg"
 
         myscene = gears.GearHeadScene(
             30, 30, "Aegis Consulate", player_team=team1, civilian_team=team2,
