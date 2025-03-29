@@ -1,6 +1,6 @@
 import pbge
 import pygame
-from pbge import my_state,draw_text,default_border,anim_delay
+from pbge import StretchyLayer, my_state,draw_text,default_border,anim_delay
 
 import gears
 
@@ -39,13 +39,13 @@ class ConvoVisualizer(object):
         npc = npc.get_root()
         self.npc = pilot
         if hasattr(npc, "get_portrait"):
-            self.npc_sprite = npc.get_portrait()
+            self.npc_sprite: gears.image.Image = npc.get_portrait()
         else:
-            self.npc_sprite = None
+            self.npc_sprite: gears.image.Image = None
         if pilot is not npc and hasattr(pilot, "get_portrait"):
-            self.pilot_sprite = pilot.get_portrait()
+            self.pilot_sprite: gears.image.Image = pilot.get_portrait()
         else:
-            self.pilot_sprite = None
+            self.pilot_sprite: gears.image.Image = None
         self.npc_desc = self.npc.get_text_desc(camp)
         self.camp = camp
         self.bottom_sprite = pbge.image.Image(camp.convoborder)
@@ -55,23 +55,32 @@ class ConvoVisualizer(object):
             self.pc = pc.get_pilot()
         else:
             self.pc = None
+        self.sl = pbge.StretchyLayer()
+    
     def get_portrait_area(self):
         if self.npc_sprite:
             mydest = self.npc_sprite.get_rect(0)
-            mydest.midbottom = (my_state.screen.get_width()//2-170,my_state.screen.get_height()//2+300)
+            mydest.midbottom = (self.sl.surf.get_width()//2-170,self.sl.surf.get_height())
         else:
-            return self.PORTRAIT_AREA.get_rect()
+            return pygame.Rect(self.sl.surf.get_width()//2-370,0,400,600)
         return mydest
+    
+    def get_pilot_area(self):
+        return pygame.Rect(self.sl.surf.get_width()//2-350,50,100,100)
+
     def render(self,draw_menu_rect=True):
         if my_state.view:
             my_state.view()
+        self.sl.clear()
 
-        self.bottom_sprite.tile(pygame.Rect(0,my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
+        self.bottom_sprite.tile(pygame.Rect(0,self.sl.surf.get_height()-200,self.sl.surf.get_width(),200), dest_surface=self.sl.surf)
         if self.npc_sprite:
-            self.npc_sprite.render(self.get_portrait_area())
+            self.npc_sprite.render(self.get_portrait_area(), dest_surface=self.sl.surf)
         if self.pilot_sprite:
-            default_border.render(self.PILOT_AREA.get_rect())
-            self.pilot_sprite.render(self.PILOT_AREA.get_rect(),1)
+            myrect = self.get_pilot_area()
+            default_border.render(myrect, dest_surface=self.sl.surf)
+            self.pilot_sprite.render(self.PILOT_AREA.get_rect(),1, dest_surface=self.sl.surf)
+        self.sl.render()
 
         text_rect = self.TEXT_AREA.get_rect()
         default_border.render(text_rect)
@@ -90,18 +99,20 @@ class ConvoVisualizer(object):
             self.react_sprite.render(self.REACT_AREA.get_rect(),react_level)
 
     def rollout(self):
-        bx = my_state.screen.get_width()
+        bx = self.sl.get_width()
         pxspeed = bx//15
         t = 0
-        myrect = self.PORTRAIT_AREA.get_rect()
+        myrect = self.get_portrait_area()
         myrect.x = -400
         while (myrect.x < self.get_portrait_area().x):
             if my_state.view:
                 my_state.view()
-            self.bottom_sprite.tile(pygame.Rect(max(0,bx-t*pxspeed),my_state.screen.get_height()//2+100,my_state.screen.get_width(),200))
+            self.sl.clear()
+            self.bottom_sprite.tile(pygame.Rect(max(0,bx-t*pxspeed),self.sl.get_height()//2+100,self.sl.get_width(),200), dest_surface=self.sl.surf)
             if self.npc_sprite:
-                self.npc_sprite.render(myrect)
+                self.npc_sprite.render(myrect, dest_surface=self.sl.surf)
 
+            self.sl.render()
             my_state.do_flip()
             myrect.x += pxspeed//2
             anim_delay()

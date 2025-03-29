@@ -1,3 +1,4 @@
+* Reworked screen scaling; can now manually set fullscreen resolution
 * Fixed error causing jobless NPCs
 * Faction based reaction modifier has been adjusted
 * Fixed bug with conversation visualizer when NPC has reaction score of -100

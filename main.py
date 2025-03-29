@@ -54,7 +54,7 @@ import traceback
 
 VERSION = "v0.976"
 
-class TitleScreenRedraw(object):
+class DZDTitleScreenRedraw(object):
 
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
     MENU_DEST = pbge.frects.Frect(-150, 0, 300, 254)
@@ -69,30 +69,34 @@ class TitleScreenRedraw(object):
         self.mecha_x = 600
         self.sky_x = 0
         self.rubble_x = 0
+        self.sl = pbge.StretchyLayer()
 
     def __call__(self, draw_title=True):
         pbge.my_state.screen.fill((0, 0, 0))
+        self.sl.clear()
 
-        w, h = pbge.my_state.screen.get_size()
-        bigrect = pygame.Rect(0, (h - 600) // 2, w, 600)
-        rubblerect = pygame.Rect(0, (h - 600) // 2 + 600 - self.rubble.frame_height, w, self.rubble.frame_height)
+        w, h = self.sl.get_size()
+        bigrect = pygame.Rect(0, 0, w, h)
+        rubblerect = pygame.Rect(0, h - self.rubble.frame_height, w, self.rubble.frame_height)
 
-        self.sky.tile(bigrect, x_offset=self.sky_x)
+        self.sky.tile(bigrect, x_offset=self.sky_x, dest_surface=self.sl.surf)
         self.sky_x += 1
         if self.sky_x >= self.sky.frame_width:
             self.sky_x = 0
 
-        self.cameo.render((w // 2 + self.cameo_pos[0], h // 2 + self.cameo_pos[1]))
+        self.cameo.render((w // 2 + self.cameo_pos[0], h // 2 + self.cameo_pos[1]), dest_surface=self.sl.surf)
 
-        self.rubble.tile(rubblerect, x_offset=self.rubble_x)
+        self.rubble.tile(rubblerect, x_offset=self.rubble_x, dest_surface=self.sl.surf)
         self.rubble_x += 2
         if self.rubble_x >= self.rubble.frame_width:
             self.rubble_x = 0
 
-        self.mecha.render((self.mecha_x, (h - 600) // 2))
+        self.mecha.render((self.mecha_x, (h - 600) // 2), dest_surface=self.sl.surf)
         self.mecha_x -= 1
         if self.mecha_x < -self.mecha.frame_width:
             self.mecha_x = w
+
+        self.sl.render()
 
         if draw_title:
             self.title.render(self.TITLE_DEST.get_rect())
@@ -106,16 +110,17 @@ TITLE_THEME = 'A wintertale.ogg'
 
 
 class StartGameMenu:
-    PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
     MENU_COLUMN = pbge.frects.Frect(20,-100,280,350)
 
     def __init__(self, tsrd):
-        mymenu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
+        self.tsrd = tsrd
+        self.menu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
                                    self.MENU_COLUMN.w, self.MENU_COLUMN.h,
-                                   predraw=tsrd, font=pbge.my_state.huge_font,
+                                   predraw=self, font=pbge.my_state.huge_font,
                                    )
-        mymenu.descobj = self
         self.myportraits = dict()
+
+        self.sl = pbge.StretchyLayer()
 
         myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
 
@@ -130,21 +135,26 @@ class StartGameMenu:
                 print("Error in {}- {}".format(fname, e))
                 egg = None
             if egg:
-                mymenu.add_item(str(egg.pc), egg)
+                self.menu.add_item(str(egg.pc), egg)
                 self.myportraits[egg] = egg.pc.get_portrait()
 
-        if not mymenu.items:
-            mymenu.add_item('[No characters found]', None)
+        if not self.menu.items:
+            self.menu.add_item('[No characters found]', None)
 
-        mymenu.sort()
-        egg = mymenu.query()
+        self.menu.sort()
+        egg = self.menu.query()
         if egg:
             game.start_campaign(egg, tsrd, VERSION)
 
-    def __call__(self, menu_item):
+    def __call__(self):
+        self.tsrd()
+        menu_item = self.menu.get_current_item()
         if menu_item and menu_item.value:
+            self.sl.clear()
             myimage = self.myportraits[menu_item.value]
-            myimage.render(self.PORTRAIT_AREA.get_rect())
+            portrait_area = pygame.Rect(self.sl.get_width()//2 - 400, 0, 400, 600)
+            myimage.render(portrait_area, dest_surface=self.sl.surf)
+            self.sl.render()
 
 
 class TestStartGame:
@@ -211,11 +221,11 @@ class LoadGameMenu:
 
     def __init__(self, tsrd):
         check_rpg_saves()
-        mymenu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
+        self.tsrd = tsrd
+        self.menu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
                                    self.MENU_COLUMN.w, self.MENU_COLUMN.h,
-                                   predraw=tsrd, font=pbge.my_state.huge_font,
+                                   predraw=self, font=pbge.my_state.huge_font,
                                    )
-        mymenu.descobj = self
         self.myportraits = dict()
         self.current_version = self._string_to_major_version(VERSION)
 
@@ -223,7 +233,7 @@ class LoadGameMenu:
         rcdest = pygame.Rect(0,0,480,360)
 
         for fname, args in minimal_saves.items():
-            mymenu.add_item(args[1].pc.name, fname, desc=args)
+            self.menu.add_item(args[1].pc.name, fname, desc=args)
             self.myportraits[args] = args[1].pc.get_portrait()
             if args[2]:
                 args[2].blit(rc, rcdest)
@@ -231,11 +241,13 @@ class LoadGameMenu:
                 args[2].set_colorkey((0,0,255))
 
 
-        if not mymenu.items:
-            mymenu.add_item('[No campaigns found]', None, desc=None)
+        if not self.menu.items:
+            self.menu.add_item('[No campaigns found]', None, desc=None)
 
-        mymenu.sort()
-        fname = mymenu.query()
+        self.sl = pbge.StretchyLayer()
+
+        self.menu.sort()
+        fname = self.menu.query()
         if fname:
             pbge.please_stand_by()
             # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
@@ -263,13 +275,20 @@ class LoadGameMenu:
         # files. Print a warning if this is the case.
         return math.floor(float(version[1:])*10)
 
-    def __call__(self, menu_item):
+    def __call__(self):
+        self.tsrd()
+        menu_item = self.menu.get_current_item()
+
         if menu_item.desc:
+            self.sl.clear()
+            w = self.sl.get_width()
             if menu_item.desc[2]:
-                mydest = self.THUMB_AREA.get_rect()
-                pbge.my_state.screen.blit(menu_item.desc[2], mydest)
+                mydest = pygame.Rect(w//2-375, 200, 480, 360)
+                _ = self.sl.surf.blit(menu_item.desc[2], mydest)
             myimage = self.myportraits[menu_item.desc]
-            myimage.render(self.PORTRAIT_AREA.get_rect())
+            portrait_area = pygame.Rect(w//2 - 400, 0, 400, 600)
+            myimage.render(portrait_area, dest_surface=self.sl.surf)
+            self.sl.render()
             save_version = self._string_to_major_version(menu_item.desc[0])
             if save_version < self.current_version:
                 mydest = self.WARNING_AREA.get_rect()
@@ -280,9 +299,9 @@ class LoadGameMenu:
 def import_arena_character(tsrd):
     pbge.please_stand_by()
     myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
-    mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
-                               TitleScreenRedraw.MENU_DEST.dy,
-                               TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
+    mymenu = pbge.rpgmenu.Menu(DZDTitleScreenRedraw.MENU_DEST.dx,
+                               DZDTitleScreenRedraw.MENU_DEST.dy,
+                               DZDTitleScreenRedraw.MENU_DEST.w, DZDTitleScreenRedraw.MENU_DEST.h,
                                predraw=tsrd, font=pbge.my_state.huge_font
                                )
 
@@ -426,14 +445,14 @@ def play_the_game():
     # mypic = mypor.build_portrait(None,False,True)
     # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
     try:
-        tsrd = TitleScreenRedraw()
+        tsrd = DZDTitleScreenRedraw()
         pbge.my_state.view = tsrd
 
         action = True
         while action:
-            mymenu = pbge.rpgmenu.Menu(TitleScreenRedraw.MENU_DEST.dx,
-                                       TitleScreenRedraw.MENU_DEST.dy,
-                                       TitleScreenRedraw.MENU_DEST.w, TitleScreenRedraw.MENU_DEST.h,
+            mymenu = pbge.rpgmenu.Menu(DZDTitleScreenRedraw.MENU_DEST.dx,
+                                       DZDTitleScreenRedraw.MENU_DEST.dy,
+                                       DZDTitleScreenRedraw.MENU_DEST.w, DZDTitleScreenRedraw.MENU_DEST.h,
                                        predraw=tsrd, font=pbge.my_state.huge_font,
                                        no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
                                        )

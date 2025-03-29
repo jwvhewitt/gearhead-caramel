@@ -54,6 +54,11 @@ class ConfigEditor(object):
             util.config.set("GENERAL", "window_size", result)
             pbge.my_state.reset_screen()
 
+    def set_resolution(self, result):
+        if result:
+            util.config.set("GENERAL", "fullscreen_resolution", result)
+            pbge.my_state.reset_screen()
+
     def set_music_volume(self, result):
         if result:
             util.config.set("GENERAL", "music_volume", result)
@@ -97,6 +102,9 @@ class ConfigEditor(object):
     WINDOW_SIZES = (
         "800x600", "1280x720", "1600x900", "1600x1200", "1920x1080", "2560x1440"
     )
+    RESOLUTIONS = (
+        "auto", "800x600", "1280x720", "1366x768", "1440x900", "1536x864", "1600x900", "1600x1200", "1920x1080", "2560x1440"
+    )
     VOLUME_LEVELS = (
         ("100%", "1.0"), ("90%", "0.9"), ("80%", "0.8"), ("70%", "0.7"), ("60%", "0.6"),
         ("50%", "0.5"), ("40%", "0.4"), ("30%", "0.3"), ("20%", "0.2"), ("10%", "0.1")
@@ -125,7 +133,7 @@ class ConfigEditor(object):
         self.scroll_column.add_interior(pbge.widgets.LabelWidget(0,0,CONFIG_EDITOR_WIDTH,0,"General Options", font=pbge.BIGFONT))
 
         OptionToggler.add_menu_toggle(self.scroll_column, "Fullscreen", "fullscreen", extra_fun=self.toggle_fullscreen)
-        OptionToggler.add_menu_toggle(self.scroll_column, "Stretch Screen", "stretchy_screen", extra_fun=self.toggle_stretchyscreen)
+        OptionToggler.add_menu_toggle(self.scroll_column, "Stretch Screen", "stretchy_screen", extra_fun=self.toggle_stretchyscreen, section="ACCESSIBILITY")
         OptionToggler.add_menu_toggle(self.scroll_column, "Music On", "music_on", extra_fun=self.toggle_music)
         volume_menu = pbge.widgets.ColDropdownWidget(
             CONFIG_EDITOR_WIDTH, "Music Volume", on_select=self.set_music_volume
@@ -163,6 +171,17 @@ class ConfigEditor(object):
             window_menu.add_item(res, res)
         window_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "window_size"))
         self.scroll_column.add_interior(window_menu)
+
+        resolution_menu = pbge.widgets.ColDropdownWidget(
+            CONFIG_EDITOR_WIDTH, "Fullscreen Resolution", on_select=self.set_resolution
+        )
+        for res in self.RESOLUTIONS:
+            resolution_menu.add_item(res, res)
+        myres = util.config.get("GENERAL", "fullscreen_resolution")
+        if myres not in self.RESOLUTIONS:
+            resolution_menu.add_item(myres, myres)
+        resolution_menu.my_menu_widget.menu.set_item_by_value(myres)
+        self.scroll_column.add_interior(resolution_menu)
 
         OptionToggler.add_menu_toggle(self.scroll_column, "Lancemates repaint their mecha", "lancemates_repaint_mecha")
         OptionToggler.add_menu_toggle(self.scroll_column, "Announce start of player turns", "announce_pc_turn_start")

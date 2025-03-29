@@ -82,7 +82,7 @@ class Border(object):
         self.r = r
         self.transparent = transparent
 
-    def render(self, dest):
+    def render(self, dest, dest_surface=None):
         """Draw this decorative border at dest on screen."""
         # We're gonna draw a decorative border to surround the provided area.
         if self.border == None:
@@ -92,31 +92,34 @@ class Border(object):
             if self.transparent:
                 self.tex.bitmap.set_alpha(224)
 
+        if not dest_surface:
+            dest_surface = my_state.screen
+
         # Draw the backdrop.
         if self.tex:
-            self.tex.tile(dest.inflate(self.padding, self.padding))
+            self.tex.tile(dest.inflate(self.padding, self.padding), dest_surface=dest_surface)
 
         # Expand the dimensions to their complete size.
         # The method inflate_ip doesn't seem to be working... :(
         fdest = dest.inflate(self.padding, self.padding)
 
-        self.border.render((fdest.x - self.border_width // 2, fdest.y - self.border_width // 2), self.tl)
-        self.border.render((fdest.x - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.bl)
-        self.border.render((fdest.x + fdest.width - self.border_width // 2, fdest.y - self.border_width // 2), self.tr)
+        self.border.render((fdest.x - self.border_width // 2, fdest.y - self.border_width // 2), self.tl, dest_surface=dest_surface)
+        self.border.render((fdest.x - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.bl, dest_surface=dest_surface)
+        self.border.render((fdest.x + fdest.width - self.border_width // 2, fdest.y - self.border_width // 2), self.tr, dest_surface=dest_surface)
         self.border.render(
-            (fdest.x + fdest.width - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.br)
+            (fdest.x + fdest.width - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.br, dest_surface=dest_surface)
 
         fdest = dest.inflate(self.padding - self.border_width, self.padding + self.border_width)
-        my_state.screen.set_clip(fdest)
+        dest_surface.set_clip(fdest)
         for x in range(0, fdest.w // self.border_width + 2):
-            self.border.render((fdest.x + x * self.border_width, fdest.y), self.t)
-            self.border.render((fdest.x + x * self.border_width, fdest.y + fdest.height - self.border_width), self.b)
+            self.border.render((fdest.x + x * self.border_width, fdest.y), self.t, dest_surface=dest_surface)
+            self.border.render((fdest.x + x * self.border_width, fdest.y + fdest.height - self.border_width), self.b, dest_surface=dest_surface)
 
         fdest = dest.inflate(self.padding + self.border_width, self.padding - self.border_width)
         my_state.screen.set_clip(fdest)
         for y in range(0, fdest.h // self.border_width + 2):
-            self.border.render((fdest.x, fdest.y + y * self.border_width), self.l)
-            self.border.render((fdest.x + fdest.width - self.border_width, fdest.y + y * self.border_width), self.r)
+            self.border.render((fdest.x, fdest.y + y * self.border_width), self.l, dest_surface=dest_surface)
+            self.border.render((fdest.x + fdest.width - self.border_width, fdest.y + y * self.border_width), self.r, dest_surface=dest_surface)
         my_state.screen.set_clip(None)
 
 
@@ -162,6 +165,8 @@ class GameState(object):
         self.music_channels = list()
         self.current_music_channel = 0
 
+        self.stretchy_layers = weakref.WeakSet()
+
         self.mouse_pos = (0, 0)
 
         # self.client = SteamClient()
@@ -203,7 +208,7 @@ class GameState(object):
         self.anim_phase = (self.anim_phase + 1) % 6000
         if reset_standing_by:
             self.standing_by = False
-        if util.config.getboolean("GENERAL", "stretchy_screen"):
+        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
             w, h = self.physical_screen.get_size()
             pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
             # pygame.transform.scale(self.screen, (w, h), self.physical_screen)
@@ -347,9 +352,11 @@ class GameState(object):
     def resize(self):
         w, h = self.physical_screen.get_size()
         self.screen = pygame.Surface((max(800, 600 * w // h), 600))
+        for sl in self.stretchy_layers:
+            sl.resize_layer(w, h)
 
     def set_size(self, w, h):
-        if util.config.getboolean("GENERAL", "stretchy_screen"):
+        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
             my_state.physical_screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
             self.resize()
         else:
@@ -363,19 +370,36 @@ class GameState(object):
         except ValueError:
             return 800, 600
 
-    def default_to_windowed(self):
+    def get_resolution_config(self):
+        myconfig = util.config.get("GENERAL", "fullscreen_resolution")
+        if "x" in myconfig:
+            ws, hs = myconfig.split("x")
+            try:
+                return int(ws), int(hs)
+            except ValueError:
+                return 0,0
+        else:
+            return 0,0
+
+    def default_to_stretchy_windowed(self):
         my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
         util.config.set("GENERAL", "fullscreen", "False")
         with open(util.user_dir("config.cfg"), "wt") as f:
             util.config.write(f)
 
+    def default_to_windowed(self):
+        my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+        util.config.set("GENERAL", "fullscreen", "False")
+        with open(util.user_dir("config.cfg"), "wt") as f:
+            util.config.write(f)
+
     def reset_screen(self):
-        if util.config.getboolean("GENERAL", "stretchy_screen"):
+        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
             if util.config.getboolean("GENERAL", "fullscreen"):
                 try:
-                    my_state.physical_screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+                    my_state.physical_screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
                 except:
-                    self.default_to_windowed()
+                    self.default_to_stretchy_windowed()
             else:
                 # my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
                 my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
@@ -383,14 +407,14 @@ class GameState(object):
         else:
             if util.config.getboolean("GENERAL", "fullscreen"):
                 try:
-                    my_state.screen = pygame.display.set_mode(FULLSCREEN_RES, FULLSCREEN_FLAGS)
+                    my_state.screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
                 except:
                     self.default_to_windowed()
             else:
                 my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
 
     def update_mouse_pos(self):
-        if util.config.getboolean("GENERAL", "stretchy_screen"):
+        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
             x, y = pygame.mouse.get_pos()
             w1, h1 = self.physical_screen.get_size()
             w2, h2 = self.screen.get_size()
@@ -399,10 +423,40 @@ class GameState(object):
             self.mouse_pos = pygame.mouse.get_pos()
 
 
-class SHLayer():
+class StretchyLayer():
+    # A layer that is guaranteed to fill the screen, even though its height is hard coded
+    # to 600. Basically a way to make sure graphics created for the original 800x600 window
+    # still fill the screen appropriately at higher modern resolutions.
     def __init__(self):
-        w, h = my_state.physical_screen.get_size()
-        self.surf = pygame.Surface((max(800, 600 * w // h), 600))
+        w, h = my_state.screen.get_size()
+        self.surf: pygame.Surface = None
+        self.resize_layer(w,h)
+        my_state.stretchy_layers.add(self)
+
+    def resize_layer(self, w, h):
+        # w and h are the width and height of the physical screen.
+        self.surf = pygame.Surface((max(800, 600 * w // h), 600), flags=pygame.SRCALPHA)
+        self.clear()
+
+    def get_height(self):
+        return self.surf.get_height()
+
+    def get_width(self):
+        return self.surf.get_width()
+
+    def get_size(self):
+        return self.surf.get_size()
+
+    def render(self):
+        w, h = my_state.screen.get_size()
+        bigsurf = pygame.transform.smoothscale(self.surf, (w, h))
+        #bigsurf.set_colorkey((0,0,255))
+        my_state.screen.blit(bigsurf, pygame.Rect(0,0,800,600))
+
+    def clear(self):
+        self.surf.fill((0,0,0,0))
+
+
 
 INPUT_CURSOR = None
 SMALLFONT = None
@@ -699,9 +753,8 @@ from . import widgetmenu
 # PG2 Change
 # FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED
 # WINDOWED_FLAGS = pygame.RESIZABLE | pygame.SCALED
-FULLSCREEN_FLAGS = pygame.FULLSCREEN
+FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.DOUBLEBUF
 WINDOWED_FLAGS = pygame.RESIZABLE
-FULLSCREEN_RES = (0, 0)
 
 
 class LeadingFont(pygame.font.Font):
