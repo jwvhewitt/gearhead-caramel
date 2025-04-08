@@ -42,6 +42,11 @@ class CashRewardWithNotification(pbge.BasicNotification):
         camp.credits += reward
         super().__init__(w=400, text="You get ${:,}.".format(reward), count=160)
 
+class XPRewardWithNotification(pbge.BasicNotification):
+    def __init__(self, camp: gears.GearHeadCampaign, reward=250):
+        camp.dole_xp(reward)
+        super().__init__(w=400, text="You get {:,}XP.".format(reward), count=160)
+
 
 class SceneConnection(object):
     DEFAULT_ROOM_1 = pbge.randmaps.rooms.OpenRoom

@@ -711,7 +711,7 @@ class Explorer(object):
                         print("Checking Unemployment")
                         all_plots = list(self.camp.all_plots())
                         npcs = [candidate for candidate in self.camp.all_contents(self.camp) if (
-                            isinstance(candidate, gears.base.Character) and not candidate.job
+                            isinstance(candidate, gears.base.Character) and candidate.relationship and gears.relationships.RT_LANCEMATE in candidate.relationship.tags
                         )]
                         for pc in npcs:
                             print("{} ({}) @{}".format(pc, pc.get_text_desc(self.camp), pc.scene))

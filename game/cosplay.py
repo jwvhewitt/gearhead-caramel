@@ -51,7 +51,7 @@ class ColorEditor(pbge.widgets.Widget):
         self.sprite_frame = sprite_frame
         myrect = proto_sprite.get_rect(sprite_frame)
         self.display_sprite = pbge.image.Image(frame_width=myrect.width, frame_height=myrect.height)
-        self.display_dest = pbge.frects.Frect(-20-myrect.width,-myrect.height//2,myrect.width,myrect.height)
+        self.display_view = gears.portraits.PortraitView(self.display_sprite)
         self.channel_filters = channel_filters
         self.channel_menus = dict()
         for t in range(5):
@@ -100,7 +100,7 @@ class ColorEditor(pbge.widgets.Widget):
 
     def render(self, flash=False):
         pbge.default_border.render(self.get_rect())
-        self.display_sprite.render(self.display_dest.get_rect())
+        self.display_view.render()
 
     @classmethod
     def explo_invoke(cls, redraw):

@@ -6,7 +6,7 @@ import pbge
 LEFT_COLUMN = pbge.frects.Frect(-300, 0, 200, 200)
 CENTER_COLUMN = pbge.frects.Frect(-72, -200, 225, 400)
 RIGHT_COLUMN = pbge.frects.Frect(175, -215, 200, 430)
-PORTRAIT_AREA = pbge.frects.Frect(-450, -300, 400, 600)
+
 UTIL_INFO = pbge.frects.Frect(-50, -200, 300, 200)
 UTIL_MENU = pbge.frects.Frect(-50, 50, 300, 150)
 

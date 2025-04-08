@@ -1,3 +1,5 @@
+* Removed unusued and not working android import from pbge; if android support added later, will need to rewrite anyhow
+* Added config troubleshooting option to disable scaling altogether
 * Reworked screen scaling; can now manually set fullscreen resolution
 * Fixed error causing jobless NPCs
 * Faction based reaction modifier has been adjusted

@@ -270,6 +270,26 @@ class PortraitBit(object):
             return not not_these.intersection(existing_form_tags)
 
 
+class PortraitView:
+    def __init__(self, portrait, frame=0, x_offset=-200):
+        # Utility class to display a portrait at screen height in what I'm calling the normal
+        # place.
+        # portrait is a pbge Image
+        self.portrait = portrait
+        self.frame = frame
+        self.x_offset = x_offset
+        self.sl = pbge.StretchyLayer()
+
+    def render(self):
+        if self.portrait:
+            self.sl.clear()
+            mydest = self.portrait.get_rect(0)
+            mydest.midbottom = (self.sl.get_width()//2+self.x_offset, self.sl.get_height())
+            self.portrait.render(mydest, 0, dest_surface=self.sl.surf)
+            self.sl.render()
+
+
+
 def init_portraits():
     # Load all the json portrait descriptions.
     portrait_bits_list = list()

@@ -10,9 +10,7 @@ class PCEditorWidget(widgets.Widget):
 
         self.camp = camp
         self.pc = pc
-        self.portrait = pc.get_portrait()
-
-        self.portrait_area = pbge.frects.Frect(-400,-300,400,600)
+        self.portrait_view = gears.portraits.PortraitView(pc.get_portrait(), x_offset=-300)
 
         right_column = widgets.ColumnWidget(50,-200,250,400,padding=32,center_interior=True)
         self.children.append(right_column)
@@ -51,7 +49,7 @@ class PCEditorWidget(widgets.Widget):
     def _edit_portrait(self, *args):
         self.active = False
         chargen.PortraitEditorW.create_and_invoke_with_pc(self.pc)
-        self.portrait = self.pc.get_portrait(force_rebuild=True)
+        self.portrait_view.portrait = self.pc.get_portrait(force_rebuild=True)
         if pbge.my_state.view and hasattr(pbge.my_state.view, "regenerate_avatars"):
             pbge.my_state.view.regenerate_avatars([self.pc])
         self.active = True
@@ -76,9 +74,7 @@ class PCEditorWidget(widgets.Widget):
     def render(self, flash=False):
         #if draw_background and not self.active:
         #    pbge.my_state.view()
-        mydest = self.portrait.get_rect(0)
-        mydest.midbottom = self.portrait_area.get_rect().midbottom
-        self.portrait.render(mydest, 0)
+        self.portrait_view.render()
 
     @classmethod
     def create_and_invoke(cls, camp, pc):

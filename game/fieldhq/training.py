@@ -12,6 +12,7 @@ class TrainingMenu(object):
         # Second, it shows I remember the 1990z. Totally radical with attitude.
         self.infoz = dict()
         self.portraitz = dict()
+        self.portrait_view = gears.portraits.PortraitView(None)
 
     def _predraw(self):
         pbge.my_state.view()
@@ -22,9 +23,8 @@ class TrainingMenu(object):
 
         if self.active_pc not in self.portraitz:
             self.portraitz[self.active_pc] = self.active_pc.get_portrait()
-        mydest = self.portraitz[self.active_pc].get_rect(0)
-        mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
-        self.portraitz[self.active_pc].render(mydest, 0)
+        self.portrait_view.portrait = self.portraitz[self.active_pc]
+        self.portrait_view.render()
 
     def _get_standard_desc_box(self,mymenu):
         return pbge.rpgmenu.DescBox(mymenu,fhqinfo.RIGHT_INFO.dx,fhqinfo.RIGHT_INFO.dy,fhqinfo.RIGHT_INFO.w,fhqinfo.RIGHT_INFO.h,font=pbge.BIGFONT)

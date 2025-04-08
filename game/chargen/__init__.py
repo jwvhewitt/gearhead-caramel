@@ -84,8 +84,8 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.por = por_gen
         self.portrait = portrait
         self.form_tags = form_tags
+        self.sl = pbge.StretchyLayer()
 
-        self.portrait_zone = pbge.frects.Frect(-400,-300,400,600)
         self.minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
 
         self.outer_column = pbge.widgets.ColumnWidget(-50,-250,300,500,draw_border=False,center_interior=True)
@@ -160,8 +160,11 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.rebuild_menu()
 
     def render(self, flash=False):
-        self.portrait.render(self.portrait_zone.get_rect(),0)
-        self.portrait.render(self.portrait_zone.get_rect(),2)
+        self.sl.clear()
+        mydest = pygame.Rect(self.sl.get_width()//2-400, 0, 600, 600)
+        self.portrait.render(mydest, 0, dest_surface=self.sl.surf)
+        self.portrait.render(mydest, 2, dest_surface=self.sl.surf)
+        self.sl.render()
 
     def done_button(self,wid,ev):
         self.finished = True
@@ -171,7 +174,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         # Run the UI. Return a DoInvocation action if an invocation
         # was chosen, or None if the invocation was cancelled.... wait, that's not right.
         # Copy and paste is my undoing again!
-        myui = cls(cgen.pc, cgen.pc.portrait_gen, cgen.portrait, formtags)
+        myui = cls(cgen.pc, cgen.pc.portrait_gen, cgen.portrait_view.portrait, formtags)
         pbge.my_state.widgets.append(myui)
         myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
 
@@ -187,7 +190,7 @@ class PortraitEditorW(pbge.widgets.Widget):
                 elif ev.key == pygame.K_F1:
                     pygame.image.save(myui.portrait.bitmap, pbge.util.user_dir("out.png"))
 
-        cgen.portrait = myui.portrait
+        cgen.portrait_view.portrait = myui.portrait
         pbge.my_state.widgets.remove(myui)
 
     @classmethod
@@ -336,8 +339,6 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
         self.title = ''
 
-        self.portrait_zone = pbge.frects.Frect(-450,-300,400,600)
-
         self.column_one = pbge.widgets.ColumnWidget(-125,-200,self.C1_WIDTH,400,draw_border=True)
         self.name_field = pbge.widgets.TextEntryWidget(0,0,200,30,justify=0,text=gears.selector.random_name(self.pc))
         self.column_one.set_header(self.name_field)
@@ -400,10 +401,11 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,0,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT))
         self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,0,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT))
 
-        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,form_tags=self.get_portrait_tags())
+        self.portrait_view = gears.portraits.PortraitView(self.pc.portrait_gen.build_portrait(self.pc,form_tags=self.get_portrait_tags()))
 
     def set_age(self,new_age):
         self.pc.birth_year = self.year - new_age
+
     def set_gender(self,new_gender):
         if new_gender == 1234567:
             self.active = False
@@ -508,7 +510,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def portrait_random(self,wid,ev):
         self.pc.portrait_gen.random_portrait(self.pc,form_tags=self.get_portrait_tags())
-        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def color_edit(self,wid,ev):
         self.active = False
@@ -528,7 +530,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
                     keepgoing = False
 
         self.pc.colors = myui.colors
-        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
@@ -539,7 +541,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def color_random(self,wid,ev):
         self.pc.colors = self.pc.portrait_gen.generate_random_colors(self.pc)
-        self.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def save_egg(self,wid,ev):
         if not pbge.my_state.widget_clicked:
@@ -572,7 +574,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.finished = True
 
     def render(self, flash=False):
-        self.portrait.render(self.portrait_zone.get_rect(),0)
+        self.portrait_view.render()
 
     @classmethod
     def create_and_invoke(cls, redraw):

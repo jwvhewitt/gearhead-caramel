@@ -16,19 +16,11 @@ from . import util
 import glob
 import random
 import weakref
-import sys
-import os
+#import sys
+#import os
 
 #from steam.client import SteamClient
 #myclient = SteamClient()
-
-# Import the android module. If we can't import it, set it to None - this
-# lets us test it, and check to see if we want android-specific behavior.
-try:
-    import android
-
-except ImportError:
-    android = None
 
 from . import soundlib
 
@@ -90,7 +82,7 @@ class Border(object):
         if self.tex_name and not self.tex:
             self.tex = image.Image(self.tex_name, self.tex_width, self.tex_width)
             if self.transparent:
-                self.tex.bitmap.set_alpha(224)
+                _=self.tex.bitmap.set_alpha(224)
 
         if not dest_surface:
             dest_surface = my_state.screen
@@ -110,17 +102,17 @@ class Border(object):
             (fdest.x + fdest.width - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.br, dest_surface=dest_surface)
 
         fdest = dest.inflate(self.padding - self.border_width, self.padding + self.border_width)
-        dest_surface.set_clip(fdest)
+        _=dest_surface.set_clip(fdest)
         for x in range(0, fdest.w // self.border_width + 2):
             self.border.render((fdest.x + x * self.border_width, fdest.y), self.t, dest_surface=dest_surface)
             self.border.render((fdest.x + x * self.border_width, fdest.y + fdest.height - self.border_width), self.b, dest_surface=dest_surface)
 
         fdest = dest.inflate(self.padding + self.border_width, self.padding - self.border_width)
-        my_state.screen.set_clip(fdest)
+        _=dest_surface.set_clip(fdest)
         for y in range(0, fdest.h // self.border_width + 2):
             self.border.render((fdest.x, fdest.y + y * self.border_width), self.l, dest_surface=dest_surface)
             self.border.render((fdest.x + fdest.width - self.border_width, fdest.y + y * self.border_width), self.r, dest_surface=dest_surface)
-        my_state.screen.set_clip(None)
+        _=dest_surface.set_clip(None)
 
 
 # Monkey Type these definitions to fit your game/assets.
@@ -144,8 +136,8 @@ ENEMY_RED = (250, 50, 0)
 
 class GameState(object):
     def __init__(self, screen=None):
-        self.screen = screen
-        self.physical_screen = None
+        self.screen: pygame.Surface = screen
+        self.physical_screen: pygame.Surface = None
         self.view = None
         self.got_quit = False
         self.widgets = list()
@@ -204,13 +196,13 @@ class GameState(object):
             myimage = render_text(self.small_font, self.widget_tooltip, 200)
             myrect = myimage.get_rect(topleft=(x, y))
             default_border.render(myrect)
-            self.screen.blit(myimage, myrect)
+            _=self.screen.blit(myimage, myrect)
         self.anim_phase = (self.anim_phase + 1) % 6000
         if reset_standing_by:
             self.standing_by = False
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
             w, h = self.physical_screen.get_size()
-            pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
+            _=pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
             # pygame.transform.scale(self.screen, (w, h), self.physical_screen)
         pygame.display.flip()
 
@@ -349,18 +341,22 @@ class GameState(object):
         elif wlist:
             self.active_widget = wlist[0]
 
-    def resize(self):
-        w, h = self.physical_screen.get_size()
-        self.screen = pygame.Surface((max(800, 600 * w // h), 600))
+    def resize_stretchy_layers(self, w, h):
         for sl in self.stretchy_layers:
             sl.resize_layer(w, h)
 
+    def resize_stretchy(self):
+        w, h = self.physical_screen.get_size()
+        self.screen = pygame.Surface((max(800, 600 * w // h), 600))
+        self.resize_stretchy_layers(w, h)
+
     def set_size(self, w, h):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
-            my_state.physical_screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
-            self.resize()
+            self.physical_screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
+            self.resize_stretchy()
         else:
-            my_state.screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
+            self.screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
+            self.resize_stretchy_layers(*self.screen.get_size())
 
     def get_window_config(self):
         myconfig = util.config.get("GENERAL", "window_size")
@@ -397,21 +393,22 @@ class GameState(object):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
             if util.config.getboolean("GENERAL", "fullscreen"):
                 try:
-                    my_state.physical_screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
+                    self.physical_screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
                 except:
                     self.default_to_stretchy_windowed()
             else:
                 # my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
-                my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
-            my_state.resize()
+                self.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+            self.resize_stretchy()
         else:
             if util.config.getboolean("GENERAL", "fullscreen"):
                 try:
-                    my_state.screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
+                    self.screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
                 except:
                     self.default_to_windowed()
             else:
-                my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+                self.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+            self.resize_stretchy_layers(*self.screen.get_size())
 
     def update_mouse_pos(self):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
@@ -435,7 +432,10 @@ class StretchyLayer():
 
     def resize_layer(self, w, h):
         # w and h are the width and height of the physical screen.
-        self.surf = pygame.Surface((max(800, 600 * w // h), 600), flags=pygame.SRCALPHA)
+        if util.config.getboolean("TROUBLESHOOTING", "disable_scaling"):
+            self.surf = pygame.Surface((w, 600), flags=pygame.SRCALPHA).convert_alpha()
+        else:
+            self.surf = pygame.Surface((max(800, 600 * w // h), 600), flags=pygame.SRCALPHA).convert_alpha()
         self.clear()
 
     def get_height(self):
@@ -449,12 +449,15 @@ class StretchyLayer():
 
     def render(self):
         w, h = my_state.screen.get_size()
-        bigsurf = pygame.transform.smoothscale(self.surf, (w, h))
-        #bigsurf.set_colorkey((0,0,255))
-        my_state.screen.blit(bigsurf, pygame.Rect(0,0,800,600))
+        if util.config.getboolean("TROUBLESHOOTING", "disable_scaling"):
+            _=my_state.screen.blit(self.surf, pygame.Rect(0,h//2 - 300,w,600))
+        else:
+            bigsurf = pygame.transform.smoothscale(self.surf, (w, h))
+            #bigsurf.set_colorkey((0,0,255))
+            _=my_state.screen.blit(bigsurf, pygame.Rect(0,0,800,600))
 
     def clear(self):
-        self.surf.fill((0,0,0,0))
+        _=self.surf.fill((0,0,0,0))
 
 
 
@@ -584,11 +587,6 @@ def wait_event():
     # Wait for input, then return it when it comes.
     ev = pygame.event.wait()
 
-    # Android-specific:
-    if android:
-        if android.check_pause():
-            android.wait_for_resume()
-
     # Record if a quit event took placewaitwait
     if ev.type == pygame.QUIT:
         my_state.got_quit = True
@@ -671,14 +669,17 @@ def alert_display(display_fun):
 def please_stand_by(caption=None):
     if not my_state.standing_by:
         img = pygame.image.load(random.choice(POSTERS)).convert()
-        dest = img.get_rect(center=(my_state.screen.get_width() // 2, my_state.screen.get_height() // 2))
-        my_state.screen.fill((0, 0, 0))
-        my_state.screen.blit(img, dest)
+        w, h = my_state.screen.get_size()
+        bigsurf = pygame.transform.smoothscale(img, (img.get_width()*h//img.get_height(), h))
+
+        dest = bigsurf.get_rect(center=(my_state.screen.get_width() // 2, my_state.screen.get_height() // 2))
+        _=my_state.screen.fill((0, 0, 0))
+        _=my_state.screen.blit(bigsurf, dest)
         if caption:
             mytext = BIGFONT.render(caption, True, TEXT_COLOR)
             dest2 = mytext.get_rect(topleft=(dest.x + 32, dest.y + 32))
             default_border.render(dest2)
-            my_state.screen.blit(mytext, dest2)
+            _=my_state.screen.blit(mytext, dest2)
         my_state.standing_by = True
         my_state.do_flip(False, reset_standing_by=False)
 
@@ -854,10 +855,6 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         global FPS
         FPS = util.config.getint("GENERAL", "frames_per_second")
         pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
-
-        if android:
-            android.init()
-            android.map_key(android.KEYCODE_BACK, pygame.K_ESCAPE)
 
         # Set key repeat.
         pygame.key.set_repeat(200, 100)

@@ -11,9 +11,8 @@ from . import pceditor
 
 
 class AssignMechaDescObject(object):
-    def __init__(self, camp, portrait):
+    def __init__(self, camp):
         self.camp = camp
-        self.portrait = portrait
         self.infoz = dict()
 
     def __call__(self, menu_item):
@@ -29,9 +28,8 @@ class AssignMechaDescObject(object):
 
 
 class AssignPilotDescObject(object):
-    def __init__(self, camp, portrait):
+    def __init__(self, camp):
         self.camp = camp
-        self.portrait = portrait
         self.infoz = dict()
 
     def __call__(self, menu_item):
@@ -150,7 +148,7 @@ class CharacterInfoWidget(widgets.Widget):
         super().__init__(0, 0, 0, 0, **kwargs)
         self.camp = camp
         self.pc = pc
-        self.portrait = pc.get_portrait()
+        self.portrait_view = gears.portraits.PortraitView(pc.get_portrait())
         self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w,
                                            fhqinfo.LEFT_COLUMN.h, padding=10)
         self.children.append(self.column)
@@ -176,6 +174,8 @@ class CharacterInfoWidget(widgets.Widget):
                                     on_click=self.edit_pc))
         self.fhq = fhq
         self.children.append(CharacterCenterColumnWidget(camp, pc))
+
+        self.sl = pbge.StretchyLayer()
 
     def edit_pc(self, wid, ev):
         self.fhq.active = False
@@ -229,7 +229,7 @@ class CharacterInfoWidget(widgets.Widget):
             if isinstance(mek, gears.base.Mecha) and mek.is_not_destroyed() and (
                     not hasattr(mek, "owner") or mek.owner is self.pc):
                 mymenu.add_item(mek.get_full_name(), mek)
-        mymenu.descobj = AssignMechaDescObject(self.camp, self.portrait)
+        mymenu.descobj = AssignMechaDescObject(self.camp)
         mek = mymenu.query()
 
         self.camp.assign_pilot_to_mecha(self.pc, mek)
@@ -265,7 +265,7 @@ class CharacterInfoWidget(widgets.Widget):
                     keepgoing = False
 
         self.pc.colors = myui.colors
-        self.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
+        self.portrait_view.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
@@ -279,9 +279,7 @@ class CharacterInfoWidget(widgets.Widget):
     def draw_portrait(self, include_background=True):
         if include_background:
             pbge.my_state.view()
-        mydest = self.portrait.get_rect(0)
-        mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
-        self.portrait.render(mydest, 0)
+        self.portrait_view.render()
 
     def render(self, flash=False):
         self.draw_portrait(False)
@@ -292,7 +290,7 @@ class MechaInfoWidget(widgets.Widget):
         super(MechaInfoWidget, self).__init__(0, 0, 0, 0, **kwargs)
         self.camp = camp
         self.pc = pc
-        self.portrait = pc.get_portrait()
+        self.portrait_view = gears.portraits.PortraitView(pc.get_portrait())
         self.info = MechaFHQIP(model=pc, width=fhqinfo.CENTER_COLUMN.w, camp=camp, font=pbge.SMALLFONT)
         self.column = widgets.ColumnWidget(fhqinfo.LEFT_COLUMN.dx, fhqinfo.LEFT_COLUMN.dy, fhqinfo.LEFT_COLUMN.w,
                                            fhqinfo.LEFT_COLUMN.h, padding=10)
@@ -312,9 +310,7 @@ class MechaInfoWidget(widgets.Widget):
     def draw_portrait(self, include_background=True):
         if include_background:
             pbge.my_state.view()
-        mydest = self.portrait.get_rect(0)
-        mydest.midbottom = fhqinfo.PORTRAIT_AREA.get_rect().midbottom
-        self.portrait.render(mydest, 0)
+        self.portrait_view.render()
 
     def render(self, flash=False):
         self.draw_portrait(False)
@@ -330,7 +326,7 @@ class MechaInfoWidget(widgets.Widget):
             if isinstance(plr, gears.base.Character) and plr.is_not_destroyed() and (
                     not hasattr(self.pc, "owner") or self.pc.owner is plr):
                 mymenu.add_item(plr.get_full_name(), plr)
-        mymenu.descobj = AssignPilotDescObject(self.camp, self.portrait)
+        mymenu.descobj = AssignPilotDescObject(self.camp)
         pilot = mymenu.query()
 
         self.camp.assign_pilot_to_mecha(pilot, self.pc)
@@ -390,7 +386,7 @@ class MechaInfoWidget(widgets.Widget):
                     keepgoing = False
 
         self.pc.colors = myui.colors
-        self.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
+        self.portrait_view.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()

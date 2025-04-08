@@ -283,7 +283,7 @@ class LoadGameMenu:
             self.sl.clear()
             w = self.sl.get_width()
             if menu_item.desc[2]:
-                mydest = pygame.Rect(w//2-375, 200, 480, 360)
+                mydest = pygame.Rect(w//2-390, 100, 480, 360)
                 _ = self.sl.surf.blit(menu_item.desc[2], mydest)
             myimage = self.myportraits[menu_item.desc]
             portrait_area = pygame.Rect(w//2 - 400, 0, 400, 600)
@@ -327,10 +327,6 @@ def import_arena_character(tsrd):
 def open_config_menu(tsrd):
     myconfigmenu = game.configedit.ConfigEditor(tsrd, dy=-25)
     myconfigmenu()
-
-
-def open_cosplay_menu(tsrd):
-    game.cosplay.ColorEditor.explo_invoke(tsrd)
 
 
 def open_chargen_menu(tsrd):

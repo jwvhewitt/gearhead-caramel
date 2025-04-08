@@ -2,7 +2,7 @@
 import game.content
 from pbge.plots import Plot, PlotState
 from pbge.dialogue import Offer, ContextTag
-from game import teams, services, ghdialogue
+from game import services, ghdialogue
 from game.ghdialogue import context
 import gears
 from gears import relationships

@@ -949,7 +949,7 @@ class WarehousePasswordsPlot(Plot):
         camp.campdata[ROPPCD_FOUND_CARGO] = True
         pbge.alert("You gain 100XP.")
         camp.dole_xp(100)
-        self.memo = "You have discovered a shipment of food and medicine that might be useful to somebody in Pirate's Point."
+        #self.memo = "You have discovered a shipment of food and medicine that might be useful to somebody in Pirate's Point."
         camp.check_trigger("UPDATE")
 
     def update_memo(self, camp):

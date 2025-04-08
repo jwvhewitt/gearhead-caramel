@@ -79,7 +79,7 @@ class ConvoVisualizer(object):
         if self.pilot_sprite:
             myrect = self.get_pilot_area()
             default_border.render(myrect, dest_surface=self.sl.surf)
-            self.pilot_sprite.render(self.PILOT_AREA.get_rect(),1, dest_surface=self.sl.surf)
+            self.pilot_sprite.render(myrect, 1, dest_surface=self.sl.surf)
         self.sl.render()
 
         text_rect = self.TEXT_AREA.get_rect()
