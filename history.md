@@ -1,5 +1,5 @@
 v0.976 April 10, 2024
-* Fixed a bug in the containers unit
+* Fixed a bug in the containers unit!
 * Merit badges may have contra badges whichj get removed if badge earned
 * Removed unusued and not working android import from pbge; if android support added later, will need to rewrite anyhow
 * Added config troubleshooting option to disable scaling altogether
