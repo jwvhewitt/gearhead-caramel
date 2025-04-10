@@ -85,6 +85,58 @@ class LMMissionPlot(LMPlot):
 
 # The actual plots...
 
+class KnowledgeSeeker(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.statline[gears.stats.Knowledge] >= 15
+                    and not any([skill in candidate.statline for skill in gears.stats.NONCOMBAT_SKILLS])
+            )
+
+    MOST_USEFUL_SKILLS = (gears.stats.Medicine, gears.stats.Repair)
+    ALSO_USEFUL_SKILLS = (gears.stats.Negotiation, gears.stats.Scouting, gears.stats.Computers)
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            self.started_convo = True
+            npc = self.elements["NPC"]
+            _=pbge.alert("As you enter {METROSCENE}, you notice {NPC} reading an old worn-out book.".format(**self.elements))
+
+            candidates = list()
+            for sk in self.MOST_USEFUL_SKILLS:
+                if not camp.party_has_skill(sk):
+                    candidates.append(sk)
+            if not candidates:
+                for sk in self.ALSO_USEFUL_SKILLS:
+                    if not camp.party_has_skill(sk):
+                        candidates.append(sk)
+            if not candidates:
+                for sk in gears.stats.NONCOMBAT_SKILLS:
+                    if not camp.party_has_skill(sk):
+                        candidates.append(sk)
+            if candidates and random.randint(1,23) != 5:
+                skill = random.choice(candidates)
+            else:
+                skill = random.choice(gears.stats.NONCOMBAT_SKILLS)
+
+            ghcutscene.SimpleMonologueDisplay(
+                "I noticed that no-one in the party knows {}, so I decided to learn it. [I_NEED_MORE_PRACTICE]".format(skill),
+                npc)(camp, False)
+            npc.statline[skill] += 1
+
+            self.proper_end_plot(camp)
+
+
 class HowDoYouLikeThat(LMMissionPlot):
     LABEL = "LANCEDEV"
     active = True
@@ -329,7 +381,7 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     MISSION_SCALE = gears.scale.HumanScale
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
                 gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
@@ -415,7 +467,7 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
     EXPERIENCE_REWARD = 150
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
                 gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
@@ -629,7 +681,7 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
     EXPERIENCE_REWARD = 250
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
                 gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
@@ -908,7 +960,7 @@ class BeFriendsRaidFactory(LMMissionPlot):
     MISSION_OBJECTIVES = (missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_CAPTURE_THE_MINE)
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
                 gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
@@ -1067,7 +1119,7 @@ class PrezeroMacguffin(LMPlot):
     UNIQUE = True
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
                 gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
@@ -1229,7 +1281,7 @@ class DeadZoneSortingDuel(LMPlot):
     UNIQUE = True
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
 
@@ -1545,7 +1597,7 @@ class DDLD_HermitMechaniac(LMPlot):
     UNIQUE = True
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
 

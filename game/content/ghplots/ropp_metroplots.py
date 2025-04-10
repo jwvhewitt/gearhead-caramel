@@ -828,7 +828,7 @@ class WarehouseCargoPlot(Plot):
         camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000003'].metrodat.local_reputation += 10  # Uptown District
         camp.campdata["SCENARIO_ELEMENT_UIDS"]['0000000D'].metrodat.local_reputation += 10  # Warehouse District
         
-        camp.campdata[ROPPCD_HERO_POINTS] += 1
+        camp.campdata[ROPPCD_HERO_POINTS] += 2
         camp.campdata[ROPPCD_SPENT_CARGO] = True
         self.end_plot(camp, True)
 

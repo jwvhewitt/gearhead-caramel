@@ -1,16 +1,17 @@
 # A merit badge is a tag that the PC receives recording some achievement or life experience.
 # Usually these badges give bonuses to reaction score; some might have other effects.
-from gears import tags, personality
+from gears import tags, personality, factions
 
 
 class TagReactionBadge(object):
-    def __init__(self,name,desc,remods = None, tags=()):
+    def __init__(self,name,desc,remods = None, tags=(), contra=()):
         self.name = name
         self.desc = desc
         self.reaction_modifiers = dict()
         if remods:
             self.reaction_modifiers.update(remods)
         self.tags = set(tags)
+        self.contra = list(contra)
 
     def get_reaction_modifier(self,pc,npc,camp):
         total = 0
@@ -40,11 +41,12 @@ class TagReactionBadge(object):
 
 
 class UniversalReactionBadge(object):
-    def __init__(self,name,desc,reaction_modifier = 5, tags=()):
+    def __init__(self,name,desc,reaction_modifier = 5, tags=(), contra=()):
         self.name = name
         self.desc = desc
         self.reaction_modifier = reaction_modifier
         self.tags = set(tags)
+        self.contra = list(contra)
 
     def get_reaction_modifier(self,pc,npc,camp):
         return self.reaction_modifier
@@ -67,6 +69,11 @@ class UniversalReactionBadge(object):
 
 
 def add_badge(mylist,mybadge):
+    if hasattr(mybadge, "contra"):
+        for b in list(mylist):
+            for opp in mybadge.contra:
+                if str(b) == str(opp):
+                    mylist.remove(b)
     for b in list(mylist):
         if b.name == mybadge.name:
             mylist.remove(b)
@@ -82,7 +89,10 @@ BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language
 BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and anything having to do with mecha.",remods={tags.Craftsperson:10}, tags=(tags.Craftsperson,))
 BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10}, tags=(tags.Media,))
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10}, tags=(tags.Military,))
-BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,))
-BADGE_POLICE = TagReactionBadge("Police","You have worked in law enforcement.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,))
+BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,), contra=("Police",))
+BADGE_POLICE = TagReactionBadge("Police","You have worked in law enforcement.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,), contra=("Criminal",))
+
+BADGE_AEGIS_DEFECTOR = TagReactionBadge("Aegis Defector","You have renounced all ties to Aegis Overlord Luna.",remods={factions.AegisOverlord: -10, personality.GreenZone: 5, personality.DeadZone: 5}, contra=("Aegis Collaborator",))
+BADGE_AEGIS_COLLABORATOR = TagReactionBadge("Aegis Collaborator","You serve the totalitarian government of Aegis Overlord Luna.",remods={factions.AegisOverlord: 10, personality.GreenZone: -10, personality.DeadZone: -10}, contra=("Aegis Defector",))
 
 BADGE_TURNCOAT = TagReactionBadge("Turncoat", "You have shown willingness to renege on a contract.", remods={personality.Duty: -10, tags.Adventurer: -10, tags.Military: -10}, tags={personality.Irresponsible})

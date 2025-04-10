@@ -44,7 +44,9 @@ class Team(object):
             for c in self.contents:
                 gb.local_teams[c] = self
             while self.contents:
+                #print([str(c) for c in self.contents])
                 c = self.contents.pop()
+                #print(c, repr(c))
                 room.contents.append(c)
 
     def deploy_in_room(self, gb, room, members):

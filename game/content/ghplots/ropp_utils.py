@@ -129,7 +129,38 @@ class ROPP_WarStarter(Plot):
     def COMPY_menu(self, camp, thingmenu):
         thingmenu.add_item("Start the next round", self.start_war_round)
         thingmenu.add_item("ZZWin the war", self.ROPPWAR_WIN)
-        thingmenu.add_item("ZZLose the war", self.ROPPWAR_LOSE)
+        thingmenu.add_item("ZZAegis Win", self._compy_aegis_win)
+        thingmenu.add_item("ZZNavy Win", self._compy_navy_win)
+        thingmenu.add_item("ZZGuild Win", self._compy_guild_win)
+        thingmenu.add_item("Aegis/Guild Allies: {}".format(camp.are_faction_allies(gears.factions.AegisOverlord, gears.factions.TreasureHunters)), self._toggle_aegis_guild)
+        thingmenu.add_item("Solar/Guild Allies: {}".format(camp.are_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters)), self._toggle_solar_guild)
+
+    def _compy_aegis_win(self, camp):
+        self.world_map_war.set_player_team(camp, gears.factions.AegisOverlord)
+        camp.campdata[ROPPCD_HERO_POINTS] = 10
+        self.ROPPWAR_WIN(camp)
+
+    def _compy_navy_win(self, camp):
+        self.world_map_war.set_player_team(camp, gears.factions.TheSolarNavy)
+        camp.campdata[ROPPCD_HERO_POINTS] = 10
+        self.ROPPWAR_WIN(camp)
+
+    def _compy_guild_win(self, camp):
+        self.world_map_war.set_player_team(camp, gears.factions.TreasureHunters)
+        camp.campdata[ROPPCD_HERO_POINTS] = 10
+        self.ROPPWAR_WIN(camp)
+
+    def _toggle_aegis_guild(self, camp: gears.GearHeadCampaign):
+        if camp.are_faction_allies(gears.factions.AegisOverlord, gears.factions.TreasureHunters):
+            camp.set_faction_enemies(gears.factions.AegisOverlord, gears.factions.TreasureHunters)
+        else:
+            camp.set_faction_allies(gears.factions.AegisOverlord, gears.factions.TreasureHunters)
+
+    def _toggle_solar_guild(self, camp: gears.GearHeadCampaign):
+        if camp.are_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters):
+            camp.set_faction_enemies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters)
+        else:
+            camp.set_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters)
 
     def start_war_round(self, camp):
         myround = worldmapwar.WorldMapWarRound(self.world_map_war, camp)
@@ -697,7 +728,7 @@ class AegisJoinerPlot(Plot):
         mylist = list()
 
         if not self.elements["WORLD_MAP_WAR"].player_team and self.can_try_to_join:
-            if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name):
+            if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name) or camp.pc.has_badge(gears.meritbadges.BADGE_AEGIS_DEFECTOR):
                 mylist.append(Offer(
                     "[HAGOODONE] I know exactly who you are, [audience]. You have a lot of nerve showing your face here. Unless you have official diplomatic business, I suggest you leave.",
                     ContextTag([context.CUSTOM]), effect=self._reject_pc,
@@ -779,6 +810,9 @@ class RoppResolutionExtravaganza(Plot):
         else:
             music = "Mr Smith - Poor Mans Groove.ogg"
 
+        if player_faction is gears.factions.AegisOverlord:
+            nart.camp.pc.add_badge(gears.meritbadges.BADGE_AEGIS_COLLABORATOR)
+
         myscene = gears.GearHeadScene(
             30, 30, "Aegis Consulate", player_team=team1, civilian_team=team2,
             scale=gears.scale.HumanScale,
@@ -853,11 +887,14 @@ class RoppResolutionExtravaganza(Plot):
         return True
 
     def _is_aegis_character(self, nart, candidate):
-        return (isinstance(candidate, gears.base.Character) and candidate.faction is gears.factions.AegisOverlord)
+        return (isinstance(candidate, gears.base.Character) and 
+            candidate.faction is gears.factions.AegisOverlord and not self.get_element_idents(candidate) 
+            and nart.camp.is_not_lancemate(candidate))
 
     def _is_guild_character(self, nart, candidate):
-        return (isinstance(candidate, gears.base.Character) and candidate.faction in {gears.factions.TreasureHunters, gears.factions.BoneDevils, gears.factions.BladesOfCrihna})
-
+        return (isinstance(candidate, gears.base.Character) and 
+            candidate.faction in {gears.factions.TreasureHunters, gears.factions.BoneDevils} 
+            and not self.get_element_idents(candidate) and nart.camp.is_not_lancemate(candidate))
 
     WIN_ALERT = (
         "You are victorious! With the battle over, {WINNER} moves swiftly to consolidate their hold on Pirate's Point.",
@@ -906,6 +943,7 @@ class ROPPSolarNavyVictory(Plot):
 
     did_intro = False
     used_heroic_intervention = False
+    became_space_pirate = False
 
     @override
     def custom_init(self, nart):
@@ -942,7 +980,7 @@ class ROPPSolarNavyVictory(Plot):
                 "[HELLO] Congratulations on your victory, [audience]. For what it's worth.",
                 ContextTag([context.HELLO,]),
             ))
-            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 8:
+            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
                 mylist.append(Offer(
                     "You had better... Though to be honest I don't think we're going to completely disappear from town. Who would keep Britaine entertained if we did?",
                     ContextTag([context.CUSTOM,]), data={"reply": "I promise we'll take good care of your city."},
@@ -959,15 +997,29 @@ class ROPPSolarNavyVictory(Plot):
     def GNPC0_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[HELLO] It's going to be hard to say goodbye to this place.",
-            ContextTag([context.HELLO,]),
+            "[HELLO] We lost because our souls have been weighed down by gravity... I'm moving to the orbitals and becoming a pirate!",
+            ContextTag([context.HELLO,]), effect=self._become_space_pirate
         ))
         return mylist
+
+    def _become_space_pirate(self, camp: gears.GearHeadCampaign):
+        if not self.became_space_pirate:
+            mynpc: gears.base.Character = self.elements["GNPC0"]
+            mynpc.faction = gears.factions.BladesOfCrihna
+            mynpc.mecha_colors = gears.color.mutate_colors(mynpc.faction.mecha_colors)
+            mynpc.relationship.history.append(gears.relationships.Memory(
+                "I escaped the prison of gravity and joined the Blades", 
+                "you quit the Treasure Hunters to become a space pirate", reaction_mod=5,
+                memtags=(gears.relationships.MEM_Ideological,)
+            ))
+            camp.egg.dramatis_personae.add(mynpc)
+            self.became_space_pirate = True
+
 
     def GNPC1_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[HELLO] I can't believe we lost...",
+            "[HELLO] It's going to be hard to say goodbye to this place.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1008,7 +1060,7 @@ class ROPPSolarNavyVictory(Plot):
                 "[HELLO] The people of Pirate's Point have not always been well served by its leadership... The Terran Federation will attempt to do better.",
                 ContextTag([context.HELLO,]),
             ))
-            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 8:
+            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
                 mylist.append(Offer(
                     "I know you will. I am not foolish enough to think that the Guild will simply leave Pirate's Point... but I hope we can come to a better arrangement than you previously held with Aegis.",
                     ContextTag([context.CUSTOM,]), data={"reply": "I'll be watching to make sure that you do."},
@@ -1023,7 +1075,7 @@ class ROPPSolarNavyVictory(Plot):
 
     def NPC_PINSENT_offers(self, camp):
         mylist = list()
-        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 8:
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
             mylist.append(Offer(
                 "[HELLO] The war is over. I fear Bogo may be right about the Federation being in over our heads, but with sufficient communication maybe we can make this work...",
                 ContextTag([context.HELLO,]),
@@ -1066,7 +1118,7 @@ class ROPPSolarGuildVictory(Plot):
                 ghcutscene.SimpleMonologueDisplay("You really have no-one to blame but yourself, {NPC_AEGIS}. Or should I say the Overlord Council will have no-one to blame but you?".format(**self.elements), self.elements["NPC_BOGO"])(camp, False)
             else:
                 pbge.alert("{NPC_BOGO} enters the room beaming like an arena champion. {NPC_CHARLA} takes her place beside him, as stoic and steely eyed as ever.".format(**self.elements))
-                ghcutscene.SimpleMonologueDisplay("The war is over. You, {NPC_AEGIS}, have lost. I want all of your Aegis lackeys out of my city by tomorrow.", self.elements["NPC_BOGO"])(camp, True)
+                ghcutscene.SimpleMonologueDisplay("The war is over. You, {NPC_AEGIS}, have lost. I want all of your Aegis lackeys out of my city by tomorrow.".format(**self.elements), self.elements["NPC_BOGO"])(camp, True)
                 ghcutscene.SimpleMonologueDisplay("The Terran Federation welcomes our new truce with Pirate's Point. It is in all of our best interests to keep Earth free from Lunar aggression.", self.elements["NPC_CHARLA"])(camp, False)
             ghcutscene.SimpleMonologueDisplay("We will withdraw for now. But be warned, Terrans, that soon you will face far greater threats from much closer to home. When that time comes you will beg Aegis to protect you.", self.elements["NPC_AEGIS"])(camp, False)
             ghcutscene.SimpleMonologueDisplay("With all due respect, you can take your empty threats and stuff them, Ambassador.", self.elements["NPC_PINSENT"])(camp, False)
@@ -1094,7 +1146,7 @@ class ROPPSolarGuildVictory(Plot):
                 "[HELLO] I'm glad that's over with. Though, to be fair, the Federation did help us get rid of Aegis.",
                 ContextTag([context.HELLO,]),
             ))
-            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 8:
+            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
                 mylist.append(Offer(
                     "Maybe we'll be able to team up again some time in the future... Can you even imagine the look on Britaine's face?",
                     ContextTag([context.CUSTOM,]), data={"reply": "Teaming up with the Feds worked out pretty well for Pirate's Point."},
@@ -1160,7 +1212,7 @@ class ROPPSolarGuildVictory(Plot):
                 "[HELLO] The Solar Navy's job is done in Pirate's Point; the Federation will be sending diplomats to work out a new deal now that Aegis has been removed.",
                 ContextTag([context.HELLO,]),
             ))
-            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 8:
+            if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
                 mylist.append(Offer(
                     "Indeed. I have been speaking with Bogo about forming a more lasting alliance between his spies and our forces... this could be the advantage Earth needs to halt Lunar aggression once and for all.",
                     ContextTag([context.CUSTOM,]), data={"reply": "Teaming up with the Guild worked out pretty well for the people of this city."},
@@ -1198,6 +1250,7 @@ class ROPPTreasureHuntersVictory(Plot):
 
     did_intro = False
     used_heroic_intervention = False
+    prep_for_alliance = False
 
     @override
     def custom_init(self, nart):
@@ -1220,14 +1273,22 @@ class ROPPTreasureHuntersVictory(Plot):
         self.used_heroic_intervention = True
         camp.egg.data[EGGDAT_TREASURE_HUNTER_FED_ALLIANCE] = None
         _=plotutility.XPRewardWithNotification(camp)
+        self.memo = None
 
     def NPC_BOGO_offers(self, camp):
         mylist = list()
 
         mylist.append(Offer(
-            "",
+            "[HELLO] Enjoy the party; tomorrow it's back to work.",
             ContextTag([context.HELLO,]),
         ))
+
+        if self.prep_for_alliance and not self.used_heroic_intervention:
+            mylist.append(Offer(
+                "Would they, now? Well, since they helped us get rid of Aegis, I should at least give them a listen.",
+                ContextTag([context.CUSTOM,]), data={"reply": "The Terran Federation would like to send aid to Pirate's Point."},
+                effect=self._make_peace_with_fed
+            ))
 
         return mylist
 
@@ -1258,7 +1319,7 @@ class ROPPTreasureHuntersVictory(Plot):
     def ANPC0_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[HELLO]",
+            "[HELLO] It seems like everyone here is against Aegis... Maybe Terra isn't ready for civilization yet.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1266,23 +1327,35 @@ class ROPPTreasureHuntersVictory(Plot):
     def ANPC1_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] These barbarians don't appreciate everything Aegis has done for this city.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
 
+    def _prepare_da_alliance(self, camp):
+        self.memo = "The Terran Federation can provide aid to rebuild Pirate's Point if Bogo agrees to it."
+        self.prep_for_alliance = True
+
     def NPC_CHARLA_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] Our business here is complete.",
             ContextTag([context.HELLO,]),
         ))
+
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7 and not self.prep_for_alliance:
+            mylist.append(Offer(
+                "The Terran Federation would be willing to provide aid for reconstruction, if the Guild were open to receiving such aid.",
+                ContextTag([context.CUSTOM,]), data={"reply": "With the war over, the people of Pirate's Point are going to need help rebuilding."},
+                effect=self._prepare_da_alliance
+            ))
+
         return mylist
 
     def NPC_PINSENT_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] Technically, we have succeeded at our task. A technical victory is greater than a pyrrhic one.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1290,7 +1363,7 @@ class ROPPTreasureHuntersVictory(Plot):
     def NPC_BRITAINE_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] You know who else is going to be happy about this? The space pirates.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1304,10 +1377,21 @@ class ROPPAegisHuntersVictory(Plot):
 
     did_intro = False
     used_heroic_intervention = False
+    prep_for_alliance = False
 
     @override
     def custom_init(self, nart):
         return True
+
+    def _make_peace_with_fed(self, camp):
+        self.used_heroic_intervention = True
+        camp.egg.data[EGGDAT_TREASURE_HUNTER_FED_ALLIANCE] = ROPP_ALLIES
+        _=plotutility.XPRewardWithNotification(camp)
+        self.memo = None
+
+    def _prepare_da_alliance(self, camp):
+        self.memo = "The Treasure Hunters Guild has volunteered to aid the Terran Federation in its fight against Aegis. Pass this message to Admiral Charla."
+        self.prep_for_alliance = True
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_intro:
@@ -1328,16 +1412,23 @@ class ROPPAegisHuntersVictory(Plot):
         mylist = list()
 
         mylist.append(Offer(
-            "",
+            "[HELLO] This is a sad day for thieves and cutthroats... though this old fool may have some mischief left in him.",
             ContextTag([context.HELLO,]),
         ))
+
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7 and not self.prep_for_alliance and self.elements["PLAYER_FACTION"] is not gears.factions.AegisOverlord:
+            mylist.append(Offer(
+                "I couldn't agree more. Pass this message to the young Admiral over there... the Treasure Hunters Guild has much experience working as spies and assassins. We would be willing to aid the Terran Federation in thier fight against Aegis.",
+                ContextTag([context.CUSTOM,]), data={"reply": "The people of Pirate's Point deserve better than to be ruled by Aegis."},
+                effect=self._prepare_da_alliance
+            ))
 
         return mylist
 
     def GNPC0_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[HELLO] That went well, I think.",
+            "[HELLO] I'm moving back to Ipshil.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1345,7 +1436,7 @@ class ROPPAegisHuntersVictory(Plot):
     def GNPC1_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[HELLO] I'm glad the fighting is over so I can get back to the thieving.",
+            "[HELLO] We should have listened to Segard...",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1353,15 +1444,42 @@ class ROPPAegisHuntersVictory(Plot):
     def NPC_AEGIS_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "Bastard didn't have to steal my wine...",
+            "[HELLO] I'm thinking of changing the name of this city... {NPC_AEGIS}ville has a nice ring to it.".format(**self.elements),
             ContextTag([context.HELLO,]),
         ))
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 1 and self.elements["PLAYER_FACTION"] is gears.factions.AegisOverlord and not self.used_heroic_intervention:
+            mylist.append(Offer(
+                "Measure your words carefully, [audience]. Our goal has always been to expand Aegis oversight on the birthworld. Have you begun to doubt the responsibility of Aegis Overlord?",
+                ContextTag([context.CUSTOM,]), subject=self, subject_start=True,
+                data={"reply": "I can't believe you used this war as a pretense to sieze control..."}
+            ))
+            mylist.append(Offer(
+                "[GOOD] We have much to accomplish on this world, and will need loyal soldiers like yourself.",
+                ContextTag([context.CUSTOMREPLY,]), subject=self,
+                data={"reply": "No, [audience]. I'm sorry. I spoke in haste."},
+                effect=self._burn_heroic
+            ))
+            mylist.append(Offer(
+                "If it burdens your conscience so much, then I relieve you of the responsibility. You are no longer a member of Aegis. Know that you have been cast down from Luna. Go, and live in the squalor of this place until you die.",
+                ContextTag([context.CUSTOMREPLY,]), subject=self,
+                data={"reply": "Maybe I am doubting it, yes..."},
+                effect=self._renounce_aegis
+            ))
         return mylist
+
+    def _burn_heroic(self, camp: gears.GearHeadCampaign):
+        self.used_heroic_intervention = True
+        camp.renown -= 10
+
+    def _renounce_aegis(self, camp: gears.GearHeadCampaign):
+        self.used_heroic_intervention = True
+        _=plotutility.XPRewardWithNotification(camp, 100)
+        camp.pc.add_badge(gears.meritbadges.BADGE_AEGIS_DEFECTOR)
 
     def ANPC0_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] In time, the people of this city will learn to love Aegis.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1369,7 +1487,7 @@ class ROPPAegisHuntersVictory(Plot):
     def ANPC1_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] This city will become a beacon of hope for all of Terra... Aegis Pax Europa!",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1377,15 +1495,23 @@ class ROPPAegisHuntersVictory(Plot):
     def NPC_CHARLA_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] This battle may be over, but the war is just beginning.",
             ContextTag([context.HELLO,]),
         ))
+
+        if self.prep_for_alliance and not self.used_heroic_intervention:
+            mylist.append(Offer(
+                "[GOOD] This will have to remain quiet, for now. Something good may come of this operation after all.",
+                ContextTag([context.CUSTOM,]), data={"reply": "I bring a message from Bogo; the Treasure Hunters would like to join your fight against Aegis."},
+                effect=self._make_peace_with_fed
+            ))
+
         return mylist
 
     def NPC_PINSENT_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] This is an unpleasant but not unexpected outcome...",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1393,7 +1519,7 @@ class ROPPAegisHuntersVictory(Plot):
     def NPC_BRITAINE_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] Imagine that, the fox-king getting outfoxed by a petty bureaucrat from the Moon. It'd be funny if I wasn't boiling with rage.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1407,6 +1533,8 @@ class ROPPAegisVictory(Plot):
 
     did_intro = False
     used_heroic_intervention = False
+    prep_for_alliance = False
+    became_space_pirate = False
 
     @override
     def custom_init(self, nart):
@@ -1428,44 +1556,107 @@ class ROPPAegisVictory(Plot):
             camp.egg.data[gears.eggs.EGGDAT_AEGIS_VICTORIES_ON_EARTH] = camp.egg.data.get(gears.eggs.EGGDAT_AEGIS_VICTORIES_ON_EARTH, 0) + 2
             self.did_intro = True
 
+    def _make_peace_with_fed(self, camp):
+        self.used_heroic_intervention = True
+        camp.egg.data[EGGDAT_TREASURE_HUNTER_FED_ALLIANCE] = ROPP_ALLIES
+        _=plotutility.XPRewardWithNotification(camp)
+        self.memo = None
+
+    def _prepare_da_alliance(self, camp):
+        self.memo = "Admiral Charla has expressed interest in working with the Treasure Hunters Guild to oppose Aegis in the future; you can ask Jjang Bogo about this."
+        self.prep_for_alliance = True
+
     def NPC_BOGO_offers(self, camp):
         mylist = list()
 
         mylist.append(Offer(
-            "",
+            "[HELLO] All good things must come to an end... but one thing's end is another's beginning.",
             ContextTag([context.HELLO,]),
         ))
+
+        if self.prep_for_alliance and not self.used_heroic_intervention:
+            mylist.append(Offer(
+                "Very kind of you, letting me know about this mission opportunity. If the Federation is serious, and willing to back up their words with money, I'll gladly help them bring down those self-important Lunars.",
+                ContextTag([context.CUSTOM,]), data={"reply": "Admiral Charla told me she could use your help to fight Aegis."},
+                effect=self._make_peace_with_fed
+            ))
 
         return mylist
 
     def GNPC0_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "[HELLO] That went well, I think.",
-            ContextTag([context.HELLO,]),
+            "[HELLO] I've had it with both Earth and Luna. I'm gonna become a space pirate.",
+            ContextTag([context.HELLO,]), effect=self._become_space_pirate
         ))
         return mylist
 
+    def _become_space_pirate(self, camp: gears.GearHeadCampaign):
+        if not self.became_space_pirate:
+            mynpc: gears.base.Character = self.elements["GNPC0"]
+            mynpc.faction = gears.factions.BladesOfCrihna
+            mynpc.mecha_colors = gears.color.mutate_colors(mynpc.faction.mecha_colors)
+            mynpc.relationship.history.append(gears.relationships.Memory(
+                "I quit the Treasure Hunters and became a pirate", 
+                "you decided to become a space pirate", reaction_mod=5,
+                memtags=(gears.relationships.MEM_Ideological,)
+            ))
+            camp.egg.dramatis_personae.add(mynpc)
+            self.became_space_pirate = True
+
     def GNPC1_offers(self, camp):
         mylist = list()
-        mylist.append(Offer(
-            "[HELLO] I'm glad the fighting is over so I can get back to the thieving.",
-            ContextTag([context.HELLO,]),
-        ))
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
+            mylist.append(Offer(
+                "[HELLO] The worst thing is, things were looking pretty good there for a while...",
+                ContextTag([context.HELLO,]),
+            ))
+        else:
+            mylist.append(Offer(
+                "[HELLO] This sucks and there is absolutely no silver lining.",
+                ContextTag([context.HELLO,]),
+            ))
         return mylist
 
     def NPC_AEGIS_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "Bastard didn't have to steal my wine...",
+            "[HELLO] The Solar Navy has given Aegis a great victory... just as I knew they would.",
             ContextTag([context.HELLO,]),
         ))
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 1 and self.elements["PLAYER_FACTION"] is gears.factions.AegisOverlord and not self.used_heroic_intervention:
+            mylist.append(Offer(
+                "Measure your words carefully, [audience]. Our goal has always been to expand Aegis oversight on the birthworld. Have you begun to doubt the responsibility of Aegis Overlord?",
+                ContextTag([context.CUSTOM,]), subject=self, subject_start=True,
+                data={"reply": "I can't believe you used this war as a pretense to sieze control..."}
+            ))
+            mylist.append(Offer(
+                "[GOOD] We have much to accomplish on this world, and will need loyal soldiers like yourself.",
+                ContextTag([context.CUSTOMREPLY,]), subject=self,
+                data={"reply": "No, [audience]. I'm sorry. I spoke in haste."},
+                effect=self._burn_heroic
+            ))
+            mylist.append(Offer(
+                "If it burdens your conscience so much, then I relieve you of the responsibility. You are no longer a member of Aegis. Know that you have been cast down from Luna. Go, and live in the squalor of this place until you die.",
+                ContextTag([context.CUSTOMREPLY,]), subject=self,
+                data={"reply": "Maybe I am doubting it, yes..."},
+                effect=self._renounce_aegis
+            ))
         return mylist
+
+    def _burn_heroic(self, camp: gears.GearHeadCampaign):
+        self.used_heroic_intervention = True
+        camp.renown -= 10
+
+    def _renounce_aegis(self, camp: gears.GearHeadCampaign):
+        self.used_heroic_intervention = True
+        _=plotutility.XPRewardWithNotification(camp, 100)
+        camp.pc.add_badge(gears.meritbadges.BADGE_AEGIS_DEFECTOR)
 
     def ANPC0_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] Aegis won... I guess that means I'm stuck on this rock for even longer, now.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1473,7 +1664,7 @@ class ROPPAegisVictory(Plot):
     def ANPC1_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] Now that Aegis controls the entire city, we can start bringing law and order to Earth.",
             ContextTag([context.HELLO,]),
         ))
         return mylist
@@ -1481,23 +1672,37 @@ class ROPPAegisVictory(Plot):
     def NPC_CHARLA_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] The war is over. Now we regroup, rethink, and decide how to proceed from here.",
             ContextTag([context.HELLO,]),
         ))
+
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7 and not self.prep_for_alliance and self.elements["PLAYER_FACTION"] is not gears.factions.AegisOverlord:
+            mylist.append(Offer(
+                "This is true. If Jjang Bogo were open to negotiation, the infiltration and intelligence services of the Guild would be a great help to us.",
+                ContextTag([context.CUSTOM,]), data={"reply": "It seems that both the Guild and the Federation now have a common enemy."},
+                effect=self._prepare_da_alliance
+            ))
+
         return mylist
 
     def NPC_PINSENT_offers(self, camp):
         mylist = list()
-        mylist.append(Offer(
-            "",
-            ContextTag([context.HELLO,]),
-        ))
+        if camp.campdata.get(ROPPCD_HERO_POINTS,0) >= 7:
+            mylist.append(Offer(
+                "[HELLO] This has been a stunning defeat, but maybe something can be salvaged from the ashes...",
+                ContextTag([context.HELLO,]),
+            ))
+        else:
+            mylist.append(Offer(
+                "[HELLO] This has been a stunning, and utterly unnecessary, defeat.",
+                ContextTag([context.HELLO,]),
+            ))
         return mylist
 
     def NPC_BRITAINE_offers(self, camp):
         mylist = list()
         mylist.append(Offer(
-            "",
+            "[HELLO] It's not fair that someone else got to defeat Bogo before I could.",
             ContextTag([context.HELLO,]),
         ))
         return mylist

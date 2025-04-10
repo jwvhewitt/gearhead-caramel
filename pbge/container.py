@@ -35,13 +35,13 @@ class Container(object):
     to be used to simplify implementation of list and dict containers.
     """
     def _set_container(self, item):
-        if hasattr( item, "container" ) and item.container not in (None,self):
+        if hasattr( item, "container" ) and item.container not in (self, None):
 #            raise ContainerError("Item %s was added to container %s but was already in container %s" % (item, self, item.container))
             item.container.remove( item )
         item.container = self
     def _unset_container(self, item):
         if item.container is not self:
-            raise ContainerError("Item %s was removed from container %s but was not in it" % (item, self))
+            raise ContainerError("Item {} was removed from container {} but was in {}".format(item, self, item.container))
         item.container = None
     def _set_container_multi(self, items):
         """Put items in the container in an all-or-nothing way"""
@@ -63,6 +63,7 @@ class Container(object):
         r = []
         try:
             for i in items:
+                print(i)
                 self._unset_container(i)
                 r.append(i)
             r = None
@@ -92,7 +93,8 @@ class ContainerList(list,Container):
 
     def append(self, item):
         self._set_container(item)
-        list.append(self,item)
+        if item not in self:
+            list.append(self,item)
     def extend(self, items):
         self._set_container_multi(items)
         list.extend(self,items)
@@ -147,9 +149,6 @@ class ContainerList(list,Container):
         else:
             self._unset_container(self[key])
         list.__delitem__(self,key)
-    # Needed for python2, forbidden for python3
-    def __delslice__(self,i,j):
-        del self[slice(i,j,None)]
 
 class ContainerDict(dict,Container):
     """A ContainerDict is a dict whose children know they're in it.
@@ -228,17 +227,29 @@ if __name__=='__main__':
         p.append(a)
     except ContainerError as err:
         print(err)
-    else:
-        raise AssertionError
+
+    print(p)
+
 
     print(p[1])
     print(p[::2])
     p[1] = d
     print(p)
 
+    print("Container List Integrity Check")
+    for i in p:
+        print("  {}: {}".format(i, i.container))
+
+
     p[1] = b
-    p[::2] = [d,e]
     print(p)
+
+    p[::2] = [c,d]
+    print(p)
+
+    print("Container List Integrity Check")
+    for i in p:
+        print("  {}: {}".format(i, i.container))
 
     del p[:]
 
