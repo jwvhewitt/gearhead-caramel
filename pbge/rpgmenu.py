@@ -327,6 +327,10 @@ class Menu( Frect ):
         if self.selected_item < len( self.items ):
             return self.items[self.selected_item].value
 
+    def get_current_desc( self ):
+        if self.selected_item < len( self.items ):
+            return self.items[self.selected_item].desc
+
 
 class PopUpMenu( Menu ):
     """Creates a small menu at the current mouse position."""

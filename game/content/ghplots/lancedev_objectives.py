@@ -1,3 +1,4 @@
+from gears import relationships
 from pbge.plots import Plot
 import game
 import gears
@@ -20,6 +21,77 @@ BAME_LANCEMATE = "BAME_LANCEMATE"
 
 # Personal Lancedev Objectives
 BAMOP_DISCOVER_BIOTECHNOLOGY = "BAMOP_DiscoverBiotechnology"
+BAMO_BETRAYAL = "BAMO_BETRAYAL"
+
+
+class LMBetrayalFight(Plot):
+    LABEL = BAMO_BETRAYAL
+    active = True
+    scope = "LOCALE"
+
+    ready_to_record = True
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        mynpc = self.elements[BAME_LANCEMATE]
+
+        _=self.register_element(
+            "ROOM", pbge.randmaps.rooms.FuzzyRoom(15, 15, anchor=pbge.randmaps.anchors.middle),
+            dident="LOCALE"
+        )
+
+        team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,), faction=mynpc.faction), dident="ROOM")
+
+        self.locked_elements.add(BAME_LANCEMATE)
+        if mynpc in nart.camp.party:
+            plotutility.AutoLeaver(mynpc)(nart.camp)
+        _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2, allow_death=False)
+
+        myunit = gears.selector.RandomMechaUnit(self.rank, 100, mynpc.faction, myscene.environment, add_commander=False)
+        team2.contents += myunit.mecha_list
+
+        self.obj = adventureseed.MissionObjective("Fight {}".format(mynpc), missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
+        self.adv.objectives.append(self.obj)
+
+        self.intro_ready = True
+
+        return True
+
+    def _eteam_ACTIVATETEAM(self, camp):
+        if self.intro_ready:
+            npc = self.elements[BAME_LANCEMATE]
+            ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
+            self.intro_ready = False
+
+    def BAME_LANCEMATE_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[BETRAYAL] You see, I must [objective_ep]... [CHALLENGE]",
+                            context=ContextTag([context.ATTACK, ])))
+        return mylist
+
+    def t_ENDCOMBAT(self, camp):
+        myteam = self.elements["_eteam"]
+        if len(myteam.get_members_in_play(camp)) < 1:
+            self.obj.win(camp, 100)
+        else:
+            self.obj.failed = True
+
+        if self.adv.is_completed() and self.ready_to_record and not self.intro_ready:
+            self.ready_to_record = False
+            if len(myteam.get_members_in_play(camp)) < 1:
+                self.elements[BAME_LANCEMATE].relationship.history.append(relationships.Memory(
+                    random.choice(self.adv.mission_grammar["[win_ep]"]),
+                    random.choice(self.adv.mission_grammar["[win_pp]"]),
+                    -5, 
+                    memtags=(relationships.MEM_Clash, relationships.MEM_Ideological, relationships.MEM_LoseToPC)
+                ))
+            else:
+                self.elements[BAME_LANCEMATE].relationship.history.append(relationships.Memory(
+                    random.choice(self.adv.mission_grammar["[lose_ep]"]),
+                    random.choice(self.adv.mission_grammar["[lose_pp]"]),
+                    10, 
+                    memtags=(relationships.MEM_Clash, relationships.MEM_Ideological, relationships.MEM_DefeatPC)
+                ))
 
 
 class LMBAM_DiscoverBiotechnology(Plot):

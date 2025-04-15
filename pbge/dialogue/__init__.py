@@ -150,11 +150,12 @@ class Reply(object):
             text = text.format(**self.destination.data)
         return text
 
-    def apply_to_menu(self, mymenu, pcgrammar):
+    def apply_to_menu(self, mymenu, pcgrammar, pc):
         if self.destination and self.destination.custom_menu_fun:
             myitem = self.destination.custom_menu_fun(self, mymenu, pcgrammar)
         else:
-            myitem = mymenu.add_item(self.format_text(pcgrammar), self.destination)
+            text = self.format_text(pcgrammar)
+            myitem = mymenu.add_item(text, self.destination, "{}: {}".format(pc, text))
         if myitem and self.destination.skill_info and util.config.getboolean("GENERAL",
                                                                              "show_convo_skills") and hasattr(myitem,
                                                                                                               "msg"):
@@ -321,9 +322,10 @@ class DynaConversation(object):
                 coff.prefx(self.camp)
             self.build(coff)
             self.visualizer.text = coff.msg
+            my_state.record_message("{}: {}".format(self.npc, coff.msg))
             mymenu = self.visualizer.get_menu()
             for i in coff.replies:
-                i.apply_to_menu(mymenu, self.pc_grammar)
+                i.apply_to_menu(mymenu, self.pc_grammar, self.pc)
             if self.visualizer.text and not mymenu.items:
                 mymenu.add_item("[Continue]", None)
             else:
@@ -331,6 +333,8 @@ class DynaConversation(object):
             nextfx = coff.effect
 
             coff = mymenu.query()
+            if coff:
+                my_state.record_message(mymenu.get_current_desc())
 
             if nextfx:
                 nextfx(self.camp)

@@ -2,10 +2,8 @@
 
 import pygame
 import weakref
-from . import util
-from . import my_state, render_text, TEXT_COLOR, Singleton
+from . import my_state, render_text, TEXT_COLOR
 import os.path
-import copy
 import glob
 
 import pbgerecolor

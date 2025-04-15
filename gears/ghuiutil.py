@@ -2,6 +2,7 @@
 # the info unit... anyhow, here are some UI things used by GearHead things.
 
 import pbge
+import pygame
 from . import info
 
 class GearMenuDesc( pbge.frects.Frect ):
@@ -62,3 +63,41 @@ class SelectGearDataGatherer:
         data[self.data_key] = data_val
         return data_val
 
+
+class TextDisplayWidget(pbge.widgetmenu.MenuWidget):
+    def __init__(self, text_list):
+        super().__init__(-300,-250,600,500)
+        self.text_list = text_list
+
+        for text in self.text_list:
+            for line in pbge.wrap_multi_line(text, pbge.MEDIUMFONT, self.w):
+                s = pbge.MEDIUMFONT.render(line, color=pbge.INFO_GREEN)
+                s.set_colorkey((0,0,0), pygame.RLEACCEL)
+                self.add_interior(pbge.widgets.SurfaceWidget(
+                    0, 0, s
+                ))
+            self.add_interior(pbge.widgets.Widget(0,0,self.w,8))
+        self.active_index = len(self._interior_widgets)-1
+
+    @classmethod
+    def create_and_invoke(cls, text_list=None, redraw=None):
+        # Run the UI. Return a DoInvocation action if an invocation
+        # was chosen, or None if the invocation was cancelled.
+        if not text_list:
+            text_list = pbge.my_state.message_log
+        myui = cls(text_list)
+        pbge.my_state.widgets.append(myui)
+        keepgoing = True
+        while keepgoing:
+            ev = pbge.wait_event()
+            if ev.type == pbge.TIMEREVENT:
+                if redraw:
+                    redraw()
+                else:
+                    pbge.my_state.view()
+                pbge.my_state.do_flip()
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    keepgoing = False
+
+        pbge.my_state.widgets.remove(myui)

@@ -1,6 +1,8 @@
 # Character development plots for lancemates.
+from math import e
 import game.content
-from pbge.plots import Plot, PlotState
+from gears import personality
+from pbge.plots import Plot, PlotState, Rumor
 from pbge.dialogue import Offer, ContextTag
 from game import services, ghdialogue
 from game.ghdialogue import context
@@ -9,7 +11,7 @@ from gears import relationships
 import pbge
 import random
 from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, ghcutscene, dungeonmaker
-from . import missionbuilder, dd_customobjectives, lancedev_objectives
+from . import missionbuilder, dd_customobjectives, lancedev_objectives, mission_bigobs
 
 
 #  Required elements: METRO, METROSCENE, MISSION_GATE
@@ -84,6 +86,246 @@ class LMMissionPlot(LMPlot):
 
 
 # The actual plots...
+
+class DespairCrushPersonalMission(LMMissionPlot):
+    # The PC's crush, who is feeling despair, will leave on a solo mission.
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    MISSION_NAME = "{NPC}'s Personal Mission"
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_RESCUE_NPC, missionbuilder.BAMO_SURVIVE_THE_AMBUSH)
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        return len(nart.camp.get_lancemates()) > 1
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.attitude == relationships.A_DESPAIR
+                    and candidate.relationship.role == relationships.R_CRUSH
+            )
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            self.started_convo = True
+            npc = self.elements["NPC"]
+            _=pbge.alert("As you enter {METROSCENE}, {NPC} approaches you anxiously.".format(**self.elements))
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "I'm sorry but I need to leave the lance. There's an urgent personal matter that I must attend to.",
+                npc, camp
+            )
+            mymenu.no_escape = True
+            mymenu.add_item("If you've got a problem, we'll all go to help you with it.", self._offer_help)
+            mymenu.add_dialogue_item(camp, camp.pc, "[UNDERSTOOD] Good luck handling it.", self._wish_good_luck)
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+            else:
+                self._leave_the_party(camp)
+
+    def _offer_help(self, camp):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "I appreciate the offer, but this is something I really need to face on my own. Goodbye [audience].",
+            npc)(camp, False)
+        self._leave_the_party(camp)
+
+    def _wish_good_luck(self, camp):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "Thanks, I'll probably need it. Goodbye [audience].",
+            npc)(camp, False)
+        self._leave_the_party(camp)
+
+    def _leave_the_party(self, camp: gears.GearHeadCampaign):
+        npc: gears.base.Character = self.elements["NPC"]
+        plotutility.AutoLeaver(npc)(camp)
+        camp.freeze(npc)
+        pbge.alert("Without saying another word, {} leaves.".format(npc))
+        if npc.get_reaction_score(camp.pc, camp) < 20:
+            # If this crush isn't feeling it, end this plot here. They aren't coming back.
+            # Or at least, they aren't coming back until next scenario...
+            npc.relationship.role = gears.relationships.R_AMBIGUOUS
+            self.proper_end_plot(camp)
+        else:
+            # Tentatively set the NPC's attitude to secretive. If the PC doesn't bother to find them,
+            # this will be their attitude the next time they show up. If the PC does find them, we can
+            # backtrack and set a different attitude.
+            npc.relationship.attitude = gears.relationships.A_SECRETIVE
+
+            candidates = camp.get_active_lancemates()
+            if candidates:
+                lm = random.choice(candidates)
+
+                mymenu = ghcutscene.SimpleMonologueMenu(
+                    "[WHAT_ARE_YOU_DOING] {NPC} could be in real trouble. We've got to help {NPC.gender.object_pronoun}!".format(**self.elements),
+                    lm, camp
+                )
+                mymenu.no_escape = True
+                mymenu.add_dialogue_item(camp, camp.pc, "[YOU_COULD_BE_RIGHT]".format(**self.elements), self._say_lets_go)
+                mymenu.add_item("If {NPC} says {NPC.gender.subject_pronoun} can handle it, {NPC.gender.subject_pronoun} can.".format(**self.elements), self._say_its_ok)
+                choice = mymenu.query()
+                if choice:
+                    choice(camp, lm)
+
+            self.RUMOR = Rumor(
+                "{NPC}'s mecha has been seen outside of town".format(**self.elements),
+                offer_msg="[as_far_as_I_know] {NPC} was pursuing some meks with strange markings. If you hurry, you might be able to catch up with them.",
+                offer_subject="{NPC}'s mecha".format(**self.elements), offer_subject_data="where {NPC} was going".format(**self.elements),
+                memo="{NPC} has been pursuing strange mecha outside of {METROSCENE}.".format(**self.elements), memo_location="METROSCENE",
+                offer_effect_name="activate_mission"
+            )
+            self.proper_non_end(camp, False)
+
+    def _say_lets_go(self, camp, lmnpc):
+        ghcutscene.SimpleMonologueDisplay(
+            "I don't know if you've noticed, but {NPC} is rather fond of you... and {NPC.gender.subject_pronoun}'s been really worried about something lately. I suspect {NPC.gender.subject_pronoun} left to protect you from whatever that is.".format(**self.elements),
+            lmnpc
+        )(camp, False)
+
+    def _say_its_ok(self, camp, lmnpc):
+        ghcutscene.SimpleMonologueDisplay(
+            "I hope you're right. {NPC} has been really upset about something... and I know {NPC.gender.subject_pronoun} doesn't want to lay all of {NPC.gender.possessive_determiner} problems on you. I don't know if you've noticed, but {NPC} has a bit of a crush on you.".format(**self.elements),
+            lmnpc
+        )(camp, False)
+
+    def activate_mission(self, camp):
+        self.prep_mission(camp, custom_elements={missionbuilder.BAME_RESCUENPC: self.elements["NPC"]})
+        self.mission_active = True
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def win_mission(self, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "Thanks for showing up. I thought I could handle this by myself, but... I'm part of a team now. I should have let you know what was going on. And more than that, [audience], I should have known you'll always have my back.".format(**self.elements),
+            self.elements["NPC"].get_root()
+        )(camp, True)
+        self.elements["NPC"].place(self.elements["METROSCENE"])
+        self.elements["NPC"].relationship.attitude = gears.relationships.A_OPENUP
+        self.end_plot(camp)
+
+    def lose_mission(self, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "I told you to stay out of this. You didn't help anything by showing up. [audience], I care about you very much... but you can be kind of a jerk sometimes.".format(**self.elements),
+            self.elements["NPC"].get_root()
+        )(camp, True)
+        self.elements["NPC"].place(self.elements["METROSCENE"])
+        self.elements["NPC"].relationship.attitude = gears.relationships.A_RESENT
+        self.end_plot(camp)
+
+
+class CriminalOpponentWithMission(LMMissionPlot):
+    # An opponent will offer the PC a mission. Maybe it's a trap?
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    MISSION_NAME = "{NPC}'s Covert Corporate Mission"
+    MISSION_OBJECTIVES = (missionbuilder.BAMO_CAPTURE_BUILDINGS, missionbuilder.BAMO_CAPTURE_THE_MINE)
+    ENEMY_FACTIONS = (gears.factions.KettelIndustries, gears.factions.BioCorp, gears.factions.RegExCorporation)
+    CASH_REWARD = 200
+    EXPERIENCE_REWARD = 100
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        self.elements["ENEMY_FACTION"] = random.choice(self.ENEMY_FACTIONS)
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.role == relationships.R_OPPONENT
+                    and gears.tags.Criminal in candidate.get_tags()
+            )
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            self.started_convo = True
+            npc = self.elements["NPC"]
+            _=pbge.alert("As you enter {METROSCENE}, you see {NPC} sending a message on {NPC.gender.possessive_determiner} phone.".format(**self.elements))
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "[I_GOT_A_MISSION_OFFER] There's a corporation running some clandestine ops nearby; another corp is willing to pay top money to find out what they're working on. Technically it isn't thieving if your target is doing illegal stuff too.",
+                npc, camp
+            )
+            mymenu.no_escape = True
+            mymenu.add_item("Alright, you've convinced me. Let's get to work.", self._accept_offer)
+            mymenu.add_item("It's still not *not* thieving, though. I'll have to pass.", self._reject_offer)
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+
+    def _accept_offer(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        self.mission_active = True
+        if npc.get_reaction_score(camp.pc, camp) > random.randint(0,20) or gears.personality.Duty in npc.personality:
+            self.good_mission(camp)
+        else:
+            self.bad_mission(camp)
+        ghcutscene.SimpleMonologueDisplay(
+            "That's the spirit! We'll be in and out before anyone has a chance to figure out who we are. [LETSGO]",
+            npc)(camp, False)
+        npc.relationship.role = relationships.R_COLLEAGUE
+        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+
+    def _reject_offer(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[UNDERSTOOD] I can see that I'm going to have to work harder to be a bad influence on you.",
+            npc)(camp, False)
+        npc.relationship.role = relationships.R_BADINFLUENCE
+        self.proper_end_plot(camp)
+
+    def good_mission(self, camp: gears.GearHeadCampaign):
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(camp.scene.get_metro_scene())
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, self.MISSION_NAME.format(**self.elements),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            enemy_faction=self.elements.get("ENEMY_FACTION"),
+            rank=camp.renown, objectives=self.MISSION_OBJECTIVES,
+            cash_reward=self.CASH_REWARD, experience_reward=self.EXPERIENCE_REWARD,
+            on_win=self.win_mission, on_loss=self.lose_mission,
+            scenegen=sgen, architecture=archi,
+            scale=self.MISSION_SCALE, make_enemies=False
+        )
+
+    def bad_mission(self, camp: gears.GearHeadCampaign):
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(camp.scene.get_metro_scene())
+        npc: gears.base.Character = self.elements["NPC"]
+        self.mission_seed = missionbuilder.BuildAMissionSeed(
+            camp, self.MISSION_NAME.format(**self.elements),
+            self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            enemy_faction=npc.faction,
+            rank=camp.renown, objectives=(lancedev_objectives.BAMO_BETRAYAL, missionbuilder.BAMO_SURVIVE_THE_AMBUSH),
+            custom_elements={lancedev_objectives.BAME_LANCEMATE: npc},
+            cash_reward=50, experience_reward=200,
+            on_win=self.rend_mission, on_loss=self.rend_mission,
+            scenegen=sgen, architecture=archi,
+            scale=self.MISSION_SCALE, make_enemies=False,
+            mission_grammar=missionbuilder.MissionGrammar(
+                "defend my lance",
+                "kill you because you're a jerk",
+                "I showed you that I am the better pilot",
+                "you cheated me at my moment of glory",
+                "you betrayed me and all our companions",
+                "I demonstrated that I am the better pilot"
+            )
+        )
+
+    def rend_mission(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        if gears.relationships.RT_LANCEMATE in npc.relationship.tags:
+            npc.relationship.tags.remove(gears.relationships.RT_LANCEMATE)
+        camp.freeze(npc)
+        npc.relationship.role = relationships.R_ADVERSARY
+        self.proper_end_plot(camp)
+
 
 class KnowledgeSeeker(LMPlot):
     LABEL = "LANCEDEV"

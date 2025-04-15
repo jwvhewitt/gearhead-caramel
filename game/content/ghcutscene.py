@@ -187,6 +187,7 @@ class SimpleMonologueDisplay( object ):
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc, True)
         myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
         pbge.alert_display(myviz.render)
+        pbge.my_state.record_message("{}: {}".format(self.npc.get_pilot(), myviz.text))
 
 
 def alert_with_grammar(camp, text):
@@ -213,6 +214,12 @@ class SimpleMonologueMenu(pbge.rpgmenu.Menu):
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
         self.myviz.text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)
+
+    def add_dialogue_item(self, camp, pc, raw_msg, value, desc=None, ):
+        mygrammar = pbge.dialogue.grammar.Grammar()
+        pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,pc,self.npc)
+        msg = pbge.dialogue.grammar.convert_tokens(raw_msg,mygrammar)
+        self.add_item(msg, value, desc)
 
 
 def AddTagBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp, needed_tags):

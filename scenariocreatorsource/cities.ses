@@ -56,6 +56,7 @@ class City_{unique_id}_{_uid}( Plot ):
         #: plot_subplots
         +subplot CF_METROSCENE_RECOVERY_HANDLER
         +subplot CF_METROSCENE_WME_DEFENSE_HANDLER
+        +subplot QOL_REPORTER
 
         if {allow_random_plots}:
             +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER
@@ -162,6 +163,7 @@ class City_{unique_id}_{_uid}( Plot ):
         #: plot_subplots
         +subplot CF_METROSCENE_RECOVERY_HANDLER
         +subplot CF_METROSCENE_WME_DEFENSE_HANDLER
+        +subplot QOL_REPORTER
 
         if {allow_random_plots}:
             +subplot CF_METROSCENE_RANDOM_PLOT_HANDLER

@@ -571,6 +571,36 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["Don't trust {subject}",
                           ],
     },
+    "[BETRAYAL]": {
+        # The NPC is betraying the PC.
+        Default: [
+            "Did you believe you could trust me? Pathetic.",
+            "Surprise! I've been working against you this whole time."
+        ],
+        personality.Cheerful: [
+            "Sorry, [audience], but this mission? It's a trap.",
+            "Surprise! You're getting betrayed."
+        ],
+        personality.Grim: [
+            "Now, I have you exactly where I want you... at my mercy!",
+            "I suppose my betrayal comes as a surprise to you... you never were very observant."
+        ],
+        personality.Easygoing: [
+            "Hey, so all this while I've just been pretending to be on your side.",
+            "Yeah, you might have noticed that I'm pointing my guns at you right now..."
+                                ],
+        personality.Passionate: [
+            "[Hey] the time has come for me to spring my trap!!!",
+            "It's been killing me to pretend to be on your side. Thank [God] that ruse is over."
+        ],
+        personality.Sociable: [
+            "Oh, how I've waited to reveal my true alleigance to you, [audience]...",
+        ],
+        personality.Shy: [
+            "It's time to reveal how things really are.",
+            "You're getting betrayed, [audience]."
+        ],
+    },
     "[blockhead]": {
         # I looked up synonyms for "Jerk" and chose blockhead as the pattern name in honor of the Dougram mecha and
         # Devo song.
@@ -2656,6 +2686,7 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["Psst, [audience]...",
                           ],
+        tags.Military: ["Heads up;",],
     },
 
     "[HOLD_ON]": {
@@ -2974,6 +3005,21 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["I received a mission offer.",
                           ],
+        personality.Duty: [
+            "[Hey] I've been asked to perform a mission.",
+        ],
+        personality.Justice: [
+            "I think you should hear about this mission offer.",
+        ],
+        personality.Fellowship: [
+            "[Hey] [foaf] contacted me about an urgent mission.",
+        ],
+        personality.Glory: [
+            "[Hey] I just got word of an exciting opportunity!",
+        ],
+        personality.Peace: [
+            "[Hey] [foaf] needs our help.",
+        ],
     },
 
     "[I_HAVE_BEEN_IMMOBILIZED]": {
@@ -6448,6 +6494,36 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Justice: [
             "Hopefully if we ever need help, we won't be abandoned.",
+        ],
+    },
+
+    "[WHAT_ARE_YOU_DOING]": {
+        # An expression of incredulity at the audience's actions (or lack thereof)
+        Default: [
+            "What are you doing?!", "[Hey] what do you think you're doing?"
+        ],
+        personality.Cheerful: [
+            "Are you trying to be funny right now?",
+            "Did you misplace your brain this morning?",
+        ],
+        personality.Grim: [
+            "What the blazes, [audience]?!",
+            "Is that the best you can do?!",
+        ],
+        personality.Easygoing: [
+            "Um, excuse me, but what do you think you're doing?",
+            "Are you... is that all you're going to do?!"
+        ],
+        personality.Passionate: [
+            "[Hey] what the blazes are you doing?!",
+            "Come on, [audience], you need to do better than that!"
+        ],
+        personality.Sociable: [
+            "Explain to me, [audience], what exactly you think you're doing...",
+            "Please help me to understand what you are doing..."
+        ],
+        personality.Shy: [
+            "What the what?!", "Huh?!", "Um..."
         ],
     },
 

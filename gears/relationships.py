@@ -51,11 +51,13 @@ E_ILLUMINATED = "Illuminated"   # NPC has attained transcendence
 # Role- The NPC's relationship with the PC, explained briefly.
 R_CREATION = "Creation"         # NPC was created by the PC; probably means they're a robot
 R_OPPONENT = "Opponent"         # NPC knows the PC somewhat, but from the enemy side.
+R_BADINFLUENCE = "Bad Influence"    # NPC will attempt to tempt the PC to try illicit things``
 R_CHAPERONE = "Chaperone"       # NPC keeping tabs on the PC for whatever reason
 R_MENTOR = "Mentor"             # NPC is teaching the PC somehow
 R_COLLEAGUE = "Colleague"       # NPC knows the PC, but just in a bizness sense
 R_ADVERSARY = "Adversary"       # Relationship defined by conflict
 R_CRUSH = "Crush"               # NPC has possibly unrequited romantic feelings for PC
+R_AMBIGUOUS = "Ambiguous"       # Is NPC your love interest? Friend? Enemy? Who even knows?
 R_FRIEND = "Friend"             # NPC is on good social terms with the PC
 R_ROMANCE = "Romance"           # NPC has possibly returned romantic feelings for PC
 R_PARTNER = "Partner"           # NPC and PC have taken their romance to the next level, wotever that is

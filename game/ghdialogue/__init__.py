@@ -128,8 +128,9 @@ class SkillBasedPartyReply(object):
         return text
 
     def custom_menu_fun(self, reply, mymenu: pbge.rpgmenu.Menu, pcgrammar):
+        text = self.format_text(reply.msg)
         myitem = ghdview.LancemateConvoItem(
-            self.format_text(reply.msg), self.offer, None, mymenu, self.pc, msg_form=self.message_format
+            text, self.offer, "{}: {}".format(self.pc, text), mymenu, self.pc, msg_form=self.message_format
         )
         mymenu.items.append(myitem)
         return myitem

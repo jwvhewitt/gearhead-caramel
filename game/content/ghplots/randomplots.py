@@ -774,6 +774,7 @@ class OddJobsRepair(Plot):
     RUMOR = Rumor(
         "{NPC} has broken {NPC.gender.possessive_determiner} {DEVICE} again",
         offer_msg="If you know anything about repair, maybe you can help. Talk to {NPC} at {NPC_SCENE} about it.",
+        offer_subject="{NPC} has broken", offer_subject_data="{NPC}'s {DEVICE}",
         memo="{NPC} has broken {NPC.gender.possessive_determiner} {DEVICE}. This is apparently a common occurrence.",
         prohibited_npcs=("NPC",)
     )

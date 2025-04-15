@@ -161,6 +161,8 @@ class GameState(object):
 
         self.mouse_pos = (0, 0)
 
+        self.message_log = list()
+
         # self.client = SteamClient()
 
     def render_widgets(self):
@@ -419,6 +421,15 @@ class GameState(object):
         else:
             self.mouse_pos = pygame.mouse.get_pos()
 
+    MESSAGE_LOG_LENGTH = 100
+    def record_message(self, msg):
+        self.message_log.append(msg)
+        if len(self.message_log) > self.MESSAGE_LOG_LENGTH:
+            self.message_log.pop(0)
+
+    def clear_messages(self):
+        self.message_log.clear()
+
 
 class StretchyLayer():
     # A layer that is guaranteed to fill the screen, even though its height is hard coded
@@ -633,6 +644,8 @@ def alert(text, font=None, justify=-1):
     mydest = mytext.get_rect(center=(my_state.screen.get_width() // 2, my_state.screen.get_height() // 2))
     initial_widget_state = my_state.widgets_active
     my_state.widgets_active = False
+
+    my_state.record_message(text)
 
     pygame.event.clear([TIMEREVENT, pygame.KEYDOWN])
     while True:

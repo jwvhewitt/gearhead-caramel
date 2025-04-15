@@ -619,6 +619,9 @@ class Explorer(object):
                     elif pbge.my_state.is_key_for_action(gdi, "inventory"):
                         fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, self.camp.pc.get_root())
 
+                    elif gdi.unicode == "M":
+                        gears.ghuiutil.TextDisplayWidget.create_and_invoke()
+
                     elif gdi.key == pygame.K_ESCAPE:
                         mymenu = configedit.PopupGameMenu()
                         mymenu(self)

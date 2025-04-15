@@ -145,6 +145,19 @@ class ButtonWidget(Widget):
             self._default_flash()
 
 
+class SurfaceWidget(Widget):
+    # Like a button, but just contains a raw PyGame Surface instead of a pbge Image.
+    def __init__(self, dx, dy, surf: pygame.Surface, **kwargs):
+        super().__init__(dx, dy, surf.get_width(), surf.get_height(), **kwargs)
+        self.surf = surf
+
+    def render(self, flash=False):
+        if self.surf:
+            _=my_state.screen.blit(self.surf, self.get_rect())
+        if flash:
+            self._default_flash()
+
+
 class LabelWidget(Widget):
     def __init__(self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False,
                  border=widget_border_off, text_fun=None, alt_smaller_fonts=(), **kwargs):
@@ -951,6 +964,9 @@ class TextEditorWidget(Widget):
         self.editor_area.text = text
 
     text = property(_get_text, _set_text)
+
+
+
 
 
 # Widgets for columns

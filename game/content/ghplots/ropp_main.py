@@ -2008,6 +2008,11 @@ class City_ropp_2(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         if True:
             self.add_sub_plot(nart,
                               'CF_METROSCENE_RANDOM_PLOT_HANDLER',
@@ -2577,6 +2582,11 @@ class City_ropp_3(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         if True:
             self.add_sub_plot(nart,
                               'CF_METROSCENE_RANDOM_PLOT_HANDLER',
@@ -2932,6 +2942,11 @@ class City_ropp_7(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         if True:
             self.add_sub_plot(nart,
                               'CF_METROSCENE_RANDOM_PLOT_HANDLER',
@@ -3266,6 +3281,11 @@ class City_ropp_8(Plot):
                           ident="")
         self.add_sub_plot(nart,
                           'CF_METROSCENE_WME_DEFENSE_HANDLER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
@@ -3929,6 +3949,11 @@ class City_ropp_9(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         if True:
             self.add_sub_plot(nart,
                               'CF_METROSCENE_RANDOM_PLOT_HANDLER',
@@ -4227,6 +4252,11 @@ class City_ropp_10(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         if True:
             self.add_sub_plot(nart,
                               'CF_METROSCENE_RANDOM_PLOT_HANDLER',
@@ -4443,6 +4473,11 @@ class City_ropp_11(Plot):
                           ident="")
         self.add_sub_plot(nart,
                           'CF_METROSCENE_WME_DEFENSE_HANDLER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
@@ -4863,6 +4898,11 @@ class City_ropp_12(Plot):
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
         if True:
             self.add_sub_plot(nart,
                               'CF_METROSCENE_RANDOM_PLOT_HANDLER',
@@ -5114,6 +5154,11 @@ class City_ropp_13(Plot):
                           ident="")
         self.add_sub_plot(nart,
                           'CF_METROSCENE_WME_DEFENSE_HANDLER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
@@ -5370,6 +5415,11 @@ class City_ropp_14(Plot):
                           ident="")
         self.add_sub_plot(nart,
                           'CF_METROSCENE_WME_DEFENSE_HANDLER',
+                          elements=dict([(a, self.elements[b])
+                                         for a, b in element_alias_list]),
+                          ident="")
+        self.add_sub_plot(nart,
+                          'QOL_REPORTER',
                           elements=dict([(a, self.elements[b])
                                          for a, b in element_alias_list]),
                           ident="")
