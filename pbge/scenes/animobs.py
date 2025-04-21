@@ -412,3 +412,57 @@ class RevealModel(object):
         else:
             self.model.hidden = False
             self.needs_deletion = True
+
+
+class SetFloorAnim(object):
+    def __init__(self, pos, scene, new_terrain, delay=5, children=()):
+        self.pos = pos
+        self.scene = scene
+        self.new_terrain = new_terrain
+        self.delay = delay
+        self.needs_deletion = False
+        self.children = list(children)
+
+    def update(self, view):
+        # This one doesn't appear directly, but hides a model.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.scene.set_floor(*self.pos, self.new_terrain)
+            self.needs_deletion = True
+
+
+class SetWallAnim(object):
+    def __init__(self, pos, scene, new_terrain, delay=5, children=()):
+        self.pos = pos
+        self.scene = scene
+        self.new_terrain = new_terrain
+        self.delay = delay
+        self.needs_deletion = False
+        self.children = list(children)
+
+    def update(self, view):
+        # This one doesn't appear directly, but hides a model.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.scene.set_wall(*self.pos, self.new_terrain)
+            self.needs_deletion = True
+
+
+class SetDecorAnim(object):
+    def __init__(self, pos, scene, new_terrain, delay=5, children=()):
+        self.pos = pos
+        self.scene = scene
+        self.new_terrain = new_terrain
+        self.delay = delay
+        self.needs_deletion = False
+        self.children = list(children)
+
+    def update(self, view):
+        # This one doesn't appear directly, but hides a model.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.scene.set_decor(*self.pos, self.new_terrain)
+            self.needs_deletion = True

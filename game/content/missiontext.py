@@ -50,6 +50,9 @@ class MTVerb:
         if self.needed_tags.issubset(context) and not self.forbidden_tags.intersection(context):
             return True
 
+    def __str__(self):
+        return self.simple_present
+
 
 class MTNoun:
     def __init__(self, name,  needed_tags=(), forbidden_tags=()):
@@ -60,6 +63,9 @@ class MTNoun:
     def matches(self, context):
         if self.needed_tags.issubset(context) and not self.forbidden_tags.intersection(context):
             return True
+
+    def __str__(self):
+        return self.name
 
         
 MOTIVE_VERBS = {

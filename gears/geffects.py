@@ -1366,7 +1366,16 @@ class DoDamage(effects.NoEffect):
                     originator.dole_experience(1)
             if camp.fight:
                 camp.fight.activate_foe(target)
+
+        myfloor = camp.scene.get_floor(*pos)
+        if self._should_destroy_terrain(myfloor):
+            anims.append(pbge.scenes.animobs.SetFloorAnim(pos, camp.scene, myfloor.breaks_into))
+
         return self.children
+
+    def _should_destroy_terrain(self, myterrain):
+        if myterrain and hasattr(myterrain, "breaks_into"):
+            pass
 
 
 class DoCrash(effects.NoEffect):

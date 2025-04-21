@@ -75,7 +75,7 @@ class DZD_Wujung(Plot):
         self.add_sub_plot(nart, "TEST_SHOP", necessary=False)
         # Hwang-Sa Mission
         # Reconstruction Site
-        tplot = self.add_sub_plot(nart, " QOL_REPORTER")
+        tplot = self.add_sub_plot(nart, "QOL_REPORTER")
 
         # tplot = self.add_sub_plot(nart, "TAVERN")
 

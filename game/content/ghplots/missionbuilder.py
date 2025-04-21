@@ -43,6 +43,8 @@ BAMO_RESPOND_TO_DISTRESS_CALL = "BAMO_RespondToDistressCall"
 BAMO_STORM_THE_CASTLE = "BAMO_StormTheCastle"  # 4 points
 BAMO_SURVIVE_THE_AMBUSH = "BAMO_SurviveTheAmbush"
 
+BAME_SCENE_ATTRIBUTES = "SCENE_ATTRIBUTES"
+
 BAMO_TEST_MISSION = "BAMO_TEST_MISSION"
 
 # The following two elements can be passed to conversations. If truthy, don't allow retreat or mercy in the
@@ -291,7 +293,7 @@ class BuildAMissionPlot(Plot):
             "Combat Zone", player_team=team1, scale=self.adv.scale,
             combat_music=self.elements["COMBAT_MUSIC"], exploration_music=self.elements["EXPLO_MUSIC"],
             environment=self.adv.environment,
-            attributes=self.elements.get("SCENE_ATTRIBUTES", (gears.tags.SCENE_OUTDOORS,))
+            attributes=self.elements.get(BAME_SCENE_ATTRIBUTES, (gears.tags.SCENE_OUTDOORS,))
         )
         if self.adv.solo_mission:
             myscene.attributes.add(gears.tags.SCENE_SOLO)

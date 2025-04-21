@@ -169,6 +169,7 @@ class DDBAMO_PracticeDuel(Plot):
         else:
             self.obj.failed = True
         if self.party_member:
+            self.elements["LMNPC"].restore_all()
             plotutility.AutoJoiner(self.elements["LMNPC"])(camp)
         # for pc in camp.party:
         #    pc.restore_all()

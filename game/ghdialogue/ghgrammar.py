@@ -2028,6 +2028,27 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[GOOD_GAME]": {
+        # A good sport reply to a duel, contest, or game
+        Default: ["Good match.", "Well done."
+                  ],
+        personality.Cheerful: ["Good game, [audience]!", "That was fun!"
+                               ],
+        personality.Grim: ["You did better than I expected.",
+                           ],
+        personality.Easygoing: ["Hey, well done or something.",
+                                ],
+        personality.Passionate: ["That was an amazing match!",
+                                 ],
+        personality.Sociable: ["Thanks for the good match, [audience].",
+                               ],
+        personality.Shy: ["Well done.",
+                          ],
+        personality.Glory: [
+            "If you always do your best, it doesn't matter if you win or lose."
+        ]
+    },
+
     "[GOOD_IDEA]": {
         Default: ["Good idea.", "That's a good idea."
                   ],
@@ -2708,6 +2729,31 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_ACCLAIM_GLORY]": {
+        # This character will speak the praises of cavalier virtue Glory.
+        Default: [
+            "My goal is to keep on improving my skills every day.",
+        ],
+        personality.Cheerful: [
+            "It's fun to challenge yourself; win or lose, it's the only way to grow."
+        ],
+        personality.Grim: [
+            "When death comes for me, let no one say that I didn't give this life my all.",
+        ],
+        personality.Easygoing: [
+            "The trick to getting better at stuff is to keep on trying, even if you kinda suck."
+        ],
+        personality.Passionate: [
+            "I face every day as a challenge to be overcome!",
+        ],
+        personality.Sociable: [
+            "Many people think there's glory in victory; that's wrong. The glory comes from the perseverance needed to reach victory!",
+        ],
+        personality.Shy: [
+            "I don't compare myself to others, but try every day to do better than I did yesterday.",
+        ],
+    },
+
     "[I_ALREADY_KNOW]": {
         Default: ["I already know.", "Yes, I already know that."
                   ],
@@ -3289,6 +3335,33 @@ DEFAULT_GRAMMAR = {
         personality.Shy: ["I have seen the impossible.",
                           ],
     },
+
+    "[I_WANT_TO_TEST_PILOT_SKILLS]": {
+        # This character expresses a desire to test their piloting skills.
+        # Like Jiwoo, but with mecha instead of Pokemons.
+        Default: [
+            "I want to be the very best pilot.", "I want to see how my piloting skills rank."
+        ],
+        personality.Cheerful: [
+            "Today I feel like I could take on an army!"
+        ],
+        personality.Grim: [
+            "I need to test my mettle in brutal combat.",
+        ],
+        personality.Easygoing: [
+            "I wanna see how I rank, piloting-wise."
+        ],
+        personality.Passionate: [
+            "My heart craves the thrill of mecha combat!",
+        ],
+        personality.Sociable: [
+            "I want to test my piloting skills, to see how I compare to the very best!",
+        ],
+        personality.Shy: [
+            "I want to test my skills.",
+        ],
+    },
+
 
     "[i_want_you_to]": {
         # Sentence lead-in for a request or a mission description; followed by an infinitive verb phrase

@@ -412,6 +412,11 @@ class Combatant(KeyObject):
             return None
         return max(mylibrary, key=lambda a: a.get_average_thrill_power(self, True))
 
+    def get_primary_weapon(self):
+        my_library = self.get_attack_library()
+        if my_library and hasattr(my_library[0], "weapon"):
+            return my_library[0].weapon
+
     def get_skill_library(self, in_combat=False):
         my_invo_dict = collections.defaultdict(list)
         pilot = self.get_pilot()

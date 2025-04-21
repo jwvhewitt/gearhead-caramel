@@ -2,7 +2,7 @@
 from math import e
 import game.content
 from gears import personality
-from pbge.plots import Plot, PlotState, Rumor
+from pbge.plots import Plot, PlotState, Rumor, Memo
 from pbge.dialogue import Offer, ContextTag
 from game import services, ghdialogue
 from game.ghdialogue import context
@@ -86,6 +86,180 @@ class LMMissionPlot(LMPlot):
 
 
 # The actual plots...
+
+class CheerfulGlorySeeker(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    gears.personality.Cheerful in candidate.personality
+                    and not any([virtue in candidate.personality for virtue in gears.personality.VIRTUES])
+            )
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            self.started_convo = True
+            npc = self.elements["NPC"]
+            _=pbge.alert("As you enter {METROSCENE}, you notice {NPC} doing some stretching exercises.".format(**self.elements))
+            npc.personality.add(gears.personality.Glory)
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "[I_ACCLAIM_GLORY] How about we do a quick run around {METROSCENE} to build up our stamina?".format(**self.elements),
+                npc, camp
+            )
+            mymenu.no_escape = True
+            if gears.personality.Glory in camp.pc.personality:
+                mymenu.add_dialogue_item(camp, camp.pc, "I've got a better idea- let's run around {METROSCENE} twice!".format(**self.elements), self._train_all)
+            mymenu.add_dialogue_item(camp, camp.pc, "Sounds good to me!", self._train_athletics)
+            mymenu.add_dialogue_item(camp, camp.pc, "Why don't we sit down and have a game of MonsterCards instead?", self._train_concentration)
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+
+            _=pbge.alert("You train for a while with {NPC}.".format(**self.elements))
+            self.proper_end_plot(camp)
+
+    def _train_athletics(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[LETSGO] Last one to reach the finish is a [adjective] [noun]!", npc
+        )(camp, False)
+        camp.dole_xp(250, gears.stats.Athletics)
+
+    def _train_concentration(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[OK] That could be fun too... and training your brain is just as important as training your body.", npc
+        )(camp, False)
+        camp.dole_xp(250, gears.stats.Concentration)
+
+    def _train_all(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[GOOD_IDEA] If something is worth doing, it's worth doing to excess!", npc
+        )(camp, False)
+        camp.dole_xp(250, gears.stats.Athletics)
+        camp.dole_xp(250, gears.stats.Concentration)
+        camp.dole_xp(250, gears.stats.Vitality)
+
+
+class ProfessionalColleagueBecomesRival(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    @classmethod
+    def matches(cls, pstate):
+        """Returns True if this plot matches the current plot state."""
+        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+
+        self.accepted_duel = False
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
+        self.duel = missionbuilder.BuildAMissionSeed(
+            nart.camp, "{}'s Duel".format(npc), self.elements["METROSCENE"], self.elements["MISSION_GATE"],
+            scenegen=sgen, architecture=archi,
+            rank=npc.renown, objectives=[lancedev_objectives.BAMO_PRACTICE_DUEL], solo_mission=True,
+            custom_elements={
+                lancedev_objectives.BAME_LANCEMATE: npc, 
+                missionbuilder.BAME_SCENE_ATTRIBUTES: (gears.tags.SCENE_ARENARULES,)
+            }, experience_reward=200, 
+            salvage_reward=False, make_enemies=False,
+        )
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.expectation == relationships.E_PROFESSIONAL
+                    and candidate.relationship.role == relationships.R_COLLEAGUE
+            )
+
+    def t_START(self, camp):
+        npc = self.elements["NPC"]
+        if self.LANCEDEV_PLOT and (npc.is_destroyed() or (npc not in camp.party) and not self.accepted_duel):
+            self.end_plot(camp)
+
+    def MISSION_GATE_menu(self, camp, thingmenu):
+        if self.accepted_duel:
+            thingmenu.add_item("Go have a practice duel with {}".format(self.elements["NPC"]),
+                               self._start_the_duel)
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        if self.duel.is_completed():
+            if self.duel.is_won():
+                ghcutscene.SimpleMonologueDisplay(
+                    "[THAT_WAS_INCREDIBLE] You are a great pilot; I'm going to have to work hard if I want to surpass you!", npc)(camp)
+                for sk in gears.stats.COMBATANT_SKILLS:
+                    if camp.pc.get_stat(sk) > npc.get_stat(sk):
+                        npc.statline[sk] += 1
+            else:
+                ghcutscene.SimpleMonologueDisplay(
+                    "[GOOD_GAME] Either I got lucky or you're having an off day... Keep building your skills and someday we can have a rematch!",
+                    npc)(camp)
+            self.proper_end_plot(camp)
+        elif not self.started_convo:
+            _=pbge.alert("As you enter {METROSCENE}, {NPC} approaches you.".format(**self.elements))
+            self.started_convo = True
+            npc.relationship.expectation = gears.relationships.E_RIVAL
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "Say, while we've got some free time, how would you like to have a practice mecha duel? [I_WANT_TO_TEST_PILOT_SKILLS]",
+                npc, camp
+            )
+            mymenu.no_escape = True
+            mymenu.add_dialogue_item(camp, camp.pc, "Alright, let's go do that!", self._accept_offer)
+            mymenu.add_dialogue_item(camp, camp.pc, "What do you mean \"free time\"?! We're kind of in the middle of something now.", self._reject_offer)
+            choice = mymenu.query()
+            if choice:
+                choice(camp)
+            else:
+                self.proper_end_plot(camp)
+
+    def _start_the_duel(self, camp: gears.GearHeadCampaign):
+        npc = self.elements["NPC"]
+        npc_mecha: gears.base.Mecha = camp.get_pc_mecha(npc)
+        if npc_mecha:
+            best_weapon = npc_mecha.get_primary_weapon()
+            if not best_weapon:
+                npc.statline[gears.stats.MechaPiloting] += 1
+            elif isinstance(best_weapon, (gears.base.MeleeWeapon, gears.base.EnergyWeapon, gears.base.Module)):
+                npc.statline[gears.stats.MechaFighting] += 1
+            else:
+                npc.statline[gears.stats.MechaGunnery] += 1
+        _=self.duel(camp)
+
+    def _accept_offer(self, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "[GOOD] I'm ready any time you are.",
+            self.elements["NPC"]
+        )(camp, False)
+        _=missionbuilder.NewMissionNotification(self.duel.name, self.elements["MISSION_GATE"])
+        self.accepted_duel = True
+        self.memo = Memo("{NPC} has challenged you to a practice duel.", self.elements["METROSCENE"])
+
+    def _reject_offer(self, camp):
+        ghcutscene.SimpleMonologueDisplay(
+            "You're probably right... but some day, I definitely want to test my skills against yours!",
+            self.elements["NPC"]
+        )(camp, False)
+        self.proper_end_plot(camp, False)
+
+
 
 class DespairCrushPersonalMission(LMMissionPlot):
     # The PC's crush, who is feeling despair, will leave on a solo mission.
@@ -206,6 +380,7 @@ class DespairCrushPersonalMission(LMMissionPlot):
         )(camp, True)
         self.elements["NPC"].place(self.elements["METROSCENE"])
         self.elements["NPC"].relationship.attitude = gears.relationships.A_OPENUP
+        self.elements["NPC"].relationship.reaction_mod += 20
         self.end_plot(camp)
 
     def lose_mission(self, camp):
@@ -215,6 +390,7 @@ class DespairCrushPersonalMission(LMMissionPlot):
         )(camp, True)
         self.elements["NPC"].place(self.elements["METROSCENE"])
         self.elements["NPC"].relationship.attitude = gears.relationships.A_RESENT
+        self.elements["NPC"].relationship.reaction_mod -= 20
         self.end_plot(camp)
 
 
@@ -1531,10 +1707,16 @@ class DeadZoneSortingDuel(LMPlot):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
         self.started_conversation = False
         self.accepted_duel = False
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
         self.duel = missionbuilder.BuildAMissionSeed(
             nart.camp, "{}'s Duel".format(npc), self.elements["METROSCENE"], self.elements["MISSION_GATE"],
-            rank=npc.renown, objectives=[dd_customobjectives.DDBAMO_DUEL_LANCEMATE], solo_mission=True,
-            custom_elements={"LMNPC": npc}, experience_reward=200, salvage_reward=False
+            scenegen=sgen, architecture=archi,
+            rank=npc.renown, objectives=[lancedev_objectives.BAMO_PRACTICE_DUEL], solo_mission=True,
+            custom_elements={
+                lancedev_objectives.BAME_LANCEMATE: npc, 
+                missionbuilder.BAME_SCENE_ATTRIBUTES: (gears.tags.SCENE_ARENARULES,)
+            }, experience_reward=200, 
+            salvage_reward=False, make_enemies=False,
         )
         return True
 
@@ -1951,12 +2133,16 @@ class WangttaScent(LMPlot):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
         self.started_conversation = False
         self.accepted_duel = False
-        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(nart.camp.scene.get_metro_scene())
+        sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(self.elements["METROSCENE"])
         self.duel = missionbuilder.BuildAMissionSeed(
             nart.camp, "{}'s Duel".format(npc), self.elements["METROSCENE"], self.elements["MISSION_GATE"],
-            rank=npc.renown, objectives=[dd_customobjectives.DDBAMO_DUEL_LANCEMATE], solo_mission=True,
-            custom_elements={"LMNPC": npc}, experience_reward=200, salvage_reward=False,
-            scenegen=sgen, architecture=archi
+            scenegen=sgen, architecture=archi,
+            rank=npc.renown, objectives=[lancedev_objectives.BAMO_PRACTICE_DUEL], solo_mission=True,
+            custom_elements={
+                lancedev_objectives.BAME_LANCEMATE: npc, 
+                missionbuilder.BAME_SCENE_ATTRIBUTES: (gears.tags.SCENE_ARENARULES,)
+            }, experience_reward=200, 
+            salvage_reward=False, make_enemies=False,
         )
         return True
 

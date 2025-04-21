@@ -8,7 +8,7 @@ import random
 class Forest(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_trees_fg.png'
     image_middle = 'terrain_trees_bg.png'
-    movement_cost = {pbge.scenes.movement.Walking: 2.0, gears.tags.Skimming: 2.0, gears.tags.Rolling: 2.0,
+    movement_cost = {pbge.scenes.movement.Walking: 1.5, gears.tags.Skimming: 2.0, gears.tags.Rolling: 2.0,
                      pbge.scenes.movement.Vision: 5}
 
 
@@ -128,11 +128,20 @@ class Smoke(pbge.scenes.terrain.AnimTerrain):
         spr.render(new_dest, cls.frames[(view.phase // cls.anim_delay + (x + y) * 4) % len(cls.frames)])
 
 
+class BrokenGround(pbge.scenes.terrain.VariableTerrain):
+    image_bottom = 'terrain_floor_rubble.png'
+    border = pbge.scenes.terrain.FloorBorder('terrain_border_rubble.png')
+    border_priority = 999
+    blocks = (Cruising, SpaceFlight)
+    movement_cost = {pbge.scenes.movement.Walking: 1.5, gears.tags.Rolling: 1.5,}
+
+
 class GreenZoneGrass(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_grass.png'
     border = pbge.scenes.terrain.FloorBorder('terrain_border_grassy.png')
     border_priority = 200
     blocks = (Cruising, SpaceFlight)
+    breaks_into=BrokenGround
 
 
 class Sand(pbge.scenes.terrain.VariableTerrain):
@@ -159,11 +168,13 @@ class SemiDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
     border_priority = 75
     blocks = (Cruising, SpaceFlight)
+    breaks_into=BrokenGround
 
 
 class Pavement(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_pavement.png'
     blocks = (Cruising, SpaceFlight)
+    breaks_into=BrokenGround
 
 
 class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
@@ -171,6 +182,7 @@ class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground2.png')
     border_priority = 45
     blocks = (Cruising, SpaceFlight)
+    breaks_into=BrokenGround
 
 
 class TechnoRubble(pbge.scenes.terrain.VariableTerrain):
