@@ -379,7 +379,7 @@ class InvocationUI(object):
         pbge.my_state.view.overlays.clear()
 
         # Find out what mecha are in the targeted tile.
-        mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if m.is_operational()]
+        mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if self.camp.scene.is_an_actor(m) and m.is_operational()]
         if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
             pbge.my_state.view.cursor.frame = self.SC_ENEMYCURSOR
         elif mmecha and self.invo and self.invo.ai_tar and self.invo.ai_tar.is_potential_target(self.camp, self.pc, mmecha[0]):

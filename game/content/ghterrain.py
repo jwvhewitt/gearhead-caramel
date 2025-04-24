@@ -3,6 +3,9 @@ import gears
 from pbge.scenes.movement import Walking, Flying, Vision
 from gears.tags import Skimming, Rolling, Cruising, SpaceFlight
 import random
+from gears.geffects import TerrainBreaker
+from pbge.scenes.terrain import Terrain
+
 
 
 class Forest(pbge.scenes.terrain.VariableTerrain):
@@ -10,12 +13,16 @@ class Forest(pbge.scenes.terrain.VariableTerrain):
     image_middle = 'terrain_trees_bg.png'
     movement_cost = {pbge.scenes.movement.Walking: 1.5, gears.tags.Skimming: 2.0, gears.tags.Rolling: 2.0,
                      pbge.scenes.movement.Vision: 5}
+    breaker = TerrainBreaker(10, None)
+    tags = {gears.tags.TERRAIN_FLAMMABLE,}
 
 
 class Bushes(pbge.scenes.terrain.VariableTerrain):
     image_top = 'terrain_bushes.png'
     movement_cost = {pbge.scenes.movement.Vision: 5}
     blocks = (Walking, Skimming, Rolling, Cruising)
+    breaker = TerrainBreaker(10, None)
+    tags = {gears.tags.TERRAIN_FLAMMABLE,}
 
 
 class Water(pbge.scenes.terrain.AnimTerrain):
@@ -141,7 +148,8 @@ class GreenZoneGrass(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_grassy.png')
     border_priority = 200
     blocks = (Cruising, SpaceFlight)
-    breaks_into=BrokenGround
+    breaker = TerrainBreaker(20, BrokenGround, terrain_value=2)
+    tags = {gears.tags.TERRAIN_FLAMMABLE,}
 
 
 class Sand(pbge.scenes.terrain.VariableTerrain):
@@ -154,6 +162,7 @@ class Sand(pbge.scenes.terrain.VariableTerrain):
 class Flagstone(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_flagstone.png'
     blocks = (Cruising, SpaceFlight)
+    breaker = TerrainBreaker(15, BrokenGround, terrain_value=3)
 
 
 class DeadZoneGround(pbge.scenes.terrain.VariableTerrain):
@@ -161,6 +170,7 @@ class DeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
     border_priority = 80
     blocks = (Cruising, SpaceFlight)
+    breaker = TerrainBreaker(20, BrokenGround, terrain_value=0)
 
 
 class SemiDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
@@ -168,13 +178,14 @@ class SemiDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_dzground.png')
     border_priority = 75
     blocks = (Cruising, SpaceFlight)
-    breaks_into=BrokenGround
+    breaker = TerrainBreaker(20, BrokenGround, terrain_value=0)
 
 
 class Pavement(pbge.scenes.terrain.VariableTerrain):
     image_bottom = 'terrain_floor_pavement.png'
     blocks = (Cruising, SpaceFlight)
     breaks_into=BrokenGround
+    breaker = TerrainBreaker(15, DeadZoneGround, terrain_value=2)
 
 
 class SmallDeadZoneGround(pbge.scenes.terrain.VariableTerrain):
@@ -190,6 +201,8 @@ class TechnoRubble(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_technoedge.png')
     border_priority = 55
     blocks = (Cruising, SpaceFlight)
+    breaker = TerrainBreaker(10, DeadZoneGround)
+    tags = {gears.tags.TERRAIN_FLAMMABLE,}
 
 
 class OldTilesFloor(pbge.scenes.terrain.VariableTerrain):
@@ -232,6 +245,7 @@ class CrackedEarth(pbge.scenes.terrain.VariableTerrain):
     border = pbge.scenes.terrain.FloorBorder('terrain_border_crackedearth.png')
     border_priority = 50
     blocks = (Cruising, SpaceFlight)
+    breaker = TerrainBreaker(20, BrokenGround, terrain_value=0)
 
 
 class WorldMapRoad(pbge.scenes.terrain.RoadTerrain):
@@ -375,6 +389,8 @@ class JunkyardWall(pbge.scenes.terrain.VariableTerrain):
     frames = tuple(range(16))
     blocks = (Walking, Skimming, Rolling, Cruising, SpaceFlight)
     movement_cost = {pbge.scenes.movement.Vision: 5}
+    breaker = TerrainBreaker(30, None)
+    tags = {gears.tags.TERRAIN_FLAMMABLE,}
 
 
 class SandDuneWall(pbge.scenes.terrain.WallTerrain):

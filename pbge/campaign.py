@@ -239,3 +239,24 @@ class Campaign(object):
             mylist += p.get_locked_elements()
         return mylist
 
+    def update_area_enchantments(self):
+        # Update the area enchantments.
+        area_enchantments = [ae for ae in self.scene.contents if isinstance(ae, scenes.areaenchant.AreaEnchantment)]
+        for ae in area_enchantments:
+            invo = ae.get_invocation(self.scene)
+            if invo:
+                invo.invoke(self, None, [ae.pos], my_state.view.anim_list)
+        if my_state.view.anim_list:
+            my_state.view.handle_anim_sequence()
+        for ae in area_enchantments:
+            if ae.update(self.scene):
+                self.scene.contents.remove(ae)
+
+    def invoke_area_effects(self, pos=(0,0)):
+        for ae in list(self.scene.contents):
+            if ae.pos == pos and isinstance(ae, scenes.areaenchant.AreaEnchantment):
+                invo = ae.get_invocation(self.scene)
+                if invo:
+                    invo.invoke(self, None, [ae.pos], my_state.view.anim_list)
+                    my_state.view.handle_anim_sequence()
+    

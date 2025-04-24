@@ -233,6 +233,9 @@ class GearHeadScene(pbge.scenes.Scene):
         if is_metro:
             self.metrodat = MetroData()
 
+    # Properties with default initialized values.
+    terrain_damage_done = 0
+
     def get_metro_scene(self):
         myscene = self
         while hasattr(myscene, "container") and myscene.container and not hasattr(myscene, "metrodat"):
@@ -351,10 +354,16 @@ class GearHeadScene(pbge.scenes.Scene):
         good_spots -= self.get_blocked_tiles()
         return good_spots
 
-    def tidy_enchantments(self, dispel_type):
-        for thing in self.contents:
+    def tidy_enchantments(self, dispel_type, pos=None):
+        if pos:
+            candidates = [t for t in self.contents if t.pos == pos]
+        else:
+            candidates = list(self.contents)
+        for thing in candidates:
             if hasattr(thing, "ench_list"):
                 thing.ench_list.tidy(dispel_type)
+            elif isinstance(thing, pbge.scenes.areaenchant.AreaEnchantment) and dispel_type in thing.DISPEL:
+                self.contents.remove(thing)
 
     def tidy_at_start(self, camp):
         for npc in self.contents:
@@ -377,6 +386,7 @@ class GearHeadScene(pbge.scenes.Scene):
                         npc.pos = random.choice(list(good_spots))
                     else:
                         print("Warning: {} could not be placed in {}".format(npc, self))
+                        npc.pos = (0,0)
 
     def deploy_team(self, members, team, area=None):
         if team.home:
@@ -443,6 +453,10 @@ class GearHeadScene(pbge.scenes.Scene):
             for dx,dy in self.ANGDIR:
                 if not self.tile_blocks_movement(x0+dx, y0+dy, mmode):
                     return True
+
+    def tile_is_flammable(self, x, y):
+        return self.tile_has_tag(x, y, tags.TERRAIN_FLAMMABLE)
+
 
 
 CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC = "CAMPDATA_DEFAULT_MISSION_EXPLO_MUSIC"

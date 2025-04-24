@@ -474,6 +474,7 @@ class Explorer(object):
         for thing in self.scene.contents:
             if hasattr(thing, 'ench_list') and hasattr(thing, "is_operational") and thing.is_operational():
                 thing.ench_list.update(self.camp, thing)
+        self.camp.update_area_enchantments()
 
     def get_item(self):
         pc = self.camp.pc.get_root()

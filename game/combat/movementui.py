@@ -256,7 +256,7 @@ class MovementUI(object):
 
     def get_blocked_cursor(self):
         # Movement to this tile is blocked. Still, if there's an enemy in the tile, we want to display that visually.
-        mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if m.is_operational()]
+        mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if self.camp.scene.is_an_actor(m) and m.is_operational()]
         if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
             return self.SC_ENEMYCURSOR
         else:

@@ -14,7 +14,7 @@ from . import movement
 import weakref
 
 
-class Tile(object):
+class Tile:
     def __init__(self, floor=None, wall=None, decor=None, visible=False):
         self.floor = floor
         self.wall = wall
@@ -93,6 +93,13 @@ class Tile(object):
             it += self.decor.movement_cost.get(vmode, 0)
         return it
 
+    def has_tag(self, needed_tag):
+        if self.floor and needed_tag in self.floor.tags:
+            return True
+        if self.wall and needed_tag in self.wall.tags:
+            return True
+        if self.decor and needed_tag in self.decor.tags:
+            return True
 
 class PlaceableThing(KeyObject):
     """A thing that can be placed on the map."""
@@ -100,7 +107,7 @@ class PlaceableThing(KeyObject):
     # By default, a hidden thing just isn't displayed.
     def __init__(self, hidden=False, altitude=None, **keywords):
         self.hidden = hidden
-        self.pos = None
+        self.pos = (0,0)
         self.offset_pos = None
         self.altitude = altitude
         super(PlaceableThing, self).__init__(**keywords)
@@ -109,7 +116,8 @@ class PlaceableThing(KeyObject):
         if hasattr(self, "container") and self.container:
             self.container.remove(self)
         scene.contents.append(self)
-        self.pos = pos
+        if pos:
+            self.pos = pos
         if team:
             scene.local_teams[self] = team
 
@@ -159,6 +167,7 @@ from . import targetarea
 from . import waypoints
 from . import areaindicator
 from . import mapcursor
+from . import areaenchant
 
 
 class TeamDictionary(weakref.WeakKeyDictionary):
@@ -283,6 +292,12 @@ class Scene:
         else:
             return True
 
+    def tile_has_tag(self, x, y, needed_tag):
+        if self.on_the_map(x, y):
+            return self._map[x][y].has_tag(needed_tag)
+        else:
+            return True
+
     def distance(self, pos1, pos2):
         return round(math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2))
 
@@ -377,11 +392,14 @@ class Scene:
 
     def get_cover(self, x1, y1, x2, y2, vmode=movement.Vision):
         # x1,y1 is the viewer, x2,y2 is the target
-        my_line = animobs.get_line(x1, y1, x2, y2)
+        my_line = animobs.get_line(x1, y1, x2, y2)[1:]
         it = 0
-        for p in my_line[1:]:
+        for p in my_line:
             if self.on_the_map(*p):
                 it += self._map[p[0]][p[1]].get_cover(vmode)
+        for thing in self.contents:
+            if thing.pos in my_line and hasattr(thing, "get_cover"):
+                it += thing.get_cover(vmode)
         return it
 
     def get_waypoint(self, pos):

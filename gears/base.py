@@ -1286,8 +1286,10 @@ class Engine(Component, StandardDamageHandler, MakesPower):
     def on_destruction(self, camp, anim_list):
         my_root = self.get_root()
         my_invo = pbge.effects.Invocation(
-            fx=geffects.DoDamage(3, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale, is_brutal=True),
-            area=pbge.scenes.targetarea.SelfCentered(radius=self.size // 600 + 1, delay_from=-1))
+            fx=geffects.DoDamage(
+                3, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale, is_brutal=True,
+                children=[geffects.SceneryChewing(23, scale=self.scale)]
+            ), area=pbge.scenes.targetarea.SelfCentered(radius=self.size // 600 + 1, delay_from=-1),)
         my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
     def is_operational(self):
@@ -1913,7 +1915,8 @@ class Weapon(Component, StandardDamageHandler):
                 children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers()
+                modifiers=self.get_modifiers(),
+                terrain_effects=[geffects.SceneryChewing(self.damage * 5, scale=self.scale)]
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
             used_in_combat=True, used_in_exploration=False,
@@ -2018,7 +2021,8 @@ class MeleeWeapon(Weapon):
                 ),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
+                modifiers=self.get_modifiers(), bonus_strikes=bonus_strike,
+                terrain_effects=[geffects.SceneryChewing(self.damage * 3, scale=self.scale)]
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
             used_in_combat=True, used_in_exploration=False,
@@ -2137,7 +2141,8 @@ class EnergyWeapon(Weapon):
                                             damage_bonus=self.get_damage_bonus()),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers(), bonus_strikes=bonus_strike
+                modifiers=self.get_modifiers(), bonus_strikes=bonus_strike,
+                terrain_effects=[geffects.SceneryChewing(self.damage * 4, scale=self.scale)]
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach),
             used_in_combat=True, used_in_exploration=False,
@@ -2303,8 +2308,11 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         if my_module and my_module.form is not MF_Storage and self.ammo_type.risk != calibre.RISK_INERT and self.quantity > self.spent:
             if self.ammo_type.risk == calibre.RISK_VOLATILE:
                 my_invo = pbge.effects.Invocation(
-                    fx=geffects.DoDamage(3, max(self.ammo_type.bang // 2, 6), anim=geffects.BigBoom, scale=self.scale,
-                                         scatter=True, is_brutal=True),
+                    fx=geffects.DoDamage(
+                        3, max(self.ammo_type.bang // 2, 6), anim=geffects.BigBoom, scale=self.scale,
+                        scatter=True, is_brutal=True,
+                        children=[geffects.SceneryChewing(self.ammo_type.bang, scale=self.scale)]
+                    ),
                     area=pbge.scenes.targetarea.SelfCentered(radius=random.randint(1, max(self.ammo_type.bang // 4, 2)),
                                                              delay_from=-1),
                     shot_anim=geffects.AmmoExplosionAnim
@@ -2314,8 +2322,11 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                     fx=pbge.effects.NoEffect(
                         anim=geffects.BigBoom,
                         children=(
-                            geffects.DoDamage(2, max(self.ammo_type.bang // 2, 6), scale=self.scale, scatter=True,
-                                              is_brutal=True),
+                            geffects.DoDamage(
+                                2, max(self.ammo_type.bang // 2, 6), scale=self.scale, scatter=True,
+                                is_brutal=True,
+                                children=[geffects.SceneryChewing(max(self.ammo_type.bang//2, 6), scale=self.scale)]
+                            ),
                         )), shot_anim=geffects.AmmoExplosionAnim,
                     area=pbge.scenes.targetarea.SingleTarget())
             my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
@@ -2385,7 +2396,7 @@ class BallisticWeapon(Weapon):
     def get_attacks(self):
         attacks = super().get_attacks()
         if any([self.is_good_ammo(a) for a in self.get_root().inv_com]):
-            attacks.append(
+            _=attacks.append(
                 geffects.AttackInvocation(
                     self,
                     name="Reload", fx=geffects.DoReload(self, anim=geffects.ReloadAnim),
@@ -2436,6 +2447,13 @@ class BallisticWeapon(Weapon):
         if my_ammo.ammo_type.bang < self.get_needed_bang():
             penetration -= (self.damage * max(self.penetration, 1) - my_ammo.ammo_type.bang) * 15
 
+        if my_ammo.ammo_type.risk == calibre.RISK_INERT:
+            terrain_power = self.damage * 3
+        elif my_ammo.ammo_type.risk == calibre.RISK_VOLATILE:
+            terrain_power = self.damage * 7
+        else:
+            terrain_power = self.damage * 5
+
         ba = geffects.AttackInvocation(
             self,
             name=name,
@@ -2444,7 +2462,8 @@ class BallisticWeapon(Weapon):
                 children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=penetration,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers()
+                modifiers=self.get_modifiers(),
+                terrain_effects=[geffects.SceneryChewing(terrain_power, scale=self.scale)]
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
             used_in_combat=True, used_in_exploration=False,
@@ -2562,7 +2581,8 @@ class BeamWeapon(Weapon):
                 children=(geffects.DoDamage(2 * self.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=self.scale),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers()
+                modifiers=self.get_modifiers(),
+                terrain_effects=[geffects.SceneryChewing(self.damage * 5, scale=self.scale)]
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
             used_in_combat=True, used_in_exploration=False,
@@ -2723,8 +2743,11 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         my_module = self.get_module()
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
-                fx=geffects.DoDamage(min(self.quantity - self.spent, 10), max(self.damage, 3), anim=geffects.BigBoom,
-                                     scale=self.scale, scatter=True, is_brutal=True),
+                fx=geffects.DoDamage(
+                    min(self.quantity - self.spent, 10), max(self.damage, 3), anim=geffects.BigBoom,
+                    scale=self.scale, scatter=True, is_brutal=True,
+                    children=[geffects.SceneryChewing(self.damage*6, scale=self.scale)]
+                ),
                 area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1, 2), random.randint(1, 2))),
                 shot_anim=geffects.AmmoExplosionAnim
             )
@@ -2806,7 +2829,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
                     children=(geffects.DoDamage(2 * ammo.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=ammo.scale),),
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
-                    modifiers=self.get_modifiers(ammo)
+                    modifiers=self.get_modifiers(ammo),
+                    terrain_effects=[geffects.SceneryChewing(ammo.damage * 5, scale=self.scale)]
                 ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach * 3),
                 used_in_combat=True, used_in_exploration=False,
@@ -2839,7 +2863,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
                     accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo),
-                    overwhelm=self.get_overwhelm_score(num_missiles)
+                    overwhelm=self.get_overwhelm_score(num_missiles),
+                    terrain_effects=[geffects.SceneryChewing(ammo.damage * 5 + num_missiles, scale=self.scale)]
                 ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=ammo.reach * 3),
                 used_in_combat=True, used_in_exploration=False,
@@ -2972,7 +2997,10 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         my_module = self.get_module()
         if my_module and my_module.form is not MF_Storage and self.quantity > self.spent:
             my_invo = pbge.effects.Invocation(
-                fx=geffects.DoDamage(2, 8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True),
+                fx=geffects.DoDamage(
+                    2, 8, anim=geffects.BigBoom, scale=self.scale, scatter=True, is_brutal=True,
+                    children=[geffects.SceneryChewing(12, scale=self.scale)]
+                ),
                 area=pbge.scenes.targetarea.SelfCentered(
                     radius=min(3, random.randint(1, max((self.quantity - self.spent) // 50, 2)))),
                 shot_anim=geffects.AmmoExplosionAnim
@@ -3024,7 +3052,7 @@ class ChemThrower(Weapon):
     def get_attacks(self):
         attacks = super().get_attacks()
         if any([self.is_good_ammo(a) for a in self.get_root().inv_com]):
-            attacks.append(
+            _=attacks.append(
                 geffects.AttackInvocation(
                     self,
                     name="Reload", fx=geffects.DoReload(self, anim=geffects.ReloadAnim),
@@ -3091,7 +3119,8 @@ class ChemThrower(Weapon):
                                             scale=self.scale, scatter=True),),
                 accuracy=self.accuracy * 10, penetration=self.penetration * 10,
                 defenses=self.get_defenses(),
-                modifiers=self.get_modifiers()
+                modifiers=self.get_modifiers(),
+                terrain_effects=[geffects.SceneryChewing(self.damage * 5, scale=self.scale)]
             ),
             area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
             used_in_combat=True, used_in_exploration=False,
@@ -3597,7 +3626,8 @@ class Module(BaseGear, StandardDamageHandler):
                                       is_brutal=True),),
                     accuracy=self.form.ACCURACY * 10, penetration=self.form.PENETRATION * 10,
                     defenses=self.get_defenses(),
-                    modifiers=self.get_modifiers()
+                    modifiers=self.get_modifiers(),
+                    terrain_effects=[geffects.SceneryChewing(self.size * 3, scale=self.scale)]
                 ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=1),
                 used_in_combat=True, used_in_exploration=False,

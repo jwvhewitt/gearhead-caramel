@@ -460,7 +460,7 @@ class SceneView(object):
         for m in self.scene.contents:
             if hasattr(m, 'render') and self.pos_to_key(m.pos) in self.scene.in_sight:
                 d_pos = self.pos_to_key(m.pos)
-                if not m.hidden:
+                if not hasattr(m, "hidden") or not m.hidden:
                     self.modelmap[d_pos].append(m)
                 if self.scene.model_altitude(m, *d_pos) >= 0:
                     self.uppermap[d_pos].append(m)
@@ -505,7 +505,7 @@ class SceneView(object):
                                 mx, my = m.pos
                                 footpos = self.foot_coords(mx, my)
                                 y_alt = self.scene.model_altitude(m, x, y)
-                                mdest = pygame.Rect(0, 0, m.imagewidth, m.imageheight)
+                                mdest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
                                 mdest.midbottom = footpos
                                 mdest.y -= y_alt
                                 m.render(mdest, self)
@@ -571,7 +571,7 @@ class SceneView(object):
                                 mx, my = m.pos
                                 footpos = self.foot_coords(mx, my)
                                 y_alt = self.scene.model_altitude(m, x, y)
-                                mdest = pygame.Rect(0, 0, m.imagewidth, m.imageheight)
+                                mdest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
                                 mdest.midbottom = footpos
                                 mdest.y -= y_alt
                                 m.render(mdest, self)

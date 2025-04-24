@@ -181,6 +181,7 @@ class BurstFire2(Singleton):
             modifiers=old_fx.modifiers,
             defenses=old_fx.defenses,
             apply_hit_modifier=False,
+            terrain_effects=old_fx.terrain_effects
         )
         base.data.thrill_power = base.data.thrill_power + 3 * cls.BURST_VALUE
         return [base, ]

@@ -751,6 +751,7 @@ class Combat(object):
         chara.move(dest, pbge.my_state.view, 0.4)
         pbge.my_state.view.handle_anim_sequence()
         self.cstat[chara].moves_this_round += 1
+        self.camp.invoke_area_effects(dest)
 
     def move_model_to(self, chara, nav, dest):
         # Move the model along the path. Handle attacks of opportunity and wotnot.
@@ -842,6 +843,7 @@ class Combat(object):
         for chara in self.active:
             self.cstat[chara].end_turn()
             self.cstat[chara].has_started_turn = False
+        self.camp.update_area_enchantments()
 
     def _try_to_fix_mkill(self, party, mkpc: gears.base.Mecha):
         total = 0

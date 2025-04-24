@@ -75,7 +75,7 @@ class Enchantment(object):
     DEFAULT_DURATION = None
     DEFAULT_DISPEL = (END_COMBAT,)
     def __init__(self, duration=None, dispel=None, **kwargs):
-        self.duration = duration or self.DEFAULT_DURATION
+        self.duration: int = duration or self.DEFAULT_DURATION
         self.dispel = dispel or self.DEFAULT_DISPEL
 
     def merge_enchantment(self, **kwargs):

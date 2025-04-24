@@ -1,9 +1,10 @@
+from typing import override
 import gears
 import pbge
 from pbge import effects
 from pbge.scenes import animobs, movement, pfov
 import random
-from . import materials
+from . import materials, scale
 from . import damage, stats, pets
 from .enchantments import Enchantment, END_COMBAT, ON_MOVE, DISPEL_NEGATIVE_ELECTRONIC, ON_DISPEL_POSITIVE, ON_DISPEL_NEGATIVE, USE_ANTIDOTE
 import math
@@ -173,6 +174,53 @@ class DashReach(pfov.PointOfView):
 
         if dist <= self.radius and dist > 1 and intline[-2] in self.nav.cost_to_tile:
             self.tiles.add((x, y))
+
+
+class TerrainBreaker:
+    # Attach this to a terrain object as the "breaker" property.
+    def __init__(self, damage_threshold, breaks_into, terrain_value=1):
+        self.damage_threshold = damage_threshold
+        self.breaks_into = breaks_into
+        self.terrain_value = terrain_value
+
+    def deal_with_damage(self, anims, myscene, pos, damage_class, anim_class):
+        damage_die = damage_class
+        if myscene.scale is scale.HumanScale:
+            damage_die = damage_die // 2
+        damage_roll = random.randint(0, damage_die)
+        if damage_roll >= self.damage_threshold:
+            anims.append(anim_class(pos, myscene, self.breaks_into))
+            myscene.terrain_damage_done += self.terrain_value
+            return True
+        #_=FireAreaEnchantment(pos, scene=myscene)
+
+
+class FireAreaEnchantment(pbge.scenes.areaenchant.AreaEnchantment):
+    AREA_ENCHANTMENT_TYPE = "Fire!"
+    IMAGENAME = "aren_fire.png"
+    FRAMES = (0,1,2,3,4,5,6,7,8)
+    DISPEL = {END_COMBAT, }
+
+    def get_cover(self, vmode):
+        return 5
+
+    def get_invocation(self, myscene):
+        return pbge.effects.Invocation(
+            fx=DoDamage(
+                1, 6, anim=BurnAnim, scale=myscene.scale, is_brutal=True,
+                children=[SceneryChewing(random.randint(1,20), scale=myscene.scale)]
+            ), area=pbge.scenes.targetarea.SingleTarget(),
+        )
+
+
+class SmokeAreaEnchantment(pbge.scenes.areaenchant.AreaEnchantment):
+    AREA_ENCHANTMENT_TYPE = "Smoke"
+    IMAGENAME = "aren_smoke.png"
+    FRAMES = (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+    DISPEL = {END_COMBAT, }
+
+    def get_cover(self, vmode):
+        return 5
 
 
 # Defense constants
@@ -833,19 +881,17 @@ class AttackRoll(effects.NoEffect):
     """
 
     def __init__(self, att_stat, att_skill, children=(), anim=None, accuracy=0, penetration=0, modifiers=(),
-                 defenses=(), can_crit=True):
+                 defenses=(), can_crit=True, terrain_effects=()):
         self.att_stat = att_stat
         self.att_skill = att_skill
-        if children:
-            self.children = list(children)
-        else:
-            self.children = list()
+        self.children = list(children)
         self.anim = anim
         self.accuracy = accuracy
         self.penetration = penetration
         self.modifiers = modifiers
         self.defenses = defenses
         self.can_crit = can_crit
+        self.terrain_effects = list(terrain_effects)
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
         if originator:
@@ -888,7 +934,7 @@ class AttackRoll(effects.NoEffect):
         if not next_fx and originator and hasattr(originator, "dole_experience"):
             originator.dole_experience(3, self.att_skill)
 
-        return next_fx or self.children
+        return list(next_fx or self.children) + self.terrain_effects
 
     def get_odds(self, camp, originator, target):
         # Return the percent chance that this attack will hit and the list of
@@ -963,7 +1009,7 @@ class MeleeAttackRoll(AttackRoll):
             if camp.fight:
                 camp.fight.cstat[target].attacks_this_round += 1
 
-        return next_fx or self.children
+        return list(next_fx or self.children) + self.terrain_effects
 
 
 class MultiAttackRoll(effects.NoEffect):
@@ -975,14 +1021,11 @@ class MultiAttackRoll(effects.NoEffect):
     """
 
     def __init__(self, att_stat, att_skill, num_attacks=2, children=(), anim=None, accuracy=0, penetration=0,
-                 modifiers=(), defenses=(), overwhelm=0, apply_hit_modifier=True):
+                 modifiers=(), defenses=(), overwhelm=0, apply_hit_modifier=True, terrain_effects=()):
         self.att_stat = att_stat
         self.att_skill = att_skill
         self.num_attacks = num_attacks
-        if children:
-            self.children = list(children)
-        else:
-            self.children = list()
+        self.children = list(children)
         self.anim = anim
         self.accuracy = accuracy
         self.penetration = penetration
@@ -990,6 +1033,7 @@ class MultiAttackRoll(effects.NoEffect):
         self.defenses = defenses
         self.overwhelm = overwhelm
         self.apply_hit_modifier = apply_hit_modifier
+        self.terrain_effects = list(terrain_effects)
 
     def get_multi_bonus(self):
         # Launching multiple attacks results in a bonus to hit. Of course,
@@ -1047,7 +1091,7 @@ class MultiAttackRoll(effects.NoEffect):
             if camp.fight:
                 camp.fight.cstat[target].attacks_this_round += 1 + random.randint(0, self.overwhelm) // 5
 
-        return next_fx or self.children
+        return list(next_fx or self.children) + self.terrain_effects
 
     def get_odds(self, camp, originator, target):
         # Return the percent chance that this attack will hit and the modifiers.
@@ -1077,11 +1121,7 @@ class SkillRoll(effects.NoEffect):
     def __init__(self, stat, skill, on_success=(), on_failure=(), anim=None, roll_mod=0, min_chance=5, max_chance=95):
         self.stat = stat
         self.skill = skill
-        if not on_success:
-            on_success = list()
         self.on_success = list(on_success)
-        if not on_failure:
-            on_failure = list()
         self.on_failure = list(on_failure)
         self.anim = anim
         self.roll_mod = roll_mod
@@ -1367,15 +1407,48 @@ class DoDamage(effects.NoEffect):
             if camp.fight:
                 camp.fight.activate_foe(target)
 
-        myfloor = camp.scene.get_floor(*pos)
-        if self._should_destroy_terrain(myfloor):
-            anims.append(pbge.scenes.animobs.SetFloorAnim(pos, camp.scene, myfloor.breaks_into))
-
         return self.children
 
-    def _should_destroy_terrain(self, myterrain):
-        if myterrain and hasattr(myterrain, "breaks_into"):
-            pass
+
+class SceneryChewing(effects.NoEffect):
+    def __init__(self, power, anim=None, children=(), scale=None):
+        self.power = power
+        self.children = list(children)
+        self.anim = anim
+        self.scale = scale
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
+        if self.scale is camp.scene.scale and self.power > 0:
+            terrain_was_broken = False
+            myterrain = camp.scene.get_floor(*pos)
+            if myterrain and hasattr(myterrain, "breaker") and myterrain.breaker:
+                if myterrain.breaker.deal_with_damage(
+                    anims, camp.scene, pos, self.power,
+                    pbge.scenes.animobs.SetFloorAnim
+                ):
+                    terrain_was_broken = True
+            myterrain = camp.scene.get_wall(*pos)
+            if myterrain and hasattr(myterrain, "breaker") and myterrain.breaker:
+                if myterrain.breaker.deal_with_damage(
+                    anims, camp.scene, pos, self.power, 
+                    pbge.scenes.animobs.SetWallAnim
+                ):
+                    terrain_was_broken = True
+            myterrain = camp.scene.get_decor(*pos)
+            if myterrain and hasattr(myterrain, "breaker") and myterrain.breaker:
+                if myterrain.breaker.deal_with_damage(
+                    anims, camp.scene, pos, self.power, 
+                    pbge.scenes.animobs.SetDecorAnim
+                ):
+                    terrain_was_broken = True
+            if terrain_was_broken:
+                if random.randint(1,2) == 1:
+                    anims.append(animobs.AddAreaEnchantment(pos, camp.scene, SmokeAreaEnchantment, duration=3))
+                if random.randint(1,3) == 1 and camp.scene.tile_is_flammable(*pos):
+                    anims.append(animobs.AddAreaEnchantment(pos, camp.scene, FireAreaEnchantment))
+
+        #anims.append(animobs.AddAreaEnchantment(pos, camp.scene, SmokeAreaEnchantment, duration=1))
+        return self.children
 
 
 class DoCrash(effects.NoEffect):
@@ -1707,10 +1780,7 @@ class DispelEnchantments(effects.NoEffect):
         self.dispel_this = dispel_this or ON_DISPEL_NEGATIVE
 
     def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
-        for target in camp.scene.get_operational_actors(pos):
-            if not hasattr(target, 'ench_list'):
-                continue
-            target.ench_list.tidy(self.dispel_this)
+        camp.scene.tidy_enchantments(self.dispel_this, pos)
         return super().handle_effect(camp, fx_record, originator, pos, anims, delay, data)
 
 

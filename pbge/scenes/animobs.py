@@ -383,11 +383,11 @@ class Dash(MoveModel):
 
 
 class HideModel(object):
-    def __init__(self, model, delay=0, children=[]):
+    def __init__(self, model, delay=0, children=()):
         self.model = model
         self.delay = delay
         self.needs_deletion = False
-        self.children = list() + children
+        self.children = list(children)
 
     def update(self, view):
         # This one doesn't appear directly, but hides a model.
@@ -399,11 +399,11 @@ class HideModel(object):
 
 
 class RevealModel(object):
-    def __init__(self, model, delay=0, children=[]):
+    def __init__(self, model, delay=0, children=()):
         self.model = model
         self.delay = delay
         self.needs_deletion = False
-        self.children = list() + children
+        self.children = list(children)
 
     def update(self, view):
         # This one doesn't appear directly, but reveals a model.
@@ -424,7 +424,7 @@ class SetFloorAnim(object):
         self.children = list(children)
 
     def update(self, view):
-        # This one doesn't appear directly, but hides a model.
+        # Change the floor value as part of an animation sequence.
         if self.delay > 0:
             self.delay += -1
         else:
@@ -442,7 +442,7 @@ class SetWallAnim(object):
         self.children = list(children)
 
     def update(self, view):
-        # This one doesn't appear directly, but hides a model.
+        # Change the wall value as part of an animation sequence.
         if self.delay > 0:
             self.delay += -1
         else:
@@ -460,9 +460,29 @@ class SetDecorAnim(object):
         self.children = list(children)
 
     def update(self, view):
-        # This one doesn't appear directly, but hides a model.
+        # Change the decor value as part of an animation sequence.
         if self.delay > 0:
             self.delay += -1
         else:
             self.scene.set_decor(*self.pos, self.new_terrain)
+            self.needs_deletion = True
+
+
+class AddAreaEnchantment(object):
+    def __init__(self, pos, scene, ae_class, delay=5, children=(), duration=2, altitude=None):
+        self.pos = pos
+        self.scene = scene
+        self.ae_class = ae_class
+        self.duration = duration
+        self.altitude = altitude
+        self.delay = delay
+        self.needs_deletion = False
+        self.children = list(children)
+
+    def update(self, view):
+        # Add an area enchantment to the scene as part of an animation sequence.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            _=self.ae_class(pos=self.pos, scene=self.scene, duration=self.duration, altitude=self.altitude)
             self.needs_deletion = True

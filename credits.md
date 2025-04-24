@@ -15,6 +15,7 @@ ARTWORK
 * The Open Han Sans fonts are released under the SIL OPEN FONT LICENSE Version 1.1
 * anim_frogatto_nuke.png from OpenGameArt user Jetrel, public domain
 * anim_gervais_\*.png, terrain_gervais_\*.png by David Gervais, CC-BY 3.0
+* aren_fire.png by Foshy Takashi, CC-BY 3.0
 
 ICONS - MOSTLY FROM "THE NOUN PROJECT"
 ======================================
