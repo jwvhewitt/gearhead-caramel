@@ -3735,15 +3735,29 @@ class Storage(Module):
 #   ********************
 
 class Clothing(BaseGear, ContainerDamageHandler):
-    SAVE_PARAMETERS = ('form',)
+    SAVE_PARAMETERS = ('form', 'sealed')
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
 
-    def __init__(self, form=MF_Torso, **keywords):
+    def __init__(self, form=MF_Torso, sealed=False, **keywords):
         # Check the range of all parameters before applying.
         self.form = form
+        self.sealed = sealed
         super(Clothing, self).__init__(**keywords)
+
+    def __setstate__(self, state):
+        # For saves from V0.975 or earlier, make sure sealed attribute is present.
+        if 'sealed' not in state:
+            state["sealed"] = False
+        self.__dict__.update(state)
+
+    def get_clothing_attributes(self):
+        my_attributes = list()
+        if self.sealed:
+            my_attributes.append("Sealed")
+
+        return ", ".join(my_attributes)
 
     @property
     def base_mass(self):
@@ -3751,7 +3765,10 @@ class Clothing(BaseGear, ContainerDamageHandler):
 
     @property
     def base_cost(self):
-        return 25
+        if self.sealed:
+            return 150
+        else:
+            return 25
 
     @property
     def base_volume(self):

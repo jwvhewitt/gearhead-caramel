@@ -458,6 +458,7 @@ class SceneView(object):
         self.undermap.clear()
         self.waypointmap.clear()
         for m in self.scene.contents:
+            m.pos = self.scene.clamp_pos(m.pos)
             if hasattr(m, 'render') and self.pos_to_key(m.pos) in self.scene.in_sight:
                 d_pos = self.pos_to_key(m.pos)
                 if not hasattr(m, "hidden") or not m.hidden:
@@ -588,7 +589,6 @@ class SceneView(object):
                                 # mx, my = m.pos
                                 sx, sy = self.foot_coords(*m.pos)
                                 m.render((sx, sy), self)
-
 
             elif len(line_cache) > 2 and line_cache[current_line - 2] is None:
                 keep_going = False

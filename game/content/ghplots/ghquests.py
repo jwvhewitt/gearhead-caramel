@@ -23,6 +23,12 @@ OTAG_AGGRESSIVE = "OTAG_AGGRESSIVE"
 
 
 class ExpelVerb(OutcomeVerb):
+    @classmethod
+    def matches(cls, pstate):
+        quest = pstate.elements.get(quests.QUEST_ELEMENT_ID)
+        lores = pstate.elements.get(quests.LORE_SET_ELEMENT_ID)
+        return cls.get_matching_lore(quest, lores)
+
     # Drive an entrenched faction out of this metroscene.
     name = "Expel"
     needed_elements = (OE_ENEMYFACTION,)
@@ -537,7 +543,7 @@ class GatherDefendersForLocation(quests.QuestPlot):
 
     def start_quest_task(self, camp):
         if not self.did_notification:
-            pbge.BasicNotification(
+            _=pbge.BasicNotification(
                 "You can gather cavaliers to help defend the {_BASE_NAME} from {_ENEMY_FACTION}.".format(**self.elements),
                 count=150
             )
@@ -551,7 +557,7 @@ class GatherDefendersForLocation(quests.QuestPlot):
 
     def _CHALLENGE_WIN(self, camp):
         my_lore = self.elements["_LORE"]
-        pbge.alert(
+        _=pbge.alert(
             "{} should now be adequately defended. {}".format(
                 self.elements["_BASE_NAME"],
                 my_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]

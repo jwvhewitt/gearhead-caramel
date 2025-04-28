@@ -39,6 +39,7 @@ from . import mission_conversations
 from . import mission_stubs
 from . import mission_teamups
 from . import mocha
+from . import mysterymission
 from . import peopleplots
 from . import randomplots
 from . import recovery
@@ -113,6 +114,7 @@ harvest(mission_conversations)
 harvest(mission_stubs)
 harvest(mission_teamups)
 harvest(mocha)
+harvest(mysterymission)
 harvest(peopleplots)
 harvest(randomplots)
 harvest(recovery)

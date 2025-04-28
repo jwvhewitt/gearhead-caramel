@@ -11,7 +11,7 @@ from gears import relationships
 import pbge
 import random
 from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, ghcutscene, dungeonmaker
-from . import missionbuilder, dd_customobjectives, lancedev_objectives, mission_bigobs
+from . import missionbuilder, dd_customobjectives, lancedev_objectives, mission_bigobs, mysterymission
 
 
 #  Required elements: METRO, METROSCENE, MISSION_GATE
@@ -86,6 +86,70 @@ class LMMissionPlot(LMPlot):
 
 
 # The actual plots...
+
+class AdventuringAdventurer(LMMissionPlot):
+    # An adventurer decides that adventure is their destiny and proposes a random adventure.
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+    MISSION_OBJECTIVES = (mysterymission.BAMO_MYSTERYMISSION,)
+    CASH_REWARD = 250
+    EXPERIENCE_REWARD = 150
+    MISSION_NAME = "{NPC}'s Adventure"
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+
+        self.prep_mission(nart.camp)
+        self.mission_seed.make_enemies = False
+
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    gears.tags.Adventurer in candidate.get_tags() and
+                    not candidate.relationship.expectation
+            )
+
+    def METROSCENE_ENTER(self, camp):
+        if not self.started_convo:
+            npc = self.elements["NPC"]
+            pbge.alert("As you enter {METROSCENE}, {NPC} rushes to you excitedly.".format(**self.elements))
+
+            mymenu = ghcutscene.SimpleMonologueMenu("I just got an alert for a new mission! It sounds pretty important. More importantly, it sounds adventurous!", npc, camp)
+            mymenu.no_escape = True
+            mymenu.add_item("Alright, let's get to work!", self._start_mission)
+            mymenu.add_item("Do you have any idea what kind of mission it is?", self._question_mission)
+
+            act = mymenu.query()
+            if act:
+                act(camp)
+
+            self.started_convo = True
+
+    def _start_mission(self, camp):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[THATS_THE_SPIRIT] Adventure is a goal in itself. [LETSGO]", 
+            npc
+        )(camp, False)
+        npc.relationship.expectation = gears.relationships.E_ADVENTURE
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        self.mission_active = True
+
+    def _question_mission(self, camp):
+        npc = self.elements["NPC"]
+        ghcutscene.SimpleMonologueDisplay(
+            "[I_DONT_KNOW] A mission is a mission, and an adventure is an adventure. [LETSGO]", 
+            npc
+        )(camp, False)
+        npc.relationship.expectation = gears.relationships.E_ADVENTURE
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        self.mission_active = True
+
 
 class CheerfulGlorySeeker(LMPlot):
     LABEL = "LANCEDEV"

@@ -2651,6 +2651,10 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["I am under attack. [HELP_ME]",
                           ],
+        relationships.RT_LANCEMATE: [
+            "[audience], am I ever glad to see you!", "Thank [God] the cavalry's arrived!",
+            "Hey [audience], you picked a great time to show up!"
+        ]
     },
 
     "[HELP_WITH_MOBILITY_KILL]": {
@@ -5895,6 +5899,32 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[THATS_THE_SPIRIT]": {
+        Default: ["That's the spirit!",
+                  ],
+        personality.Cheerful: [
+            "Your enthusiasm is noted!", "Get ready to party!"
+        ],
+        personality.Grim: [
+            "This will probably be a mistake, but I appreciate your optimism.",
+            "Once more, to poke death in the eye!"
+        ],
+        personality.Easygoing: [
+            "Yeah, we can do it! Probably, at least...",
+        ],
+        personality.Passionate: [
+            "Fire all of your guns at once and explode into space!",
+            "That's the shot; perfection!"
+        ],
+        personality.Sociable: [
+            "It's good to see you so excited about this!",
+            "Now you're talking!", "That's what I'm talking about!"
+        ],
+        personality.Shy: [
+            "Good vibes, [audience].", "Bravo."
+        ],
+    },
+
     "[THAT_WAS_INCREDIBLE]": {
         # Praise incredible performance
         Default: ["That was incredible!"
@@ -6319,6 +6349,21 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Shy: ["I need to upgrade my [mecha].",
                           ],
+    },
+
+    "[town]": {
+        Default: [
+            "town", "village",
+        ],
+        personality.Sociable: [
+            "community", "neighborhood"
+        ],
+        personality.Shy: [
+            "area",
+        ],
+        tags.Academic: [
+            "residential zone",
+        ]
     },
 
     "[UNDERSTOOD]": {
