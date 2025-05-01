@@ -1,7 +1,8 @@
+* Started random artifact generator
+* Added mystery missions
 * Fire and smoke may result when terrain is damaged
 * Attacks may cause damage to terrain
 * Added AreaEnchantments
-* pos property of PlaceableThing now defaults to (0,0)
 * Fixed bug with random MissionText
 * Scenario builder automatically adds QOL reporter to cities
 * Added message log

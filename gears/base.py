@@ -1969,6 +1969,9 @@ class Weapon(Component, StandardDamageHandler):
             rstr = '{}-{}-{}'.format(self.reach, self.reach * 2, self.reach * 3)
         return rstr
 
+    def get_text_desc(self):
+        return "Dmg:{} Acc:{} Pen:{} Reach:{} Attributes: {}".format(self.damage, self.accuracy, self.penetration, self.get_reach_str(), [str(a) for a in self.attributes])
+
 
 class MeleeWeapon(Weapon):
     MIN_REACH = 1

@@ -7,7 +7,7 @@ from game.content import GHNarrativeRequest, PLOT_LIST
 from ..ghdialogue import context, ghgrammar
 
 
-class AdventureModuleData(object):
+class AdventureModuleData:
     def __init__(self, name, desc, date, title_card, character_check_fun=None, convoborder=None):
         # date is a tuple in (year, month, day) format. Day is optional. GH1 took place in 157, GH2 in 162.
         # character_check_fun is a function that takes the PC's Egg as a parameter and returns True if the PC can
@@ -46,6 +46,30 @@ class XPRewardWithNotification(pbge.BasicNotification):
     def __init__(self, camp: gears.GearHeadCampaign, reward=250):
         camp.dole_xp(reward)
         super().__init__(w=400, text="You get {:,}XP.".format(reward), count=160)
+
+
+class ItemGiverWithDisplay:
+    CAPTION_COLUMN = pbge.frects.Frect(-200, -220, 400, 50)
+    INFO_COLUMN = pbge.frects.Frect(-200, -150, 400, 400)
+    def __init__(self, camp: gears.GearHeadCampaign, item, text="You have received {}."):
+        self.camp = camp
+        self.item = item
+        self.info_panel = gears.info.get_longform_display(model=item)
+        self.text = text.format(item)
+        self()
+
+    def __call__(self):
+        if self.item:
+            self.camp.give_item(self.item)
+            pbge.alert_display(self.render)
+
+    def render(self):
+        mydest = self.CAPTION_COLUMN.get_rect()
+        pbge.default_border.render(mydest)
+        pbge.draw_text(pbge.MEDIUMFONT, self.text, mydest, justify=0, vjustify=0)
+        mydest = self.INFO_COLUMN.get_rect()
+        self.info_panel.render(mydest.x, mydest.y)
+
 
 
 class SceneConnection(object):

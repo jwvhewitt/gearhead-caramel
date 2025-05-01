@@ -1,8 +1,9 @@
+from gears import attackattributes, geffects
 from . import tags
 from . import base
 import random
 import copy
-from . import personality
+from . import personality, scale
 from . import stats
 from . import portraits
 from . import genderobj
@@ -480,6 +481,8 @@ def get_design_by_full_name(name):
         return copy.deepcopy(DESIGN_BY_NAME[name])
     else:
         print("Error: design {} not found".format(name))
+
+
 
 # print calc_threat_points(10)
 # print calc_threat_points(20)

@@ -107,7 +107,7 @@ class PlaceableThing(KeyObject):
     # By default, a hidden thing just isn't displayed.
     def __init__(self, hidden=False, altitude=None, **keywords):
         self.hidden = hidden
-        self.pos = (0,0)
+        self.pos: tuple [int, int] = None
         self.offset_pos = None
         self.altitude = altitude
         super(PlaceableThing, self).__init__(**keywords)

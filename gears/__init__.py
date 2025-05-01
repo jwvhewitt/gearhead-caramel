@@ -42,6 +42,7 @@ from .color import ALL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS, MECHA_
     random_character_colors, random_mecha_colors
 from . import eggs
 from . import relationships
+from . import artifacts
 
 import pickle
 
@@ -386,7 +387,7 @@ class GearHeadScene(pbge.scenes.Scene):
                         npc.pos = random.choice(list(good_spots))
                     else:
                         print("Warning: {} could not be placed in {}".format(npc, self))
-                        npc.pos = (0,0)
+                        #npc.pos = (0,0)
 
     def deploy_team(self, members, team, area=None):
         if team.home:
@@ -671,6 +672,15 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             self.party.remove(item)
         elif hasattr(item, "container"):
             item.container.remove(item)
+
+    def give_item(self, item):
+        # Give an item to the PC if possible, otherwise stick in general stuff.
+        if hasattr(item, "container") and item.container:
+            item.container.remove(item)
+        if self.pc.can_equip(item):
+            self.pc.inv_com.append(item)
+        else:
+            self.party.append(item)
 
     def party_has_tag(self, tag):
         return any(pc for pc in self.get_active_party() if tag in pc.get_pilot().get_tags())

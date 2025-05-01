@@ -243,9 +243,9 @@ class DZDIntro_GetInTheMekShimli(Plot):
             enemy_faction=gears.factions.AegisOverlord, rank=25,
             objectives=(missionbuilder.BAMO_TEST_MISSION,),
             one_chance=True,
-            #scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleSemiDeadzone(),
-            scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleOcean(),
-            adv_type="BAM_ESCORT_MISSION", custom_elements={"ENTRANCE_ANCHOR": pbge.randmaps.anchors.west},
+            scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleSemiDeadzone(),
+            #scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleOcean(),
+            #adv_type="BAM_ESCORT_MISSION", custom_elements={"ENTRANCE_ANCHOR": pbge.randmaps.anchors.west},
             cash_reward=100
         )
 

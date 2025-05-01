@@ -2121,6 +2121,24 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[GOOD_POINT]": {
+        # NPC concedes a point to the audience.
+        Default: ["Good point.",
+                  ],
+        personality.Cheerful: ["Good thing you thought about that.",
+                               ],
+        personality.Grim: ["Well, you're not exactly wrong...",
+                           ],
+        personality.Easygoing: ["I guess.",
+                                ],
+        personality.Passionate: ["The fact that you're right is burning me up."
+                                 ],
+        personality.Sociable: ["I would say that's actually a good point.",
+                               ],
+        personality.Shy: ["Right."
+                          ],
+    },
+
     "[GOODQUESTION]": {
         Default: ["That's a good question."
                   ],
@@ -5470,6 +5488,24 @@ DEFAULT_GRAMMAR = {
             "better than a [noun]", "the law", "truly [adjective]", "job one", "mandatory", "not impossible",
             "relatively likely", "guaranteed"
         ]
+    },
+
+    "[SO_IT_SEEMS]": {
+        # Speaker is acknowledging the obvious.
+        Default: ["So it seems.", "Apparently so."
+                  ],
+        personality.Cheerful: ["How about that?",
+                               ],
+        personality.Grim: ["I already know, okay?!",
+                           ],
+        personality.Easygoing: ["Well, whaddya know...",
+                                ],
+        personality.Passionate: ["I can see that myself!",
+                                 ],
+        personality.Sociable: ["Yes, [audience], that does seem to be the case...",
+                               ],
+        personality.Shy: ["Hmph.",
+                          ],
     },
 
     "[SORRY_I_CANT]": {
