@@ -1592,6 +1592,7 @@ def init_gears():
     selector.GENERIC_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_generic.json"))
     selector.DEADZONE_TOWN_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_dztowns.json"))
     selector.GREENZONE_TOWN_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_gztowns.json"))
+    selector.PREZERO_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_prezero.json"))
 
     if not os.path.exists(pbge.util.user_dir('design')):
         os.mkdir(pbge.util.user_dir('design'))

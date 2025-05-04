@@ -1,4 +1,5 @@
-* Started random artifact generator
+v0.977 May 4, 2025
+* Added random artifact generator
 * Added mystery missions
 * Fire and smoke may result when terrain is damaged
 * Attacks may cause damage to terrain
@@ -7,7 +8,7 @@
 * Scenario builder automatically adds QOL reporter to cities
 * Added message log
 
-v0.976 April 10, 2024
+v0.976 April 10, 2025
 * Fixed a bug in the containers unit
 * Merit badges may have contra badges which get removed if badge earned
 * Removed unusued and not working android import from pbge; if android support added later, will need to rewrite anyhow

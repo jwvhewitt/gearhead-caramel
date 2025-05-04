@@ -49,12 +49,12 @@ class XPRewardWithNotification(pbge.BasicNotification):
 
 
 class ItemGiverWithDisplay:
-    CAPTION_COLUMN = pbge.frects.Frect(-200, -220, 400, 50)
-    INFO_COLUMN = pbge.frects.Frect(-200, -150, 400, 400)
+    CAPTION_COLUMN = pbge.frects.Frect(-200, -200, 400, 50)
+    INFO_COLUMN = pbge.frects.Frect(-150, -110, 300, 400)
     def __init__(self, camp: gears.GearHeadCampaign, item, text="You have received {}."):
         self.camp = camp
         self.item = item
-        self.info_panel = gears.info.get_longform_display(model=item)
+        self.info_panel = gears.info.get_longform_display(model=item, width=300)
         self.text = text.format(item)
         self()
 

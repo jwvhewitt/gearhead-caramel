@@ -20,7 +20,8 @@ def replace_attack_roll(base):
         penetration=old_fx.penetration,
         modifiers=old_fx.modifiers,
         defenses=old_fx.defenses,
-        can_crit=can_crit
+        can_crit=can_crit,
+        terrain_effects=old_fx.terrain_effects
     )
 
 
@@ -32,6 +33,9 @@ class Accurate(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.2
     POWER_MODIFIER = 1.0
+
+    ADJECTIVES = ("Smart", "Guided")
+    TARGETS = ("evasive targets",)
 
     @classmethod
     def get_attacks(cls, weapon):
@@ -49,6 +53,10 @@ class Agonize(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
+
+    ADJECTIVES = ("Pain",)
+    TARGETS = ("enemy commanders",)
+    CAPABILITIES = ("quickly wear down opponents",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -111,6 +119,10 @@ class BonusStrike1(Singleton):
     POWER_MODIFIER = 1.2
     STRIKE_NUMBER = 1
 
+    FAMILY = "BonusStrike"
+    ADJECTIVES = ("Double",)
+    CAPABILITIES = ("strike multiple times",)
+
     @classmethod
     def replace_primary_attack(cls, weapon):
         base = weapon.get_basic_attack(name='Bonus Strike +{}'.format(cls.STRIKE_NUMBER),
@@ -128,6 +140,9 @@ class BonusStrike2(BonusStrike1):
     POWER_MODIFIER = 1.5
     STRIKE_NUMBER = 2
 
+    FAMILY = "BonusStrike"
+    ADJECTIVES = ("Triple",)
+
 
 class BurnAttack(Singleton):
     name = "Burn"
@@ -135,6 +150,10 @@ class BurnAttack(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.0
     POWER_MODIFIER = 1.5
+
+    ADJECTIVES = ("Flaming",)
+    TARGETS = ("durable opponents",)
+    CAPABILITIES = ("set targets on fire",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -148,6 +167,9 @@ class Brutal(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.0
     POWER_MODIFIER = 1.0
+
+    ADJECTIVES = ("Brutal",)
+    CAPABILITIES = ("quickly break through armor",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -270,6 +292,9 @@ class Defender(Singleton):
     POWER_MODIFIER = 1.0
     PARRY_BONUS = 20
 
+    ADJECTIVES = ("Bastion", )
+    CAPABILITIES = ("parry enemy attacks",)
+
 
 class Designator(Singleton):
     name = "Designator"
@@ -277,6 +302,9 @@ class Designator(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.3
     POWER_MODIFIER = 1.0
+
+    ADJECTIVES = ("Lock-On", )
+    CAPABILITIES = ("mark an enemy for targeting",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -329,6 +357,9 @@ class FastAttack(Singleton):
     POWER_MODIFIER = 2.0
     BURST_VALUE = 2
 
+    ADJECTIVES = ("Rapid", )
+    CAPABILITIES = ("attack multiple enemies at once",)
+
     @classmethod
     def get_attacks(cls, weapon):
         aa: pbge.effects.Invocation = weapon.get_basic_attack(name='{} attacks', attack_icon=9)
@@ -347,6 +378,8 @@ class Flail(Singleton):
     POWER_MODIFIER = 1.0
     NO_PARRY = True
 
+    CAPABILITIES = ("bypass shields and other defenses",)
+
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Flails cannot be blocked or parried.
@@ -360,6 +393,10 @@ class HaywireAttack(Singleton):
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 2.0
     POWER_MODIFIER = 1.0
+
+    ADJECTIVES = ("Pulse", )
+    TARGETS = ("priority targets",)
+    CAPABILITIES = ("scramble an opponent's control gear",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -384,6 +421,9 @@ class DrainsPower(Singleton):
     VOLUME_MODIFIER = 1.2
     COST_MODIFIER = 1.5
     POWER_MODIFIER = 0.8
+
+    ADJECTIVES = ("Vampire", )
+    CAPABILITIES = ("deplete an enemy's power",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -498,6 +538,9 @@ class OverloadAttack(Singleton):
     COST_MODIFIER = 1.5
     POWER_MODIFIER = 1.5
 
+    ADJECTIVES = ("Shocking", )
+    CAPABILITIES = ("overwhelm an opponent's defense routines",)
+
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Add a burn status to the children.
@@ -516,6 +559,8 @@ class Plasma(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.2
     POWER_MODIFIER = 1.0
+
+    ADJECTIVES = ("Plasma", )
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -566,6 +611,8 @@ class Smash(Scatter):
     # Mostly the same as Scatter, but better name for melee. Also if you charge with a Smash weapon you can get a
     # critical hit.
     name = "Smash"
+
+    CAPABILITIES = ("cause damage even on a glancing hit",)
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):

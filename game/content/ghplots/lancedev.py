@@ -1,5 +1,4 @@
 # Character development plots for lancemates.
-from math import e
 import game.content
 from gears import personality
 from pbge.plots import Plot, PlotState, Rumor, Memo

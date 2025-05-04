@@ -29,7 +29,6 @@ BAMO_MYSTERYMISSION = "BAMO_MYSTERYMISSION"
 
 class MyMi_DoubleEncounter(Plot):
     LABEL = BAMO_MYSTERYMISSION
-    LABEL = missionbuilder.BAMO_TEST_MISSION
     active = True
     scope = "LOCALE"
 
@@ -94,7 +93,7 @@ class MyMi_DoubleEncounter(Plot):
                 self.team_b_deployed = True
             elif len(bteam.get_members_in_play(camp)) < 1:
                 if len(cteam.get_members_in_play(camp)) > 0:
-                    _=plotutility.ItemGiverWithDisplay(camp, self.elements["TREASURE"], "After the battle, you discover a {} in the cargo container.")
+                    _=plotutility.ItemGiverWithDisplay(camp, self.elements["TREASURE"], "After the battle, you discover the {} in the cargo container.")
                     self.obj.win(camp, 100)
                 else:
                     self.obj.win(camp, 50)

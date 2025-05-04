@@ -1,4 +1,3 @@
-import collections
 import random
 
 """ The grammar/token expander takes generic tokens and expands them into

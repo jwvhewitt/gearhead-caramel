@@ -52,7 +52,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.976"
+VERSION = "v0.977"
 
 class DZDTitleScreenRedraw(object):
 
@@ -72,7 +72,7 @@ class DZDTitleScreenRedraw(object):
         self.sl = pbge.StretchyLayer()
 
     def __call__(self, draw_title=True):
-        pbge.my_state.screen.fill((0, 0, 0))
+        _=pbge.my_state.screen.fill((0, 0, 0))
         self.sl.clear()
 
         w, h = self.sl.get_size()
@@ -102,7 +102,7 @@ class DZDTitleScreenRedraw(object):
             self.title.render(self.TITLE_DEST.get_rect())
 
             versid = pbge.render_text(pbge.my_state.medium_font, VERSION, 120, justify=1)
-            pbge.my_state.screen.blit(versid, versid.get_rect(
+            _=pbge.my_state.screen.blit(versid, versid.get_rect(
                 bottomright=(pbge.my_state.screen.get_width() - 8, pbge.my_state.screen.get_height() - 8)))
 
 
@@ -135,11 +135,11 @@ class StartGameMenu:
                 print("Error in {}- {}".format(fname, e))
                 egg = None
             if egg:
-                self.menu.add_item(str(egg.pc), egg)
+                _=self.menu.add_item(str(egg.pc), egg)
                 self.myportraits[egg] = egg.pc.get_portrait()
 
         if not self.menu.items:
-            self.menu.add_item('[No characters found]', None)
+            _=self.menu.add_item('[No characters found]', None)
 
         self.menu.sort()
         egg = self.menu.query()
@@ -165,7 +165,7 @@ class TestStartGame:
         myfiles = glob.glob(pbge.util.user_dir("egg_*.sav"))
         mystories = list()
 
-        for p in game.content.ghplots.UNSORTED_PLOT_LIST:
+        for p in game.content.UNSORTED_PLOT_LIST:
             if hasattr(p, "ADVENTURE_MODULE_DATA"):
                 mystories.append(p)
 
@@ -180,14 +180,14 @@ class TestStartGame:
         for egg in myeggs:
             for story in mystories:
                 for t in range(100):
-                    game.content.narrative_convenience_function(egg, adv_type=story.LABEL)
+                    _=game.content.narrative_convenience_function(egg, adv_type=story.LABEL)
                     print("Success: {} in {} generated #{}".format(egg.pc, story.ADVENTURE_MODULE_DATA.name, t))
 
 
 def prep_eggs_for_steam(tsrd):
     if not pickle.HIGHEST_PROTOCOL > 4:
         pbge.my_state.view = tsrd
-        pbge.alert("Can't prep eggs for Steam since the version of GearHead Caramel you're running appears to be the Steam version. You need to do this from a non-Steam build.")
+        _=pbge.alert("Can't prep eggs for Steam since the version of GearHead Caramel you're running appears to be the Steam version. You need to do this from a non-Steam build.")
         return
 
     pbge.please_stand_by()
@@ -233,7 +233,7 @@ class LoadGameMenu:
         rcdest = pygame.Rect(0,0,480,360)
 
         for fname, args in minimal_saves.items():
-            self.menu.add_item(args[1].pc.name, fname, desc=args)
+            _=self.menu.add_item(args[1].pc.name, fname, desc=args)
             self.myportraits[args] = args[1].pc.get_portrait()
             if args[2]:
                 args[2].blit(rc, rcdest)
@@ -242,7 +242,7 @@ class LoadGameMenu:
 
 
         if not self.menu.items:
-            self.menu.add_item('[No campaigns found]', None, desc=None)
+            _=self.menu.add_item('[No campaigns found]', None, desc=None)
 
         self.sl = pbge.StretchyLayer()
 
@@ -261,8 +261,8 @@ class LoadGameMenu:
 
     def deal_with_bad_file(self, fname, err):
         mymenu = pbge.rpgmenu.AlertMenu("File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err))
-        mymenu.add_item("Eject the character and delete the broken campaign file.", True)
-        mymenu.add_item("Leave it alone for now.", False)
+        _=mymenu.add_item("Eject the character and delete the broken campaign file.", True)
+        _=mymenu.add_item("Leave it alone for now.", False)
         if mymenu.query():
             minimal_saves[fname][1].save()
             if os.path.exists(fname):
@@ -310,18 +310,18 @@ def import_arena_character(tsrd):
             mygears = gears.oldghloader.GH1Loader(f)
             mygears.load()
             egg = mygears.get_egg()
-            mymenu.add_item(str(egg.pc), egg)
+            _=mymenu.add_item(str(egg.pc), egg)
         except Exception as e:
-            pbge.alert("Warning: File {} can't be parsed. {}".format(f,e))
+            _=pbge.alert("Warning: File {} can't be parsed. {}".format(f,e))
     mymenu.sort()
 
     if not mymenu.items:
-        mymenu.add_item('[No GH1 characters found]', None)
+        _=mymenu.add_item('[No GH1 characters found]', None)
 
     myegg = mymenu.query()
     if myegg:
         myegg.save()
-        pbge.BasicNotification("{} has been imported.".format(myegg.pc.name))
+        _=pbge.BasicNotification("{} has been imported.".format(myegg.pc.name))
 
 
 def open_config_menu(tsrd):
@@ -333,11 +333,11 @@ def open_chargen_menu(tsrd):
     game.chargen.CharacterGeneratorW.create_and_invoke(tsrd)
 
 def draw_border():
-    pbge.my_state.screen.fill((0, 0, 255))
+    _=pbge.my_state.screen.fill((0, 0, 255))
     myarea = pbge.frects.Frect(-250, 150, 500, 100)
     pbge.default_border.render(myarea.get_rect())
 
-def just_show_background(tsrd):
+def just_show_background(_):
     while True:
         ev = pbge.wait_event()
         if ev.type == pbge.TIMEREVENT:
@@ -368,9 +368,9 @@ def view_quarantine(tsrd):
     mymenu = pbge.rpgmenu.AlertMenu("The following campaign files aren't loading properly, probably because they are from an out of date version or require DLC that is not installed. You should be able to restore the backup of your character from the 'ghcaramel' folder.", predraw=tsrd)
 
     for f in quarantined_files:
-        mymenu.add_item(f, None)
+        _=mymenu.add_item(f, None)
 
-    mymenu.query()
+    _=mymenu.query()
 
 def test_map_generator(_tsrd):
     intscene = gears.GearHeadScene(30, 30, "Wujung Hospital", player_team=None, civilian_team=None,
@@ -388,7 +388,7 @@ def gen_names(namegen: pbge.namegen.NameGen):
     start = len(namegen.forbidden.splitlines())
     with open(pbge.util.user_dir("{}.txt".format(namegen.filename)), "w") as f:
         for _ in range(1000):
-            f.write("{}\n".format(namegen.gen_word()))
+            _=f.write("{}\n".format(namegen.gen_word()))
     print("Unique Names: {}".format(len(namegen.forbidden.splitlines()) - start))
 
 
@@ -440,6 +440,15 @@ def play_the_game():
     # mypor.bits = ["FBA NoBody","Haywire B3 Head"]
     # mypic = mypor.build_portrait(None,False,True)
     # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
+
+    #for t in range(100):
+    #    test = gears.artifacts.ArtifactBuilder(50)
+    #    print("{}: {}".format(test.item.get_full_name(), str(test.item.material)))
+    #    print(test.item.desc)
+    #    print(test.item.get_text_desc())
+    #    print()
+
+
     try:
         tsrd = DZDTitleScreenRedraw()
         pbge.my_state.view = tsrd
@@ -453,24 +462,24 @@ def play_the_game():
                                        no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
                                        )
 
-            mymenu.add_item("Load Campaign", LoadGameMenu)
-            mymenu.add_item("Start Campaign", StartGameMenu)
-            mymenu.add_item("Create Character", open_chargen_menu)
-            mymenu.add_item("Import GH1 Character", import_arena_character)
-            mymenu.add_item("Config Options", open_config_menu)
-            mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
-            mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
+            _=mymenu.add_item("Load Campaign", LoadGameMenu)
+            _=mymenu.add_item("Start Campaign", StartGameMenu)
+            _=mymenu.add_item("Create Character", open_chargen_menu)
+            _=mymenu.add_item("Import GH1 Character", import_arena_character)
+            _=mymenu.add_item("Config Options", open_config_menu)
+            _=mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
+            _=mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
             if quarantined_files:
-                mymenu.add_item("Quarantined Saves", view_quarantine)
+                _=mymenu.add_item("Quarantined Saves", view_quarantine)
             if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
-                mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-                mymenu.add_item("Test Map Generator", test_map_generator)
+                _=mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
+                _=mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+                _=mymenu.add_item("Test Map Generator", test_map_generator)
                 #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
                 #mymenu.add_item("Just Show Background", just_show_background)
                 #mymenu.add_item("Test Adventure Generation", TestStartGame)
-                mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
-            mymenu.add_item("Quit", None)
+                _=mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
+            _=mymenu.add_item("Quit", None)
 
             pbge.my_state.start_music(TITLE_THEME)
             pbge.my_state.view = tsrd
@@ -479,7 +488,7 @@ def play_the_game():
                 action(tsrd)
     except Exception as e:
         print(traceback.format_exc())
-        pbge.alert("Python Exception ({}) occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.".format(e))
+        _=pbge.alert("Python Exception ({}) occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.".format(e))
         logging.exception(e)
         logging.critical("Please email this file to pyrrho12@yahoo.ca")
 

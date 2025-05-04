@@ -29,6 +29,7 @@ VENUS_NAMES: pbge.namegen.NameGen = None
 GENERIC_NAMES: pbge.namegen.NameGen = None
 DEADZONE_TOWN_NAMES: pbge.namegen.NameGen = None
 GREENZONE_TOWN_NAMES: pbge.namegen.NameGen = None
+PREZERO_NAMES: pbge.namegen.NameGen = None
 
 
 def calc_threat_points(level, percent=50):
