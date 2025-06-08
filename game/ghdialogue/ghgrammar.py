@@ -1178,6 +1178,12 @@ DEFAULT_GRAMMAR = {
         ]
     },
 
+    "[corporate_holding]": {
+        Default: [
+            "mill", "factory", "mine", "construction site", "generator", "research lab", "warehouse"
+        ]
+    },
+
     "[CORPORATE_SPIEL]": {
         # data block needs {corporate_faction}
         Default: ["{corporate_faction} is the greatest corporation.",
@@ -2793,6 +2799,30 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[I_AM_SHOPPING]": {
+        Default: [
+            "I absolutely love shopping. I just wish I had some more money to do it with...",
+        ],
+        personality.Cheerful: [
+            "I just love shopping!",
+        ],
+        personality.Grim: [
+            "I don't like that store. I think the keeper raises the prices every time I walk in... I don't like him much, either.",
+        ],
+        personality.Easygoing: [
+            "Would you describe yourself as a sensible shopper? This entire outfit cost less than $20.",
+        ],
+        personality.Passionate: [
+            "It takes a lot of practice to be a good shopper. I'm content to keep on practicing!",
+        ],
+        personality.Sociable: [
+            "I know this great little clothing store on the other side of town. The storekeeper knows me so I always get a good price on things.",
+        ],
+        personality.Shy: [
+            "Deals are everywhere, if you know where to look.",
+        ],
+    },
+
     "[I_AM_STILL_STANDING]": {
         # A person is injured or sick, but minimizing it.
         Default: ["I'm still standing up.", "I'm still conscious."
@@ -4082,6 +4112,27 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[LANCE_IS_GOOD]": {
+        Default: [
+            "I really enjoy being a part of this [lance].",
+            "I've had a good time adventuring with this [lance].",
+        ],
+        personality.Cheerful: ["Being with this [lance] is so much fun!",
+                               ],
+        personality.Grim: ["Unlike certain other lances I've been a member of, I've never felt this one would get me killed.",
+                           ],
+        personality.Easygoing: ["This is a pretty good [lance].",
+                                "This [lance] is alright."
+                                ],
+        personality.Passionate: ["I am proud to be a member of this [lance]!",
+                                 "This [lance] is my destiny! The rest of you, my comrades-in-arms!"
+                                 ],
+        personality.Sociable: ["I like the people of this [lance].",
+                               ],
+        personality.Shy: ["This [lance] is good.",
+                          ],
+    },
+
     "[LEAVEPARTY]": {
         Default: ["I'll be around here if you need me again. [GOODBYE]",
                   "[OK] Come back here if you need my services again.",
@@ -4562,6 +4613,26 @@ DEFAULT_GRAMMAR = {
         personality.Peace: [
             "Health is the best thing a person can have; that's why we work so hard to protect it."
         ],
+    },
+
+    "[ME_TOO]": {
+        Default: ["I feel the same way."
+                  ],
+        personality.Cheerful: [
+            "Funny; I feel the same.",
+        ],
+        personality.Grim: [
+            "I'm afraid to say I feel the same."
+        ],
+        personality.Easygoing: [
+            "Yeah, that's pretty much my feeling too."
+        ],
+        personality.Passionate: ["It's like our minds are connected through wifi!",
+                                 ],
+        personality.Sociable: ["You're not the only person to feel like that... I do as well.",
+                               ],
+        personality.Shy: ["Me too."
+                          ],
     },
 
     "[MISSION_PROBLEM:JOIN]": {

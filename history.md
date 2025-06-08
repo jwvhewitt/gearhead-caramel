@@ -1,3 +1,7 @@
+* Improved map rendering speed; hopefully less choppiness
+* Map positions clamped on display
+* Animations are cached on game start
+
 v0.977 May 4, 2025
 * Added random artifact generator
 * Added mystery missions

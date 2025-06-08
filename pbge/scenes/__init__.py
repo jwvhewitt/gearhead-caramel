@@ -226,6 +226,13 @@ class Scene:
         # Returns true if on the map, false otherwise
         return ((x >= 0) and (x < self.width) and (y >= 0) and (y < self.height))
 
+    def get_tile(self, x, y):
+        """Safely return tile at x,y, or None if off map."""
+        if self.on_the_map(x, y):
+            return self._map[x][y]
+        else:
+            return None
+
     def get_floor(self, x, y):
         """Safely return floor of tile x,y, or None if off map."""
         if self.on_the_map(x, y):

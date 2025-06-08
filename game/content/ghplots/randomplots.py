@@ -1,20 +1,19 @@
 # We have plots for every occassion- random events to spice up your metroscenes.
 
-from pbge.plots import Plot, PlotState, Rumor, TimeExpiration
+from typing import override
+from pbge.plots import Plot, Rumor, TimeExpiration
 from pbge.memos import Memo
 import game
 import gears
 import pbge
-import pygame
 import random
-from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, ghcutscene, missiontext
-from pbge.dialogue import Offer, ContextTag, Reply
+from game import ghdialogue
+from game.content import gharchitecture, plotutility, ghcutscene, missiontext
+from game.content.plotutility import LMSkillsSelfIntro
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed
-from . import missionbuilder, rwme_objectives, campfeatures
-from .lancemates import get_hire_cost, LMSkillsSelfIntro
+from . import missionbuilder
+from .lancemates import get_hire_cost
 
 RANDOM_PLOT_RECHARGE = "RANDOM_PLOT_RECHARGE"
 
@@ -246,7 +245,7 @@ class CorpMissionRandom(Plot):
             ))
 
             mylist.append(Offer(
-                "[VAGUE_MISSION_DESCRIPTION] [DOYOUACCEPTMISSION]".format(
+                "[CORP_RANDOM_MISSION_DESC] [VAGUE_MISSION_DESCRIPTION] [DOYOUACCEPTMISSION]".format(
                     **self.elements),
                 ContextTag([context.MISSION]), data={"enemy_faction": self.elements["ENEMY_FACTION"]},
                 subject=self, subject_start=True
@@ -265,6 +264,20 @@ class CorpMissionRandom(Plot):
             ))
 
         return mylist
+
+    @override
+    def get_dialogue_grammar(self, npc, camp):
+        mygram = dict()
+        if npc is self.elements["NPC"]:
+            mygram["[CORP_RANDOM_MISSION_DESC]"] = [
+                "Unknown agents have been interfering with our business.",
+                "This mission is standard corporate business.",
+                "{ALLIED_FACTION} has many rivals.".format(**self.elements),
+                "There has been a {}% slowdown in our wealth extraction program.".format(random.randint(10,30)),
+                "Our {METROSCENE} expansion has met unexpected resistance.".format(**self.elements),
+                "There's trouble at the [corporate_holding]."
+            ]
+        return mygram
 
     def t_UPDATE(self, camp):
         if self.mission_seed.ended:
@@ -838,3 +851,54 @@ class OddJobsRepair(Plot):
             camp.dole_xp(50)
 
         self.end_plot(camp)
+
+
+class TheGoesShoppingPlot(Plot):
+    # A character will go shopping.
+    LABEL = "RANDOM_PLOT"
+    active = True
+    scope = "METRO"
+
+    def custom_init(self, nart):
+        npc: gears.base.Character = self.seek_element(nart, "NPC", self._is_good_npc, must_find=True, lock=True)
+        scene: gears.GearHeadScene = self.seek_element(nart, "NPC_SCENE", self._is_good_scene, must_find=True, scope=self.elements["METROSCENE"])
+        #print(npc, scene)
+        _=game.content.plotutility.CharacterMover(nart.camp, self, npc, scene, scene.civilian_team)
+        self.upgraded = False
+        if npc.combatant and npc.renown <= self.rank or (nart.camp.is_unfavorable_to_pc(npc) and npc.renown <= self.rank+30):
+            self.upgraded = True
+            npc.renown += random.randint(1,10)
+            npc.job.scale_skills(npc, npc.renown)
+            npc.mecha_pref = None
+        self.expiration = TimeExpiration(nart.camp, time_limit=3)
+        set_npc_recharge(npc, nart.camp)
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if npc_is_ready_for_plot(candidate, nart.camp):
+            return not nart.camp.are_faction_enemies(candidate, self.elements["METROSCENE"])
+
+    def _is_good_scene(self, nart, candidate):
+        return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_SHOP in candidate.attributes
+
+    def NPC_offers(self, camp: gears.GearHeadCampaign):
+        mylist = list()
+        npc = self.elements["NPC"]
+
+        if self.upgraded:
+            mylist.append(Offer(
+                "[HELLO] [TIME_TO_UPGRADE_MECHA]",
+                ContextTag([context.HELLO]),
+            ))
+            mylist.append(Offer(
+                "[HELLO] [TIME_TO_UPGRADE_MECHA]",
+                ContextTag([context.UNFAVORABLE_HELLO]),
+            ))
+
+        else:
+            mylist.append(Offer(
+                "[HELLO] [I_AM_SHOPPING]",
+                ContextTag([context.HELLO]),
+            ))
+
+        return mylist

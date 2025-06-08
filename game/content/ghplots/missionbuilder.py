@@ -113,7 +113,8 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     def __init__(self, camp, name, metroscene, return_wp, enemy_faction=None, allied_faction=None, rank=None,
                  objectives=(),
                  adv_type="BAM_MISSION", custom_elements=None, auto_exit=False, solo_mission=False,
-                 scenegen=pbge.randmaps.SceneGenerator, architecture=gharchitecture.MechaScaleDeadzone(),
+                 scenegen=pbge.randmaps.SceneGenerator, 
+                 architecture: gears.GearHeadArchitecture=None,
                  cash_reward=100, experience_reward=100, salvage_reward=True, on_win=None, on_loss=None,
                  combat_music=None, exploration_music=None,
                  one_chance=True, data=None, win_message="", loss_message="", mission_grammar=None,
@@ -130,12 +131,13 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         self.allied_faction = allied_faction
         cms_pstate.elements["OBJECTIVES"] = objectives
         cms_pstate.elements["SCENEGEN"] = scenegen
+        architecture = architecture or gharchitecture.MechaScaleDeadzone()
         cms_pstate.elements["ARCHITECTURE"] = architecture
         cms_pstate.elements[
             "ONE_CHANCE"] = one_chance  # If False, you can return to the combat zone until all objectives are complete.
         cms_pstate.elements["AUTO_EXIT"] = auto_exit
         if custom_elements:
-            cms_pstate.elements.update(custom_elements)
+            _=cms_pstate.elements.update(custom_elements)
         if win_message:
             cms_pstate.elements["WIN_MESSAGE"] = win_message
         if loss_message:
@@ -182,7 +184,7 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
     def copy(self):
         mycopy: BuildAMissionSeed = copy.copy(self)
         mycopy.pstate = pbge.plots.PlotState(adv=mycopy, rank=self.rank)
-        mycopy.pstate.elements.update(self.pstate.elements)
+        _=mycopy.pstate.elements.update(self.pstate.elements)
         mycopy.objectives = copy.deepcopy(self.objectives)
         mycopy.results = list()
         mycopy.data = dict()

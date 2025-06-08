@@ -26,7 +26,7 @@ class FloorBorder(object):
         myfloor = scene.get_floor(x, y)
         return myfloor and myfloor.border is self
 
-    def calc_edges_and_corners(self, view, x, y):
+    def pre_calc_border_data(self, view, x, y):
         """Return the floor border frame for this tile."""
         edges = 0
         check_nw, check_ne, check_sw, check_se = True, True, True, True
@@ -52,12 +52,12 @@ class FloorBorder(object):
         if check_sw and self.floor_border_matches_self(view.scene, x-1, y+1):
             corners += 8
 
-        return edges, corners
+        if edges > 0 or corners > 16:
+            return edges, corners
 
-    def render(self, dest, view, x, y):
+    def render(self, dest, view, x, y, edges, corners):
         # Step One: See if there are any of the terrain in question to
         # deal with.
-        edges, corners = self.calc_edges_and_corners(view, x, y)
         if edges > 0 or corners > 16:
             spr = view.get_terrain_sprite(self.border_image, (x, y))
             if edges > 0:
@@ -284,6 +284,17 @@ class WallTerrain(Terrain):
     @classmethod
     def render_top(cls, dest, view, x, y):
         """Draw terrain that should appear in front of a model in the same tile"""
+        wal, bor = view.tile_data.get((x,y,cls), (0,-1))
+
+        if wal is not None:
+            spr = view.get_terrain_sprite(cls.image_top, (x, y), transparent=cls.transparent)
+            spr.render(dest, wal)
+        if bor > 0:
+            spr = view.get_named_sprite(cls.bordername)
+            spr.render(dest, bor)
+
+    @classmethod
+    def prep_tile_data(cls, view, x, y):
         if cls.bordername:
             bor = view.calc_border_score(x, y)
             if bor == 15:
@@ -292,14 +303,9 @@ class WallTerrain(Terrain):
                 wal = view.calc_wall_score(x, y, WallTerrain)
         else:
             bor = -1
-            wal = view.calc_wall_score(x, y, WallTerrain)
+            wal = view.calc_wall_score(x, y, WallTerrain)\
 
-        if wal is not None:
-            spr = view.get_terrain_sprite(cls.image_top, (x, y), transparent=cls.transparent)
-            spr.render(dest, wal)
-        if bor > 0:
-            spr = view.get_named_sprite(cls.bordername)
-            spr.render(dest, bor)
+        view.tile_data[(x,y,cls)] = (wal, bor)
 
 
 class DoorTerrain(WallTerrain):
@@ -350,6 +356,16 @@ class HillTerrain(Terrain):
     @classmethod
     def render_middle(cls, dest, view, x, y):
         """Draw terrain that should appear in front of a model in the same tile"""
+        wal, bor = view.tile_data.get((x,y,cls), (0,-1))
+        if wal is not None:
+            spr = view.get_terrain_sprite(cls.image_middle, (x, y), transparent=cls.transparent)
+            spr.render(dest, wal)
+        if bor > 0:
+            spr = view.get_named_sprite(cls.bordername)
+            spr.render(dest, bor)
+
+    @classmethod
+    def prep_tile_data(cls, view, x, y):
         if cls.bordername:
             bor = view.calc_border_score(x, y)
             if bor == 15:
@@ -360,12 +376,8 @@ class HillTerrain(Terrain):
             bor = -1
             wal = view.calc_wall_score(x, y, HillTerrain)
 
-        if wal:
-            spr = view.get_terrain_sprite(cls.image_middle, (x, y), transparent=cls.transparent)
-            spr.render(dest, wal)
-        if bor > 0:
-            spr = view.get_named_sprite(cls.bordername)
-            spr.render(dest, bor)
+        view.tile_data[(x,y,cls)] = (wal, bor)
+
 
 
 class OnTheWallTerrain(Terrain):

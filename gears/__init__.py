@@ -191,6 +191,13 @@ class QualityOfLife(object):
         return self.prosperity, self.stability, self.health, self.community, self.defense
 
 
+class LocalAchievement(QualityOfLife):
+    def __init__(self, text, reputation_modifier=0, **kwargs):
+        super().__init__(**kwargs)
+        self.text = text
+        self.reputation_modifier = reputation_modifier
+
+
 class MetroData(object):
     def __init__(self, city_leader=None):
         self.scripts = pbge.container.ContainerList(owner=self)
@@ -1582,6 +1589,8 @@ def string_tags_to_singletons(tag_list):
 #  ***   UTILITY  FUNCTIONS   ***
 #  ******************************
 
+ANIM_CACHE = list()
+
 def init_gears():
     selector.DEADZONE_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_deadzone.json"))
     selector.EARTH_NAMES = pbge.namegen.NameGen(pbge.util.data_dir("ng_earth.json"))
@@ -1649,6 +1658,13 @@ def init_gears():
             selector.MONSTER_LIST.append(d)
 
     portraits.init_portraits()
+
+    global ANIM_CACHE
+    my_anims = pbge.image.glob_images("anim_*.png")
+    for fname in my_anims:
+        a = pbge.image.Image(fname, 64, 64)
+        ANIM_CACHE.append(a)
+
 
     # Gonna do a bit of monkey patching because geffects needs access to the monster list.
     # This is bad and you should not do it but I only have half a CS degree so I'm an ignorant lout about such things.

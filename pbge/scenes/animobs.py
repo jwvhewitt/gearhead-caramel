@@ -429,6 +429,7 @@ class SetFloorAnim(object):
             self.delay += -1
         else:
             self.scene.set_floor(*self.pos, self.new_terrain)
+            view.needs_update = True
             self.needs_deletion = True
 
 
@@ -447,6 +448,7 @@ class SetWallAnim(object):
             self.delay += -1
         else:
             self.scene.set_wall(*self.pos, self.new_terrain)
+            view.needs_update = True
             self.needs_deletion = True
 
 
@@ -465,6 +467,7 @@ class SetDecorAnim(object):
             self.delay += -1
         else:
             self.scene.set_decor(*self.pos, self.new_terrain)
+            view.needs_update = True
             self.needs_deletion = True
 
 

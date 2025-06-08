@@ -97,7 +97,7 @@ class ArtifactBuilder:
         "[concept]": [
             "Concept", "Idea", "Sound", "Vision", "Color", "Measure", "Dream", "Database",
             "Ghost", "Scent", "Memory", "Illusion", "Simulacrum", "Song", "Price", "Awareness",
-            "Dance", "Glow", "Echo", "Shadow", 
+            "Dance", "Glow", "Echo", "Shadow", "Velocity"
         ],
         "[theme]": [
             "Love", "Death", "Taxes", "Beauty", "Mecha", "Fortune", "Happiness", "Sorrow",
@@ -107,6 +107,7 @@ class ArtifactBuilder:
             "Utopia", "Metropolis", "Nature", "History", "Future", "Nothingness",
             "Despair", "Passion", "Ecstasy", "Devotion", "Faith", "Reason", "Water", "Spring",
             "Summer", "Autumn", "Winter", "Tacos", "Data", "Pain", "Pleasure", "Legend",
+            "Gender"
         ],
     }
 
@@ -153,15 +154,18 @@ class ArtifactBuilder:
     ARTWORK_GRAMMAR = {
         "[name]": [
             "[concept] of [theme]", "[adjective] [theme]", "[concept] of the [adjective] [noun]",
-            "[noun] and [adjective] [theme]", "[adjective] [concept] of [noun]", "[noun] and [theme]"
+            "[noun] and [adjective] [theme]", "[adjective] [concept] of [noun]", "[noun] and [theme]",
+            "[adjective] [noun] in [theme]"
         ],
         "[desc]": [
-            "This [medium] dates from [historical_era]."
+            "This [medium] dates from [historical_era]. [ITEM_DESCRIPTION]"
         ],
         "[medium]": [
             "painting", "sculpture", "pottery", "print", "bowl", "collectable figure", "poem",
             "holo-form", "postcard", "advertisement", "greeting card", "toy", "lamp", "phone charger",
-            "bracelet", "necklace", "dongle", "triptych", "diptych", "kaleidoscope", "transit card"
+            "bracelet", "necklace", "dongle", "triptych", "diptych", "kaleidoscope", "transit card",
+            "vase", "puzzle", "headband", "elbow pad", "picture", "neon sign", "trinket", "banner",
+            "collector's card", "diorama"
         ],
         "[adjective]": [
             "Useless", "Useful", "Artificial", "Adorable", "Uncomfortable", "Comfortable", "Good", "Bad", "Open",
@@ -183,6 +187,9 @@ class ArtifactBuilder:
             "Dirty", "Gothic", "Metallic", "Mutagenic", "Outrageous", "Incredible", "Miraculous", "Unlucky",
             "Hated", "Loved", "Feared"
         ],
+        "[ITEM_DESCRIPTION]": [
+            "It depicts [subject] [verbing] [object].",
+        ],
         "[noun]": [
             "Hominid", "Underwear", "Paluke", "Artifice", "Lie", "Knowledge", "Battle", "Weather", "Food", "News",
             "Mecha", "Fashion", "Athlete", "Music", "Politics", "Religion", "Love", "War", "History",
@@ -200,6 +207,24 @@ class ArtifactBuilder:
             "Vehicle", "Machine", "Bathroom", "Fruit", "Side", "Entertainment", "Movie", "Game", "Chemistry",
             "Synergy", "Opinion", "Hero", "Villain", "Thief", "Fantasy", "Adventure", "Mission", "Job",
             "Career", "Glamour", "Diary", "Expression", "Hairdo", "Environment", "Wizard", "Drug"
+        ],
+        "[object]": [
+            "a golden apple", "the entirety of human history", "a peaceful garden", "love", "a bargain sale",
+            "the afterlife", "a clockwork brain", "a sparkling city", "a pink rabbit", "the unknown", "the artist's mother",
+            "that which is good in life", "life itself", "all of existence", "a secret third thing", "sequential juxtaposition",
+            "politics", "the message", "the future", "the past"
+        ],
+        "[subject]": [
+            "the goddess Atan", "the artist", "a person", "a man", "a woman", "a giant robot", "a corporate mascot",
+            "a mythological figure", "a very large number of aquatic rodents", "a celebrity", "a pop idol", "a martyr",
+            "the proletariat", "a pilot", "a chef", "a citizen", "a historical figure", "a monster", "a llama",
+            "an artist", "a scholar", "two lovers", "three lovers", "a priest", "a cartoon character", "a blue rose",
+            "a loser", "two losers", "a cryptic animal", "an idealist", "the personification of [theme]"
+        ],
+        "[verbing]": [
+            "contemplating", "creating", "engaged in dialogue with", "searching for", "singing a song about",
+            "drawing a picture of", "protecting", "destroying", "eating", "discovering", "dancing with", 
+            "falling off of"
         ]
     }
 
@@ -213,7 +238,12 @@ class ArtifactBuilder:
         self.item = None
 
         if auto_generate:
-            self.generate_melee_weapon()
+            if random.randint(1,3) == 1:
+                # Generate a treasure.
+                self.generate_artwork()
+            else:
+                # Generate a weapon.
+                self.generate_melee_weapon()
 
     def generate_artwork(self):
         # A treasure worth about as much as you'd expect.

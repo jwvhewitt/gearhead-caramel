@@ -795,12 +795,6 @@ class BaseGear(scenes.PlaceableThing):
             for p in part.sub_sub_coms():
                 yield p
 
-    def sub_sub_coms(self):
-        yield self
-        for part in self.sub_com:
-            for p in part.sub_sub_coms():
-                yield p
-
     def ok_sub_sub_coms(self):
         if self.is_not_destroyed():
             yield self
@@ -5036,6 +5030,27 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     def update_graphics(self):
         self.destroyed_pose = not self.is_operational()
 
+
+class Swarm(BaseGear, ContainerDamageHandler, HasInfinitePower, Combatant):
+    SAVE_PARAMETERS = ('size', 'statline', 'frame', 'destroyed_frame', 'action_points')
+    DEFAULT_SCALE = scale.MechaScale
+    DEFAULT_MATERIAL = materials.Metal
+    DODGE_SKILL = stats.MechaPiloting
+    sort_priority = 1
+    IMMOVABLE = True
+
+    def __init__(self, statline=None, size=10, frame=0, destroyed_frame=1, action_points=3, **keywords):
+        self.statline = collections.defaultdict(int)
+        if statline:
+            self.statline.update(statline)
+        self.size = size
+        self.frame = frame
+        self.destroyed_frame = destroyed_frame
+        self.destroyed_pose = False
+        self.action_points = max(action_points, 1)
+
+        super(Prop, self).__init__(**keywords)
+    
 
 class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Combatant):
     DEFAULT_SCALE = scale.WorldScale

@@ -1,7 +1,8 @@
 # Character development plots for lancemates.
 import game.content
 from gears import personality
-from pbge.plots import Plot, PlotState, Rumor, Memo
+from pbge.plots import Plot, PlotState, Rumor
+from pbge.memos import Memo
 from pbge.dialogue import Offer, ContextTag
 from game import services, ghdialogue
 from game.ghdialogue import context
@@ -9,8 +10,8 @@ import gears
 from gears import relationships
 import pbge
 import random
-from game.content import gharchitecture, ghwaypoints, plotutility, ghterrain, backstory, ghcutscene, dungeonmaker
-from . import missionbuilder, dd_customobjectives, lancedev_objectives, mission_bigobs, mysterymission
+from game.content import gharchitecture, ghwaypoints, plotutility, ghcutscene, dungeonmaker
+from . import missionbuilder, lancedev_objectives, mysterymission
 
 
 #  Required elements: METRO, METROSCENE, MISSION_GATE
@@ -85,6 +86,99 @@ class LMMissionPlot(LMPlot):
 
 
 # The actual plots...
+
+class FriendlyFriend(LMPlot):
+    LABEL = "LANCEDEV"
+    active = True
+    scope = True
+    UNIQUE = True
+
+    def custom_init(self, nart):
+        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        self.started_convo = False
+        return True
+
+    def _is_good_npc(self, nart, candidate):
+        if self.npc_is_ready_for_lancedev(nart.camp, candidate):
+            return (
+                    candidate.relationship.role == relationships.R_FRIEND
+                    and not candidate.relationship.attitude
+            )
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if not self.started_convo:
+            self.started_convo = True
+            npc = self.elements["NPC"]
+            _=pbge.alert("As you enter {METROSCENE}, {NPC} approaches you for a conversation.".format(**self.elements))
+
+            mymenu = ghcutscene.SimpleMonologueMenu(
+                "So [audience], I've been thinking about this [lance], and was wondering if you know what I've been thinking about you.",
+                npc, camp
+            )
+            mymenu.no_escape = True
+
+            mymenu.add_dialogue_item(camp, camp.pc, "[GOODQUESTION]", self._answer_unknown)
+            mymenu.add_dialogue_item(camp, camp.pc, "I'm a great person to go on adventures with.", self._answer_affirmative)
+            mymenu.add_dialogue_item(camp, camp.pc, "You think I'm hot and highly attractive.", self._answer_flirty)
+
+            result = mymenu.query()
+            if result:
+                result(camp)
+            else:
+                self.proper_end_plot(camp)
+
+    def _answer_unknown(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        if npc.get_reaction_score(camp.pc, camp) >= 20:
+            ghcutscene.SimpleMonologueDisplay(
+                "I think you've been a great leader and a friend, obviously! [LANCE_IS_GOOD] I look forward to many more exciting adventures.",
+                npc
+            )(camp, False)
+            npc.relationship.attitude = relationships.A_FRIENDLY
+        else:
+            ghcutscene.SimpleMonologueDisplay(
+                "[ME_TOO] Sometimes I really don't understand you. Not much to be done about it for now, I guess.",
+                npc
+            )(camp, False)
+            npc.relationship.attitude = relationships.A_DISTANT
+        npc.statline[gears.stats.Ego] += 1
+        self.proper_end_plot(camp)
+
+    def _answer_affirmative(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        if npc.get_reaction_score(camp.pc, camp) >= 20:
+            ghcutscene.SimpleMonologueDisplay(
+                "[THATS_RIGHT] [LANCE_IS_GOOD] I'm happy to have you as a lancemate and a friend.",
+                npc
+            )(camp, False)
+            npc.relationship.attitude = relationships.A_FRIENDLY
+        else:
+            ghcutscene.SimpleMonologueDisplay(
+                "Not really... In fact, I'm not sure that being your lancemate is working out at all. [I_MUST_CONSIDER_MY_NEXT_STEP]",
+                npc
+            )(camp, False)
+            npc.relationship.attitude = relationships.A_DESPAIR
+        npc.statline[gears.stats.Perception] += 1
+        self.proper_end_plot(camp)
+
+    def _answer_flirty(self, camp):
+        npc: gears.base.Character = self.elements["NPC"]
+        if camp.pc.get_stat(gears.stats.Charm) > random.randint(0,15):
+            ghcutscene.SimpleMonologueDisplay(
+                "Finally, one of us says it out loud! Yes, I think you're hot... and a perfectly adequate lance leader on top of that. [LANCE_IS_GOOD]",
+                npc
+            )(camp, False)
+            npc.relationship.attitude = relationships.A_FLIRTY
+        else:
+            ghcutscene.SimpleMonologueDisplay(
+                "[HAGOODONE] I think you are a good leader and a great friend. [LANCE_IS_GOOD]",
+                npc
+            )(camp, False)
+            npc.relationship.attitude = relationships.A_FRIENDLY
+        npc.statline[gears.stats.Charm] += 1
+        self.proper_end_plot(camp)
+
+
 
 class AdventuringAdventurer(LMMissionPlot):
     # An adventurer decides that adventure is their destiny and proposes a random adventure.
@@ -164,8 +258,8 @@ class CheerfulGlorySeeker(LMPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                    gears.personality.Cheerful in candidate.personality
-                    and not any([virtue in candidate.personality for virtue in gears.personality.VIRTUES])
+                    personality.Cheerful in candidate.personality
+                    and not any([virtue in candidate.personality for virtue in personality.VIRTUES])
             )
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
@@ -173,14 +267,14 @@ class CheerfulGlorySeeker(LMPlot):
             self.started_convo = True
             npc = self.elements["NPC"]
             _=pbge.alert("As you enter {METROSCENE}, you notice {NPC} doing some stretching exercises.".format(**self.elements))
-            npc.personality.add(gears.personality.Glory)
+            npc.personality.add(personality.Glory)
 
             mymenu = ghcutscene.SimpleMonologueMenu(
                 "[I_ACCLAIM_GLORY] How about we do a quick run around {METROSCENE} to build up our stamina?".format(**self.elements),
                 npc, camp
             )
             mymenu.no_escape = True
-            if gears.personality.Glory in camp.pc.personality:
+            if personality.Glory in camp.pc.personality:
                 mymenu.add_dialogue_item(camp, camp.pc, "I've got a better idea- let's run around {METROSCENE} twice!".format(**self.elements), self._train_all)
             mymenu.add_dialogue_item(camp, camp.pc, "Sounds good to me!", self._train_athletics)
             mymenu.add_dialogue_item(camp, camp.pc, "Why don't we sit down and have a game of MonsterCards instead?", self._train_concentration)
@@ -224,7 +318,7 @@ class ProfessionalColleagueBecomesRival(LMPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes
+        return personality.DeadZone in pstate.elements["METROSCENE"].attributes or personality.GreenZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -503,7 +597,7 @@ class CriminalOpponentWithMission(LMMissionPlot):
     def _accept_offer(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
         self.mission_active = True
-        if npc.get_reaction_score(camp.pc, camp) > random.randint(0,20) or gears.personality.Duty in npc.personality:
+        if npc.get_reaction_score(camp.pc, camp) > random.randint(0,20) or personality.Duty in npc.personality:
             self.good_mission(camp)
         else:
             self.bad_mission(camp)
@@ -804,7 +898,7 @@ class PartyPlanner(LMPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                    gears.personality.Sociable in candidate.personality and
+                    personality.Sociable in candidate.personality and
                     candidate.statline.get(gears.stats.Knowledge) > 13 and
                     not candidate.relationship.expectation
             )
@@ -864,8 +958,8 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
-                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+        return (personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                personality.GreenZone in pstate.elements["METROSCENE"].attributes)
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -950,8 +1044,8 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
-                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+        return (personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                personality.GreenZone in pstate.elements["METROSCENE"].attributes)
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -1025,8 +1119,8 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
             "This is no time for your petty ego. I'm going to rescue that convoy; who else is with me?",
             npc)(camp, False)
         deserters = [lm for lm in camp.get_lancemates() if
-                     (lm is npc) or (lm.get_reaction_score(camp.pc, camp) < 30) or {gears.personality.Peace,
-                                                                                    gears.personality.Fellowship}.intersection(
+                     (lm is npc) or (lm.get_reaction_score(camp.pc, camp) < 30) or {personality.Peace,
+                                                                                    personality.Fellowship}.intersection(
                          lm.personality)]
         deserter_names = [str(d) for d in deserters]
         npc.relationship.expectation = gears.relationships.E_AVENGER
@@ -1059,8 +1153,8 @@ class HowDoYouSeeMe(LMPlot):
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                    gears.personality.Sociable in candidate.personality and
-                    gears.personality.Fellowship not in candidate.personality and
+                    personality.Sociable in candidate.personality and
+                    personality.Fellowship not in candidate.personality and
                     not candidate.relationship.role
             )
 
@@ -1072,7 +1166,7 @@ class HowDoYouSeeMe(LMPlot):
             "I just wanted to have a chat, get to know you better. They say that Fellowship is one of the primary cavalier virtues. Of course, it means different things to different people. How do you envision our relationship as part of this lance?",
             npc.get_root(), camp)
 
-        if gears.personality.Fellowship in camp.pc.personality:
+        if personality.Fellowship in camp.pc.personality:
             mymenu.add_item(
                 "I would say that we are friends, adventuring companions. There's a special bond that only cavaliers know.",
                 self.choose_friend)
@@ -1093,7 +1187,7 @@ class HowDoYouSeeMe(LMPlot):
             "I don't know?! What is this, some kind of team building activity? We're just lancemates, alright?",
             self.choose_confusion)
 
-        npc.personality.add(gears.personality.Fellowship)
+        npc.personality.add(personality.Fellowship)
 
         answer = mymenu.query()
         if answer:
@@ -1164,8 +1258,8 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
-                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+        return (personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                personality.GreenZone in pstate.elements["METROSCENE"].attributes)
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -1278,7 +1372,7 @@ class FriendInTroubleRightNow(LMMissionPlot):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
                     candidate.relationship.attitude == gears.relationships.A_FRIENDLY and
-                    gears.personality.Fellowship in candidate.personality and
+                    personality.Fellowship in candidate.personality and
                     candidate.relationship.role is None
             )
 
@@ -1383,7 +1477,7 @@ class DDLD_ContactInTown(LMMissionPlot):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
                     candidate.relationship.expectation == gears.relationships.E_MERCENARY and
-                    gears.personality.Fellowship in candidate.personality and
+                    personality.Fellowship in candidate.personality and
                     candidate.relationship.attitude in (
                         gears.relationships.A_JUNIOR, gears.relationships.A_SENIOR, None)
             )
@@ -1443,8 +1537,8 @@ class BeFriendsRaidFactory(LMMissionPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
-                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+        return (personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                personality.GreenZone in pstate.elements["METROSCENE"].attributes)
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -1602,8 +1696,8 @@ class PrezeroMacguffin(LMPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return (gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes or
-                gears.personality.GreenZone in pstate.elements["METROSCENE"].attributes)
+        return (personality.DeadZone in pstate.elements["METROSCENE"].attributes or
+                personality.GreenZone in pstate.elements["METROSCENE"].attributes)
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -1764,7 +1858,7 @@ class DeadZoneSortingDuel(LMPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
+        return personality.DeadZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -1870,7 +1964,7 @@ class ProfessionalGlory(LMMissionPlot):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
                     candidate.relationship.expectation is None
-                    and gears.personality.Glory in candidate.personality
+                    and personality.Glory in candidate.personality
             )
 
     def METROSCENE_ENTER(self, camp):
@@ -2086,7 +2180,7 @@ class DDLD_HermitMechaniac(LMPlot):
     @classmethod
     def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
-        return gears.personality.DeadZone in pstate.elements["METROSCENE"].attributes
+        return personality.DeadZone in pstate.elements["METROSCENE"].attributes
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -2355,10 +2449,10 @@ class FinishingRegrets(LMMissionPlot):
             npc.statline[gears.stats.Vitality] += 2
             npc.statline[gears.stats.Athletics] += 2
             npc.statline[gears.stats.Concentration] += 2
-            if gears.personality.Fellowship in npc.personality:
+            if personality.Fellowship in npc.personality:
                 npc.statline[gears.stats.Ego] += 2
             else:
-                npc.personality.add(gears.personality.Fellowship)
+                npc.personality.add(personality.Fellowship)
 
             self.elements["NPC"].relationship.history.append(gears.relationships.Memory(
                 "you helped me avenge my fallen lancemates",
@@ -2552,7 +2646,7 @@ class LD_DutyColleagueMission(LMMissionPlot):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
                     candidate.relationship.role == gears.relationships.R_COLLEAGUE and
-                    gears.personality.Duty in candidate.personality
+                    personality.Duty in candidate.personality
             )
 
     def METROSCENE_ENTER(self, camp):
@@ -2690,43 +2784,43 @@ class LD_JuniorQuestions(LMPlot):
 
     def _merc_answer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
-        if gears.personality.Glory in self.elements["NPC"].personality:
+        if personality.Glory in self.elements["NPC"].personality:
             self.elements["NPC"].statline[gears.stats.Vitality] += 1
         else:
-            self.elements["NPC"].personality.add(gears.personality.Glory)
+            self.elements["NPC"].personality.add(personality.Glory)
         self.proper_end_plot(camp)
 
     def _pro_answer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_PROFESSIONAL
-        if gears.personality.Duty in self.elements["NPC"].personality:
+        if personality.Duty in self.elements["NPC"].personality:
             self.elements["NPC"].statline[gears.stats.Concentration] += 1
         else:
-            self.elements["NPC"].personality.add(gears.personality.Duty)
+            self.elements["NPC"].personality.add(personality.Duty)
         self.proper_end_plot(camp)
 
     def _help_answer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_GREATERGOOD
-        if gears.personality.Peace in self.elements["NPC"].personality:
+        if personality.Peace in self.elements["NPC"].personality:
             self.elements["NPC"].statline[gears.stats.Athletics] += 1
         else:
-            self.elements["NPC"].personality.add(gears.personality.Peace)
+            self.elements["NPC"].personality.add(personality.Peace)
         self.proper_end_plot(camp)
 
     def _just_answer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_IMPROVER
-        if gears.personality.Justice in self.elements["NPC"].personality:
+        if personality.Justice in self.elements["NPC"].personality:
             self.elements["NPC"].statline[gears.stats.MechaPiloting] += 1
         else:
-            self.elements["NPC"].personality.add(gears.personality.Justice)
+            self.elements["NPC"].personality.add(personality.Justice)
         self.proper_end_plot(camp)
 
     def _fel_answer(self, camp):
         self.elements["NPC"].relationship.attitude = relationships.A_FRIENDLY
-        if gears.personality.Fellowship in self.elements["NPC"].personality:
+        if personality.Fellowship in self.elements["NPC"].personality:
             self.elements["NPC"].dole_experience(200, camp.pc.TOTAL_XP)
             camp.pc.dole_experience(200, camp.pc.TOTAL_XP)
         else:
-            self.elements["NPC"].personality.add(gears.personality.Fellowship)
+            self.elements["NPC"].personality.add(personality.Fellowship)
         self.proper_end_plot(camp)
 
 
@@ -2743,19 +2837,19 @@ class LD_CareerChange(LMPlot):
 
     def _get_new_job(self, npc):
         candidates = list()
-        if gears.personality.Peace in npc.personality:
+        if personality.Peace in npc.personality:
             candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if
                            gears.tags.Medic in job.tags and job.name != npc.job.name]
-        if gears.personality.Glory in npc.personality:
+        if personality.Glory in npc.personality:
             candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if
                            gears.tags.Media in job.tags and job.name != npc.job.name]
-        if gears.personality.Fellowship in npc.personality:
+        if personality.Fellowship in npc.personality:
             candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if
                            gears.tags.Craftsperson in job.tags and job.name != npc.job.name]
-        if gears.personality.Duty in npc.personality:
+        if personality.Duty in npc.personality:
             candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if
                            gears.tags.Military in job.tags and job.name != npc.job.name]
-        if gears.personality.Justice in npc.personality:
+        if personality.Justice in npc.personality:
             candidates += [job for job in list(gears.jobs.ALL_JOBS.values()) if
                            gears.tags.Academic in job.tags and job.name != npc.job.name]
         if not candidates:
@@ -2941,7 +3035,7 @@ class DDLD_LackingVirtue(LMPlot):
             return not candidate.relationship.role and not candidate.relationship.attitude
 
     def get_missing_virtues(self, camp: gears.GearHeadCampaign):
-        virtues = set(gears.personality.VIRTUES)
+        virtues = set(personality.VIRTUES)
         for pc in camp.get_active_party():
             virtues = virtues.difference(pc.personality)
         return virtues
@@ -2954,11 +3048,11 @@ class DDLD_LackingVirtue(LMPlot):
             self.started_conversation = True
 
     OATH = {
-        gears.personality.Peace: "to do right to all, and wrong no one",
-        gears.personality.Glory: "to strive every moment of my life to make myself better and better, to the best of my ability, for the benefit of all",
-        gears.personality.Justice: "to think of the right and lend all my assistance to those who need it, with no regard for anything but justice",
-        gears.personality.Fellowship: "to be considerate of my fellow citizens and my associates in everything I say and do",
-        gears.personality.Duty: "to face what comes with a smile, without loss of courage"
+        personality.Peace: "to do right to all, and wrong no one",
+        personality.Glory: "to strive every moment of my life to make myself better and better, to the best of my ability, for the benefit of all",
+        personality.Justice: "to think of the right and lend all my assistance to those who need it, with no regard for anything but justice",
+        personality.Fellowship: "to be considerate of my fellow citizens and my associates in everything I say and do",
+        personality.Duty: "to face what comes with a smile, without loss of courage"
     }
 
     def NPC_offers(self, camp):
@@ -3169,7 +3263,7 @@ class LMD_SociableSorting(LMPlot):
     def _is_good_npc(self, nart, candidate: gears.base.Character):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                    gears.personality.Sociable in candidate.personality and
+                    personality.Sociable in candidate.personality and
                     not candidate.relationship.attitude
             )
 
@@ -3244,7 +3338,7 @@ class LMD_ShyFolk(LMPlot):
     def _is_good_npc(self, nart, candidate: gears.base.Character):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
             return (
-                    gears.personality.Shy in candidate.personality and
+                    personality.Shy in candidate.personality and
                     not candidate.relationship.attitude
             )
 

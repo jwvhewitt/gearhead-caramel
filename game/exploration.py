@@ -638,9 +638,6 @@ class Explorer(object):
 
                     elif gdi.unicode == "R" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         print(self.camp.renown)
-                    elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.time += 1
-                        self.camp.credits += 300000
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         content.missiontext.test_mission_text(self.camp)
                     elif gdi.unicode == "A" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
@@ -681,11 +678,8 @@ class Explorer(object):
 
                     elif gdi.unicode == "*" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.all_contents(self.camp):
-                            if isinstance(thing, gears.base.Character):
-                                print("{}: {}/{}".format(thing, thing.faction, thing.scene.get_root_scene()))
-
-                    elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.pc.inv_com.append(gears.selector.get_design_by_full_name("Meat"))
+                            if isinstance(thing, gears.base.Character) and thing.relationship and gears.relationships.RT_LANCEMATE in thing.relationship.tags:
+                                print("{}: {}/{}".format(thing, thing.scene, thing.scene.get_root_scene()))
 
                     elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         for thing in self.camp.active_plots():
@@ -739,11 +733,14 @@ class Explorer(object):
                             self.camp.eject()
                             self.no_quit = False
 
-                    elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.version = "v0.100"
-
                     elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         print(self.scene.attributes)
+
+                    elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        #import cProfile
+                        #cProfile.run("pbge.my_state.view()", sort="tottime")
+                        import timeit
+                        print(timeit.timeit('pbge.my_state.view()', setup="from __main__ import pbge", number=30, globals=globals()))
 
                 elif gdi.type == pygame.QUIT:
                     # self.camp.save(self.screen)

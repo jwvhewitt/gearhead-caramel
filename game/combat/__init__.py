@@ -606,6 +606,12 @@ class PlayerTurn(object):
                 elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     for pc in self.camp.get_active_party():
                         self.camp.scene.contents.remove(pc.get_root())
+                elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    import cProfile
+                    cProfile.run("pbge.my_state.view()", sort="tottime")
+                    #import timeit
+                    #print(timeit.timeit('pbge.my_state.view()', setup="from __main__ import pbge", number=30, globals=globals()))
+
                 elif gdi.unicode == "!" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     myparty = self.camp.get_active_party()
                     myparty.remove(self.pc)
@@ -931,7 +937,7 @@ class Combat(object):
             myparty = self.camp.get_active_party()
             for pc in myparty:
                 pc.hidden = False
-                if isinstance(pc, gears.base.Mecha) and (pc.get_current_speed() < 10 or not self.scene.can_use_movemode_here(pc.mmode, *pc.pos)):
+                if isinstance(pc, gears.base.Mecha) and pc.pos and (pc.get_current_speed() < 10 or not self.scene.can_use_movemode_here(pc.mmode, *pc.pos)):
                     pc.gear_up(self.scene)
                     if pc.get_current_speed() < 10:
                         # Looks like we have a genuine Mobility Kill.

@@ -68,6 +68,9 @@ class SceneView(object):
         self.namedsprite = dict()
         self.darksprite = dict()
 
+        self.floor_border_data = dict()
+        self.tile_data = dict()
+
         self.randoms = list()
         seed = ord(scene.name[0])
         for t in range(1237):
@@ -91,7 +94,41 @@ class SceneView(object):
         self.party_indicator = image.Image(party_indicator_spritename, self.TILE_WIDTH, self.TILE_HEIGHT,
                                            transparent=True)
 
+        self.needs_update = True
+    
         my_state.view = self
+
+    def update_tile_data(self):
+        self.floor_border_data.clear()
+        self.tile_data.clear()
+
+        for x in range(self.scene.width):
+            for y in range(self.scene.height):
+                mytile = self.scene.get_tile(x, y)
+
+                if mytile.floor:
+                    if hasattr(mytile.floor, "prep_tile_data"):
+                        mytile.floor.prep_tile_data(self, x, y)
+                    
+                    borders = self.get_floor_borders(x, y, mytile.floor)
+                    if borders:
+                        borders_plus_data = list()
+                        for b in borders:
+                            params = b.border.pre_calc_border_data(self, x, y)
+                            if params:
+                                borders_plus_data.append((b, params))
+                        if borders_plus_data:
+                            self.floor_border_data[(x,y)] = borders_plus_data
+
+                if mytile.wall:
+                    if hasattr(mytile.wall, "prep_tile_data"):
+                        mytile.wall.prep_tile_data(self, x, y)
+
+                if mytile.decor:
+                    if hasattr(mytile.decor, "prep_tile_data"):
+                        mytile.decor.prep_tile_data(self, x, y)
+
+        self.needs_update = False
 
     @property
     def mouse_tile(self):
@@ -230,6 +267,10 @@ class SceneView(object):
         """Return the relative y position of this tile, ignoring offset."""
         return int(y * float(self.HTH) + x * float(self.HTH))
 
+    def screen_offset(self):
+        return (my_state.screen.get_width() // 2 - self.relative_x(self._focus_x, self._focus_y),
+                my_state.screen.get_height() // 2 - self.relative_y(self._focus_x, self._focus_y) + self.HTH)
+
     def screen_coords(self, x, y, extra_x_offset=0, extra_y_offset=0):
         # Should point to the upper (northwest) corner of an isometric tile.
         x_off, y_off = self.screen_offset()
@@ -243,10 +284,24 @@ class SceneView(object):
     def on_the_screen(self, x, y):
         screen_area = my_state.screen.get_rect()
         return screen_area.collidepoint(self.screen_coords(x, y))
+    
+    def _get_horizontal_line(self, x0, y0, line_number, visible_area):
+        mylist = list()
+        x = x0 + line_number // 2
+        y = y0 + (line_number + 1) // 2
 
-    def screen_offset(self):
-        return (my_state.screen.get_width() // 2 - self.relative_x(self._focus_x, self._focus_y),
-                my_state.screen.get_height() // 2 - self.relative_y(self._focus_x, self._focus_y) + self.HTH)
+        sx, sy = self.screen_coords(x, y)
+
+        if sy > visible_area.bottom:
+            return None
+
+        while sx < visible_area.right:
+            if self.scene.on_the_map(x, y):
+                mylist.append((x, y))
+            x += 1
+            y -= 1
+            sx = sx + self.HTW + self.HTH
+        return mylist
 
     def map_x(self, sx, sy, return_int=True):
         """Return the map x row for the given screen coordinates."""
@@ -407,21 +462,6 @@ class SceneView(object):
         my_bordered_floors.sort(key=lambda f: f.border_priority)
         return my_bordered_floors
 
-    def _get_horizontal_line(self, x0, y0, line_number, visible_area):
-        mylist = list()
-        x = x0 + line_number // 2
-        y = y0 + (line_number + 1) // 2
-
-        if self.screen_coords(x, y)[1] > visible_area.bottom:
-            return None
-
-        while self.screen_coords(x, y)[0] < visible_area.right:
-            if self.scene.on_the_map(x, y):
-                mylist.append((x, y))
-            x += 1
-            y -= 1
-        return mylist
-
     def _get_visible_area(self):
         # The visible area describes the region of the map we need to draw.
         # It is bigger than the physical screen
@@ -436,6 +476,9 @@ class SceneView(object):
 
     def __call__(self):
         """Draws this mapview to the provided screen."""
+        if self.needs_update:
+            self.update_tile_data()
+
         screen_area = my_state.screen.get_rect()
         mouse_x, mouse_y = my_state.mouse_pos
         my_state.screen.fill((0, 0, 0))
@@ -458,7 +501,8 @@ class SceneView(object):
         self.undermap.clear()
         self.waypointmap.clear()
         for m in self.scene.contents:
-            m.pos = self.scene.clamp_pos(m.pos)
+            if hasattr(m, "pos") and m.pos:
+                m.pos = self.scene.clamp_pos(m.pos)
             if hasattr(m, 'render') and self.pos_to_key(m.pos) in self.scene.in_sight:
                 d_pos = self.pos_to_key(m.pos)
                 if not hasattr(m, "hidden") or not m.hidden:
@@ -516,11 +560,9 @@ class SceneView(object):
                         self.scene._map[x][y].render_biddle(dest, self, x, y)
 
                         # Draw any floor borders at this point.
-                        myfloor = self.scene.get_floor(x, y)
-                        if myfloor:
-                            borders = self.get_floor_borders(x, y, myfloor)
-                            for b in borders:
-                                b.border.render(dest, self, x, y)
+                        borders = self.floor_border_data.get((x,y), ())
+                        for b, params in borders:
+                            b.border.render(dest, self, x, y, *params)
 
                         self.scene._map[x][y].render_middle(dest, self, x, y)
 
