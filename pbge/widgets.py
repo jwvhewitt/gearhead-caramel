@@ -24,14 +24,54 @@ popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor
                            transparent=False)
 
 
+WTAG_WIDGET = "WTAG_WIDGET"
+
+
+class FrozenUIState:
+    def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=()):
+        self.pushed_widgets = list()
+        for wtp in widgets_to_push:
+            self.push_widget(wtp)
+
+        self.deactivated_widgets = list()
+        self.hidden_widgets = list()
+        tags_to_deactivate = set(tags_to_deactivate)
+        tags_to_hide = set(tags_to_hide)
+
+        for widg in my_state.all_widgets():
+            if widg.active and widg.tags.intersection(tags_to_deactivate):
+                self.deactivated_widgets.append(widg)
+                widg.active = False
+            if widg.visible and widg.tags.intersection(tags_to_hide):
+                self.hidden_widgets.append(widg)
+                widg.visible = False
+
+        my_state.ui_stack.append(self)
+
+    def push_widget(self, widget_to_push):
+        if widget_to_push in my_state.widgets and widget_to_push not in self.pushed_widgets:
+            self.pushed_widgets.append(widget_to_push)
+            my_state.widgets.remove(widget_to_push)
+
+    def unfreeze(self):
+        for widg in self.pushed_widgets:
+            my_state.widgets.append(widg)
+
+        for widg in self.deactivated_widgets:
+            widg.active = True
+
+        for widg in self.hidden_widgets:
+            widg.visible = True
+
+
 class Widget(frects.Frect):
     def __init__(self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True,
-                 show_when_inactive=False, on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None,
-                 on_enter=None, on_leave=None, **kwargs):
-        # on_click takes widget, event as parameters.
-        # on_right_click takes widget, event as parameters.
-        # on_enter takes this widget as a parameter
-        # on_leave takes this widget as a parameter
+                 on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None,
+                 on_enter=None, on_leave=None, visible=True, tags=(), **kwargs):
+        # on_click is a callable with signature (widget, event)
+        # on_right_click is a callable with signature (widget, event)
+        # on_enter is a callable with signature (widget)
+        # on_leave is a callable with signature (widget)
         super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
         self.active = active
@@ -39,13 +79,20 @@ class Widget(frects.Frect):
         self.on_click = on_click
         self.on_right_click = on_right_click
         self.children = list(children)
-        self.show_when_inactive = show_when_inactive
         self.on_enter = on_enter
         self.on_leave = on_leave
         self._mouse_is_over = False
+        self.tags = set(tags)
+        self.tags.add(WTAG_WIDGET)
+
+    def get_all_widgets(self):
+        yield self
+        for part in self.children:
+            for p in part.get_all_widgets():
+                yield p
 
     def respond_event(self, ev):
-        if self.active:
+        if self.active and self.visible:
             for c in self.children:
                 c.respond_event(ev)
             if self.get_rect().collidepoint(my_state.mouse_pos):
@@ -79,15 +126,6 @@ class Widget(frects.Frect):
                 self._builtin_responder(ev)
         else:
             self._mouse_is_over = False
-        #    if self.on_enter or self.on_leave:
-        #        if self.get_rect().collidepoint(my_state.mouse_pos) and not self._mouse_is_over:
-        #            self._mouse_is_over = True
-        #            if self.on_enter:
-        #                self.on_enter(self)
-        #        elif self._mouse_is_over:
-        #            self._mouse_is_over = False
-        #            if self.on_leave:
-        #                self.on_leave(self)
 
     def register_response(self):
         # Call this method when _builtin_responder has responded to an event and you don't want other widgets to
@@ -97,14 +135,14 @@ class Widget(frects.Frect):
     def _builtin_responder(self, ev):
         pass
 
-    def super_render(self):
+    def update(self, delta):
         # This renders the widget and children, setting tooltip and whatnot.
-        if self.active or self.show_when_inactive:
-            self.render(self._should_flash())
+        if self.visible:
+            self._render(delta)
             if self.tooltip and self.get_rect().collidepoint(my_state.mouse_pos):
                 my_state.widget_tooltip = self.tooltip
             for c in self.children:
-                c.super_render()
+                c.update(delta)
 
     def _should_flash(self):
         if self.parent and hasattr(self.parent, "kb_flash_override"):
@@ -117,9 +155,8 @@ class Widget(frects.Frect):
     def _default_flash(self):
         pygame.draw.rect(my_state.screen, ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)], self.get_rect(), 1)
 
-    def render(self, flash=False):
-        if flash:
-            self._default_flash()
+    def _render(self, delta):
+        pass
 
     def is_kb_selectable(self):
         if self.parent and hasattr(self.parent, "kb_select_override"):
@@ -128,6 +165,25 @@ class Widget(frects.Frect):
             return self.kbhandler.kb_select_override(self)
         else:
             return self.on_click
+
+    def close(self):
+        if self in my_state.widgets:
+            my_state.widgets.remove(self)
+
+    def pop(self):
+        self.close()
+        if my_state.ui_stack:
+            froz = my_state.ui_stack.pop(-1)
+            froz.unfreeze()
+
+    TAGS_TO_DEACTIVATE = set()
+    TAGS_TO_HIDE = ()
+
+    @classmethod
+    def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
+        _=FrozenUIState(*widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, tags_to_hide=cls.TAGS_TO_HIDE)
+        my_widget = cls(**kwargs)
+        my_state.widgets.append(my_widget)
 
 
 class ButtonWidget(Widget):
@@ -138,10 +194,10 @@ class ButtonWidget(Widget):
         self.on_frame = on_frame
         self.off_frame = off_frame
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.sprite:
             self.sprite.render(self.get_rect(), self.frame)
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
 
@@ -151,17 +207,18 @@ class SurfaceWidget(Widget):
         super().__init__(dx, dy, surf.get_width(), surf.get_height(), **kwargs)
         self.surf = surf
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.surf:
             _=my_state.screen.blit(self.surf, self.get_rect())
-        if flash:
+        if self._should_flash():
             self._default_flash()
+
 
 
 class LabelWidget(Widget):
     def __init__(self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False,
                  border=widget_border_off, text_fun=None, alt_smaller_fonts=(), **kwargs):
-        # text_fun is a function that takes this widget as a parameter. It returns the text to display.
+        # text_fun is a callable with signature (widget). It returns the text to display.
         super().__init__(dx, dy, w, h, **kwargs)
         self._text = text
         self.text = text
@@ -183,7 +240,7 @@ class LabelWidget(Widget):
         self.border = border
         self.alt_smaller_fonts = alt_smaller_fonts
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.draw_border:
             self.border.render(self.get_rect())
         if self.alt_smaller_fonts and len(wrap_multi_line(self.text, self.font, self.w)) * self.font.get_linesize() > self.h:
@@ -195,7 +252,7 @@ class LabelWidget(Widget):
         else:
             myfont = self.font
         draw_text(myfont, self.text, self.get_rect(), self.color, self.justify)
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
     @property
@@ -340,10 +397,10 @@ class ColumnWidget(Widget):
         if self.optimize_height:
             self.h = dy
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.draw_border:
             self.border.render(self.get_rect())
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
 
@@ -529,10 +586,10 @@ class ScrollColumnWidget(Widget):
             elif my_state.is_key_for_action(ev, "down") and self.active_widget < (len(self._interior_widgets) - 1):
                 self.active_widget += 1
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.draw_border:
             self.border.render(self.get_rect())
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
 
@@ -594,10 +651,10 @@ class RowWidget(Widget):
                 widg.anchor = frects.ANCHOR_RIGHT
                 dx += widg.w + self.padding
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.draw_border:
             self.border.render(self.get_rect().inflate(self.border_inflation, self.border_inflation))
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
 
@@ -620,7 +677,7 @@ class DropdownWidget(Widget):
             self.menu.descobj.anchor = frects.ANCHOR_UPPERLEFT
             self.menu.descobj.parent = self.menu
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect()
         if self is my_state.active_widget:
             widget_border_on.render(mydest.inflate(-4, -4))
@@ -631,7 +688,7 @@ class DropdownWidget(Widget):
         textdest = myimage.get_rect(center=mydest.center)
         my_state.screen.blit(myimage, textdest)
         my_state.screen.set_clip(None)
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
     def add_item(self, msg, value, desc=None):
@@ -690,7 +747,7 @@ class TextEntryWidget(Widget):
             myrect.center = mydest.center
         return myrect
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect()
         if self.draw_border:
             if self is my_state.active_widget:
@@ -702,7 +759,7 @@ class TextEntryWidget(Widget):
         my_state.screen.set_clip(mydest)
         my_state.screen.blit(myimage, textdest)
         my_state.screen.set_clip(None)
-        if flash or (my_state.active_widget is self):
+        if self._should_flash() or (my_state.active_widget is self):
             cursor_dest = self.input_cursor.bitmap.get_rect(topleft=textdest.topleft)
             if self.cursor_i > 0:
                 cursor_dest.left += self.font.size(self.text[:self.cursor_i])[0]

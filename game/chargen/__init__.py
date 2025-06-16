@@ -159,7 +159,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
         self.rebuild_menu()
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.sl.clear()
         mydest = pygame.Rect(self.sl.get_width()//2-400, 0, 600, 600)
         self.portrait.render(mydest, 0, dest_surface=self.sl.surf)
@@ -573,7 +573,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def cancel(self,wid,ev):
         self.finished = True
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.portrait_view.render()
 
     @classmethod

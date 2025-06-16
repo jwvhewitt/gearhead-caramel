@@ -71,7 +71,7 @@ class PCEditorWidget(widgets.Widget):
 
         self.camp.save()
 
-    def render(self, flash=False):
+    def _render(self, delta):
         #if draw_background and not self.active:
         #    pbge.my_state.view()
         self.portrait_view.render()

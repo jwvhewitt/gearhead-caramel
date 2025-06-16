@@ -80,9 +80,9 @@ class InvItemWidget(widgets.Widget):
             self.text = item.get_full_name()
         super().__init__(0, 0, INVENTORY_COLUMN.w, pbge.MEDIUMFONT.get_linesize(), **kwargs)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect()
-        if flash or (self is self.bp.active_item):
+        if self._should_flash() or (self is self.bp.active_item):
             color = pbge.INFO_HILIGHT
         elif self.item.is_destroyed():
             color = pbge.ENEMY_RED
@@ -375,7 +375,7 @@ class BackpackWidget(widgets.Widget):
         if cmd:
             cmd(wid)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
                 self.info_cache[self.active_item.item] = gears.info.get_longform_display(
@@ -497,7 +497,7 @@ class ItemExchangeWidget(widgets.Widget):
     def done_button(self, wid, ev):
         self.finished = True
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.active_item:
             if self.active_item.item not in self.info_cache:
                 self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,

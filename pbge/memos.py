@@ -70,7 +70,7 @@ class MemoBrowser(widgets.Widget):
 
     memo_n = property(_get_memo_n, _set_memo_n)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         myrect = self.get_rect()
         default_border.render(myrect)
 

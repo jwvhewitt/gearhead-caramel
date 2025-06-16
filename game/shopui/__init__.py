@@ -525,8 +525,8 @@ class ShopUI(pbge.widgets.Widget):
         for item in self.undo_sys.get_bought_items():
             self.shop.improve_friendliness(self.camp, item)
 
-    def render(self, flash=False):
-        super().render()
+    def _render(self, delta):
+        super()._render(delta)
         if self._item_panel:
             rect = INFO_PANEL_FRECT.get_rect()
             self._item_panel.render(rect.x, rect.y)

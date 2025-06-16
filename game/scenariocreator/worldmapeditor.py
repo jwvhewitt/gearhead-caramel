@@ -36,8 +36,8 @@ class LegendWidget(pbge.widgets.RowWidget):
 
         self.on_change = on_change
 
-    def render(self, flash=False):
-        super().render(flash)
+    def _render(self, delta):
+        super()._render(delta)
         mydest = self.get_rect()
         mydest.x += 22
         if self.show_on_frame:
@@ -125,12 +125,12 @@ class WMNodeEditorWidget(pbge.widgets.RowWidget):
             self.wm_data["node"]["image_file"] = result
             self.editor.world_map_viewer.refresh_node_images()
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.editor.active_entrance_uid == self.node.entrance:
             self.border = pbge.widgets.widget_border_on
         else:
             self.border = pbge.widgets.widget_border_off
-        super().render(flash)
+        super()._render(delta)
 
     def _builtin_responder(self, ev):
         if self.editor.active_entrance_uid == self.node.entrance and ev.type == CLICK_WORLD_MAP_TILE_EVENT:
@@ -191,12 +191,12 @@ class WMEdgeEditorWidget(pbge.widgets.RowWidget):
     def _change_discoverability(self, new_value):
         self.edge_data["discoverable"] = new_value
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.editor.active_edge == self.edge:
             self.border = pbge.widgets.widget_border_on
         else:
             self.border = pbge.widgets.widget_border_off
-        super().render(flash)
+        super()._render(delta)
 
 
 class EdgesEditor(pbge.widgets.Widget):
@@ -367,7 +367,7 @@ class WorldMapEditor(pbge.widgets.Widget):
     def _click_world_map(self, wid, ev):
         pygame.event.post(pygame.event.Event(CLICK_WORLD_MAP_TILE_EVENT, pos=wid.data))
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.world_map_viewer.render(self.active_entrance_uid, self.active_edge)
 
     @classmethod

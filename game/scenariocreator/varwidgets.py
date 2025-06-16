@@ -489,9 +489,9 @@ class ColorSwatchEditorWidget(pbge.widgets.DropdownWidget):
             self.sprite = pbge.image.Image("sys_color_menu_swatch.png", 24, 36,
                                            color=[color, color, color, color, color])
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.sprite.render(self.get_rect(), 0)
-        if flash:
+        if self._should_flash():
             self._default_flash()
 
 

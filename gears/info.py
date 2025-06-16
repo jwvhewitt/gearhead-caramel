@@ -1141,7 +1141,7 @@ class InfoWidget(pbge.widgets.Widget):
         super().__init__(dx, dy, w, h, **kwargs)
         self.info_panel = info_panel
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.info_panel:
             mydest = self.get_rect()
             pbge.my_state.screen.set_clip(mydest)

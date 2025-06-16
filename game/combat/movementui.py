@@ -136,7 +136,7 @@ class MovementWidget(pbge.widgets.Widget):
     def _generate_tooltip(self, mmode):
         return '{} ({})'.format(mmode, self.pc.get_speed(mmode))
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.sprite.render(self.get_rect(), 0)
 
     MOVEMODE_FRAMES = {

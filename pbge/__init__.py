@@ -163,14 +163,9 @@ class GameState(object):
 
         self.message_log = list()
 
-        # self.client = SteamClient()
+        self.ui_stack = list()
 
-    def render_widgets(self):
-        if self.widgets:
-            for w in self.widgets:
-                w.super_render()
-        elif self.active_widget_hilight:
-            self.active_widget_hilight = False
+        # self.client = SteamClient()
 
     def render_notifications(self):
         for n in list(self.notifications):
@@ -287,6 +282,11 @@ class GameState(object):
         self._active_widget = None
 
     active_widget = property(_get_active_widget, _set_active_widget, _del_active_widget)
+
+    def all_widgets(self):
+        for w in self.widgets:
+            for wc in w.get_all_widgets():
+                yield wc
 
     def get_keys_for(self, action):
         keys = util.config.get("KEYS", action)
@@ -429,6 +429,50 @@ class GameState(object):
 
     def clear_messages(self):
         self.message_log.clear()
+
+    def play(self):
+        # A nonblocking game loop.
+        myclock = pygame.time.Clock()
+        running = True
+        delta = 1000.0 / float(FPS)
+
+        while self.widgets and not self.got_quit:
+
+            # poll for events
+            # pygame.QUIT event means the user clicked X to close your window
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    self.got_quit = True
+                elif ev.type == pygame.MOUSEMOTION:
+                    self.update_mouse_pos()
+                elif ev.type == pygame.KEYDOWN:
+                    if ev.key == pygame.K_PRINT:
+                        pygame.image.save(my_state.screen, util.user_dir("out.png"))
+                    elif self.is_key_for_action(ev, "next_widget"):
+                        self.active_widget_hilight = True
+                        self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
+                elif ev.type == pygame.VIDEORESIZE:
+                    # PG2 Change
+                    # pygame.display._resize_event(ev)
+                    self.set_size(max(ev.w, 800), max(ev.h, 600))
+
+                # Inform any interested widgets of the event.
+                self.widget_clicked = False
+                self.widget_responded = False
+                self.widget_all_text = False
+                if self.widgets_active:
+                    for w in self.widgets:
+                        w.respond_event(ev)
+
+            # RENDER YOUR GAME HERE
+            for w in self.widgets:
+                w.update(delta)
+
+            # flip() the display to put your work on screen
+            pygame.display.flip()
+
+            pass
+            delta = myclock.tick(FPS)
 
 
 class StretchyLayer():
@@ -867,7 +911,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
 
         global FPS
         FPS = util.config.getint("GENERAL", "frames_per_second")
-        pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
+        #pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
 
         # Set key repeat.
         pygame.key.set_repeat(200, 100)

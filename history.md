@@ -1,3 +1,4 @@
+* Changed from multiple blocking 
 * Improved map rendering speed; hopefully less choppiness
 * Map positions clamped on display
 * Animations are cached on game start

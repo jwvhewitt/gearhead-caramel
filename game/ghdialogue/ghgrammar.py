@@ -1476,22 +1476,61 @@ DEFAULT_GRAMMAR = {
     },
 
     "[DUEL_GREETING]": {
-        Default: ["May the best pilot win!",
-                  ],
+        Default: [
+            "[DUEL_HELLO] [DUEL_CHALLENGE]",
+        ],
+    },
+
+
+    "[DUEL_HELLO]": {
+        Default: [
+            "Hello, [audience]!",
+        ],
+        personality.Cheerful: [
+            "Let the games begin!",
+        ],
+        personality.Grim: [
+            "My next victim has arrived.",
+        ],
+        personality.Easygoing: [
+            "Hey [audience].",
+        ],
+        personality.Passionate: [
+            "En garde!",
+        ],
+        personality.Sociable: [
+            "For the next match I, [speaker], will face off against [audience].",
+        ],
+        personality.Shy: [
+            "A challenger approaches!",
+        ],
+    },
+
+    
+    "[DUEL_CHALLENGE]": {
+        Default: [
+            "May the best pilot win!",
+            "Consider this payback for the time [MEM_LoseToPC].",
+        ],
         personality.Cheerful: ["Let's try to have fun out there.",
                                ],
-        personality.Grim: ["You have no chance to survive, make your time.",
-                           "Only one of us is going to leave this place intact, and it isn't going to be you!"
-                           ],
-        personality.Easygoing: ["Might as well get started.",
-                                ],
-        personality.Passionate: ["You don't know it yet, but I've already won!",
-                                 "I'm a hot blooded pilot, all ready to [defeat_you]!"
-                                 ],
-        personality.Sociable: ["Make sure to give my fans a good show!",
-                               ],
-        personality.Shy: ["En garde!",
-                          ],
+        personality.Grim: [
+            "You have no chance to survive, make your time.",
+            "Only one of us is going to leave this place intact, and it isn't going to be you!"
+        ],
+        personality.Easygoing: [
+            "Might as well get started.",
+        ],
+        personality.Passionate: [
+            "You don't know it yet, but I've already won!",
+            "I'm a hot blooded pilot, all ready to defeat you!"
+        ],
+        personality.Sociable: [
+            "Make sure to give my fans a good show!",
+        ],
+        personality.Shy: [
+            "Let's start.",
+        ],
         personality.Glory: [
             "For the glory of [speaker_faction]!",
         ],
@@ -1503,9 +1542,16 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Fellowship: [
             "I salute you, my worthy opponent!"
-        ]
-
+        ],
+        DISLIKE: [
+            "I can't wait to put you in your place!",
+            "I've been waiting a long time to [threat]!"
+        ],
+        LIKE: [
+            "I won't go easy on you just because I like you!"
+        ],
     },
+
 
     "[EJECT]": {
         # This character is going to eject from their mecha.

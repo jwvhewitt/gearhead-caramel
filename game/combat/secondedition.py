@@ -32,7 +32,7 @@ def enter_combat(camp, npc):
     if camp.fight:
         camp.fight.activate_foe(npc)
     else:
-        camp.fight = Combat(camp)
+        camp.fight = Combat2e(camp)
         camp.fight.activate_foe(npc)
 
 
@@ -42,7 +42,7 @@ def start_continuous_combat(camp):
     if camp.fight:
         camp.fight.keep_going_without_enemies = True
     else:
-        camp.fight = Combat(camp, keep_going_without_enemies=True)
+        camp.fight = Combat2e(camp, keep_going_without_enemies=True)
 
 
 class CombatStat(object):
@@ -291,7 +291,7 @@ class WaypointBumper:
             self.wp.combat_bump(self.camp, self.pc)
 
 
-class PlayerTurn(object):
+class PlayerTurn2e(object):
     # It's the player's turn. Allow the player to control this PC.
     def __init__(self, pc, camp):
         self.pc = pc
@@ -669,7 +669,7 @@ class PostCombatCleanup:
                 m.hidden = False
 
 
-class Combat(object):
+class Combat2e(object):
     def __init__(self, camp: gears.GearHeadCampaign, keep_going_without_enemies=False):
         self.active = list(camp.get_active_party())
         self.scene: gears.GearHeadScene = camp.scene
@@ -835,7 +835,7 @@ class Combat(object):
                         ALT_AIS[current_ai](chara, self.camp)
         if chara in self.camp.party and chara.is_operational() and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
             # Outsource the turn-taking.
-            my_turn = PlayerTurn(chara, self.camp)
+            my_turn = PlayerTurn2e(chara, self.camp)
             my_turn.go()
         elif chara.is_operational():
             if chara not in self.ai_brains:
@@ -960,12 +960,3 @@ class Combat(object):
 
             PostCombatCleanup(self.camp)
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
-
-    def __setstate__(self, state):
-        # For saves from V0.905 or earlier, make sure the CombatDict is used.
-        mydict = state.get("cstat")
-        if not isinstance(mydict, CombatDict):
-            state["cstat"] = CombatDict.from_dict(mydict)
-        self.__dict__.update(state)
-        if "keep_going_without_enemies" not in state:
-            self.keep_going_without_enemies = False

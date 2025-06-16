@@ -30,7 +30,7 @@ class WidgetThatChangesSomething(object):
 
 class PlusMinusWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
     def __init__(self,mygear,att_name,att_min,att_max,on_change=None,step=1,x=0,y=0,w=350,**kwargs):
-        super().__init__(x,y,w,max(pbge.BIGFONT.get_linesize(),16),show_when_inactive=True,**kwargs)
+        super().__init__(x,y,w,max(pbge.BIGFONT.get_linesize(),16),**kwargs)
         minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
 
         self.mygear = mygear
@@ -69,7 +69,7 @@ class PlusMinusWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
 
 class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomething):
     def __init__(self,mygear,title,ops_taken,op_candidates,max_ops,on_change=None,**kwargs):
-        super().__init__(0,0,350,100,center_interior=True,show_when_inactive=True,**kwargs)
+        super().__init__(0,0,350,100,center_interior=True,**kwargs)
         self.mygear = mygear
         self.ops_taken = ops_taken
         self.op_candidates = op_candidates
@@ -122,7 +122,7 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
 class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
     # nameoptions is a list of (name,value) tuples for filling the menu.
     def __init__(self,mygear,title,on_select,options=(),nameoptions=(),**kwargs):
-        super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,show_when_inactive=True,**kwargs)
+        super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,**kwargs)
         self.mygear = mygear
         self.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize()+8,title,font=pbge.BIGFONT))
         self.ddwid = pbge.widgets.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
@@ -161,7 +161,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
 
         mass_volume_row = pbge.widgets.RowWidget(0,0,self.w,pbge.MEDIUMFONT.get_linesize()+8)
         mass_volume_row.add_left(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_mass_string))
-        material_dropdown = pbge.widgets.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material,active=editor.mode==MODE_CREATIVE,show_when_inactive=True)
+        material_dropdown = pbge.widgets.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material,active=editor.mode==MODE_CREATIVE,)
         for m in gears.materials.MECHA_MATERIALS:
             material_dropdown.add_item(m.name,m)
         material_dropdown.menu.sort()
@@ -464,7 +464,7 @@ class PartsNodeWidget(pbge.widgets.Widget):
         myimage.blit(self.font.render(self.prefix + self._part_text(),True,text_color),(self.indent*12,0))
         return myimage
 
-    def render(self, flash=False):
+    def _render(self, flash=False):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit( self.mouseover_image , myrect )
@@ -656,9 +656,9 @@ class PartSelectorWidget(pbge.widgets.ColumnWidget):
         self.active_part = widj.data
         self.active_part_info = gears.info.get_longform_display(self.active_part)
 
-    def super_render( self ):
+    def update( self, delta ):
         self.mouseover_part = None
-        super().super_render()
+        super().update(delta)
         if self.mouseover_part:
             mydest = self.INFO_FRECT.get_rect()
             gears.info.get_longform_display(self.mouseover_part).render(mydest.x, mydest.y)
@@ -719,7 +719,7 @@ class CommonHeader(pbge.widgets.Widget):
         myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 64, 64), frame=frame)
         return pygame.transform.scale2x(mybmp)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
@@ -763,7 +763,7 @@ class MechaStatsHeader(CommonHeader):
         sprite = self.mecha.get_sprite()
         self.image = self.create_image(sprite, self.mecha.frame)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
@@ -799,7 +799,7 @@ class CharacterHeader(CommonHeader):
         sprite = self.char.get_sprite()
         self.image = self.create_image(sprite, self.char.frame)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
@@ -855,7 +855,7 @@ class GearEditor(pbge.widgets.Widget):
         self.children.append(mybuttonrow)
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=0,on_frame=0,off_frame=1,on_click=self._add_subcom,tooltip="Add Component"))
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=2,on_frame=2,off_frame=3,on_click=self._add_invcom,tooltip="Add Inventory"))
-        self.remove_gear_button = pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_gear,tooltip="Remove Gear", show_when_inactive=True)
+        self.remove_gear_button = pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=4,on_frame=4,off_frame=5,on_click=self._remove_gear,tooltip="Remove Gear")
         mybuttonrow.add_left(self.remove_gear_button)
         if mode == MODE_CREATIVE:
             mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=8,on_frame=8,off_frame=9,on_click=self._save_design,tooltip="Save Design"))

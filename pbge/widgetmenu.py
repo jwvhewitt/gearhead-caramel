@@ -36,7 +36,8 @@ class MenuItemWidget(widgets.LabelWidget):
 class MenuWidget(widgets.ColumnWidget):
     def __init__(self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
                  off_border=widget_menu_border_off, activate_child_on_enter=False,
-                 on_activate_item=None, center_interior=True, padding=5, **kwargs):
+                 on_activate_item=None, center_interior=True, padding=5,
+                 font=None, item_class=MenuItemWidget, item_data=None, **kwargs):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
         #  Basically this is just passed to the interior ScrollColumn as its on_activate_child parameter.
         super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
@@ -59,13 +60,22 @@ class MenuWidget(widgets.ColumnWidget):
         super().add_interior(self.up_arrow)
         super().add_interior(self.scroll_column)
         super().add_interior(self.down_arrow)
+        self.item_data = dict()
+        if font:
+            self.item_data["font"] = font
+        if item_data:
+            self.item_data.update(item_data)
+        self.item_class = item_class
 
     def _enter_column(self, wid):
         my_state.active_widget = wid
 
-    def render(self, flash=False):
+    def activate(self):
+        my_state.active_widget = self.scroll_column
+
+    def _render(self, delta):
         if self.draw_border:
-            if flash:
+            if self._should_flash():
                 self.border.render(self.get_rect())
             else:
                 self.off_border.render(self.get_rect())
@@ -107,4 +117,10 @@ class MenuWidget(widgets.ColumnWidget):
 
     def get_active_item(self):
         return self.scroll_column.get_active_item()
+
+    # Utility function for adding default menu items.
+    def add_item(self,msg,on_click,data=None):
+        item = self.item_class( 0, 0, self.scroll_column.w, 0, text=str(msg), data=data, on_click=on_click, **self.item_data)
+        self.add_interior( item )
+        return item
 

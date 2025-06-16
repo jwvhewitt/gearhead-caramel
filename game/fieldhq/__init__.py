@@ -49,7 +49,7 @@ class InfoDisplayWidget(widgets.Widget):
         )
         self.info_display = info_display
 
-    def render(self, flash=False):
+    def _render(self, delta):
         myrect = self.get_rect()
         self.info_display.render(myrect.x, myrect.y)
 
@@ -281,7 +281,7 @@ class CharacterInfoWidget(widgets.Widget):
             pbge.my_state.view()
         self.portrait_view.render()
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.draw_portrait(False)
 
 
@@ -312,7 +312,7 @@ class MechaInfoWidget(widgets.Widget):
             pbge.my_state.view()
         self.portrait_view.render()
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.draw_portrait(False)
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x, mydest.y)
@@ -434,7 +434,7 @@ class PetInfoWidget(widgets.Widget):
 
         self.fhq = fhq
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x, mydest.y)
 
@@ -512,7 +512,7 @@ class ItemInfoWidget(widgets.Widget):
                                 on_click=self.give_item))
         self.fhq = fhq
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x, mydest.y)
 
@@ -550,7 +550,7 @@ class PartyMemberButton(widgets.Widget):
         )
         self.children.append(label)
 
-    def render(self, flash=False):
+    def _render(self, delta):
         mydest = self.get_rect().inflate(-8, -8)
         if self.fhq.active_pc is self.pc:
             widgets.widget_border_on.render(mydest)

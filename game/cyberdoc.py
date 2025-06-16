@@ -165,7 +165,7 @@ class CyberMenu(pbge.rpgmenu.AlertMenu):
 
 class SurgeryUI(pbge.widgets.Widget):
     def __init__(self, camp: gears.GearHeadCampaign, shop, pc: gears.base.Being, **kwargs):
-        super().__init__(UL_X, UL_Y, SCREEN_WIDTH, SCREEN_HEIGHT, show_when_inactive=True, **kwargs)
+        super().__init__(UL_X, UL_Y, SCREEN_WIDTH, SCREEN_HEIGHT, **kwargs)
 
         self.pc = pc
         self.shop = shop
@@ -340,8 +340,8 @@ class SurgeryUI(pbge.widgets.Widget):
     def _on_exit(self, *args, **kwargs):
         self.running = False
 
-    def render(self, flash=False):
-        super().render(flash)
+    def _render(self, delta):
+        super()._render(delta)
         if self._active_info_panel:
             myrect = INFO_PANEL_FRECT.get_rect()
             self._active_info_panel.render(myrect.x, myrect.y)

@@ -6,6 +6,8 @@ import pygame
 from . import waypoints, terrain
 import random
 import math
+import time
+
 
 OVERLAY_ITEM = 0
 OVERLAY_CURSOR = 1
@@ -18,6 +20,8 @@ OVERLAY_HIDDEN = 6
 SCROLL_STEP = 12
 
 PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
+
+DEBUG_ON = True
 
 
 class TextTicker(object):
@@ -97,6 +101,11 @@ class SceneView(object):
         self.needs_update = True
     
         my_state.view = self
+
+        if DEBUG_ON:
+            self._num_renders = 0
+            self._timer = 0.0
+            self._prev_time = time.perf_counter()
 
     def update_tile_data(self):
         self.floor_border_data.clear()
@@ -258,6 +267,14 @@ class SceneView(object):
     # Half tile width and half tile height
     HTW = 32
     HTH = 16
+
+    def relative_x_i(self, x, y):
+        """Return the relative x position of this tile, ignoring offset."""
+        return x * self.HTW - y * self.HTW
+
+    def relative_y_i(self, x, y):
+        """Return the relative y position of this tile, ignoring offset."""
+        return y * self.HTH + x * self.HTH
 
     def relative_x(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
@@ -651,6 +668,14 @@ class SceneView(object):
 
         if self.postfx:
             self.postfx()
+
+        if DEBUG_ON:
+            self._num_renders += 1
+            self._timer = time.perf_counter() - self._prev_time
+            if self._timer > 5:
+                print("{} renders in {} seconds ({} FPS)".format(self._num_renders, self._timer, self._num_renders/self._timer))
+                self._num_renders = 0
+                self._prev_time = time.perf_counter()
 
     def check_event(self, ev):
         if ev.type == pygame.KEYDOWN:

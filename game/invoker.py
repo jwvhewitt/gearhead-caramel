@@ -271,7 +271,7 @@ class InvocationsWidget(pbge.widgets.Widget):
 
         return '{} ({})'.format(invo_header, ', '.join(descs))
 
-    def render(self, flash=False):
+    def _render(self, delta):
         self.sprite.render(self.get_rect(), 0)
         if self.help_on:
             myrect = self.HELP_FRECT.get_rect()
@@ -371,7 +371,7 @@ class InvocationUI(object):
                 self.mypath = self.nav.get_path(fp)
                 return True
 
-    def render(self, flash=False):
+    def _render(self, delta):
         if self.num_targets > 1:
             self.targets_widget.active = True
         else:

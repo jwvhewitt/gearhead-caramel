@@ -276,8 +276,8 @@ class SkillButtonWidget(pbge.widgets.LabelWidget):
         super().__init__(0, 0, 170, 24, skill.name, on_click=clickfun, data=skill, font=pbge.BIGFONT)
         self.scolumn = scolumn
 
-    def render(self, flash=False):
-        if flash or (self is self.scolumn.active_button):
+    def _render(self, delta):
+        if self._should_flash() or (self is self.scolumn.active_button):
             pbge.draw_text(self.font,self.text,self.get_rect(),pbge.rpgmenu.MENU_SELECT_COLOR,self.justify)
         else:
             pbge.draw_text(self.font,self.text,self.get_rect(),pbge.rpgmenu.MENU_ITEM_COLOR,self.justify)
@@ -310,8 +310,8 @@ class SkillBuyWidget(pbge.widgets.LabelWidget):
                          border=True, justify=0)
         self.trainer = trainer
 
-    def render(self, flash=False):
-        if flash or (self.data <= self.trainer.camp.credits and self.trainer.skill in self.trainer.pc.statline):
+    def _render(self, delta):
+        if self._should_flash() or (self.data <= self.trainer.camp.credits and self.trainer.skill in self.trainer.pc.statline):
             pbge.widgets.widget_border_on.render(self.get_rect())
             pbge.draw_text(self.font,self.text,self.get_rect(),pbge.WHITE,self.justify)
         else:

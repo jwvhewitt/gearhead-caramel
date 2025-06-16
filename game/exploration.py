@@ -742,6 +742,20 @@ class Explorer(object):
                         import timeit
                         print(timeit.timeit('pbge.my_state.view()', setup="from __main__ import pbge", number=30, globals=globals()))
 
+                    elif gdi.unicode == "]" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for t in range(5):
+                            rat: gears.base.Monster = gears.selector.get_design_by_full_name("Giant Rat")
+                            self.camp.scene.deploy_actor(rat)
+
+                    elif gdi.unicode == "[" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        t = 5
+                        for r in list(self.camp.scene.contents):
+                            if str(r) == "Giant Rat":
+                                self.camp.scene.contents.remove(r)
+                                t -= 1
+                                if t < 1:
+                                    break
+
                 elif gdi.type == pygame.QUIT:
                     # self.camp.save(self.screen)
                     self.no_quit = False

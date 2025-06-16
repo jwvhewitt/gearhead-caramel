@@ -44,13 +44,13 @@ class PlotNodeWidget(pbge.widgets.Widget):
         myimage.blit(self.font.render(self._part_text(), True, text_color), (self.indent * 12, 0))
         return myimage
 
-    def render(self, flash=False):
+    def _render(self, delta):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit(self.mouseover_image, myrect)
             if self.editor:
                 self.editor.mouseover_part = self
-        elif flash or self.editor.is_active_node(self):
+        elif self._should_flash() or self.editor.is_active_node(self):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
             pbge.my_state.screen.blit(self.regular_image, myrect)
@@ -107,13 +107,13 @@ class PhysicalNodeWidget(pbge.widgets.RowWidget):
         myimage.blit(self.font.render(self._part_text(), True, text_color), (self.indent * 12, 0))
         return myimage
 
-    def render(self, flash=False):
+    def _render(self, delta):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit(self.mouseover_image, myrect)
             if self.editor:
                 self.editor.mouseover_part = self
-        elif flash or self.editor.is_active_node(self):
+        elif self._should_flash() or self.editor.is_active_node(self):
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
             pbge.my_state.screen.blit(self.regular_image, myrect)
@@ -146,11 +146,11 @@ class SELabelButton(pbge.widgets.Widget):
         myimage.blit(self.font.render(text, True, text_color), (12, 0))
         return myimage
 
-    def render(self, flash=False):
+    def _render(self, delta):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
             pbge.my_state.screen.blit(self.mouseover_image, myrect)
-        elif flash:
+        elif self._should_flash():
             pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
             pbge.my_state.screen.blit(self.regular_image, myrect)
@@ -431,8 +431,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         mybuttonrow.add_left(pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=2, on_frame=2, off_frame=3,
                                                        on_click=self._add_feature, tooltip="Add Feature"))
         self.remove_gear_button = pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=4, on_frame=4, off_frame=5,
-                                                            on_click=self._remove_feature, tooltip="Remove Feature",
-                                                            show_when_inactive=True)
+                                                            on_click=self._remove_feature, tooltip="Remove Feature")
         mybuttonrow.add_left(self.remove_gear_button)
         mybuttonrow.add_right(
             pbge.widgets.ButtonWidget(0, 0, 40, 40, mybuttons, frame=8, on_frame=8, off_frame=9, on_click=self._save,

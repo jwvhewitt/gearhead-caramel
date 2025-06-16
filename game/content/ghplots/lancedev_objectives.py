@@ -61,7 +61,7 @@ class DDBAMO_PracticeDuel(Plot):
     def BAME_LANCEMATE_offers(self, camp):
         mylist = list()
         mylist.append(Offer("[DUEL_GREETING]",
-                            context=ContextTag([context.CHALLENGE, ])))
+                            context=ContextTag([context.ATTACK, ])))
         return mylist
 
     def t_ENDCOMBAT(self, camp):

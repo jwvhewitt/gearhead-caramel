@@ -10,7 +10,8 @@ class ColorButtonWidget(pbge.widgets.ButtonWidget):
         # call_fun is a function to call with the color of the swatch clicked.
         super(ColorButtonWidget, self).__init__(dx, dy, w, h, **kwargs)
         self.color_edit = color_edit
-    def render(self, flash=False):
+
+    def _render(self, delta):
         if self.color_edit and self.data.equals(self.color_edit.colors[self.color_edit.active_menu]):
             self.sprite.render(self.get_rect(), 1)
         else:
@@ -98,7 +99,7 @@ class ColorEditor(pbge.widgets.Widget):
         self.children.append(cm)
         return cm
 
-    def render(self, flash=False):
+    def _render(self, delta):
         pbge.default_border.render(self.get_rect())
         self.display_view.render()
 

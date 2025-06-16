@@ -392,6 +392,46 @@ def gen_names(namegen: pbge.namegen.NameGen):
     print("Unique Names: {}".format(len(namegen.forbidden.splitlines()) - start))
 
 
+class MainMenu(pbge.widgets.Widget):
+    MENU_DEST = pbge.frects.Frect(-150, 0, 300, 270)
+    TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
+
+    def __init__(self):
+        super().__init__(0,0,0,0)
+        self.background = DZDTitleScreenRedraw()
+
+        self._menu = pbge.widgetmenu.MenuWidget(
+            self.MENU_DEST.dx, self.MENU_DEST.dy, self.MENU_DEST.w, self.MENU_DEST.h,
+            font=pbge.my_state.huge_font, activate_child_on_enter=True,
+            #no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
+        )
+        self.children.append(self._menu)
+
+        _=self._menu.add_item("Load Campaign", LoadGameMenu)
+        _=self._menu.add_item("Start Campaign", StartGameMenu)
+        _=self._menu.add_item("Create Character", open_chargen_menu)
+        _=self._menu.add_item("Import GH1 Character", import_arena_character)
+        _=self._menu.add_item("Config Options", open_config_menu)
+        _=self._menu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
+        _=self._menu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
+        if quarantined_files:
+            _=self._menu.add_item("Quarantined Saves", view_quarantine)
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            _=self._menu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
+            _=self._menu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+            _=self._menu.add_item("Test Map Generator", test_map_generator)
+            #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
+            #mymenu.add_item("Just Show Background", just_show_background)
+            #mymenu.add_item("Test Adventure Generation", TestStartGame)
+            _=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)
+        _=self._menu.add_item("Quit", None)
+
+    def _render(self, delta):
+        self.background()
+
+    def activate(self):
+        self._menu.activate()
+
 def play_the_game():
     gears.init_gears()
     game.init_game()
@@ -451,41 +491,13 @@ def play_the_game():
 
     try:
         tsrd = DZDTitleScreenRedraw()
-        pbge.my_state.view = tsrd
+        #pbge.my_state.view = tsrd
 
-        action = True
-        while action:
-            mymenu = pbge.rpgmenu.Menu(DZDTitleScreenRedraw.MENU_DEST.dx,
-                                       DZDTitleScreenRedraw.MENU_DEST.dy,
-                                       DZDTitleScreenRedraw.MENU_DEST.w, DZDTitleScreenRedraw.MENU_DEST.h,
-                                       predraw=tsrd, font=pbge.my_state.huge_font,
-                                       no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
-                                       )
+        mymenu = MainMenu()
+        pbge.my_state.widgets.append(mymenu)
+        mymenu.activate()
+        pbge.my_state.play()
 
-            _=mymenu.add_item("Load Campaign", LoadGameMenu)
-            _=mymenu.add_item("Start Campaign", StartGameMenu)
-            _=mymenu.add_item("Create Character", open_chargen_menu)
-            _=mymenu.add_item("Import GH1 Character", import_arena_character)
-            _=mymenu.add_item("Config Options", open_config_menu)
-            _=mymenu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
-            _=mymenu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
-            if quarantined_files:
-                _=mymenu.add_item("Quarantined Saves", view_quarantine)
-            if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                _=mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
-                _=mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-                _=mymenu.add_item("Test Map Generator", test_map_generator)
-                #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
-                #mymenu.add_item("Just Show Background", just_show_background)
-                #mymenu.add_item("Test Adventure Generation", TestStartGame)
-                _=mymenu.add_item("Steam The Eggs", prep_eggs_for_steam)
-            _=mymenu.add_item("Quit", None)
-
-            pbge.my_state.start_music(TITLE_THEME)
-            pbge.my_state.view = tsrd
-            action = mymenu.query()
-            if action:
-                action(tsrd)
     except Exception as e:
         print(traceback.format_exc())
         _=pbge.alert("Python Exception ({}) occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.".format(e))
