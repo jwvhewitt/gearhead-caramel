@@ -72,7 +72,7 @@ class WMNodeEditorWidget(pbge.widgets.RowWidget):
         self.wm_data = node.wm_data
         self.add_left(pbge.widgets.LabelWidget(0,0,200,20,str(node), on_click=self._set_active_waypoint_uid, font=pbge.BIGFONT))
 
-        my_image_menu = pbge.widgets.DropdownWidget(0, 0, 180, 20, on_select=self._set_image)
+        my_image_menu = pbge.widgetmenu.DropdownWidget(0, 0, 180, 20, on_select=self._set_image)
         for image_name in self.editor.legend_image_list:
             my_image_menu.add_item(image_name, image_name)
         my_image_menu.menu.set_item_by_value(node.image_file)

@@ -74,7 +74,7 @@ class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
             pbge.widgets.LabelWidget(0, 0, self.w, pbge.SMALLFONT.get_linesize(), var_name, font=pbge.SMALLFONT))
 
         my_states = statefinders.get_possible_states(part, part.brick.vars[var_name].var_type)
-        mymenu = pbge.widgets.DropdownWidget(0, 0, 350, pbge.MEDIUMFONT.get_linesize() + 8, justify=0,
+        mymenu = pbge.widgetmenu.DropdownWidget(0, 0, 350, pbge.MEDIUMFONT.get_linesize() + 8, justify=0,
                                              font=pbge.MEDIUMFONT, on_select=self._do_change)
         self.add_interior(mymenu)
         self.legal_states = list()
@@ -110,7 +110,7 @@ class BoolEditorWidget(pbge.widgets.ColumnWidget):
         self.var_name = var_name
         self.add_interior(
             pbge.widgets.LabelWidget(0, 0, self.w, pbge.SMALLFONT.get_linesize(), var_name, font=pbge.SMALLFONT))
-        mymenu = pbge.widgets.DropdownWidget(0, 0, 350, pbge.MEDIUMFONT.get_linesize() + 8, justify=0,
+        mymenu = pbge.widgetmenu.DropdownWidget(0, 0, 350, pbge.MEDIUMFONT.get_linesize() + 8, justify=0,
                                              font=pbge.MEDIUMFONT, on_select=self._do_change)
         self.add_interior(mymenu)
         mymenu.add_item("True", True)
@@ -177,7 +177,7 @@ class PersonalityTagValueEditorWidget(pbge.widgets.RowWidget):
         self.tag_value_list = tag_value_list
 
         my_states = statefinders.get_possible_states(part, "personal_tags")
-        mymenu = pbge.widgets.DropdownWidget(0, 0, 230, pbge.MEDIUMFONT.get_linesize() + 8, justify=-1,
+        mymenu = pbge.widgetmenu.DropdownWidget(0, 0, 230, pbge.MEDIUMFONT.get_linesize() + 8, justify=-1,
                                              font=pbge.MEDIUMFONT, on_select=self._change_tag)
         self.add_left(mymenu)
         self.legal_states = list()
@@ -232,7 +232,7 @@ class DialogueOfferDataWidget(pbge.widgets.ColumnWidget):
 class ConditionalValueEditor(pbge.widgets.RowWidget):
     def __init__(self, part, val_list, refresh_fun, **kwargs):
         super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, **kwargs)
-        var_type = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_type)
+        var_type = pbge.widgetmenu.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_type)
         for vt in conditionals.CONDITIONAL_VALUE_TYPES:
             var_type.add_item(vt.capitalize(), vt)
         for k, v in conditionals.CONDITIONAL_VALUE_FUNCTIONS.items():
@@ -251,7 +251,7 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
             self.add_left(value_entry)
         elif val_list[0] == conditionals.CONDITIONAL_VALUE_TYPES[1]:
             # This is a campaign variable.
-            name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
+            name_entry = pbge.widgetmenu.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
             for cvn in part.get_campaign_variable_names():
                 name_entry.add_item(cvn, cvn)
             name_entry.menu.sort()
@@ -284,7 +284,7 @@ class ConditionalOperatorEditor(pbge.widgets.RowWidget):
         self.part = part
         self.var_name = var_name
         self.var_index = var_index
-        self.dropper = pbge.widgets.DropdownWidget(0, 0, 320, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT,
+        self.dropper = pbge.widgetmenu.DropdownWidget(0, 0, 320, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT,
                                                    justify=0, on_select=self.set_value)
         self.add_left(self.dropper)
         for op in conditionals.CONDITIONAL_EXPRESSION_OPS:
@@ -336,7 +336,7 @@ class ConditionalFunParamEditor(pbge.widgets.RowWidget):
             self.add_left(value_entry)
         elif param_type == conditionals.CONDITIONAL_VALUE_TYPES[1]:
             # This is a campaign variable.
-            name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
+            name_entry = pbge.widgetmenu.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
             for cvn in part.get_campaign_variable_names():
                 name_entry.add_item(cvn, "camp.campdata.get(\"{}\", 0)".format(cvn))
             name_entry.menu.sort()
@@ -345,7 +345,7 @@ class ConditionalFunParamEditor(pbge.widgets.RowWidget):
             self.add_left(name_entry)
         else:
             # Dunno what this is. Assume it's a finite state thingamabob.
-            name_entry = pbge.widgets.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
+            name_entry = pbge.widgetmenu.DropdownWidget(0, 0, 150, self.h, font=pbge.SMALLFONT, on_select=self.set_value)
             for fsname, fscode in statefinders.get_possible_states(part, param_type):
                 name_entry.add_item(fsname, fscode)
             name_entry.add_item('None', None)
@@ -379,7 +379,7 @@ class ConditionalExpressionEditor(pbge.widgets.ColumnWidget):
                 self.add_interior(ConditionalFunParamEditor(part, elist, pt, t, refresh_fun))
 
 
-class BooleanOperatorEditor(pbge.widgets.DropdownWidget):
+class BooleanOperatorEditor(pbge.widgetmenu.DropdownWidget):
     def __init__(self, part, var_name, var_index, refresh_fun, **kwargs):
         super().__init__(0, 0, 350, pbge.SMALLFONT.get_linesize() + 8, font=pbge.SMALLFONT, justify=0,
                          on_select=self._select_operator, **kwargs)
@@ -443,7 +443,7 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
         myrow = pbge.widgets.RowWidget(0, 0, self.w, pbge.MEDIUMFONT.get_linesize() + 8)
         self.add_interior(myrow)
 
-        mymenu = pbge.widgets.DropdownWidget(0, 0, 300, pbge.MEDIUMFONT.get_linesize() + 8, justify=0,
+        mymenu = pbge.widgetmenu.DropdownWidget(0, 0, 300, pbge.MEDIUMFONT.get_linesize() + 8, justify=0,
                                              font=pbge.MEDIUMFONT, on_select=self._do_change)
         myrow.add_left(mymenu)
         mymenu.menu.w += 200
@@ -469,7 +469,7 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
             pbge.my_state.start_music(mysong, True)
 
 
-class ColorSwatchEditorWidget(pbge.widgets.DropdownWidget):
+class ColorSwatchEditorWidget(pbge.widgetmenu.DropdownWidget):
     def __init__(self, mypalette, color_index, **kwargs):
         super().__init__(0, 0, 24, 36, on_select=self.update_swatch, **kwargs)
         self.palette = mypalette

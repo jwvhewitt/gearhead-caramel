@@ -1,3 +1,4 @@
+from typing import override
 from . import lifepath
 import pbge
 import gears
@@ -321,7 +322,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     C3_WIDTH = 120
     MECHA_PRICE_LIMIT = 300000
     def __init__(self,year=158,**kwargs):
-        super(CharacterGeneratorW, self).__init__(-400, -300, 800, 600, **kwargs)
+        super().__init__(-400, -300, 800, 600, **kwargs)
         self.pc = gears.base.Character(name="New Character",portrait_gen=gears.portraits.Portrait(),job=gears.jobs.Job("Cavalier"))
         self.year = year
 
@@ -343,12 +344,12 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.name_field = pbge.widgets.TextEntryWidget(0,0,200,30,justify=0,text=gears.selector.random_name(self.pc))
         self.column_one.set_header(self.name_field)
         age_gender_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
-        age_menu = pbge.widgets.DropdownWidget(0,0,140,30,font=pbge.BIGFONT,on_select=self.set_age)
+        age_menu = pbge.widgetmenu.DropdownWidget(0,0,140,30,font=pbge.BIGFONT,on_select=self.set_age)
         for age in range(18,36):
             age_menu.add_item("{} year old".format(age),age)
         age_menu.menu.set_item_by_position(min(random.randint(0,17),random.randint(0,17)))
         age_gender_row.add_center(age_menu)
-        gender_menu = pbge.widgets.DropdownWidget(0,0,110,30,font=pbge.BIGFONT,on_select=self.set_gender)
+        gender_menu = pbge.widgetmenu.DropdownWidget(0,0,110,30,font=pbge.BIGFONT,on_select=self.set_gender)
         gender_menu.add_item("Male",gears.genderobj.Gender.get_default_male())
         gender_menu.add_item("Female",gears.genderobj.Gender.get_default_female())
         gender_menu.add_item("Nonbinary",gears.genderobj.Gender.get_default_nonbinary())
@@ -359,7 +360,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         age_gender_row.add_center(gender_menu)
         self.column_one.add_interior(age_gender_row)
 
-        self.mecha_menu = pbge.widgets.DropdownWidget(0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT)
+        self.mecha_menu = pbge.widgetmenu.DropdownWidget(0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT)
         self.reset_mecha_menu()
         self.column_one.add_interior(self.mecha_menu)
 
@@ -373,8 +374,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             self.column_one.add_interior(nu_row)
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,0,text_fun=self.stat_point_display,justify=0))
         random_reset_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
-        random_reset_row.add_left(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.stat_randomize,draw_border=True,justify=0))
-        random_reset_row.add_right(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Reset",font=pbge.SMALLFONT,on_click=self.stat_reset,draw_border=True,justify=0))
+        random_reset_row.add_left(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.stat_randomize,draw_border=True,justify=0,can_take_focus=True))
+        random_reset_row.add_right(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Reset",font=pbge.SMALLFONT,on_click=self.stat_reset,draw_border=True,justify=0, can_take_focus=True))
         self.column_one.add_interior(random_reset_row)
 
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,100,text_fun=self.skill_display))
@@ -384,22 +385,22 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.column_two = pbge.widgets.ColumnWidget(160,-200,self.C2_WIDTH,400,draw_border=True)
         self.column_two.add_interior(pbge.widgets.LabelWidget(0,0,self.C2_WIDTH,360,text_fun=self.biography_display,justify=-1,font=pbge.SMALLFONT))
         random_reset_row = pbge.widgets.RowWidget(0,0,self.C2_WIDTH,30)
-        random_reset_row.add_left(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.biography_randomize,draw_border=True,justify=0))
-        random_reset_row.add_right(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Choose",font=pbge.SMALLFONT,on_click=self.biography_choose,draw_border=True,justify=0))
+        random_reset_row.add_left(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.biography_randomize,draw_border=True,justify=0, can_take_focus=True))
+        random_reset_row.add_right(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Choose",font=pbge.SMALLFONT,on_click=self.biography_choose,draw_border=True,justify=0, can_take_focus=True))
         self.column_two.add_interior(random_reset_row)
 
         self.children.append(self.column_two)
 
         self.column_three = pbge.widgets.ColumnWidget(-375,100,self.C3_WIDTH,120,draw_border=False,padding=10)
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Random Portait",justify=0,on_click=self.portrait_random,draw_border=True))
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Edit Portait",justify=0,on_click=self.portrait_edit,draw_border=True))
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Random Colors",justify=0,on_click=self.color_random,draw_border=True))
-        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Edit Colors",justify=0,on_click=self.color_edit,draw_border=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Random Portait",justify=0,on_click=self.portrait_random,draw_border=True, can_take_focus=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Edit Portait",justify=0,on_click=self.portrait_edit,draw_border=True, can_take_focus=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Random Colors",justify=0,on_click=self.color_random,draw_border=True, can_take_focus=True))
+        self.column_three.add_interior(pbge.widgets.LabelWidget(0,0,self.C3_WIDTH,0,text="Edit Colors",justify=0,on_click=self.color_edit,draw_border=True, can_take_focus=True))
 
         self.children.append(self.column_three)
 
-        self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,0,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT))
-        self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,0,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT))
+        self.children.append(pbge.widgets.LabelWidget(160,210,self.C2_WIDTH,0,text="Save Character",justify=0,on_click=self.save_egg,draw_border=True,font=pbge.BIGFONT, can_take_focus=True))
+        self.children.append(pbge.widgets.LabelWidget(160,240,self.C2_WIDTH,0,text="Cancel",justify=0,on_click=self.cancel,draw_border=True,font=pbge.BIGFONT, can_take_focus=True))
 
         self.portrait_view = gears.portraits.PortraitView(self.pc.portrait_gen.build_portrait(self.pc,form_tags=self.get_portrait_tags()))
 
@@ -564,34 +565,25 @@ class CharacterGeneratorW(pbge.widgets.Widget):
                     self.pc.statline[sk] += 1
             self.pc.personality.update( self.bio_personality)
             self.pc.badges += self.bio_badges
-            self.finished = True
             my_egg.mecha = copy.deepcopy(self.mecha_menu.value)
             my_egg.mecha.colors = gears.color.random_mecha_colors()
             my_egg.credits = 200000 - my_egg.mecha.cost // 2
             my_egg.save()
+            self.pop()
 
     def cancel(self,wid,ev):
-        self.finished = True
+        self.pop()
 
     def _render(self, delta):
         self.portrait_view.render()
 
-    @classmethod
-    def create_and_invoke(cls, redraw):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
-        myui = cls()
-        pbge.my_state.widgets.append(myui)
-        pbge.my_state.view = redraw
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                redraw()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
+    @override
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if ev.key == pygame.K_ESCAPE:
+                self.pop()
+                return
+        return super()._builtin_responder(ev)
 
-        pbge.my_state.widgets.remove(myui)
+    TAGS_TO_HIDE = {"WTAG_TITLEMENU",}
 

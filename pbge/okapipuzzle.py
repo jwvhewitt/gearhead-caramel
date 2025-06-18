@@ -1,5 +1,5 @@
 import random
-from . import widgets, INFO_HILIGHT, ENEMY_RED, INFO_GREEN, image, my_state, wait_event, TIMEREVENT, frects
+from . import widgets, INFO_HILIGHT, ENEMY_RED, INFO_GREEN, image, my_state, wait_event, TIMEREVENT, frects, widgetmenu
 import pygame
 
 # This unit is called "Okapi Puzzle" because the puzzles it generates are not Zebra Puzzles exactly but they are sort
@@ -335,7 +335,7 @@ class ImageDeckWidget(widgets.ColumnWidget):
         self.my_image = widgets.ButtonWidget(0, 0, 100, 100, self.mystery_sprite, 0)
         self.add_interior(self.my_image)
 
-        self.my_dropdown = widgets.DropdownWidget(0, 0, self.w, 0, draw_border=True, on_select=self.on_select)
+        self.my_dropdown = widgetmenu.DropdownWidget(0, 0, self.w, 0, draw_border=True, on_select=self.on_select)
         self.add_interior(self.my_dropdown)
         self.my_dropdown.add_item("==None==", None)
 

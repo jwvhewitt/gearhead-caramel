@@ -54,6 +54,9 @@ import traceback
 
 VERSION = "v0.977"
 
+WTAG_TITLEMENU = "WTAG_TITLEMENU"
+
+
 class DZDTitleScreenRedraw(object):
 
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
@@ -329,8 +332,8 @@ def open_config_menu(tsrd):
     myconfigmenu()
 
 
-def open_chargen_menu(tsrd):
-    game.chargen.CharacterGeneratorW.create_and_invoke(tsrd)
+def open_chargen_menu(*args, **kwargs):
+    game.chargen.CharacterGeneratorW.push_state_and_instantiate()
 
 def draw_border():
     _=pbge.my_state.screen.fill((0, 0, 255))
@@ -397,12 +400,13 @@ class MainMenu(pbge.widgets.Widget):
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
 
     def __init__(self):
-        super().__init__(0,0,0,0)
+        super().__init__(0,0,0,0,)
         self.background = DZDTitleScreenRedraw()
 
         self._menu = pbge.widgetmenu.MenuWidget(
             self.MENU_DEST.dx, self.MENU_DEST.dy, self.MENU_DEST.w, self.MENU_DEST.h,
             font=pbge.my_state.huge_font, activate_child_on_enter=True,
+            tags={WTAG_TITLEMENU,}
             #no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
         )
         self.children.append(self._menu)
@@ -424,13 +428,20 @@ class MainMenu(pbge.widgets.Widget):
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
             _=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)
-        _=self._menu.add_item("Quit", None)
+        _=self._menu.add_item("Quit", self.quit_game)
 
     def _render(self, delta):
         self.background()
 
+    def on_activate(self):
+        pbge.my_state.start_music(TITLE_THEME)
+
     def activate(self):
         self._menu.activate()
+
+    def quit_game(self, *args, **kwargs):
+        self.pop()
+
 
 def play_the_game():
     gears.init_gears()
@@ -496,6 +507,7 @@ def play_the_game():
         mymenu = MainMenu()
         pbge.my_state.widgets.append(mymenu)
         mymenu.activate()
+        pbge.my_state.start_music(TITLE_THEME)
         pbge.my_state.play()
 
     except Exception as e:

@@ -125,7 +125,7 @@ class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
         super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,**kwargs)
         self.mygear = mygear
         self.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize()+8,title,font=pbge.BIGFONT))
-        self.ddwid = pbge.widgets.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
+        self.ddwid = pbge.widgetmenu.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
         self.menu = self.ddwid.menu
         for o in options:
             self.menu.add_item(str(o),o)
@@ -161,7 +161,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
 
         mass_volume_row = pbge.widgets.RowWidget(0,0,self.w,pbge.MEDIUMFONT.get_linesize()+8)
         mass_volume_row.add_left(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_mass_string))
-        material_dropdown = pbge.widgets.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material,active=editor.mode==MODE_CREATIVE,)
+        material_dropdown = pbge.widgetmenu.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material,active=editor.mode==MODE_CREATIVE,)
         for m in gears.materials.MECHA_MATERIALS:
             material_dropdown.add_item(m.name,m)
         material_dropdown.menu.sort()

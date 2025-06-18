@@ -17,6 +17,7 @@ class ColorButtonWidget(pbge.widgets.ButtonWidget):
         else:
             self.sprite.render(self.get_rect(), 0)
 
+
 class ColorMenu(pbge.widgets.Widget):
     def __init__(self, dx, dy, w, h, call_fun, colorset=None, color_edit=None, **kwargs):
         # call_fun is a function to call with the color of the swatch clicked.

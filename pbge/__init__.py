@@ -142,8 +142,7 @@ class GameState(object):
         self.got_quit = False
         self.widgets = list()
         self.widgets_active = True
-        self.active_widget_hilight = False
-        self._active_widget = None
+        self._focused_widget = None
         self.widget_clicked = False
         self.widget_responded = False
         self.widget_all_text = False
@@ -268,25 +267,31 @@ class GameState(object):
             mname, self.music_name = self.music_name, None
             self.start_music(mname)
 
-    def _set_active_widget(self, widj):
-        if widj:
-            self._active_widget = weakref.ref(widj)
+    def _set_focused_widget(self, widj):
+        if widj and widj.can_take_focus:
+            self._focused_widget = weakref.ref(widj)
         else:
-            self._active_widget = None
+            self._focused_widget = None
 
-    def _get_active_widget(self):
-        if self._active_widget:
-            return self._active_widget()
+    def _get_focused_widget(self):
+        if self._focused_widget:
+            return self._focused_widget()
 
     def _del_active_widget(self):
-        self._active_widget = None
+        self._focused_widget = None
 
-    active_widget = property(_get_active_widget, _set_active_widget, _del_active_widget)
+    focused_widget = property(_get_focused_widget, _set_focused_widget, _del_active_widget)
 
     def all_widgets(self):
         for w in self.widgets:
             for wc in w.get_all_widgets():
                 yield wc
+
+    def all_active_widgets(self):
+        for w in self.widgets:
+            if w.active and w.visible:
+                for wc in w.get_all_active_widgets():
+                    yield wc
 
     def get_keys_for(self, action):
         keys = util.config.get("KEYS", action)
@@ -319,19 +324,9 @@ class GameState(object):
                 elif k == ukey:
                     return op
 
-    def _get_all_kb_selectable_widgets(self, wlist):
-        mylist = list()
-        for w in wlist:
-            if w.active:
-                if w.is_kb_selectable():
-                    mylist.append(w)
-                if w.children:
-                    mylist += self._get_all_kb_selectable_widgets(w.children)
-        return mylist
-
     def activate_next_widget(self, backwards=False):
-        wlist = self._get_all_kb_selectable_widgets(self.widgets)
-        awid = self.active_widget
+        wlist = [widg for widg in self.all_active_widgets() if widg.can_take_focus]
+        awid = self.focused_widget
         if awid and awid in wlist:
             if backwards:
                 n = wlist.index(awid) - 1
@@ -339,9 +334,9 @@ class GameState(object):
                 n = wlist.index(awid) + 1
                 if n >= len(wlist):
                     n = 0
-            self.active_widget = wlist[n]
+            self.focused_widget = wlist[n]
         elif wlist:
-            self.active_widget = wlist[0]
+            self.focused_widget = wlist[0]
 
     def resize_stretchy_layers(self, w, h):
         for sl in self.stretchy_layers:
@@ -437,7 +432,6 @@ class GameState(object):
         delta = 1000.0 / float(FPS)
 
         while self.widgets and not self.got_quit:
-
             # poll for events
             # pygame.QUIT event means the user clicked X to close your window
             for ev in pygame.event.get():
@@ -449,11 +443,8 @@ class GameState(object):
                     if ev.key == pygame.K_PRINT:
                         pygame.image.save(my_state.screen, util.user_dir("out.png"))
                     elif self.is_key_for_action(ev, "next_widget"):
-                        self.active_widget_hilight = True
                         self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
                 elif ev.type == pygame.VIDEORESIZE:
-                    # PG2 Change
-                    # pygame.display._resize_event(ev)
                     self.set_size(max(ev.w, 800), max(ev.h, 600))
 
                 # Inform any interested widgets of the event.
@@ -461,7 +452,7 @@ class GameState(object):
                 self.widget_responded = False
                 self.widget_all_text = False
                 if self.widgets_active:
-                    for w in self.widgets:
+                    for w in reversed(self.widgets):
                         w.respond_event(ev)
 
             # RENDER YOUR GAME HERE
@@ -653,7 +644,6 @@ def wait_event():
         if ev.key == pygame.K_PRINT:
             pygame.image.save(my_state.screen, util.user_dir("out.png"))
         elif my_state.is_key_for_action(ev, "next_widget"):
-            my_state.active_widget_hilight = True
             my_state.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
     elif ev.type == pygame.VIDEORESIZE:
         # PG2 Change
@@ -665,7 +655,7 @@ def wait_event():
     my_state.widget_responded = False
     my_state.widget_all_text = False
     if my_state.widgets_active:
-        for w in my_state.widgets:
+        for w in reversed(my_state.widgets):
             w.respond_event(ev)
 
     # If the view has a check_event method, call that.
@@ -914,6 +904,6 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         #pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
 
         # Set key repeat.
-        pygame.key.set_repeat(200, 100)
+        pygame.key.set_repeat(300, 100)
 
         INIT_DONE = True

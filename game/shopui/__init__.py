@@ -290,19 +290,19 @@ class ShopUI(pbge.widgets.Widget):
         # looking for the solution in all the wrong places.
         if not hasattr(self, "customer_manager"):
             return
-        if self._sell_list_widget.is_in_menu(pbge.my_state.active_widget):
+        if self._sell_list_widget.is_in_menu(pbge.my_state.focused_widget):
             reactivate = self.REACTIVATE_SELL
-        elif self._buy_list_widget.is_in_menu(pbge.my_state.active_widget):
+        elif self._buy_list_widget.is_in_menu(pbge.my_state.focused_widget):
             reactivate = self.REACTIVATE_BUY
         else:
             reactivate = 0
         self._build_sell_list()
         self._build_buy_list()
         if reactivate == self.REACTIVATE_SELL:
-            pbge.my_state.active_widget = self._sell_list_widget.scroll_column
+            pbge.my_state.focused_widget = self._sell_list_widget.scroll_column
             self._set_item_panel(self._sell_list_widget.scroll_column, self._sell_list_widget.get_active_item())
         elif reactivate == self.REACTIVATE_BUY:
-            pbge.my_state.active_widget = self._buy_list_widget.scroll_column
+            pbge.my_state.focused_widget = self._buy_list_widget.scroll_column
             self._set_item_panel(self._buy_list_widget.scroll_column, self._buy_list_widget.get_active_item())
 
     def _build_sell_list(self):
