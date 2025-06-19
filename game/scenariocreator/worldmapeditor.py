@@ -75,7 +75,7 @@ class WMNodeEditorWidget(pbge.widgets.RowWidget):
         my_image_menu = pbge.widgetmenu.DropdownWidget(0, 0, 180, 20, on_select=self._set_image)
         for image_name in self.editor.legend_image_list:
             my_image_menu.add_item(image_name, image_name)
-        my_image_menu.menu.set_item_by_value(node.image_file)
+        my_image_menu.menu.set_item_by_data(node.image_file)
         self.add_left(my_image_menu)
 
         self.add_left(

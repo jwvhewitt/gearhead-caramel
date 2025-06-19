@@ -213,6 +213,10 @@ class Widget(frects.Frect):
         my_widget = cls(**kwargs)
         my_state.widgets.append(my_widget)
 
+    def push_and_deploy(self, *widgets_to_push):
+        _=FrozenUIState(*widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, tags_to_hide=self.TAGS_TO_HIDE)
+        my_state.widgets.append(self)
+
 
 class ButtonWidget(Widget):
     def __init__(self, dx, dy, w, h, sprite=None, frame=0, on_frame=0, off_frame=0, **kwargs):
@@ -443,10 +447,12 @@ class ColumnWidget(Widget):
 class ScrollColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
                  autoclick=False, focus_locked=False, activate_child_on_enter=False, on_activate_child=None, 
-                 can_take_focus=True, **kwargs):
+                 can_take_focus=True, on_click_child=None, **kwargs):
         # if activate_child_on_enter is True, the contents of this widget will activate on mouseover.
         # on_activate_child is a callable with signature (column_widget, child_widget) that gets called when the
         #  active widget is changed. Note that child_widget may be "None".
+        # on_click_child is a callable with signature (child_widget, event) that gets called when the
+        #  child widget is clicked
         super().__init__(dx, dy, w, h, can_take_focus=can_take_focus, **kwargs)
         self.draw_border = draw_border
         self.border = border
@@ -469,6 +475,8 @@ class ScrollColumnWidget(Widget):
 
         self.up_button.frame = self.up_button.off_frame
         self.down_button.frame = self.down_button.off_frame
+
+        self.on_click_child = on_click_child
 
     def _set_selected_widget_id(self, widindex):
         if 0 <= widindex < len(self._interior_widgets):
@@ -499,7 +507,10 @@ class ScrollColumnWidget(Widget):
         def nuclick(wid, ev):
             if wid.visible and wid in self._interior_widgets and self._selected_widget_id != self._interior_widgets.index(wid):
                 self.selected_widget_id = self._interior_widgets.index(wid)
-            other_on_click(wid, ev)
+            if other_on_click:
+                other_on_click(wid, ev)
+            if self.on_click_child:
+                self.on_click_child(wid, ev)
 
         return nuclick
 
@@ -526,8 +537,7 @@ class ScrollColumnWidget(Widget):
         other_w.should_hilight = self.kb_flash_override
         other_w.can_take_focus = False
         self._position_contents()
-        if other_w.on_click:
-            other_w.on_click = self._decorate_click(other_w.on_click)
+        other_w.on_click = self._decorate_click(other_w.on_click)
         if self.activate_child_on_enter:
             other_w.on_enter = self._decorate_on_enter(other_w.on_enter)
 
@@ -593,6 +603,8 @@ class ScrollColumnWidget(Widget):
             self.selected_widget_id = index
 
     def sort(self, key=None):
+        if not key:
+            key = str
         self._interior_widgets.sort(key=key)
         self._position_contents()
 

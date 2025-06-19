@@ -165,7 +165,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
         for m in gears.materials.MECHA_MATERIALS:
             material_dropdown.add_item(m.name,m)
         material_dropdown.menu.sort()
-        material_dropdown.menu.set_item_by_value(self.mygear.material)
+        material_dropdown.menu.set_item_by_data(self.mygear.material)
         mass_volume_row.add_center(material_dropdown)
         mass_volume_row.add_right(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_volume_string,justify=1))
         self.add_interior(mass_volume_row)
@@ -200,12 +200,12 @@ class ComponentEditWidget(PartEditWidget):
         # in-game.
         if (editor.mode == MODE_CREATIVE) or mygear.integral:
             self.integral_menu = LabeledDropdownWidget(mygear, "Integral", self._set_integral,options=['False', 'True'], active=editor.mode==MODE_CREATIVE)
-            self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
+            self.integral_menu.menu.set_item_by_data(str(self.mygear.integral))
             self.add_interior(self.integral_menu)
 
     def _set_integral(self,result):
         self.mygear.integral = result == 'True'
-        self.integral_menu.menu.set_item_by_value(str(self.mygear.integral))
+        self.integral_menu.menu.set_item_by_data(str(self.mygear.integral))
         self.editor.update()
 
 
@@ -265,14 +265,14 @@ class WeaponEditWidget(ComponentEditWidget):
         self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
         self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.shot_anim_menu.menu.add_item("None", None)
-        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+        self.shot_anim_menu.menu.set_item_by_data(self.mygear.shot_anim)
         self.add_interior(self.shot_anim_menu)
         self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
         self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
-        self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
+        self.stat_menu.menu.set_item_by_data(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
 
     def _get_shop_rank(self, *args, **kwargs):
@@ -284,18 +284,18 @@ class WeaponEditWidget(ComponentEditWidget):
 
     def _set_shot_anim(self,result):
         self.mygear.shot_anim = result
-        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+        self.shot_anim_menu.menu.set_item_by_data(self.mygear.shot_anim)
 
     def _set_area_anim(self,result):
         self.mygear.area_anim = result
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
 
 class BallisticWeaponEditWidget(WeaponEditWidget,WidgetThatChangesSomething):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
 
         self.calibre_menu = LabeledDropdownWidget(mygear,"ammo_type",self._set_calibre,nameoptions=[(s.__name__,s) for s in gears.ALL_CALIBRES if s.scale is self.mygear.scale],active=editor.mode==MODE_CREATIVE)
-        self.calibre_menu.menu.set_item_by_value(self.mygear.ammo_type)
+        self.calibre_menu.menu.set_item_by_data(self.mygear.ammo_type)
         self.add_interior(self.calibre_menu)
 
         self.add_interior(PlusMinusWidget(mygear,"magazine",1,1000,active=editor.mode==MODE_CREATIVE))
@@ -322,14 +322,14 @@ class AmmoEditWidget(PartEditWidget):
 
         self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
 
         self.add_interior(PlusMinusWidget(mygear,"quantity",1,1000,active=editor.mode==MODE_CREATIVE))
 
     def _set_area_anim(self,result):
         self.mygear.area_anim = result
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
 
 class MissileEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
@@ -343,19 +343,19 @@ class MissileEditWidget(PartEditWidget):
 
         self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
 
     def _set_area_anim(self,result):
         self.mygear.area_anim = result
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
 
 class LauncherEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,active=editor.mode==MODE_CREATIVE))
         self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
-        self.stat_menu.menu.set_item_by_value(self.mygear.attack_stat)
+        self.stat_menu.menu.set_item_by_data(self.mygear.attack_stat)
         self.add_interior(self.stat_menu)
 
     def _set_attack_stat(self,result):
@@ -370,20 +370,20 @@ class ChemEditWidget(PartEditWidget):
         self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
         self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.shot_anim_menu.menu.add_item("None", None)
-        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+        self.shot_anim_menu.menu.set_item_by_data(self.mygear.shot_anim)
         self.add_interior(self.shot_anim_menu)
         self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
         self.area_anim_menu.menu.add_item("None", None)
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
 
     def _set_shot_anim(self,result):
         self.mygear.shot_anim = result
-        self.shot_anim_menu.menu.set_item_by_value(self.mygear.shot_anim)
+        self.shot_anim_menu.menu.set_item_by_data(self.mygear.shot_anim)
 
     def _set_area_anim(self,result):
         self.mygear.area_anim = result
-        self.area_anim_menu.menu.set_item_by_value(self.mygear.area_anim)
+        self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
 
 class ModuleEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
@@ -394,7 +394,7 @@ class MechaEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
         self.portrait_menu = LabeledDropdownWidget(mygear,"portrait",self._set_portrait,options=pbge.image.glob_images("mecha_*.png"))
-        self.portrait_menu.menu.set_item_by_value(self.mygear.portrait)
+        self.portrait_menu.menu.set_item_by_data(self.mygear.portrait)
         self.add_interior(self.portrait_menu)
 
         self.add_interior(AddRemoveOptionsWidget(mygear,"environment_list",mygear.environment_list,gears.tags.ALL_ENVIRONMENTS,10,active=editor.mode==MODE_CREATIVE))

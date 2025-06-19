@@ -239,9 +239,9 @@ class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
             self.w, "Style Options", on_select=self._set_style
         )
         self.add_interior(self.style_menu)
-        self.style_menu.add_item("All Options", {gears.genderobj.TAG_MASC, gears.genderobj.TAG_FEMME})
-        self.style_menu.add_item("Feminine", {gears.genderobj.TAG_FEMME,})
-        self.style_menu.add_item("Masculine", {gears.genderobj.TAG_MASC,})
+        self.style_menu.add_item("All Options", None, {gears.genderobj.TAG_MASC, gears.genderobj.TAG_FEMME})
+        self.style_menu.add_item("Feminine", None, {gears.genderobj.TAG_FEMME,})
+        self.style_menu.add_item("Masculine", None, {gears.genderobj.TAG_MASC,})
         self.style_menu.my_menu_widget.menu.set_item_by_value(self.gender.tags)
 
         self.add_interior(pbge.widgets.LabelWidget(
@@ -346,16 +346,16 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         age_gender_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
         age_menu = pbge.widgetmenu.DropdownWidget(0,0,140,30,font=pbge.BIGFONT,on_select=self.set_age)
         for age in range(18,36):
-            age_menu.add_item("{} year old".format(age),age)
+            age_menu.add_item("{} year old".format(age), None, age)
         age_menu.menu.set_item_by_position(min(random.randint(0,17),random.randint(0,17)))
         age_gender_row.add_center(age_menu)
         gender_menu = pbge.widgetmenu.DropdownWidget(0,0,110,30,font=pbge.BIGFONT,on_select=self.set_gender)
-        gender_menu.add_item("Male",gears.genderobj.Gender.get_default_male())
-        gender_menu.add_item("Female",gears.genderobj.Gender.get_default_female())
-        gender_menu.add_item("Nonbinary",gears.genderobj.Gender.get_default_nonbinary())
-        gender_menu.add_item("Custom",1234567)
+        gender_menu.add_item("Male", None, gears.genderobj.Gender.get_default_male())
+        gender_menu.add_item("Female", None, gears.genderobj.Gender.get_default_female())
+        gender_menu.add_item("Nonbinary", None, gears.genderobj.Gender.get_default_nonbinary())
+        gender_menu.add_item("Custom", None, 1234567)
         gender_menu.menu.set_item_by_position(random.choice((0,0,0,1,1,1,2)))
-        self.pc.gender = gender_menu.menu.get_current_item().value
+        self.pc.gender = gender_menu.menu.current_data
 
         age_gender_row.add_center(gender_menu)
         self.column_one.add_interior(age_gender_row)
@@ -460,8 +460,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.pc.portrait_gen.color_channels = list(gears.color.CHARACTER_COLOR_CHANNELS)
 
     def reset_mecha_menu(self):
-        mymek = self.mecha_menu.menu.get_current_value()
-        del self.mecha_menu.menu.items[:]
+        mymek = self.mecha_menu.menu.current_data
+        self.mecha_menu.clear()
         if gears.personality.GreenZone in self.bio_personality:
             fac = gears.factions.TerranFederation
         elif gears.personality.DeadZone in self.bio_personality:
@@ -475,9 +475,9 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             self.mecha_menu.add_item(mek.get_full_name(),mek)
         self.mecha_menu.menu.sort()
         if mymek and self.mecha_menu.menu.has_value(mymek):
-            self.mecha_menu.menu.set_item_by_value(mymek)
+            self.mecha_menu.menu.set_item_by_data(mymek)
         else:
-            self.mecha_menu.menu.set_item_by_value(random.choice(mecha_shopping_list.best_choices))
+            self.mecha_menu.menu.set_item_by_data(random.choice(mecha_shopping_list.best_choices))
 
     def biography_randomize(self,wid,ev):
         self._reset_biography()

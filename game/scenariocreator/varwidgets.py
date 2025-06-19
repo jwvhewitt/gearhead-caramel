@@ -94,7 +94,7 @@ class FiniteStateEditorWidget(pbge.widgets.ColumnWidget):
                 self.legal_states.append(value)
 
         mymenu.menu.sort()
-        mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, None))
+        mymenu.menu.set_item_by_data(part.raw_vars.get(var_name, None))
 
     def _do_change(self, result):
         if result in self.legal_states:
@@ -115,7 +115,7 @@ class BoolEditorWidget(pbge.widgets.ColumnWidget):
         self.add_interior(mymenu)
         mymenu.add_item("True", True)
         mymenu.add_item("False", False)
-        mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, True))
+        mymenu.menu.set_item_by_data(part.raw_vars.get(var_name, True))
 
     def _do_change(self, result):
         self.part.raw_vars[self.var_name] = result
@@ -189,7 +189,7 @@ class PersonalityTagValueEditorWidget(pbge.widgets.RowWidget):
             self.legal_states.append(value)
 
         mymenu.menu.sort()
-        mymenu.menu.set_item_by_value(tag_value_list[0])
+        mymenu.menu.set_item_by_data(tag_value_list[0])
 
         self.add_right(pbge.widgets.TextEntryWidget(
             0, 0, 100, pbge.MEDIUMFONT.get_linesize() + 8, str(tag_value_list[1]),
@@ -237,7 +237,7 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
             var_type.add_item(vt.capitalize(), vt)
         for k, v in conditionals.CONDITIONAL_VALUE_FUNCTIONS.items():
             var_type.add_item(k.capitalize(), k)
-        var_type.menu.set_item_by_value(val_list[0])
+        var_type.menu.set_item_by_data(val_list[0])
         val_list[0] = var_type.value
         self.add_left(var_type)
 
@@ -256,7 +256,7 @@ class ConditionalValueEditor(pbge.widgets.RowWidget):
                 name_entry.add_item(cvn, cvn)
             name_entry.menu.sort()
             name_entry.add_item('None', None)
-            name_entry.menu.set_item_by_value(val_list[1])
+            name_entry.menu.set_item_by_data(val_list[1])
             self.add_left(name_entry)
         elif val_list[0] in conditionals.CONDITIONAL_VALUE_FUNCTIONS:
             # This is a value function. Slightly more complex.
@@ -291,7 +291,7 @@ class ConditionalOperatorEditor(pbge.widgets.RowWidget):
             self.dropper.add_item(op.capitalize(), op)
         for op, desc in conditionals.CONDITIONAL_FUNCTIONS.items():
             self.dropper.add_item(op.capitalize(), op)
-        self.dropper.menu.set_item_by_value(part.raw_vars[var_name][var_index][0])
+        self.dropper.menu.set_item_by_data(part.raw_vars[var_name][var_index][0])
         self.refresh_fun = refresh_fun
 
         self.add_right(
@@ -341,7 +341,7 @@ class ConditionalFunParamEditor(pbge.widgets.RowWidget):
                 name_entry.add_item(cvn, "camp.campdata.get(\"{}\", 0)".format(cvn))
             name_entry.menu.sort()
             name_entry.add_item('None', None)
-            name_entry.menu.set_item_by_value(val_list[1])
+            name_entry.menu.set_item_by_data(val_list[1])
             self.add_left(name_entry)
         else:
             # Dunno what this is. Assume it's a finite state thingamabob.
@@ -349,7 +349,7 @@ class ConditionalFunParamEditor(pbge.widgets.RowWidget):
             for fsname, fscode in statefinders.get_possible_states(part, param_type):
                 name_entry.add_item(fsname, fscode)
             name_entry.add_item('None', None)
-            name_entry.menu.set_item_by_value(val_list[param_index])
+            name_entry.menu.set_item_by_data(val_list[param_index])
             self.add_left(name_entry)
 
     def set_value(self, result):
@@ -389,7 +389,7 @@ class BooleanOperatorEditor(pbge.widgetmenu.DropdownWidget):
         self.refresh_fun = refresh_fun
         for op in conditionals.CONDITIONAL_BOOL_OPS:
             self.add_item(op.capitalize(), op)
-        self.menu.set_item_by_value(part.raw_vars[var_name][var_index])
+        self.menu.set_item_by_data(part.raw_vars[var_name][var_index])
 
     def _select_operator(self, result):
         if result:
@@ -453,7 +453,7 @@ class MusicEditorWidget(pbge.widgets.ColumnWidget):
         mymenu.add_item("==None==", None)
         self.legal_states.append(None)
         mymenu.menu.sort()
-        mymenu.menu.set_item_by_value(part.raw_vars.get(var_name, None))
+        mymenu.menu.set_item_by_data(part.raw_vars.get(var_name, None))
 
         mybutton = pbge.widgets.LabelWidget(0, 0, 40, pbge.MEDIUMFONT.get_linesize() + 2, "play", font=pbge.MEDIUMFONT,
                                             on_click=self._click_play, draw_border=True, justify=0)

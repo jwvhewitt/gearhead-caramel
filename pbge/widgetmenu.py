@@ -18,11 +18,15 @@ MENU_SELECT_COLOR = pygame.Color(128,250,230)
 
 
 class MenuWidget(widgets.ColumnWidget):
-    def __init__(self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
-                 off_border=widget_menu_border_off, activate_child_on_enter=False,
-                 on_activate_item=None, center_interior=True, padding=5,
-                 item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
-                 font=None, item_class=widgets.LabelWidget, item_data=None, **kwargs):
+    def __init__(
+        self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
+        off_border=widget_menu_border_off, activate_child_on_enter=False,
+        on_activate_item=None, center_interior=True, padding=5,
+        item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
+        font=None, item_class=widgets.LabelWidget, item_data=None, 
+        on_click_child=None,
+        **kwargs
+    ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
         #  Basically this is just passed to the interior ScrollColumn as its on_activate_child parameter.
         super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
@@ -40,7 +44,7 @@ class MenuWidget(widgets.ColumnWidget):
         self.scroll_column = widgets.ScrollColumnWidget(
             0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = padding,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
-            on_activate_child=on_activate_item
+            on_activate_child=on_activate_item, on_click_child=on_click_child
         )
         super().add_interior(self.up_arrow)
         super().add_interior(self.scroll_column)
@@ -91,6 +95,16 @@ class MenuWidget(widgets.ColumnWidget):
     def active_index(self):
         return self.scroll_column.selected_widget_id
 
+    @property
+    def active_item(self):
+        return self.scroll_column.get_active_item()
+
+    @property
+    def current_data(self):
+        my_item = self.scroll_column.get_active_item()
+        if my_item:
+            return my_item.data
+
     @active_index.setter
     def active_index(self, nuval):
         self.scroll_column.scroll_to_index(nuval)
@@ -99,7 +113,7 @@ class MenuWidget(widgets.ColumnWidget):
     def is_in_menu(self, other_widget):
         return self.scroll_column.is_interior_widget(other_widget)
 
-    def items(self):
+    def get_items(self):
         return list(self.scroll_column._interior_widgets)
 
     def get_active_item(self):
@@ -111,25 +125,44 @@ class MenuWidget(widgets.ColumnWidget):
         self.add_interior( item )
         return item
 
+    def set_item_by_position( self , n ):
+        self.scroll_column.selected_widget_id = n
+
+    def has_data( self , dat ):
+        for i in self.get_items():
+            if i.data == dat:
+                return True
+
+    def set_item_by_data( self , dat ):
+        for n,i in enumerate( self.get_items() ):
+            if i.data == dat:
+                self.scroll_column.selected_widget_id = n
+                break
+
 
 class DropdownWidget(widgets.Widget):
     MENU_HEIGHT = 150
 
-    def __init__(self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, add_desc=False, **kwargs):
-        # on_select is a callable that takes the menu query result as its argument
+    def __init__(self, dx, dy, w, h, color=None, font=None, justify=-1, on_select=None, add_desc=False, can_take_focus=True, **kwargs):
+        # on_select is a callable that takes the menu query item's data property as its argument
         self.font = font or my_state.small_font
         if h == 0:
             h = self.font.get_linesize() + 16
-        super().__init__(dx, dy, w, h, **kwargs)
+        super().__init__(dx, dy, w, h, can_take_focus=can_take_focus, **kwargs)
         self.color = color or TEXT_COLOR
         self.on_select = on_select
         self.on_click = self.open_menu
-        self.menu = rpgmenu.Menu(dx, dy, w, self.MENU_HEIGHT, border=widgets.popup_menu_border, font=font,
-                                 anchor=frects.ANCHOR_UPPERLEFT,)
+        self.menu = MenuWidget(
+            dx, dy, w, self.MENU_HEIGHT, border=widgets.popup_menu_border, font=font,
+            anchor=frects.ANCHOR_UPPERLEFT, on_click_child=self._click_item, activate_child_on_enter=True,
+        )
+        self.menu.TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
+        
         if add_desc:
-            self.menu.add_descbox(dx-w-16, dy, w, self.MENU_HEIGHT)
-            self.menu.descobj.anchor = frects.ANCHOR_UPPERLEFT
-            self.menu.descobj.parent = self.menu
+            pass
+            #self.menu.add_descbox(dx-w-16, dy, w, self.MENU_HEIGHT)
+            #self.menu.descobj.anchor = frects.ANCHOR_UPPERLEFT
+            #self.menu.descobj.parent = self.menu
 
     def _render(self, delta):
         mydest = self.get_rect()
@@ -137,16 +170,19 @@ class DropdownWidget(widgets.Widget):
             widgets.widget_border_on.render(mydest.inflate(-4, -4))
         else:
             widgets.widget_border_off.render(mydest.inflate(-4, -4))
-        myimage = self.font.render(str(self.menu.get_current_item()), True, self.color)
+        myimage = self.font.render(str(self.menu.active_item), True, self.color)
         my_state.screen.set_clip(mydest)
         textdest = myimage.get_rect(center=mydest.center)
-        my_state.screen.blit(myimage, textdest)
+        _=my_state.screen.blit(myimage, textdest)
         my_state.screen.set_clip(None)
-        if self._should_flash():
-            self._default_flash()
 
-    def add_item(self, msg, value, desc=None):
-        self.menu.add_item(msg, value, desc)
+    def add_item(self,msg,on_click,data=None):
+        self.menu.add_item(msg, on_click, data)
+
+    def _click_item(self, item: widgets.Widget, ev):
+        if self.on_select:
+            self.on_select(item.data)
+        self.menu.pop()
 
     def open_menu(self, also_self_probably, ev):
         mydest = self.get_rect()
@@ -155,13 +191,15 @@ class DropdownWidget(widgets.Widget):
         my_screen_rect = my_state.screen.get_rect()
         mydest.clamp_ip(my_screen_rect)
         self.menu.dx, self.menu.dy = mydest.x, mydest.y
-        result = self.menu.query()
-        if self.on_select:
-            self.on_select(result)
+        self.menu.push_and_deploy()
+        self.menu.activate()
 
     @property
-    def value(self):
-        return self.menu.get_current_value()
+    def current_data(self):
+        return self.menu.current_data
+
+    def clear(self):
+        self.menu.clear()
 
 
 class ColDropdownWidget(widgets.RowWidget):
@@ -178,6 +216,6 @@ class ColDropdownWidget(widgets.RowWidget):
         self.my_menu_widget.add_item(msg, value, desc)
 
     @property
-    def value(self):
-        return self.my_menu_widget.value
+    def current_data(self):
+        return self.my_menu_widget.current_data
 

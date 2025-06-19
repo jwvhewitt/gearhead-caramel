@@ -405,10 +405,10 @@ class ShopUI(pbge.widgets.Widget):
         self._buy_list_widget.sort(key=lambda a: str(a))
 
         # Part three- add ammo packs for guns.
-        for n, wid in enumerate(self._buy_list_widget.items(), start=1):
+        for n, wid in enumerate(self._buy_list_widget.get_items(), start=1):
             wid.data.sort_order = n*100
 
-        for wid in self._buy_list_widget.items():
+        for wid in self._buy_list_widget.get_items():
             if wid.data.ware:
                 if self.shop.can_stock_ammo(wid.data.ware):
                     self._buy_list_widget.add_interior(
