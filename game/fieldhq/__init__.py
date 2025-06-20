@@ -660,7 +660,7 @@ class FieldHQ(widgets.Widget):
         self.active_info = wid.pc
 
     def done_button(self, wid, ev):
-        if not pbge.my_state.widget_clicked:
+        if not pbge.my_state.widget_responded:
             self.finished = True
 
     @classmethod

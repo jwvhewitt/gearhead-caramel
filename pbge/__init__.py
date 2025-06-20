@@ -143,9 +143,7 @@ class GameState(object):
         self.widgets = list()
         self.widgets_active = True
         self._focused_widget = None
-        self.widget_clicked = False
         self.widget_responded = False
-        self.widget_all_text = False
         self.audio_enabled = True
         #self.music = None
         self.music_name = ""
@@ -324,20 +322,6 @@ class GameState(object):
                 elif k == ukey:
                     return op
 
-    def activate_next_widget(self, backwards=False):
-        wlist = [widg for widg in self.all_active_widgets() if widg.can_take_focus]
-        awid = self.focused_widget
-        if awid and awid in wlist:
-            if backwards:
-                n = wlist.index(awid) - 1
-            else:
-                n = wlist.index(awid) + 1
-                if n >= len(wlist):
-                    n = 0
-            self.focused_widget = wlist[n]
-        elif wlist:
-            self.focused_widget = wlist[0]
-
     def resize_stretchy_layers(self, w, h):
         for sl in self.stretchy_layers:
             sl.resize_layer(w, h)
@@ -425,6 +409,20 @@ class GameState(object):
     def clear_messages(self):
         self.message_log.clear()
 
+    def activate_next_widget(self, backwards=False):
+        wlist = [widg for widg in self.all_active_widgets() if widg.can_take_focus]
+        awid = self.focused_widget
+        if awid and awid in wlist:
+            if backwards:
+                n = wlist.index(awid) - 1
+            else:
+                n = wlist.index(awid) + 1
+                if n >= len(wlist):
+                    n = 0
+            self.focused_widget = wlist[n]
+        elif wlist:
+            self.focused_widget = wlist[0]
+
     def play(self):
         # A nonblocking game loop.
         myclock = pygame.time.Clock()
@@ -448,16 +446,17 @@ class GameState(object):
                     self.set_size(max(ev.w, 800), max(ev.h, 600))
 
                 # Inform any interested widgets of the event.
-                self.widget_clicked = False
                 self.widget_responded = False
-                self.widget_all_text = False
                 if self.widgets_active:
                     for w in reversed(self.widgets):
                         w.respond_event(ev)
 
             # RENDER YOUR GAME HERE
+            self.anim_phase = (self.anim_phase + 1) % 6000
             for w in self.widgets:
                 w.update(delta)
+
+            #print(self.focused_widget)
 
             # flip() the display to put your work on screen
             pygame.display.flip()
@@ -651,15 +650,13 @@ def wait_event():
         my_state.set_size(max(ev.w, 800), max(ev.h, 600))
 
     # Inform any interested widgets of the event.
-    my_state.widget_clicked = False
     my_state.widget_responded = False
-    my_state.widget_all_text = False
     if my_state.widgets_active:
         for w in reversed(my_state.widgets):
             w.respond_event(ev)
 
     # If the view has a check_event method, call that.
-    if my_state.view and hasattr(my_state.view, "check_event") and not (my_state.widget_responded or my_state.widget_all_text):
+    if my_state.view and hasattr(my_state.view, "check_event") and not my_state.widget_responded:
         my_state.view.check_event(ev)
 
     return ev

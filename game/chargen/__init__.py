@@ -545,7 +545,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
     def save_egg(self,wid,ev):
-        if not pbge.my_state.widget_clicked:
+        if not pbge.my_state.widget_responded:
             my_egg = gears.eggs.Egg(self.pc)
             self.pc.name = self.name_field.text
             if self.unspent_stat_points > 0:

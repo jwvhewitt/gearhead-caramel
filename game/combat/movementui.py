@@ -358,10 +358,10 @@ class MovementUI(object):
             self.camp.fight.cstat[self.mover].end_turn()
         elif ev.type == pbge.TIMEREVENT:
             self.render()
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
+        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
             self.click_left(player_turn)
         elif ev.type == pygame.KEYDOWN:
-            if pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_clicked:
+            if pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_responded:
                 self.click_left(player_turn)
 
             elif ev.unicode == "t":

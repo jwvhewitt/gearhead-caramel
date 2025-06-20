@@ -94,6 +94,7 @@ class Widget(frects.Frect):
         # on_enter is a callable with signature (widget)
         # on_leave is a callable with signature (widget)
         # should_hilight is a callable with signature (widget)
+        #   NOTE: The highlit widget will act like it's the boss! It'll capture input and stuff!
         super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
         self.active = active
@@ -133,31 +134,31 @@ class Widget(frects.Frect):
                 c.respond_event(ev)
             if self.get_rect().collidepoint(my_state.mouse_pos):
                 if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
-                        ev.button == 1) and not my_state.widget_clicked:
-                    if not my_state.widget_clicked:
+                        ev.button == 1) and not my_state.widget_responded:
+                    if not my_state.widget_responded:
                         my_state.focused_widget = self
                     if self.on_click:
                         self.on_click(self, ev)
-                    my_state.widget_clicked = True
+                    my_state.widget_responded = True
                 elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
-                        ev.button == 3) and self.on_right_click and not my_state.widget_clicked:
-                    if not my_state.widget_clicked:
+                        ev.button == 3) and self.on_right_click and not my_state.widget_responded:
+                    if not my_state.widget_responded:
                         my_state.focused_widget = self
                     self.on_right_click(self, ev)
-                    my_state.widget_clicked = True
+                    my_state.widget_responded = True
                 if not self._mouse_is_over:
                     self._mouse_is_over = True
                     if self.on_enter:
                         self.on_enter(self)
             else:
-                if my_state.focused_widget is self:
-                    if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
-                        self.on_click(self, ev)
-                        my_state.widget_clicked = True
                 if self._mouse_is_over:
                     self._mouse_is_over = False
                     if self.on_leave:
                         self.on_leave(self)
+            if self.should_hilight(self) and not my_state.widget_responded and not my_state.widget_responded:
+                if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
+                    self.on_click(self, ev)
+                    my_state.widget_responded = True
             if not my_state.widget_responded:
                 self._builtin_responder(ev)
         else:
@@ -447,7 +448,7 @@ class ColumnWidget(Widget):
 class ScrollColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
                  autoclick=False, focus_locked=False, activate_child_on_enter=False, on_activate_child=None, 
-                 can_take_focus=True, on_click_child=None, **kwargs):
+                 can_take_focus=True, on_click_child=None, focus_border=widget_border_on, **kwargs):
         # if activate_child_on_enter is True, the contents of this widget will activate on mouseover.
         # on_activate_child is a callable with signature (column_widget, child_widget) that gets called when the
         #  active widget is changed. Note that child_widget may be "None".
@@ -477,6 +478,8 @@ class ScrollColumnWidget(Widget):
         self.down_button.frame = self.down_button.off_frame
 
         self.on_click_child = on_click_child
+
+        self.focus_border = focus_border
 
     def _set_selected_widget_id(self, widindex):
         if 0 <= widindex < len(self._interior_widgets):
@@ -619,22 +622,23 @@ class ScrollColumnWidget(Widget):
             elif (ev.button == 5):
                 self.scroll_down()
         elif ((my_state.focused_widget is self) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
-            if my_state.is_key_for_action(ev, "click_widget"):
-                if self.selected_widget_id < len(self._interior_widgets):
-                    mybutton = self._interior_widgets[self.selected_widget_id]
-                    if mybutton.on_click:
-                        mybutton.on_click(mybutton, ev)
-                    my_state.widget_clicked = True
-            elif my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
+            #if my_state.is_key_for_action(ev, "click_widget"):
+            #    if self.selected_widget_id < len(self._interior_widgets):
+            #        mybutton = self._interior_widgets[self.selected_widget_id]
+            #        if mybutton.on_click:
+            #            mybutton.on_click(mybutton, ev)
+            #        my_state.widget_responded = True
+            if my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
                 self.selected_widget_id -= 1
             elif my_state.is_key_for_action(ev, "down") and self.selected_widget_id < (len(self._interior_widgets) - 1):
                 self.selected_widget_id += 1
 
     def _render(self, delta):
         if self.draw_border:
-            self.border.render(self.get_rect())
-        if self.should_hilight(self):
-            self._default_flash()
+            if self.should_hilight(self):
+                self.focus_border.render(self.get_rect())
+            else:
+                self.border.render(self.get_rect())
 
 
 class RowWidget(Widget):
@@ -708,14 +712,14 @@ class TextEntryWidget(Widget):
     ALLOWABLE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890()-=_+,.?"'
 
     def __init__(self, dx, dy, w, h, text='***', color=None, font=None, justify=0, on_change=None, draw_border=True,
-                 on_left_at_zero=None, on_right_at_end=None, on_backspace_at_zero=None, **kwargs):
+                 on_left_at_zero=None, on_right_at_end=None, on_backspace_at_zero=None, can_take_focus=True, **kwargs):
         # on_left_at_zero, on_right_at_end, and on_backspace_at_zero are functions that get called when these events
         #   happen. Usually nothing happens, but when this text entry widget is part of a text entry panel (see below)
         #   we need some special behaviours.
         self.font = font or my_state.medium_font
         h = h or self.font.get_linesize()
         # on_change is a callable that takes (widget,ev) whenever the contents of the text changes.
-        super(TextEntryWidget, self).__init__(dx, dy, w, h, **kwargs)
+        super(TextEntryWidget, self).__init__(dx, dy, w, h, can_take_focus=can_take_focus, **kwargs)
         if not text:
             text = ''
         self.char_list = list(text)
@@ -743,25 +747,26 @@ class TextEntryWidget(Widget):
 
     def _render(self, delta):
         mydest = self.get_rect()
+        #print(self.should_hilight(self))
         if self.draw_border:
-            if self is my_state.focused_widget:
+            if self.should_hilight(self):
                 widget_border_on.render(mydest.inflate(-4, -4))
+
             else:
                 widget_border_off.render(mydest.inflate(-4, -4))
         myimage = self.font.render(self.text, True, self.color)
         textdest = self.get_text_rect(myimage.get_width(), myimage.get_height(), mydest)
         my_state.screen.set_clip(mydest)
-        my_state.screen.blit(myimage, textdest)
+        _=my_state.screen.blit(myimage, textdest)
         my_state.screen.set_clip(None)
-        if self._should_flash() or (my_state.focused_widget is self):
+        if self.should_hilight(self):
             cursor_dest = self.input_cursor.bitmap.get_rect(topleft=textdest.topleft)
             if self.cursor_i > 0:
                 cursor_dest.left += self.font.size(self.text[:self.cursor_i])[0]
             self.input_cursor.render(cursor_dest, (my_state.anim_phase // 3) % 4)
 
     def _builtin_responder(self, ev):
-        if my_state.focused_widget is self:
-            my_state.widget_all_text = True
+        if self.should_hilight(self):
             if ev.type == pygame.TEXTINPUT:
                 if len(ev.text) > 0:
                     self.char_list.insert(max(self.cursor_i, 0), ev.text)
@@ -952,7 +957,6 @@ class TextEditorPanel(ScrollColumnWidget):
             my_state.widget_responded = True
 
         elif ((my_state.focused_widget in self._interior_widgets) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
-            my_state.widget_all_text = True
             if my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
                 cursor_i = self._interior_widgets[self.selected_widget_id].cursor_i
                 self.selected_widget_id -= 1

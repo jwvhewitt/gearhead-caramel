@@ -625,7 +625,7 @@ class PlayerTurn2e(object):
                                 part.hp_damage += part.max_health
 
             elif gdi.type == pygame.MOUSEBUTTONUP:
-                if gdi.button == 3 and not pbge.my_state.widget_clicked:
+                if gdi.button == 3 and not pbge.my_state.widget_responded:
                     self.pop_menu()
 
         pbge.my_state.widgets.remove(self.my_radio_buttons)

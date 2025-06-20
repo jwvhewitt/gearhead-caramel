@@ -511,7 +511,7 @@ class InvocationUI(object):
             self.render()
             pbge.my_state.do_flip()
 
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_clicked:
+        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
             self.click_left(player_turn)
 
         elif ev.type == pygame.KEYDOWN:
@@ -520,10 +520,10 @@ class InvocationUI(object):
                 self.record = True
                 print("Recording")
 
-            elif pbge.my_state.is_key_for_action(ev, "select") and not pbge.my_state.widget_clicked:
+            elif pbge.my_state.is_key_for_action(ev, "select") and not pbge.my_state.widget_responded:
                 self.auto_launch()
 
-            elif pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_clicked:
+            elif pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_responded:
                 self.click_left(player_turn)
 
             elif ev.key == pygame.K_ESCAPE:
