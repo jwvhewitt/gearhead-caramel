@@ -409,8 +409,10 @@ class GameState(object):
     def clear_messages(self):
         self.message_log.clear()
 
-    def activate_next_widget(self, backwards=False):
+    def activate_next_widget(self, backwards=False, key=None):
         wlist = [widg for widg in self.all_active_widgets() if widg.can_take_focus]
+        if key:
+            wlist.sort(key=key)
         awid = self.focused_widget
         if awid and awid in wlist:
             if backwards:
@@ -423,10 +425,31 @@ class GameState(object):
         elif wlist:
             self.focused_widget = wlist[0]
 
+    @staticmethod
+    def _sort_widgets_vertically(widg):
+        my_rect = widg.get_rect()
+        return (my_rect.centerx, my_rect.centery)
+
+    @staticmethod
+    def _sort_widgets_horizontally(widg):
+        my_rect = widg.get_rect()
+        return (my_rect.centery, my_rect.centerx)
+
+    def activate_down_widget(self):
+        self.activate_next_widget(key=self._sort_widgets_vertically)
+
+    def activate_up_widget(self):
+        self.activate_next_widget(backwards=True, key=self._sort_widgets_vertically)
+
+    def activate_right_widget(self):
+        self.activate_next_widget(key=self._sort_widgets_horizontally)
+
+    def activate_left_widget(self):
+        self.activate_next_widget(backwards=True, key=self._sort_widgets_horizontally)
+
     def play(self):
         # A nonblocking game loop.
         myclock = pygame.time.Clock()
-        running = True
         delta = 1000.0 / float(FPS)
 
         while self.widgets and not self.got_quit:
@@ -442,6 +465,8 @@ class GameState(object):
                         pygame.image.save(my_state.screen, util.user_dir("out.png"))
                     elif self.is_key_for_action(ev, "next_widget"):
                         self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
+                    elif ev.key == pygame.K_F10:
+                        print(self.widgets)
                 elif ev.type == pygame.VIDEORESIZE:
                     self.set_size(max(ev.w, 800), max(ev.h, 600))
 
@@ -450,6 +475,17 @@ class GameState(object):
                 if self.widgets_active:
                     for w in reversed(self.widgets):
                         w.respond_event(ev)
+
+                if not self.widget_responded:
+                    if ev.type == pygame.KEYDOWN:
+                        if self.is_key_for_action(ev, "up"):
+                            self.activate_up_widget()
+                        elif self.is_key_for_action(ev, "down"):
+                            self.activate_down_widget()
+                        elif self.is_key_for_action(ev, "left"):
+                            self.activate_left_widget()
+                        elif self.is_key_for_action(ev, "right"):
+                            self.activate_right_widget()
 
             # RENDER YOUR GAME HERE
             self.anim_phase = (self.anim_phase + 1) % 6000
@@ -461,7 +497,6 @@ class GameState(object):
             # flip() the display to put your work on screen
             pygame.display.flip()
 
-            pass
             delta = myclock.tick(FPS)
 
 

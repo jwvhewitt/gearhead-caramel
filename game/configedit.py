@@ -27,7 +27,7 @@ class OptionToggler(object):
                 current_val = default_config.getboolean(section, key)
                 util.config.set(section, key, str(current_val))
             except configparser.NoOptionError:
-                util.config.remove_option(section, key)
+                _=util.config.remove_option(section, key)
                 return
 
         my_scroll_column.add_interior(
@@ -96,7 +96,7 @@ class ConfigEditor(object):
                 #pbge.my_state.start_music(current_music)
                 pbge.my_state.resume_music()
 
-    def save_and_quit(self, *args):
+    def save_and_quit(self, *_args):
         self.finished = True
 
     WINDOW_SIZES = (
@@ -111,9 +111,6 @@ class ConfigEditor(object):
     )
 
     def __call__(self):
-        action = True
-        pos = 0
-
         self.column = pbge.widgets.ColumnWidget(
             -CONFIG_EDITOR_WIDTH//2, self.dy, CONFIG_EDITOR_WIDTH, 250, draw_border=True
         )
@@ -139,15 +136,15 @@ class ConfigEditor(object):
             CONFIG_EDITOR_WIDTH, "Music Volume", on_select=self.set_music_volume
         )
         for msg,val in self.VOLUME_LEVELS:
-            volume_menu.add_item(msg, val)
+            volume_menu.add_item(msg, None, val)
         volume_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "music_volume"))
         self.scroll_column.add_interior(volume_menu)
         music_mode_menu = pbge.widgets.ColDropdownWidget(
             CONFIG_EDITOR_WIDTH, "Music Mode", on_select=self.set_music_mode, add_desc=True
         )
-        music_mode_menu.add_item(pbge.MUSIC_MODE_PRELOAD, pbge.MUSIC_MODE_PRELOAD, "Preload all music files. This option takes the most memory and increases load time, but provides flawless playback.")
-        music_mode_menu.add_item(pbge.MUSIC_MODE_CACHED, pbge.MUSIC_MODE_CACHED, "Cache the most recently used music files. This option uses a medium amount of memory, but reduces interruptions when new music is loaded.")
-        music_mode_menu.add_item(pbge.MUSIC_MODE_STREAM, pbge.MUSIC_MODE_STREAM, "Stream music directly from disk. This option uses the least amount of memory, but causes a slight delay when the music stream is changed.")
+        music_mode_menu.add_item(pbge.MUSIC_MODE_PRELOAD, None, pbge.MUSIC_MODE_PRELOAD, "Preload all music files. This option takes the most memory and increases load time, but provides flawless playback.")
+        music_mode_menu.add_item(pbge.MUSIC_MODE_CACHED, None, pbge.MUSIC_MODE_CACHED, "Cache the most recently used music files. This option uses a medium amount of memory, but reduces interruptions when new music is loaded.")
+        music_mode_menu.add_item(pbge.MUSIC_MODE_STREAM, None, pbge.MUSIC_MODE_STREAM, "Stream music directly from disk. This option uses the least amount of memory, but causes a slight delay when the music stream is changed.")
         music_mode_menu.my_menu_widget.menu.set_item_by_value(util.config.get("GENERAL", "music_mode"))
         self.scroll_column.add_interior(music_mode_menu)
 

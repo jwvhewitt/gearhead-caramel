@@ -3,8 +3,9 @@ from . import WHITE, frects
 from . import my_state, draw_text, TEXT_COLOR, Border, default_border, wrap_multi_line, wrapline
 import pygame
 from . import image
-from . import rpgmenu
 import weakref
+from collections.abc import Callable
+
 
 # respond_event: Receives an event.
 #   If the widget has a method corresponding to the event,
@@ -84,17 +85,23 @@ class FrozenUIState:
             if reactivate_this in list(my_state.all_widgets()):
                 my_state.focused_widget = reactivate_this
 
+type On_Click = Callable[[Widget, pygame.event.Event], None]|None
+
 
 class Widget(frects.Frect):
-    def __init__(self, dx, dy, w, h, data=None, on_click=None, tooltip=None, children=(), active=True,
+    def __init__(self, dx, dy, w, h, data=None, on_click: On_Click=None, tooltip=None, children=(), active=True,
                  on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None, can_take_focus=False,
-                 on_enter=None, on_leave=None, visible=True, tags=(), should_hilight=None, **kwargs):
+                 on_enter=None, on_leave=None, visible=True, tags=(), should_hilight=None, desc=None,
+                 **kwargs):
         # on_click is a callable with signature (widget, event)
         # on_right_click is a callable with signature (widget, event)
         # on_enter is a callable with signature (widget)
         # on_leave is a callable with signature (widget)
         # should_hilight is a callable with signature (widget)
         #   NOTE: The highlit widget will act like it's the boss! It'll capture input and stuff!
+        # desc is a test description of this widget which may be useful for debugging, but otherwise
+        #   is only sometimes used by the menu widgets. Note that this comment might stop being true
+        #   if/when desc gets used in more places.
         super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
         self.active = active
@@ -110,6 +117,7 @@ class Widget(frects.Frect):
         self.tags.add(WTAG_WIDGET)
         self.can_take_focus = can_take_focus
         self.should_hilight = should_hilight or self._default_should_hilight
+        self.desc = desc
 
     @staticmethod
     def _default_should_hilight(widg):
@@ -169,7 +177,7 @@ class Widget(frects.Frect):
         # respond to the same event.
         my_state.widget_responded = True
 
-    def _builtin_responder(self, ev):
+    def _builtin_responder(self, _ev):
         pass
 
     def update(self, delta):
@@ -192,7 +200,7 @@ class Widget(frects.Frect):
     def _default_flash(self):
         _=pygame.draw.rect(my_state.screen, ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)], self.get_rect(), 1)
 
-    def _render(self, delta):
+    def _render(self, _delta):
         pass
 
     def close(self):
@@ -200,6 +208,7 @@ class Widget(frects.Frect):
             my_state.widgets.remove(self)
 
     def pop(self):
+        #print("Popping {}".format(self))
         self.close()
         if my_state.ui_stack:
             froz = my_state.ui_stack.pop(-1)
@@ -588,12 +597,12 @@ class ScrollColumnWidget(Widget):
         elif self.selected_widget_id >= (n - 1):
             self.selected_widget_id = max(n - 2, 0)
 
-    def scroll_up(self, *args):
+    def scroll_up(self, *_args):
         if self.top_widget > 0:
             self.top_widget -= 1
             self._position_contents()
 
-    def scroll_down(self, *args):
+    def scroll_down(self, *_args):
         if self._interior_widgets and not self._interior_widgets[-1].visible:
             self.top_widget += 1
             self._position_contents()
@@ -611,9 +620,15 @@ class ScrollColumnWidget(Widget):
         self._interior_widgets.sort(key=key)
         self._position_contents()
 
+    def get_items(self):
+        return list(self._interior_widgets)
+
     def get_active_item(self):
         if 0 <= self._selected_widget_id < len(self._interior_widgets):
             return self._interior_widgets[self._selected_widget_id]
+
+    def set_item_by_position( self , n ):
+        self.selected_widget_id = n
 
     def _builtin_responder(self, ev):
         if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
@@ -630,8 +645,10 @@ class ScrollColumnWidget(Widget):
             #        my_state.widget_responded = True
             if my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
                 self.selected_widget_id -= 1
+                self.register_response()
             elif my_state.is_key_for_action(ev, "down") and self.selected_widget_id < (len(self._interior_widgets) - 1):
                 self.selected_widget_id += 1
+                self.register_response()
 
     def _render(self, delta):
         if self.draw_border:
@@ -932,7 +949,7 @@ class TextEditorPanel(ScrollColumnWidget):
 
     selected_widget_id = property(_get_active_widget, _set_active_widget)
 
-    def _change_line(self, wid, ev):
+    def _change_line(self, _wid, ev):
         self.update_text(self.text)
         if self.on_change:
             self.on_change(self, ev)
@@ -1047,7 +1064,7 @@ class CheckboxWidget(RowWidget):
         self.on_click = self._toggle_state
         self.on_change = on_change
 
-    def _toggle_state(self, wid, ev):
+    def _toggle_state(self, _wid, _ev):
         self.is_checked = not self.is_checked
         self.state_indicator.frame = self.CHECK_FRAME[bool(self.is_checked)]
         if self.on_change:

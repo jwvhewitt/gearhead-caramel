@@ -1,7 +1,6 @@
 from . import widgets
 from . import image
 from . import my_state, Border, TEXT_COLOR
-from . import rpgmenu
 from . import frects
 import pygame
 
@@ -114,14 +113,14 @@ class MenuWidget(widgets.ColumnWidget):
         return self.scroll_column.is_interior_widget(other_widget)
 
     def get_items(self):
-        return list(self.scroll_column._interior_widgets)
+        return self.scroll_column.get_items()
 
     def get_active_item(self):
         return self.scroll_column.get_active_item()
 
     # Utility function for adding default menu items.
-    def add_item(self,msg,on_click,data=None):
-        item = self.item_class( 0, 0, self.scroll_column.w, 0, text=str(msg), data=data, on_click=on_click, **self.item_data)
+    def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
+        item = self.item_class( 0, 0, self.scroll_column.w, 0, text=str(msg), data=data, on_click=on_click, desc=desc, **self.item_data)
         self.add_interior( item )
         return item
 
@@ -176,15 +175,15 @@ class DropdownWidget(widgets.Widget):
         _=my_state.screen.blit(myimage, textdest)
         my_state.screen.set_clip(None)
 
-    def add_item(self,msg,on_click,data=None):
-        self.menu.add_item(msg, on_click, data)
+    def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
+        _=self.menu.add_item(msg, on_click, data, desc)
 
-    def _click_item(self, item: widgets.Widget, ev):
+    def _click_item(self, item: widgets.Widget, _ev):
+        self.menu.pop()
         if self.on_select:
             self.on_select(item.data)
-        self.menu.pop()
 
-    def open_menu(self, also_self_probably, ev):
+    def open_menu(self, _also_self_probably, _ev):
         mydest = self.get_rect()
         mydest.h = self.menu.h
         mydest.w = self.menu.w
@@ -201,21 +200,26 @@ class DropdownWidget(widgets.Widget):
     def clear(self):
         self.menu.clear()
 
+    def set_item_by_data( self , dat ):
+        self.menu.set_item_by_data(dat)
+
 
 class ColDropdownWidget(widgets.RowWidget):
     def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, add_desc=False, **kwargs):
         mylabel = widgets.LabelWidget(0, 0, width * 2 // 5 - 10, 0, prompt, font=font)
         super().__init__(0, 0, width, mylabel.h + 8, **kwargs)
         self.add_left(mylabel)
-        self.my_menu_widget = DropdownWidget(0, 0, width * 3 // 5, mylabel.h + 8, font=font, justify=justify,
+        self.menu_widget = DropdownWidget(0, 0, width * 3 // 5, mylabel.h + 8, font=font, justify=justify,
                                              on_select=on_select, add_desc=add_desc)
-        self.add_right(self.my_menu_widget)
-        self.on_click = self.my_menu_widget.open_menu
-
-    def add_item(self, msg, value, desc=None):
-        self.my_menu_widget.add_item(msg, value, desc)
+        self.add_right(self.menu_widget)
+        self.on_click = self.menu_widget.open_menu
 
     @property
     def current_data(self):
-        return self.my_menu_widget.current_data
+        return self.menu_widget.current_data
 
+    def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
+        self.menu_widget.add_item(msg, on_click, data, desc)
+
+    def set_item_by_data( self , dat ):
+        self.menu_widget.set_item_by_data(dat)

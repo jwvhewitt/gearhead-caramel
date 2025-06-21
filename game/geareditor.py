@@ -128,9 +128,9 @@ class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
         self.ddwid = pbge.widgetmenu.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
         self.menu = self.ddwid.menu
         for o in options:
-            self.menu.add_item(str(o),o)
+            _=self.menu.add_item(str(o), None, o)
         for name,o in nameoptions:
-            self.menu.add_item(name, o)
+            _=self.menu.add_item(name, None, o)
         self.menu.sort()
         self.add_right(self.ddwid)
 

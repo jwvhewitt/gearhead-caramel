@@ -442,6 +442,11 @@ class MainMenu(pbge.widgets.Widget):
     def quit_game(self, *args, **kwargs):
         self.pop()
 
+    def _builtin_responder(self, ev):
+        if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:
+            if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit") and not pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen"):
+                self.pop()
+
 
 def play_the_game():
     gears.init_gears()

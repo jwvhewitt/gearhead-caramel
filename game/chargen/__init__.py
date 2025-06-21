@@ -1,4 +1,3 @@
-from typing import override
 from . import lifepath
 import pbge
 import gears
@@ -78,14 +77,44 @@ class LifepathChooser(object):
         self.cgen.active = True
         self.info = None
 
+
+class PortraitBitSelector(pbge.widgets.RowWidget):
+    def __init__(self, width, height, bname, form_tags, button_image, use_style, on_prev_bit: pbge.widgets.On_Click, on_next_bit: pbge.widgets.On_Click, **kwargs):
+        super().__init__(0, 0, width, height, on_click=on_next_bit, **kwargs)
+        self.add_center(pbge.widgets.LabelWidget(0,0,250,0,bname,font=pbge.MEDIUMFONT,draw_border=True, should_hilight=self._should_hilight_label))
+        mylist = sorted(gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False,use_style=use_style),key=lambda b: b.name)
+        if len(mylist) > 1:
+            self.add_left(pbge.widgets.ButtonWidget(0,0,16,16,button_image,frame=0,data=(bname,mylist),on_click=on_prev_bit))
+            self.add_right(pbge.widgets.ButtonWidget(0,0,16,16,button_image,frame=1,data=(bname,mylist),on_click=on_next_bit))
+        self.on_prev_bit = on_prev_bit
+        self.on_next_bit = on_next_bit
+        self.data = (bname,mylist)
+
+    def _should_hilight_label(self, _widg):
+        return self.should_hilight(self)
+
+    def _builtin_responder(self, ev):
+        if self.should_hilight(self) and (ev.type == pygame.KEYDOWN):
+            if pbge.my_state.is_key_for_action(ev, "left"):
+                self.on_prev_bit(self, ev)
+                self.register_response()
+            elif pbge.my_state.is_key_for_action(ev, "right"):
+                self.on_next_bit(self, ev)
+                self.register_response()
+
+    def _render(self, delta):
+        pass
+
+
 class PortraitEditorW(pbge.widgets.Widget):
-    def __init__(self, pc, por_gen, portrait, form_tags,**kwargs):
+    def __init__(self, pc, por_gen, portrait, form_tags, cgen=None, **kwargs):
         super(PortraitEditorW, self).__init__(-400, -300, 800, 600, **kwargs)
         self.pc = pc
         self.por = por_gen
         self.portrait = portrait
         self.form_tags = form_tags
         self.sl = pbge.StretchyLayer()
+        self.cgen = cgen
 
         self.minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
 
@@ -93,7 +122,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.children.append(self.outer_column)
 
         self.style_on = True
-        self.style_button = pbge.widgets.LabelWidget(0,0,200,0,text="Style Rules: On",justify=0,on_click=self.toggle_style,draw_border=True)
+        self.style_button = pbge.widgets.LabelWidget(0,0,200,0,text="Style Rules: On",justify=0,on_click=self.toggle_style,draw_border=True, can_take_focus=True)
         self.outer_column.add_interior(self.style_button)
 
         self.up_button = pbge.widgets.ButtonWidget(0, 0, 128, 16, sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
@@ -105,9 +134,11 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.outer_column.add_interior(self.down_button)
         self.rebuild_menu()
 
+        self.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=self.done_button,draw_border=True, can_take_focus=True))
+
         self.finished = False
 
-    def toggle_style(self,*args):
+    def toggle_style(self, *_args):
         self.style_on = not self.style_on
         if self.style_on:
             self.style_button.text = "Style Rules: On"
@@ -116,20 +147,17 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.rebuild_menu()
 
     def rebuild_menu(self):
+        current_active = self.option_column.selected_widget_id
         if self.option_column.children:
             self.option_column.clear()
         form_tags = list(self.form_tags)
         for bname in self.por.bits:
-            myrow = pbge.widgets.RowWidget(0,0,300,32)
-            myrow.add_center(pbge.widgets.LabelWidget(0,0,250,0,bname,font=pbge.MEDIUMFONT,draw_border=True))
-            mylist = sorted(gears.portraits.Portrait.get_list_of_type(gears.portraits.PORTRAIT_BITS[bname].btype,form_tags,False,use_style=self.style_on),key=lambda b: b.name)
-            if len(mylist) > 1:
-                myrow.add_left(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=0,data=(bname,mylist),on_click=self.prev_bit))
-                myrow.add_right(pbge.widgets.ButtonWidget(0,0,16,16,self.minus_plus_image,frame=1,data=(bname,mylist),on_click=self.next_bit))
+            myrow = PortraitBitSelector(300, 32, bname, form_tags, self.minus_plus_image, self.style_on, self.prev_bit, self.next_bit)
             form_tags += gears.portraits.PORTRAIT_BITS[bname].form_tags
             self.option_column.add_interior(myrow)
+        self.option_column.set_item_by_position(current_active)
 
-    def prev_bit(self,wid,ev):
+    def prev_bit(self, wid,_ev):
         # Change this bit.
         # bname is the name of the current bit, mylist is the list of potential replacements.
         bname,mylist = wid.data
@@ -144,7 +172,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.portrait = self.por.build_portrait(self.pc,force_rebuild=True,form_tags=self.form_tags)
         self.rebuild_menu()
 
-    def next_bit(self,wid,ev):
+    def next_bit(self,wid,_ev):
         # Change this bit.
         # bname is the name of the current bit, mylist is the list of potential replacements.
         bname,mylist = wid.data
@@ -167,53 +195,26 @@ class PortraitEditorW(pbge.widgets.Widget):
         self.portrait.render(mydest, 2, dest_surface=self.sl.surf)
         self.sl.render()
 
-    def done_button(self,wid,ev):
-        self.finished = True
+    def done_button(self,_wid,_ev):
+        if self.cgen:
+            self.cgen.portrait_view.portrait = self.portrait
+        self.pop()
+
+    def _builtin_responder(self, ev):
+        if self.active and self.visible and not pbge.my_state.widget_responded:
+            if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
+                self.done_button(self, ev)
+                self.register_response()
 
     @classmethod
-    def create_and_invoke_with_cgen(cls, cgen, formtags):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.... wait, that's not right.
-        # Copy and paste is my undoing again!
-        myui = cls(cgen.pc, cgen.pc.portrait_gen, cgen.portrait_view.portrait, formtags)
-        pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
-
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-                elif ev.key == pygame.K_F1:
-                    pygame.image.save(myui.portrait.bitmap, pbge.util.user_dir("out.png"))
-
-        cgen.portrait_view.portrait = myui.portrait
-        pbge.my_state.widgets.remove(myui)
+    def push_state_and_instantiate_with_cgen(cls, *widgets_to_push, cgen=None, formtags=()):
+        myui = cls(cgen.pc, cgen.pc.portrait_gen, cgen.portrait_view.portrait, formtags, cgen=cgen)
+        myui.push_and_deploy(*widgets_to_push)
 
     @classmethod
-    def create_and_invoke_with_pc(cls, pc: gears.base.Character):
-        # Run the UI.
+    def push_state_and_instantiate_with_pc(cls, *widgets_to_push, pc=None):
         myui = cls(pc, pc.portrait_gen, pc.get_portrait(), gears.portraits.Portrait.get_form_tags(pc))
-        pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=myui.done_button,draw_border=True))
-
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-                elif ev.key == pygame.K_F1:
-                    pygame.image.save(myui.portrait.bitmap, pbge.util.user_dir("out.png"))
-
-        pbge.my_state.widgets.remove(myui)
+        myui.push_and_deploy(*widgets_to_push)
 
 
 class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
@@ -235,14 +236,14 @@ class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
             self.add_interior(mywidget)
             self.property_widgets[prop] = mywidget
 
-        self.style_menu = pbge.widgets.ColDropdownWidget(
+        self.style_menu = pbge.widgetmenu.ColDropdownWidget(
             self.w, "Style Options", on_select=self._set_style
         )
         self.add_interior(self.style_menu)
         self.style_menu.add_item("All Options", None, {gears.genderobj.TAG_MASC, gears.genderobj.TAG_FEMME})
         self.style_menu.add_item("Feminine", None, {gears.genderobj.TAG_FEMME,})
         self.style_menu.add_item("Masculine", None, {gears.genderobj.TAG_MASC,})
-        self.style_menu.my_menu_widget.menu.set_item_by_value(self.gender.tags)
+        self.style_menu.set_item_by_data(self.gender.tags)
 
         self.add_interior(pbge.widgets.LabelWidget(
             0,0,200,0,"Set Default Female", justify=0, draw_border=True, on_click=self._set_defaults,
@@ -264,54 +265,42 @@ class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
                                                  justify=0, draw_border=True))
         self.add_interior(myrow)
 
-        self.finished = False
-
-    def _done(self, wid, ev):
+    def _done(self, _wid, _ev):
         self.pc.gender = self.gender
-        self.finished = True
+        self.pop()
 
-    def _cancel(self, wid, ev):
-        self.finished = True
+    def _cancel(self, _wid, _ev):
+        self.pop()
 
-    def _set_defaults(self, wid, ev):
+    def _set_defaults(self, wid, _ev):
         for k,v in wid.data.items():
             setattr(self.gender, k, v)
             if k in self.PROPERTIES:
                 self.property_widgets[k].quietly_set_text(v)
 
-        self.style_menu.my_menu_widget.menu.set_item_by_value(self.gender.tags)
+        self.style_menu.set_item_by_data(self.gender.tags)
 
-    def _set_property(self, wid, ev):
+    def _set_property(self, wid, _ev):
         setattr(self.gender, wid.data, wid.text)
 
     def _set_style(self, result):
         self.gender.tags = result
 
-    @classmethod
-    def create_and_invoke(cls, pc):
-        # Run the UI. You know, usually I'm a big fan of commenting code but I just noticed that I've copied and
-        # pasted this "create_and_invoke" method a bazillion times (often with very minor changes that make it
-        # difficult to genderalize) and most of them have kept the comment from the Invoker widget. This method
-        # will not return an Invocation object. Most of the cases where the comment says create_and_invoke will
-        # return an Invocation object are lying to you, unless you're dealing with an Invoker widget or one of its
-        # descendants. I leave this extra long comment here as a warning to other programmers who may be reading
-        # this code. When you copy and paste something a lot, consider making it a method of the parent class.
-        # And if you can't do that, then for Eris' sake check the comments and make sure they stll apply to your
-        # modified version.
-        myui = cls(pc)
-        pbge.my_state.widgets.append(myui)
-
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)
+    # The create_and_invoke(cls, pc) method has been depreciated. In the blocking style game interface, this
+    # method used to instantiate the widget and run it in a private game loop. Now that GHC uses an unblocking
+    # interface with a central loop its functionality has been replace by push_state_and_instantiate. I leave
+    # the following massive comment as a demonstration of why this UI overhaul was necessary, and also as a
+    # warning to future generations.
+    #
+    #    Run the UI. You know, usually I'm a big fan of commenting code but I just noticed that I've copied and
+    #    pasted this "create_and_invoke" method a bazillion times (often with very minor changes that make it
+    #    difficult to genderalize) and most of them have kept the comment from the Invoker widget. This method
+    #    will not return an Invocation object. Most of the cases where the comment says create_and_invoke will
+    #    return an Invocation object are lying to you, unless you're dealing with an Invoker widget or one of its
+    #    descendants. I leave this extra long comment here as a warning to other programmers who may be reading
+    #    this code. When you copy and paste something a lot, consider making it a method of the parent class.
+    #    And if you can't do that, then for Eris' sake check the comments and make sure they stll apply to your
+    #    modified version.
 
 
 
@@ -409,35 +398,40 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def set_gender(self,new_gender):
         if new_gender == 1234567:
-            self.active = False
-            GenderCustomizationWidget.create_and_invoke(self.pc)
-            self.active = True
+            GenderCustomizationWidget.push_state_and_instantiate(self, pc=self.pc)
         else:
             self.pc.gender = new_gender
+
     def stat_display(self,wid):
         return str(self.pc.get_stat(wid.data) + self.bio_bonuses.get(wid.data,0))
-    def stat_minus(self,wid,ev):
+
+    def stat_minus(self,wid,_ev):
         if self.pc.statline[wid.data] > 5:
             self.pc.statline[wid.data] -= 1
             self.unspent_stat_points += 1
-    def stat_plus(self,wid,ev):
+
+    def stat_plus(self,wid,_ev):
         if self.pc.statline[wid.data] < 18 and self.unspent_stat_points > 0:
             self.pc.statline[wid.data] += 1
             self.unspent_stat_points -= 1
-    def stat_point_display(self,wid):
+
+    def stat_point_display(self,_wid):
         return "{} Stat Points".format(self.unspent_stat_points)
-    def stat_randomize(self,wid,ev):
+
+    def stat_randomize(self,_wid,_ev):
         if self.unspent_stat_points > 0:
             self.pc.roll_stats(self.unspent_stat_points,False)
             self.unspent_stat_points = 0
         else:
             self.pc.roll_stats(self.STAT_POINTS)
-    def stat_reset(self,wid,ev):
+
+    def stat_reset(self,_wid,_ev):
         self.unspent_stat_points = self.STAT_POINTS
         for s in gears.stats.PRIMARY_STATS:
             self.pc.statline[s] = 5
             self.unspent_stat_points -= 5
-    def skill_display(self,wid):
+
+    def skill_display(self,_wid):
         skillz = [sk.name for sk in list(self.bio_bonuses.keys()) if sk in gears.stats.NONCOMBAT_SKILLS]
         skillz.sort()
         sk_block = ', '.join(skillz or ["None"])
@@ -449,8 +443,9 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         tag_block = ', '.join(skillz or ["None"])
         return 'Skills: {}\n Badges: {}\n Tags: {}'.format(sk_block,bad_block,tag_block)
 
-    def biography_display(self,wid):
+    def biography_display(self,_wid):
         return self.pc.bio
+
     def _reset_biography(self):
         self.bio_bonuses.clear()
         self.bio_personality = list()
@@ -470,21 +465,21 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             fac = None
         mecha_shopping_list = gears.selector.MechaShoppingList(self.MECHA_PRICE_LIMIT,fac)
         for mek in mecha_shopping_list.best_choices:
-            self.mecha_menu.add_item(mek.get_full_name(),mek)
+            self.mecha_menu.add_item(mek.get_full_name(), None, mek)
         for mek in mecha_shopping_list.backup_choices:
-            self.mecha_menu.add_item(mek.get_full_name(),mek)
+            self.mecha_menu.add_item(mek.get_full_name(), None, mek)
         self.mecha_menu.menu.sort()
         if mymek and self.mecha_menu.menu.has_value(mymek):
             self.mecha_menu.menu.set_item_by_data(mymek)
         else:
             self.mecha_menu.menu.set_item_by_data(random.choice(mecha_shopping_list.best_choices))
 
-    def biography_randomize(self,wid,ev):
+    def biography_randomize(self,_wid,_ev):
         self._reset_biography()
         lifepath.generate_random_lifepath(self)
         self.reset_mecha_menu()
 
-    def biography_choose(self,wid,ev):
+    def biography_choose(self,_wid,_ev):
         self._reset_biography()
         self.column_one.active = False
         self.column_two.active = False
@@ -501,19 +496,17 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def get_portrait_tags(self):
         mytags = gears.portraits.Portrait.get_form_tags(self.pc)
         for pt in self.bio_personality:
-            mytags.append(pt.name)
+            _=mytags.append(pt.name)
         return mytags
 
-    def portrait_edit(self,wid,ev):
-        self.active = False
-        PortraitEditorW.create_and_invoke_with_cgen(self, self.get_portrait_tags())
-        self.active = True
+    def portrait_edit(self,_wid,_ev):
+        PortraitEditorW.push_state_and_instantiate_with_cgen(self, cgen=self, formtags=self.get_portrait_tags())
 
-    def portrait_random(self,wid,ev):
+    def portrait_random(self,_wid,_ev):
         self.pc.portrait_gen.random_portrait(self.pc,form_tags=self.get_portrait_tags())
         self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
-    def color_edit(self,wid,ev):
+    def color_edit(self,_wid,ev):
         self.active = False
         myui = cosplay.ColorEditor(self.pc.portrait_gen.build_portrait(self.pc,add_color=False),0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors)
         pbge.my_state.widgets.append(myui)
@@ -537,14 +530,14 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         pygame.event.clear()
         self.active = True
 
-    def color_done(self,wid,ev):
+    def color_done(self,wid,_ev):
         wid.data.finished = True
 
-    def color_random(self,wid,ev):
+    def color_random(self,_wid,_ev):
         self.pc.colors = self.pc.portrait_gen.generate_random_colors(self.pc)
         self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
 
-    def save_egg(self,wid,ev):
+    def save_egg(self,_wid,_ev):
         if not pbge.my_state.widget_responded:
             my_egg = gears.eggs.Egg(self.pc)
             self.pc.name = self.name_field.text
@@ -571,19 +564,17 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             my_egg.save()
             self.pop()
 
-    def cancel(self,wid,ev):
+    def cancel(self,_wid,_ev):
         self.pop()
 
     def _render(self, delta):
         self.portrait_view.render()
 
-    @override
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
-            if ev.key == pygame.K_ESCAPE:
+        if self.active and self.visible and not pbge.my_state.widget_responded:
+            if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
                 self.pop()
-                return
-        return super()._builtin_responder(ev)
+                self.register_response()
 
     TAGS_TO_HIDE = {"WTAG_TITLEMENU",}
 

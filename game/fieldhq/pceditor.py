@@ -47,12 +47,10 @@ class PCEditorWidget(widgets.Widget):
         return "Edit Gender: {}".format(self.pc.gender.adjective.capitalize())
 
     def _edit_portrait(self, *args):
-        self.active = False
-        chargen.PortraitEditorW.create_and_invoke_with_pc(self.pc)
+        chargen.PortraitEditorW.push_state_and_instantiate_with_pc(self, pc=self.pc)
         self.portrait_view.portrait = self.pc.get_portrait(force_rebuild=True)
         if pbge.my_state.view and hasattr(pbge.my_state.view, "regenerate_avatars"):
             pbge.my_state.view.regenerate_avatars([self.pc])
-        self.active = True
 
     def _done(self, wid, ev):
         self._apply_changes()
