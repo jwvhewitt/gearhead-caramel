@@ -1,6 +1,6 @@
 from . import widgets
 from . import image
-from . import my_state, Border, TEXT_COLOR
+from . import my_state, Border, TEXT_COLOR, default_border
 from . import frects
 import pygame
 
@@ -115,9 +115,6 @@ class MenuWidget(widgets.ColumnWidget):
     def get_items(self):
         return self.scroll_column.get_items()
 
-    def get_active_item(self):
-        return self.scroll_column.get_active_item()
-
     # Utility function for adding default menu items.
     def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
         item = self.item_class( 0, 0, self.scroll_column.w, 0, text=str(msg), data=data, on_click=on_click, desc=desc, **self.item_data)
@@ -194,6 +191,10 @@ class DropdownWidget(widgets.Widget):
         self.menu.activate()
 
     @property
+    def active_item(self):
+        return self.menu.active_item
+
+    @property
     def current_data(self):
         return self.menu.current_data
 
@@ -218,8 +219,23 @@ class ColDropdownWidget(widgets.RowWidget):
     def current_data(self):
         return self.menu_widget.current_data
 
+    @property
+    def active_item(self):
+        return self.menu_widget.active_item
+
     def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
         self.menu_widget.add_item(msg, on_click, data, desc)
 
     def set_item_by_data( self , dat ):
         self.menu_widget.set_item_by_data(dat)
+
+
+class DescBoxWidget(widgets.LabelWidget):
+    def __init__(self, dx,dy,w=300,h=100,anchor=frects.ANCHOR_CENTER, menu=None, draw_border=True, **kwargs):
+        self.menu = menu
+        super().__init__(dx, dy, w, h, draw_border=draw_border, text_fun=self._desc_text_fun, border=default_border, **kwargs)
+
+    def _desc_text_fun(self, _widg):
+        my_item = self.menu.active_item
+        if my_item:
+            return my_item.desc

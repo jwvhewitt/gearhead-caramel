@@ -11,8 +11,11 @@
       {
         "name": "The Dead Zone"
       }
-    ], "allow_random": true
+    ]
     }
+  ],
+  "tags": [
+    "EARTH"
   ]
 }
 ]

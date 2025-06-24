@@ -300,10 +300,10 @@ class ShopUI(pbge.widgets.Widget):
         self._build_buy_list()
         if reactivate == self.REACTIVATE_SELL:
             pbge.my_state.focused_widget = self._sell_list_widget.scroll_column
-            self._set_item_panel(self._sell_list_widget.scroll_column, self._sell_list_widget.get_active_item())
+            self._set_item_panel(self._sell_list_widget.scroll_column, self._sell_list_widget.active_item)
         elif reactivate == self.REACTIVATE_BUY:
             pbge.my_state.focused_widget = self._buy_list_widget.scroll_column
-            self._set_item_panel(self._buy_list_widget.scroll_column, self._buy_list_widget.get_active_item())
+            self._set_item_panel(self._buy_list_widget.scroll_column, self._buy_list_widget.active_item)
 
     def _build_sell_list(self):
         active_index = self._sell_list_widget.active_index

@@ -8,8 +8,9 @@ from .. import cosplay
 import copy
 
 
-class LifepathChooser(object):
-    def __init__(self,cgen):
+class LifepathChooserW(pbge.widgets.Widget):
+    def __init__(self, cgen):
+        super().__init__(0,0,0,0,)
         self.cgen = cgen
 
         # Record the character generator zones.
@@ -18,14 +19,19 @@ class LifepathChooser(object):
         self.info_zone = pbge.frects.Frect(-125,80,170,120)
         self.menu_zone = pbge.frects.Frect(75, 80, 300, 120)
 
+        self.menu = pbge.widgetmenu.MenuWidget(
+            self.menu_zone.dx, self.menu_zone.dy, self.menu_zone.w, self.menu_zone.h, draw_border=False, font=pbge.BIGFONT,
+            on_click_child=self.on_path_choice
+        )
+        self.children.append(self.menu)
+        self.children.append(pbge.widgetmenu.DescBoxWidget(self.info_zone.dx,self.info_zone.dy,self.info_zone.w,self.info_zone.h,font=pbge.MEDIUMFONT, menu=self.menu))
+
         self.cancelled = False
 
         self.title = ''
         self.info = None
 
-    def render(self):
-        pbge.my_state.view()
-        self.cgen.render()
+    def _render(self, _delta):
         pbge.default_border.render(self.title_zone.get_rect())
         pbge.default_border.render(self.charsheet_zone.get_rect())
         pbge.default_border.render(self.info_zone.get_rect())
@@ -36,11 +42,29 @@ class LifepathChooser(object):
             myrect = self.charsheet_zone.get_rect()
             self.info.render(myrect.x,myrect.y)
 
-    def create_menu(self):
-        mymenu= pbge.rpgmenu.Menu(self.menu_zone.dx, self.menu_zone.dy, self.menu_zone.w, self.menu_zone.h, border=None,
-                          predraw=self.render, font=pbge.BIGFONT)
-        mymenu.add_descbox(self.info_zone.dx,self.info_zone.dy,self.info_zone.w,self.info_zone.h,font=pbge.MEDIUMFONT)
-        return mymenu
+    def prep_next_choice(self, choices):
+        self.menu.clear()
+        for c in choices:
+            _=self.menu.add_item(c.name,data=c,desc=c.desc)
+
+    def on_path_choice(self, widg, _ev):
+        mychoice = widg.data
+        if mychoice.auto_fx:
+            mychoice.auto_fx.apply(self.cgen)
+            self.info.update()
+        for c in mychoice.choices:
+            self.title = c.prompt
+            mymenu = self.create_menu()
+            for c2 in c.options:
+                mymenu.add_item(c2.name,c2,c2.desc)
+            myop = mymenu.query()
+            if myop:
+                myop.apply(self.cgen)
+                self.info.update()
+            else:
+                self.cancelled = True
+        self.title = mychoice.next_prompt
+        self.prep_next_choices(mychoice.next)
 
     def choose_lifepath(self):
         self.info = lifepath.LifePathStatusPanel(model=self.cgen.pc,cgen=self.cgen,width=self.charsheet_zone.w,draw_border=False,padding=5)
@@ -74,8 +98,11 @@ class LifepathChooser(object):
             else:
                 self.cancelled = True
 
-        self.cgen.active = True
-        self.info = None
+    def finish(self):
+        if self.cancelled:
+            self.cgen.biography_randomize(None,None)
+        self.cgen.reset_mecha_menu()
+
 
 
 class PortraitBitSelector(pbge.widgets.RowWidget):
@@ -481,17 +508,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def biography_choose(self,_wid,_ev):
         self._reset_biography()
-        self.column_one.active = False
-        self.column_two.active = False
-        self.column_three.active = False
-        my_chooser = LifepathChooser(self)
-        my_chooser.choose_lifepath()
-        if my_chooser.cancelled:
-            self.biography_randomize(None,None)
-        self.column_one.active = True
-        self.column_two.active = True
-        self.column_three.active = True
-        self.reset_mecha_menu()
+        LifepathChooserW.push_state_and_instantiate(self, cgen=self)
 
     def get_portrait_tags(self):
         mytags = gears.portraits.Portrait.get_form_tags(self.pc)
