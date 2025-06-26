@@ -963,7 +963,7 @@ EART_GREENZONE = LifePathOption("The Green Zone","The Terran Federation green zo
                                 biogram={
                                     "[village]": {
                                         Default: [
-                                            "Last Hope", "Hogye", "Ipshil", "Nara"
+                                            "Last Hope", "Hogye", "Ipshil", "Nara", "Mauna"
                                         ]
                                     },
                                     "[city]": {
@@ -1018,6 +1018,7 @@ EART_DEADZONE = LifePathOption("The Dead Zone","One of the fortresses in the dea
                                        ]
                                    }
                                })
+
 
 A_EARTH = LifePathNode(
     "Earth","You are from Earth.",

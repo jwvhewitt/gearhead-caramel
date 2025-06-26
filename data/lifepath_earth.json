@@ -3,6 +3,10 @@
   "name": "Earth",
   "desc": "You are from Earth.",
   "stage": "ORIGIN",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "tags": [],
+  "personality_tags": [],
   "choices": [
     {"prompt": "What part of Earth are you from?", "options": [
       {
@@ -13,9 +17,32 @@
       }
     ]
     }
-  ],
-  "tags": [
-    "EARTH"
   ]
+},
+{
+  "name": "The Green Zone",
+  "desc": "The Terran Federation green zone, where there is at least some semblance of peace and stability.",
+  "stage": "ORIGIN:REGION",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "tags": [],
+  "personality_tags": ["GreenZone"],
+  "biogram": {
+    "[village]": [
+            "Last Hope", "Kist", "Markheim Fortress"
+        ],
+    "[city]": [
+            "Ironwind Fortress", "Pirate Point"
+        ],
+    "[crisis]":  [
+            "Typhon awakened", "[enemies] attacked"
+        ],
+    "[enemies]": [
+            "ravagers", "bandits", "rival fortresses", "the Bone Devils",
+        ],
+    "[town]": [
+            "[village]","[city]"
+        ]
+  }
 }
 ]
