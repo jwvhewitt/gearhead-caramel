@@ -49,6 +49,7 @@ caramel-recolor-cython/pbgerecolor.c
 main.build
 main.dist
 main.onefile-build
+ghcaramel_user
 
 
 

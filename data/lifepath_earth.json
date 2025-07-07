@@ -5,18 +5,10 @@
   "stage": "ORIGIN",
   "required_tags": [],
   "forbidden_tags": [],
-  "tags": [],
-  "personality_tags": [],
-  "choices": [
-    {"prompt": "What part of Earth are you from?", "options": [
-      {
-        "name": "The Green Zone"
-      },
-      {
-        "name": "The Dead Zone"
-      }
-    ]
-    }
+  "new_tags": ["EARTH"],
+  "new_personality": [],
+  "push_stages": [
+    {"prompt": "What part of Earth are you from?", "id": "ORIGIN:REGION"}
   ]
 },
 {
@@ -25,8 +17,8 @@
   "stage": "ORIGIN:REGION",
   "required_tags": ["EARTH"],
   "forbidden_tags": [],
-  "tags": [],
-  "personality_tags": ["GreenZone"],
+  "new_tags": [],
+  "new_personality": ["GreenZone"],
   "biogram": {
     "[village]": [
             "Last Hope", "Kist", "Markheim Fortress"
@@ -38,7 +30,7 @@
             "Typhon awakened", "[enemies] attacked"
         ],
     "[enemies]": [
-            "ravagers", "bandits", "rival fortresses", "the Bone Devils",
+            "ravagers", "bandits", "rival fortresses", "the Bone Devils"
         ],
     "[town]": [
             "[village]","[city]"

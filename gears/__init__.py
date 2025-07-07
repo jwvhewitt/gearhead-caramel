@@ -1576,6 +1576,14 @@ def harvest_jobs():
         SINGLETON_REVERSE[job] = jobname
 
 
+def harvest_merit_badges():
+    for name in dir(meritbadges):
+        o = getattr(meritbadges, name)
+        if isinstance(o, (meritbadges.TagReactionBadge, meritbadges.UniversalReactionBadge)):
+            SINGLETON_TYPES[o.name] = o
+            SINGLETON_REVERSE[o] = o.name
+
+
 def string_tags_to_singletons(tag_list):
     tags = set()
     for t in tag_list:
@@ -1621,6 +1629,8 @@ def init_gears():
     # Initialize the jobs because these get used in the STL files.
     jobs.init_jobs()
     harvest_jobs()
+
+    harvest_merit_badges()
 
     # Load the STC files next.
     design_files = glob.glob(pbge.util.data_dir('stc_*.txt'))

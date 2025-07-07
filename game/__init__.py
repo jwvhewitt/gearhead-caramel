@@ -88,3 +88,4 @@ def init_game():
     content.ghplots.init_plots()
     scenariocreator.init_plotcreator()
     configedit.init_configedit()
+    chargen.lifepath.init_lifepath()

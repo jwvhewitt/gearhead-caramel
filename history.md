@@ -1,3 +1,4 @@
+* Merit badges now added to singleton list
 * Changed from multiple blocking 
 * Improved map rendering speed; hopefully less choppiness
 * Map positions clamped on display

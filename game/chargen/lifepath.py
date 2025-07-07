@@ -7,7 +7,12 @@ import pygame
 from .. import ghdialogue
 from ..ghdialogue.ghgrammar import Default
 import random
+import json
+import glob
+import collections
 
+ALL_LP_EVENTS = list()
+LP_EVENTS_BY_STAGE = collections.defaultdict(list)
 
 # Character generation is lifepath based.
 
@@ -1092,7 +1097,61 @@ def generate_random_lifepath(cgen):
 
 
 class LifePathEvent:
-    def __init__(self, name, stage):
+    def __init__(
+        self, name, desc, stage, biomessage="", 
+        required_tags=(), forbidden_tags=(),
+        new_tags=(), new_personality=(), push_stages=(), biogram=None,
+        stat_mods=None, merit_badges=()
+    ):
         self.name = name
+        self.desc = desc
         self.stage = stage
-        
+        self.biomessage = biomessage
+        self.required_tags = set(self.convert_tags(required_tags))
+        self.forbidden_tags = set(self.convert_tags(forbidden_tags))
+        self.new_tags = set(self.convert_tags(new_tags))
+        self.new_personality = set(self.convert_tags(new_personality))
+        self.push_stages = push_stages
+        self.biogram = dict()
+        if biogram:
+            self.biogram.update(biogram)
+        self.stat_mods = dict()
+        if stat_mods:
+            for k,v in stat_mods.items():
+                st = gears.SINGLETON_TYPES.get(k, gears.stats.Body)
+                self.stat_mods[st] = v
+        self.merit_badges = set(self.convert_tags(merit_badges))
+        ALL_LP_EVENTS.append(self)
+        LP_EVENTS_BY_STAGE[self.stage].append(self)
+
+    @staticmethod
+    def convert_tags(taglist):
+        nulist = list()
+        for tag in taglist:
+            if tag in gears.SINGLETON_TYPES:
+                nulist.append(gears.SINGLETON_TYPES[tag])
+            else:
+                nulist.append(tag)
+        return nulist
+
+    def apply(self,cgen):
+        ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
+        if self.biomessage:
+            nugramdict = cgen.biogram.copy()
+            ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
+            cgen.pc.bio += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
+        for k,v in list(self.stat_mods.items()):
+            cgen.bio_bonuses[k] += v
+        gears.meritbadges.add_badges(cgen.bio_badges,self.merit_badges)
+        cgen.bio_personality += self.new_personality
+    
+def init_lifepath():
+    protoevents = list()
+    myfiles = glob.glob(pbge.util.data_dir( "lifepath_*.json"))
+    for f in myfiles:
+        with open(f, 'rt') as fp:
+            mylist = json.load(fp)
+            if mylist:
+                protoevents += mylist
+    for j in protoevents:
+        LifePathEvent(**j)
