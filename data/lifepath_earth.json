@@ -21,10 +21,36 @@
   "new_personality": ["GreenZone"],
   "biogram": {
     "[village]": [
+            "Hogye", "Ipshil", "Nara", "Mauna"
+        ],
+    "[city]": [
+            "Snake Lake", "Wujung", "Gyori", "Namok", "Norstead", "Zanzibar"
+        ],
+    "[crisis]":  [
+            "Typhon awakened", "[enemies] attacked"
+        ],
+    "[enemies]": [
+            "Aegis Overlord", "bandits", "Clan Ironwind", "the Bone Devils"
+        ],
+    "[town]": [
+            "[village]","[city]"
+        ]
+  }
+},
+{
+  "name": "The Dead Zone",
+  "desc": "One of the fortresses in the dead zone. Food is scarce and life is precarious.",
+  "stage": "ORIGIN:REGION",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["DeadZone"],
+  "biogram": {
+    "[village]": [
             "Last Hope", "Kist", "Markheim Fortress"
         ],
     "[city]": [
-            "Ironwind Fortress", "Pirate Point"
+            "Ironwind Fortress", "Pirate's Point", "Bokhara Fortress"
         ],
     "[crisis]":  [
             "Typhon awakened", "[enemies] attacked"
@@ -36,5 +62,359 @@
             "[village]","[city]"
         ]
   }
+},
+{
+  "name": "Frontier",
+  "desc": "You were born in a small town on the edge of civilization.",
+  "stage": "CHILDHOOD",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": ["FRONTIER"],
+  "new_personality": [],
+  "biomessage": "[LPB_INTRO]",
+  "biogram": {
+    "[LPB_INTRO]": [
+            "You grew up in [village].", "You were born in [village]."
+        ]
+  },
+  "stat_mods": {
+    "Body": 1, "Perception": 1
+  },
+    "push_stages": [
+    {"prompt": "How was growing up in your frontier town?", "id": "CHILDHOOD:DETAILS"}
+  ]
+},
+{
+  "name": "City",
+  "desc": "You were born in a city and led an average life there.",
+  "stage": "CHILDHOOD",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": ["CITYDWELLER"],
+  "new_personality": [],
+  "biomessage": "[LPB_INTRO]",
+  "biogram": {
+    "[LPB_INTRO]": [
+            "You grew up in [city].", "You were born in [city]."
+        ]
+  },
+  "stat_mods": {
+    "Charm": 1, "Knowledge": 1
+  },
+    "push_stages": [
+    {"prompt": "What part of the city were you raised in?", "id": "CHILDHOOD:DETAILS"}
+  ]
+},
+{
+  "name": "Idealist",
+  "desc": "Your heritage includes a significant amount of genetic engineering.",
+  "stage": "CHILDHOOD",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Idealist"],
+  "idealist_bonus": true,
+  "biomessage": "[LPB_INTRO]",
+  "biogram": {
+    "[LPB_INTRO]": [
+            "As a child, you began to show exceptional abilities.",
+            "You come from a long line of idealists, and your family had great expectations for you."
+        ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "How did you perform in school?", "id": "CHILDHOOD:SCHOOLING"}
+  ]
+},
+{
+  "name": "Outcast",
+  "desc": "You have always lived on the fringes of society.",
+  "stage": "CHILDHOOD",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": ["OUTCAST"],
+  "new_personality": [],
+  "biomessage": "[LPB_INTRO]",
+  "biogram": {
+    "[LPB_INTRO]": [
+            "From birth, you never really fit in with your peers.",
+            "Your early life was spent on the fringes of society."
+        ]
+  },
+  "stat_mods": {
+    "Reflexes": 1, "Craft": 1
+  },
+    "push_stages": [
+    {"prompt": "What is it that set you apart from your peers?", "id": "CHILDHOOD:DETAILS"}
+  ]
+},
+{
+  "name": "Orphan",
+  "desc": "You lost your parents at a young age.",
+  "stage": "CHILDHOOD",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": ["ORPHAN"],
+  "new_personality": [],
+  "biomessage": "[LPB_INTRO]",
+  "biogram": {
+    "[LPB_INTRO]": [
+            "Your parents died when you were very young.",
+            "You were raised in an orphanage and never knew your parents.",
+            "You were left on the doorstop of an orphanage in [town].",
+            "Your parents were killed in an attack by [enemies]."
+        ]
+  },
+  "stat_mods": {
+    "Ego": 1, "Speed": 1
+  },
+    "push_stages": [
+    {"prompt": "How did you cope with the loss of your parents?", "id": "CHILDHOOD:DETAILS"}
+  ]
+},
+{
+  "name": "Close Community",
+  "desc": "Life was hard, but everyone helped everyone else out.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["FRONTIER"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Sociable"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+            "Your community was very close knit."
+        ]
+  }
+},
+{
+  "name": "Boring Life",
+  "desc": "Mostly it was boring; I longed to escape.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["FRONTIER"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Passionate"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+            "As a child you dreamed of leaving home and going on big adventures.",
+            "Growing up, you always dreamed of escape."
+        ]
+  }
+},
+{
+  "name": "Dangerous Place",
+  "desc": "Our village was always under threat.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["FRONTIER"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Grim"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+            "Your community was under constant attack by [enemies]."
+        ]
+  }
+},
+{
+  "name": "Crime Alley",
+  "desc": "I lived in a rough part of town; gangs ruled the streets.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["CITYDWELLER"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Shy"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Your home was in the bad side of town; you quickly learned to keep a low profile.",
+        "Your neighborhood was riddled with crime. To survive, you had to keep your head down."
+    ]
+  }
+},
+{
+  "name": "Good Neighborhood",
+  "desc": "I lived in a nice part of town.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["CITYDWELLER"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Cheerful"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Your neighborhood was nice enough.",
+        "Your family's home was on the rich side of town.",
+        "Overall, you had a happy childhood."
+    ]
+  }
+},
+{
+  "name": "Cosmopolitan City",
+  "desc": "I lived in a diverse neighborhood, mingling with different cultures and people from all parts of human space.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["CITYDWELLER"],
+  "forbidden_tags": [],
+  "new_tags": ["COSMOPOLITAN"],
+  "new_personality": ["Easygoing"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "You grew up in a multicultural area, surrounded by immigrants from all over human space.",
+        "Your home was in the trading district, where you became familiar with many cultures."
+    ]
+  }
+},
+{
+  "name": "Overachiever",
+  "desc": "I was very competitive; every subject was a challenge to be mastered.",
+  "stage": "CHILDHOOD:SCHOOLING",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": ["OVERACHIEVER"],
+  "new_personality": ["Passionate"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "In school you were very competitive. Every subject was a challenge to be mastered."
+    ]
+  },
+  "stat_mods": {
+    "Knowledge": 1, "Body": -1
+  }
+},
+{
+  "name": "Slacker",
+  "desc": "My natural talents made me lazy at school.",
+  "stage": "CHILDHOOD:SCHOOLING",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": ["SLACKER"],
+  "new_personality": ["Easygoing"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Because of your natural talents, you never had to work as hard as your peers.",
+        "Your genetic enhancements meant you never had to push yourself."
+    ]
+  },
+  "stat_mods": {
+    "Reflexes": 1, "Ego": -1
+  }
+},
+{
+  "name": "Tekno",
+  "desc": "When my aptitude for computers was discovered, I was put to work as a tekno.",
+  "stage": "CHILDHOOD:SCHOOLING",
+  "required_tags": ["DeadZone"],
+  "forbidden_tags": [],
+  "new_tags": ["TEKNO"],
+  "new_personality": ["Shy"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Your exceptional aptitude for computers led to you being inducted as a tekno.",
+        "From a young age you were put to work maintaining the tech of your community.",
+        "You feel more comfortable with machines than with other humans."
+    ]
+  },
+  "stat_mods": {
+    "Computers": 1
+  }
+},
+{
+  "name": "Star Student",
+  "desc": "My abilities gave me more free time to live- meeting friends, joining clubs, entering contests.",
+  "stage": "CHILDHOOD:SCHOOLING",
+  "required_tags": ["GreenZone"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Sociable"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "You became a star student, running for class president and taking part in many activities.",
+        "You used your free time to tutor classmates and help out around town.",
+        "Your abilities made you a natural leader, forming teams to take part in [school_contest]."
+    ],
+    "[school_contest]": [
+      "the Math Olympiad", "the high school football league", "the science fair", "varsity mecha sports",
+      "the Archeology Challenge", "debate club", "the Bodging Battle", "the Spring Festival"
+    ]
+  },
+  "stat_mods": {
+    "Negotiation": 1
+  }
+},
+{
+  "name": "Found Family",
+  "desc": "I took comfort in my friends and caretakers.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["ORPHAN"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Sociable"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "You were like a surrogate parent to the other orphans.",
+        "Over time, you found a new family in your friends and caretakers.",
+        "You were adopted by a family who cared for you deeply."
+    ]
+  }
+},
+{
+  "name": "Lonely Road",
+  "desc": "I kept to myself, and still don't get close to people.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["ORPHAN"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Shy"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "You were adopted by a family that neglected you.",
+        "You shut yourself off from human connections."
+    ]
+  }
+},
+{
+  "name": "Child Labor",
+  "desc": "Having no family to take me, I was sent to work right away.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["ORPHAN", "DeadZone"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Grim"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Without any means to support yourself, you were taken to serve as the town's buttonpresser.",
+        "Lacking any family to look after you, you were taken in as a junior laborer by the local factory."
+    ]
+  },
+  "stat_mods": {
+    "Repair": 1
+  }
+},
+{
+  "name": "Cultural Exchange",
+  "desc": "Having no family to look after me, I was sent on a cultural exchange program to the L5 spinners.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["ORPHAN", "GreenZone"],
+  "forbidden_tags": [],
+  "new_tags": ["COSMOPOLITAN"],
+  "new_personality": ["Easygoing", "L5Spinners"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Lacking any other family, you were sent as a cultural exchange student to an L5 space colony.",
+        "You were sent to an L5 space colony to be raised alongside a creche of similarly aged children."
+    ]
+  }
 }
+
 ]

@@ -345,9 +345,10 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.pc.roll_stats(self.STAT_POINTS)
         self.bio_bonuses = collections.defaultdict(int)
 
-        self.biogram = dict()
+        self.biogram = pbge.dialogue.grammar.Grammar()
         self.bio_personality = list()
         self.bio_badges = list()
+        self.lifepath_tags = set()
         lifepath.generate_random_lifepath(self)
 
         self.unspent_stat_points = 0

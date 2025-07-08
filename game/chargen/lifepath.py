@@ -1101,7 +1101,7 @@ class LifePathEvent:
         self, name, desc, stage, biomessage="", 
         required_tags=(), forbidden_tags=(),
         new_tags=(), new_personality=(), push_stages=(), biogram=None,
-        stat_mods=None, merit_badges=()
+        stat_mods=None, merit_badges=(), idealist_bonus=False,
     ):
         self.name = name
         self.desc = desc
@@ -1121,6 +1121,7 @@ class LifePathEvent:
                 st = gears.SINGLETON_TYPES.get(k, gears.stats.Body)
                 self.stat_mods[st] = v
         self.merit_badges = set(self.convert_tags(merit_badges))
+        self.idealist_bonus = idealist_bonus
         ALL_LP_EVENTS.append(self)
         LP_EVENTS_BY_STAGE[self.stage].append(self)
 
@@ -1130,12 +1131,13 @@ class LifePathEvent:
         for tag in taglist:
             if tag in gears.SINGLETON_TYPES:
                 nulist.append(gears.SINGLETON_TYPES[tag])
+                print(tag)
             else:
                 nulist.append(tag)
         return nulist
 
     def apply(self,cgen):
-        ghdialogue.trait_absorb(cgen.biogram,self.biogram,cgen.pc.get_tags())
+        cgen.biogram.absorb(self.biogram)
         if self.biomessage:
             nugramdict = cgen.biogram.copy()
             ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
@@ -1144,6 +1146,7 @@ class LifePathEvent:
             cgen.bio_bonuses[k] += v
         gears.meritbadges.add_badges(cgen.bio_badges,self.merit_badges)
         cgen.bio_personality += self.new_personality
+        cgen.lifepath_tags |= self.new_tags
     
 def init_lifepath():
     protoevents = list()
