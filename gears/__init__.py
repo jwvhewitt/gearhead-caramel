@@ -1580,8 +1580,9 @@ def harvest_merit_badges():
     for name in dir(meritbadges):
         o = getattr(meritbadges, name)
         if isinstance(o, (meritbadges.TagReactionBadge, meritbadges.UniversalReactionBadge)):
-            SINGLETON_TYPES[o.name] = o
-            SINGLETON_REVERSE[o] = o.name
+            SINGLETON_TYPES[name] = o
+            SINGLETON_REVERSE[o] = name
+            #print("harvest: '{}'".format(name))
 
 
 def string_tags_to_singletons(tag_list):

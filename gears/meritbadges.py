@@ -91,6 +91,9 @@ BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attain
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10}, tags=(tags.Military,))
 BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,), contra=("Police",))
 BADGE_POLICE = TagReactionBadge("Police","You have worked in law enforcement.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,), contra=("Criminal",))
+BADGE_DOCTOR = TagReactionBadge("Doctor","You have professional training as a physician.",remods={tags.Medic:10}, tags=(tags.Medic,))
+
+BADGE_RAVAGER = TagReactionBadge("Ravager","You are a member of a nomad caravan in the dead zone.",remods={personality.DeadZone:10, personality.GreenZone:-10, factions.Ravagers:10}, tags=(tags.Adventurer,))
 
 BADGE_AEGIS_DEFECTOR = TagReactionBadge("Aegis Defector","You have renounced all ties to Aegis Overlord Luna.",remods={factions.AegisOverlord: -10, personality.GreenZone: 5, personality.DeadZone: 5}, contra=("Aegis Collaborator",))
 BADGE_AEGIS_COLLABORATOR = TagReactionBadge("Aegis Collaborator","You serve the totalitarian government of Aegis Overlord Luna.",remods={factions.AegisOverlord: 10, personality.GreenZone: -10, personality.DeadZone: -10}, contra=("Aegis Defector",))

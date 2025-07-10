@@ -1101,7 +1101,7 @@ class LifePathEvent:
         self, name, desc, stage, biomessage="", 
         required_tags=(), forbidden_tags=(),
         new_tags=(), new_personality=(), push_stages=(), biogram=None,
-        stat_mods=None, merit_badges=(), idealist_bonus=False,
+        stat_mods=None, merit_badges=(), idealist_bonus=False, gain_mutation=False
     ):
         self.name = name
         self.desc = desc
@@ -1120,8 +1120,9 @@ class LifePathEvent:
             for k,v in stat_mods.items():
                 st = gears.SINGLETON_TYPES.get(k, gears.stats.Body)
                 self.stat_mods[st] = v
-        self.merit_badges = set(self.convert_tags(merit_badges))
+        self.merit_badges = list(self.convert_tags(merit_badges))
         self.idealist_bonus = idealist_bonus
+        self.gain_mutation = gain_mutation
         ALL_LP_EVENTS.append(self)
         LP_EVENTS_BY_STAGE[self.stage].append(self)
 
@@ -1138,6 +1139,8 @@ class LifePathEvent:
 
     def apply(self,cgen):
         cgen.biogram.absorb(self.biogram)
+        if self.gain_mutation:
+            self.apply_mutation(cgen)
         if self.biomessage:
             nugramdict = cgen.biogram.copy()
             ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,cgen.pc.get_tags())
@@ -1147,7 +1150,34 @@ class LifePathEvent:
         gears.meritbadges.add_badges(cgen.bio_badges,self.merit_badges)
         cgen.bio_personality += self.new_personality
         cgen.lifepath_tags |= self.new_tags
-    
+        if self.idealist_bonus:
+            self.apply_idealist_bonus(cgen)
+
+    def apply_idealist_bonus(self, cgen):
+        stat_list = random.sample(gears.stats.PRIMARY_STATS,3)
+        for s in stat_list:
+            cgen.bio_bonuses[s] += 2
+
+    MUTANT_BIOGRAM = {
+        personality.FelineMutation: [
+            "feline features", "cat ears", "feline ears"
+        ],
+        personality.DraconicMutation: [
+            "scaly skin", "armored plates on your skin",
+            "bonelike growths protruding from your flesh"
+        ],
+        personality.GeneralMutation: [
+            "brightly colored skin", "visible mutations"
+        ]
+    }
+    def apply_mutation(self, cgen):
+        mutation = random.choice(personality.MUTATIONS)
+        cgen.bio_personality.append(mutation)
+        mutation.apply(cgen.pc,cgen.bio_bonuses)
+        cgen.biogram["[mutation]"] = self.MUTANT_BIOGRAM[mutation]
+
+
+
 def init_lifepath():
     protoevents = list()
     myfiles = glob.glob(pbge.util.data_dir( "lifepath_*.json"))

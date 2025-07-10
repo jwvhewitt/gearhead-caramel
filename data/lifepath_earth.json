@@ -34,7 +34,10 @@
         ],
     "[town]": [
             "[village]","[city]"
-        ]
+        ],
+    "[the_army]": [
+      "the Terran Defense Force", "the Solar Navy"
+    ]
   }
 },
 {
@@ -60,12 +63,15 @@
         ],
     "[town]": [
             "[village]","[city]"
-        ]
+        ],
+    "[the_army]": [
+      "the militia"
+    ]
   }
 },
 {
   "name": "Frontier",
-  "desc": "You were born in a small town on the edge of civilization.",
+  "desc": "I was born in a small town on the edge of civilization.",
   "stage": "CHILDHOOD",
   "required_tags": ["EARTH"],
   "forbidden_tags": [],
@@ -86,7 +92,7 @@
 },
 {
   "name": "City",
-  "desc": "You were born in a city and led an average life there.",
+  "desc": "I was born in a city and led an average life there.",
   "stage": "CHILDHOOD",
   "required_tags": ["EARTH"],
   "forbidden_tags": [],
@@ -107,7 +113,7 @@
 },
 {
   "name": "Idealist",
-  "desc": "Your heritage includes a significant amount of genetic engineering.",
+  "desc": "My ancestry includes a significant amount of genetic engineering.",
   "stage": "CHILDHOOD",
   "required_tags": [],
   "forbidden_tags": [],
@@ -128,7 +134,7 @@
 },
 {
   "name": "Outcast",
-  "desc": "You have always lived on the fringes of society.",
+  "desc": "I have always lived on the fringes of society.",
   "stage": "CHILDHOOD",
   "required_tags": ["EARTH"],
   "forbidden_tags": [],
@@ -150,7 +156,7 @@
 },
 {
   "name": "Orphan",
-  "desc": "You lost your parents at a young age.",
+  "desc": "I lost my parents at a young age.",
   "stage": "CHILDHOOD",
   "required_tags": ["EARTH"],
   "forbidden_tags": [],
@@ -415,6 +421,616 @@
         "You were sent to an L5 space colony to be raised alongside a creche of similarly aged children."
     ]
   }
+},
+{
+  "name": "Juvenile Delinquent",
+  "desc": "I got started in crime at a young age.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["OUTCAST"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": ["BADGE_CRIMINAL"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Even as a child you were constantly in trouble with the law.",
+        "You joined a gang and started committing petty crimes."
+    ]
+  }
+},
+{
+  "name": "Ravager",
+  "desc": "I was born into a nomad ravager caravan.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["OUTCAST", "DeadZone"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": ["BADGE_RAVAGER"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "You grew up in a ravager caravan, constantly moving through the deadzone.",
+        "Your family are ravagers, nomads of the deadzone."
+    ]
+  },
+  "stat_mods": {
+    "Wildcraft": 1
+  }
+},
+{
+  "name": "Lunar Refugee",
+  "desc": "My family fled Luna during the war of unification.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["OUTCAST"],
+  "forbidden_tags": [],
+  "new_tags": ["REFUGEE"],
+  "new_personality": ["Luna"],
+  "merit_badges": ["BADGE_AEGIS_DEFECTOR"],
+  "biomessage": "[LPB_DETAILS]",
+  "biogram": {
+    "[LPB_DETAILS]": [
+        "Your parents were refugees from Luna who faced much discrimination on Earth.",
+        "You are a Lunar refugee, your family having fled the Aegis regime."
+    ]
+  }
+},
+{
+  "name": "Obvious Mutation",
+  "desc": "I have visible genetic mutations.",
+  "stage": "CHILDHOOD:DETAILS",
+  "required_tags": ["OUTCAST", "EARTH"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPB_DETAILS]",
+  "gain_mutation": true,
+  "biogram": {
+    "[LPB_DETAILS]": [
+      "You were born with [mutation].", 
+      "As you grew up, you developed [mutation]."    ]
+  }
+  
+},
+{
+  "name": "Militia",
+  "desc": "I joined the military and learned how to fight.",
+  "stage": "VOCATION",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": ["OUTCAST", "Idealist"],
+  "new_tags": ["MILITIA"],
+  "new_personality": [],
+  "biomessage": "[LPC_INTRO]",
+  "biogram": {
+    "[LPC_INTRO]": [
+      "When [crisis], you joined the militia in [city].",
+      "As soon as you were old enough to pilot a mecha, you signed up with [the_army].",
+      "You joined [the_army].",
+      "You learned mecha piloting in [the_army]."
+    ]
+  },
+  "stat_mods": {"MechaPiloting": 1},
+  "push_stages": [
+    {"prompt": "What was your position in the army?", "id": "VOCATION:MOS"}
+  ],
+  "merit_badges": [
+    "BADGE_SOLDIER"
+  ]
+},
+{
+  "name": "Combat Pilot",
+  "desc": "I was just a grunt.",
+  "stage": "VOCATION:MOS",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "You helped defend [town] against [enemies].",
+      "You fought [enemies]."
+    ]
+  },
+  "stat_mods": {
+    "MechaGunnery": 1, "Vitality": 1
+  }
+},
+{
+  "name": "Technician",
+  "desc": "I was a field tech.",
+  "stage": "VOCATION:MOS",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "Your skill as a field tech helped keep your lance in the fight.",
+      "As a technician you didn't see much action, you just had to clean up the mess when it was over."
+    ]
+  },
+  "stat_mods": {
+    "Repair": 1
+  }
+},
+{
+  "name": "Scout",
+  "desc": "I was a recon pilot.",
+  "stage": "VOCATION:MOS",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "Your skill as a recon pilot saved your lance on several occassions.",
+      "You infiltrated enemy lines as a recon pilot."
+    ]
+  },
+  "stat_mods": {
+    "Scouting": 1
+  }
+},
+{
+  "name": "EWS Pilot",
+  "desc": "I was an electronic warfare specialist.",
+  "stage": "VOCATION:MOS",
+  "required_tags": [],
+  "forbidden_tags": ["DeadZone"],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "More than once your almost-magical skill with computers helped your team survive a tough battle.",
+      "As the team's electronic warfare specialist you helped guide and defend your team mates."
+    ]
+  },
+  "stat_mods": {
+    "Computers": 1
+  }
+},
+{
+  "name": "Mech Hunter",
+  "desc": "I was a mecha hunter.",
+  "stage": "VOCATION:MOS",
+  "required_tags": ["DeadZone"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "You became your unit's most feared mecha hunter, dispatching enemies at close range.",
+      "Soon you gained a reputation for brutally striking down enemy leaders in close combat."
+    ]
+  },
+  "stat_mods": {
+    "MechaFighting": 1, "Athletics": 1
+  }
+},
+{
+  "name": "Sniper",
+  "desc": "I was a sniper, specializing in covert ops.",
+  "stage": "VOCATION:MOS",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "You were trained as a sniper, remaining unseen while dispatching enemy meks.",
+      "In combat, you discovered a knack for eliminating enemy units without being seen."
+    ]
+  },
+  "stat_mods": {
+    "Stealth": 1
+  }
+},
+{
+  "name": "University",
+  "desc": "I studied at a prestigious university.",
+  "stage": "VOCATION",
+  "required_tags": [],
+  "forbidden_tags": ["OUTCAST", "ORPHAN"],
+  "new_tags": ["UNIVERSITY"],
+  "new_personality": [],
+  "biomessage": "[LPC_INTRO]",
+  "biogram": {
+    "[LPC_INTRO]": [
+      "After high school you went to university.",
+      "You finished high school early and entered university in your mid teens."
+    ],
+    "[LPC_DETAILS]": [
+      "You majored in [major] and minored in [minor].",
+      "You studied [major] and [minor]."
+    ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "What was your major in university?", "id": "VOCATION:MAJOR"},
+    {"prompt": "What was your minor in university?", "id": "VOCATION:MINOR"}
+  ],
+  "merit_badges": [
+    "BADGE_ACADEMIC"
+  ]
+},
+{
+  "name": "Medicine",
+  "desc": "I majored in medicine.",
+  "stage": "VOCATION:MAJOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": ["BADGE_DOCTOR"],
+  "biogram": {
+    "[major]": [
+      "medicine"
+    ]
+  },
+  "stat_mods": {
+    "Medicine": 1
+  }
+},
+{
+  "name": "Science",
+  "desc": "I majored in science.",
+  "stage": "VOCATION:MAJOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biogram": {
+    "[major]": [
+      "science"
+    ]
+  },
+  "stat_mods": {
+    "Science": 1
+  }
+},
+{
+  "name": "Engineering",
+  "desc": "I majored in engineering.",
+  "stage": "VOCATION:MAJOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biogram": {
+    "[major]": [
+      "engineering"
+    ]
+  },
+  "stat_mods": {
+    "Repair": 1
+  }
+},
+{
+  "name": "Coding",
+  "desc": "I minored in coding.",
+  "stage": "VOCATION:MINOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[minor]": [
+      "computers"
+    ]
+  },
+  "stat_mods": {
+    "Computers": 1
+  }
+},
+{
+  "name": "Performing Arts",
+  "desc": "I minored in performing arts.",
+  "stage": "VOCATION:MINOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": ["MUSIC"],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[minor]": [
+      "performing arts"
+    ]
+  },
+  "stat_mods": {
+    "Performance": 1
+  }
+},
+{
+  "name": "Management",
+  "desc": "I minored in management.",
+  "stage": "VOCATION:MINOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[minor]": [
+      "management"
+    ]
+  },
+  "stat_mods": {
+    "Negotiation": 1
+  }
+},
+{
+  "name": "Archaeology",
+  "desc": "I minored in archaeology.",
+  "stage": "VOCATION:MINOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[minor]": [
+      "archaeology"
+    ]
+  },
+  "stat_mods": {
+    "Biotechnology": 1
+  }
+},
+{
+  "name": "Physical Education",
+  "desc": "I minored in physical education.",
+  "stage": "VOCATION:MINOR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[minor]": [
+      "physical education"
+    ]
+  },
+  "stat_mods": {
+    "Athletics": 1, "Vitality": 1
+  }
+},
+{
+  "name": "Autodidact",
+  "desc": "I am a self taught expert in my chosen field.",
+  "stage": "VOCATION",
+  "required_tags": [],
+  "forbidden_tags": ["FRONTIER", "ORPHAN"],
+  "new_tags": ["AUTODIDACT"],
+  "new_personality": [],
+  "biomessage": "[LPC_INTRO]",
+  "biogram": {
+    "[LPC_INTRO]": [
+      "You completed your education using books and old datafiles.",
+      "You spurned higher education in favor of studying by yourself.",
+      "Pushed by your obsessions, you became an expert in your chosen field."
+    ]
+  },
+  "stat_mods": {"Concentration": 2},
+  "push_stages": [
+    {"prompt": "What subject captivated your interest?", "id": "VOCATION:AUTODIDACT"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Music",
+  "desc": "I was obsessed with music.",
+  "stage": "VOCATION:AUTODIDACT",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": ["MUSIC"],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "Every night you practiced the [instrument], working hard to perfect your technique."
+    ]
+  },
+  "stat_mods": {
+    "Performance": 1
+  }
+},
+{
+  "name": "Lost Technology",
+  "desc": "I learned as much as possible about PreZero tech, especially the lost art of biotechnology.",
+  "stage": "VOCATION:AUTODIDACT",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "You sought out esoteric tomes to learn the forbidden art of biotechnology.",
+      "Your search for the lost science of biotechnology took you to ancient libraries and prezero ruins."
+    ]
+  },
+  "stat_mods": {
+    "Biotechnology": 1
+  }
+},
+{
+  "name": "The Underworld",
+  "desc": "As a young adult, I got involved in some dangerous business.",
+  "stage": "VOCATION",
+  "required_tags": [],
+  "forbidden_tags": ["CITYDWELLER", "FRONTIER"],
+  "new_tags": ["UNDERWORLD"],
+  "new_personality": [],
+  "biomessage": "[LPC_INTRO]",
+  "biogram": {
+    "[LPC_INTRO]": [
+      "To make ends meet, you got involved in crime.",
+      "You started committing crimes before you were old enough to really understand the consequences."
+    ]
+  },
+  "stat_mods": {"Athletics": 2},
+  "push_stages": [
+    {"prompt": "What sort of criminal activity were you involved in?", "id": "VOCATION:CRIMINAL"}
+  ],
+  "merit_badges": ["BADGE_CRIMINAL"]
+},
+{
+  "name": "Sneak Thief",
+  "desc": "I was a thief.",
+  "stage": "VOCATION:CRIME",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "You became a notorious thief, easily able to slip past guards.",
+      "You became a cat burgular, stealing priceless treasures as their owners slept just meters away.",
+      "You took up shoplifting. Although this wasn't a lucrative career, it paid the bills."
+    ]
+  },
+  "stat_mods": {
+    "Stealth": 1
+  }
+},
+{
+  "name": "Hacking",
+  "desc": "I was a computer hacker.",
+  "stage": "VOCATION:CRIME",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "Online you were known as [Adjective] [Noun], [LPC_HAKN_DESC]."
+    ],
+    "[LPC_HAKN_DESC]": [
+      "the infamous hacker","[city]'s greatest hacker",
+      "the feared cybercriminal"
+    ]
+  },
+  "stat_mods": {
+    "Computers": 1
+  }
+},
+{
+  "name": "Enforcer",
+  "desc": "I worked as hired muscle for gangsters.",
+  "stage": "VOCATION:CRIME",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "You worked as an enforcer for [LPC_BOSS], cybering yourself up to better fit the role.",
+      "You made a lot of money acting as a cyber-enforcer for [LPC_BOSS].",
+      "You were badly injured during a botched mission and needed cybernetic reconstruction."
+    ],
+    "[LPC_BOSS]": [
+      "the Bone Devils", "the Treasure Hunters", "a mafia boss", "a shady businessman"
+    ]
+  },
+  "stat_mods": {
+    "Cybertech": 1
+  }
+},
+{
+  "name": "Survival",
+  "desc": "Life was tough. All I could do was to survive, and then just barely.",
+  "stage": "VOCATION",
+  "required_tags": [],
+  "forbidden_tags": ["CITYDWELLER", "Idealist"],
+  "new_tags": ["SURVIVAL"],
+  "new_personality": [],
+  "biomessage": "[LPC_INTRO]",
+  "biogram": {
+    "[LPC_INTRO]": [
+      "Despite all the obstacles the world threw at you, you refused to give up.",
+      "Through perserverance you managed to survive and prosper under terrible circumstances."
+    ]
+  },
+  "stat_mods": {"Vitality": 2},
+  "push_stages": [
+    {"prompt": "What allowed you to get through this period?", "id": "VOCATION:SURVIVAL"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Fast Talker",
+  "desc": "I learned to talk my way out of bad situations.",
+  "stage": "VOCATION:SURVIVAL",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "Thanks to your fast wits, you could talk your way out of most bad situations.",
+      "You discovered a talent for negotiation. With nothing more than a golden tongue, you soon began to climb the heap."
+    ]
+  },
+  "stat_mods": {
+    "Negotiation": 1
+  }
+},
+{
+  "name": "Animal Companion",
+  "desc": "I had a dog who kept me safe.",
+  "stage": "VOCATION:SURVIVAL",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPC_DETAILS]",
+  "biogram": {
+    "[LPC_DETAILS]": [
+      "Fortunately, you had a big dog who protected you until you were big enough to look after yourself.",
+      "When you were targeted by [badguys], it was a stray dog that came to your defense."
+    ],
+    "[badguys]": [
+      "bullies","muggers","thieves"
+    ]
+  },
+  "stat_mods": {
+    "Wildcraft": 1
+  }
 }
+
+
 
 ]
