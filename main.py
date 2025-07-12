@@ -12,6 +12,7 @@
 # nuitka-project: --include-package=caramel-recolor-cython
 # nuitka-project: --nofollow-import-to=setuptools
 # nuitka-project: --nofollow-import-to=Cython
+# nuitka-project: --lto
 
 
 import pbge
