@@ -89,9 +89,12 @@ BADGE_ACADEMIC = TagReactionBadge("Academic","You are familiar with the language
 BADGE_GEARHEAD = TagReactionBadge("Gearhead","You are obsessed with mecha and anything having to do with mecha.",remods={tags.Craftsperson:10}, tags=(tags.Craftsperson,))
 BADGE_POPSTAR = TagReactionBadge("Pop Star","You released a few songs and attained some notoriety as a pop star.",remods={tags.Media:10}, tags=(tags.Media,))
 BADGE_SOLDIER = TagReactionBadge("Soldier","Your time in the army taught you camraderie with all who serve.",remods={tags.Military:10}, tags=(tags.Military,))
-BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,), contra=("Police",))
-BADGE_POLICE = TagReactionBadge("Police","You have worked in law enforcement.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,), contra=("Criminal",))
+BADGE_CRIMINAL = TagReactionBadge("Criminal","You put some action in your life by breaking the law.",remods={tags.Police:-10,tags.Criminal:10}, tags=(tags.Criminal,), contra=("Police", "Bounty Hunter"))
+BADGE_POLICE = TagReactionBadge("Police","You have worked in law enforcement.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,), contra=("Criminal", "Bounty Hunter"))
+BADGE_BOUNTYHUNTER = TagReactionBadge("Bounty Hunter","You have a bounty hunting license.",remods={tags.Police:10,tags.Criminal:-10}, tags=(tags.Police,), contra=("Criminal", "Police"))
 BADGE_DOCTOR = TagReactionBadge("Doctor","You have professional training as a physician.",remods={tags.Medic:10}, tags=(tags.Medic,))
+
+BADGE_CORPODRONE = TagReactionBadge("Corpo Drone","You worked an inglorious corporate job.",remods={tags.CorporateWorker:10}, tags=(tags.CorporateWorker,))
 
 BADGE_RAVAGER = TagReactionBadge("Ravager","You are a member of a nomad caravan in the dead zone.",remods={personality.DeadZone:10, personality.GreenZone:-10, factions.Ravagers:10}, tags=(tags.Adventurer,))
 

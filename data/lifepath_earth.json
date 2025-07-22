@@ -1029,8 +1029,473 @@
   "stat_mods": {
     "Wildcraft": 1
   }
+},
+{
+  "name": "War",
+  "desc": "Everything got put on hold when open warfare broke out.",
+  "stage": "CRISIS",
+  "required_tags": [],
+  "forbidden_tags": ["AUTODIDACT", "UNDERWORLD"],
+  "new_tags": ["WAR"],
+  "new_personality": [],
+  "biomessage": "[LPD_INTRO]",
+  "biogram": {
+    "[LPD_INTRO]": [
+       "You fought against [enemies].",
+        "Your home was destroyed in an enemy attack, forcing you to fight for your life.",
+        "When [enemies] attacked your neighborhood, fighting became a matter of survival."
+    ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "What did you do during the war?", "id": "CRISIS:WAR"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Lostech Hunting",
+  "desc": "I sought info about PreZero bioweapons to aid my side.",
+  "stage": "CRISIS:WAR",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "Hearing rumors of reawakened bioweapons, you were sent to learn what you could about these ancient threats.",
+      "As news arrived of reawakened bioweapons, your knowledge of lost technology became highly valuable."
+    ]
+  },
+  "stat_mods": {
+    "Biotechnology": 1
+  }
+},
+{
+  "name": "Field Medic",
+  "desc": "I used my medical knowledge to help those injured in the fighting.",
+  "stage": "CRISIS:WAR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You acted as a battlefield medic, trying to save as many of the injured as you could."
+    ]
+  },
+  "stat_mods": {
+    "Medicine": 1
+  }
+},
+{
+  "name": "Specialist Pilot",
+  "desc": "I fought, using my talents as an EW specialist. ",
+  "stage": "CRISIS:WAR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "Your expertise at electronic warfare came in handy during the fighting.",
+      "You joined a defense squad as their ECM specialist."
+    ]
+  },
+  "stat_mods": {
+    "Computers": 1
+  }
+},
+{
+  "name": "Revenge Road",
+  "desc": "Consumed by rage, I set out to destroy the enemy.",
+  "stage": "CRISIS:WAR",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": ["Grim"],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You lost yourself to anger, living only to defeat the enemy that had taken so much from you.",
+      "You spent the war fighting, throwing yourself into battle without any care for self preservation."
+    ]
+  },
+  "stat_mods": {
+    "MechaFighting": 1
+  }
+},
+{
+  "name": "Poverty",
+  "desc": "I lost whatever money I once had, and landed in dire straits.",
+  "stage": "CRISIS",
+  "required_tags": [],
+  "forbidden_tags": ["UNIVERSITY", "MILITIA"],
+  "new_tags": ["POVERTY"],
+  "new_personality": [],
+  "biomessage": "[LPD_INTRO]",
+  "biogram": {
+    "[LPD_INTRO]": [
+        "With no money and no options, you were forced to leave home.",
+        "Unfortunately, the money you were counting on never started to pour in."
+    ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "How did you survive during this time?", "id": "CRISIS:POVERTY"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Mercenary",
+  "desc": "I became a soldier of fortune.",
+  "stage": "CRISIS:POVERTY",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You became a mercenary, selling your skills to the highest bidder.",
+      "You traveled the solar system as a mercenary, seeking out trouble spots for your next big contract."
+    ]
+  },
+  "stat_mods": {
+    "RangedCombat": 1
+  }
+},
+{
+  "name": "Organized Crime",
+  "desc": "I stole what I needed to survive.",
+  "stage": "CRISIS:POVERTY",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": ["BADGE_CRIMINAL"],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "During this time, you did some things you aren't proud of just to survive.",
+      "Around this time, you did a number of things that aren't technically legal."
+    ]
+  },
+  "stat_mods": {
+    "Stealth": 1
+  }
+},
+{
+  "name": "Survivalist",
+  "desc": "I went off-grid, leading a sustenance lifestyle.",
+  "stage": "CRISIS:POVERTY",
+  "required_tags": ["DeadZone"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "With no posessions to hold you down, you lived off the land.",
+      "You lived by the traditional ways of your people: hunting, foraging, and seeking PreZero caches of canned food."
+    ]
+  },
+  "stat_mods": {
+    "Wildcraft": 1
+  }
+},
+{
+  "name": "Corporate Drone",
+  "desc": "I took the only job available to me.",
+  "stage": "CRISIS:POVERTY",
+  "required_tags": ["GreenZone"],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": ["BADGE_CORPODRONE"],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You worked fora corporate support line, handling calls deemed too insignificant to pass on to the computer.",
+      "You got an meaningless office job at a small corporation, but dreamed of escape."
+    ]
+  },
+  "stat_mods": {
+    "Negotiation": 1
+  }
+},
+{
+  "name": "Destiny",
+  "desc": "I felt a calling that I couldn't ignore.",
+  "stage": "CRISIS",
+  "required_tags": [],
+  "forbidden_tags": ["SURVIVAL", "MILITIA"],
+  "new_tags": ["DESTINY"],
+  "new_personality": [],
+  "biomessage": "[LPD_INTRO]",
+  "biogram": {
+    "[LPD_INTRO]": [
+        "You always felt that you were destined for greater things.",
+        "One time, you left all of that to go fulfil your destiny."
+    ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "What is your great destiny?", "id": "CRISIS:DESTINY"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Golden Tongue",
+  "desc": "I am both a problem solver and a troublemaker.",
+  "stage": "CRISIS:DESTINY",
+  "required_tags": [],
+  "forbidden_tags": ["Shy"],
+  "new_tags": [],
+  "new_personality": ["Sociable"],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You talked a [client] into giving you a free mecha, and set out to become a cavalier."
+    ],
+    "[client]": [
+      "recruiter", "corporate executive", "friend", "trucker", "mechanic", "client"
+    ]
+  },
+  "stat_mods": {
+    "Negotiation": 1
+  }
+},
+{
+  "name": "Mecha Maniac",
+  "desc": "I was born to pilot mecha.",
+  "stage": "CRISIS:DESTINY",
+  "required_tags": [],
+  "forbidden_tags": ["Easygoing"],
+  "new_tags": [],
+  "new_personality": ["Passionate"],
+  "merit_badges": ["BADGE_GEARHEAD"],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You spent your life savings on a new mecha and became a cavalier.",
+      "Inspired by the action shows of your childhood, you gave up your mundane life to become a cavalier."
+    ]
+  },
+  "stat_mods": {
+    "Repair": 1
+  }
+},
+{
+  "name": "Bounty Hunter",
+  "desc": "I became a bounty hunter.",
+  "stage": "CRISIS:DESTINY",
+  "required_tags": ["EARTH"],
+  "forbidden_tags": [],
+  "new_tags": ["BOUNTYHUNTER"],
+  "new_personality": [],
+  "merit_badges": ["BADGE_BOUNTYHUNTER"],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You pledged your life to fight criminals in the name of great justice.",
+      "You got a bounty hunting license and started adventuring."
+    ]
+  },
+  "stat_mods": {
+    "Scouting": 1
+  }
+},
+{
+  "name": "Pop Singing Pilot",
+  "desc": "I could never silence the song in my heart.",
+  "stage": "CRISIS:DESTINY",
+  "required_tags": [],
+  "forbidden_tags": ["Grim"],
+  "new_tags": [],
+  "new_personality": ["Cheerful"],
+  "merit_badges": ["BADGE_POPSTAR"],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You began recording music, seeking fame as a cavalier idol star."
+    ]
+  },
+  "stat_mods": {
+    "Performance": 1
+  }
+},
+{
+  "name": "Betrayal",
+  "desc": "I was betrayed by someone close to me.",
+  "stage": "CRISIS",
+  "required_tags": [],
+  "forbidden_tags": ["SURVIVAL", "UNDERWORLD"],
+  "new_tags": ["BETRAYAL"],
+  "new_personality": [],
+  "biomessage": "[LPD_INTRO]",
+  "biogram": {
+    "[LPD_INTRO]": [
+        "During an important mission, you were betrayed by a friend.",
+        "On your first mission as a cavalier, you were betrayed by your mentor."
+    ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "What was your reaction to this betrayal?", "id": "CRISIS:BETRAYAL"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Get Even",
+  "desc": "I will get strong enough to defeat them.",
+  "stage": "CRISIS:BETRAYAL",
+  "required_tags": [],
+  "forbidden_tags": ["Cheerful"],
+  "new_tags": [],
+  "new_personality": ["Grim"],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You swore to train until you are strong enough to enact revenge.",
+      "You promised that one day you will get even."
+    ]
+  },
+  "stat_mods": {
+    "MechaFighting": 1, "MechaGunnery": 1
+  }
+},
+{
+  "name": "Caution",
+  "desc": "I must never let my guard down again.",
+  "stage": "CRISIS:BETRAYAL",
+  "required_tags": [],
+  "forbidden_tags": ["Sociable"],
+  "new_tags": [],
+  "new_personality": ["Shy"],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "Following this, you swore to never let your guard down again.",
+      "Since that time you've been cautious about other people.",
+      "You never saw it coming."
+    ]
+  },
+  "stat_mods": {
+    "Scouting": 1
+  }
+},
+{
+  "name": "Arm and a Leg",
+  "desc": "They left me for dead; I needed cybernetic surgery to survive.",
+  "stage": "CRISIS:BETRAYAL",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You were scarred both mentally and physically.",
+      "They left you for dead, but with some new augmentations you survived."
+    ]
+  },
+  "stat_mods": {
+    "Cybertech": 1
+  }
+},
+{
+  "name": "Failure",
+  "desc": "I failed at an important task, and now bear the responsibility for the consequences.",
+  "stage": "CRISIS",
+  "required_tags": [],
+  "forbidden_tags": ["UNIVERSITY", "AUTODIDACT"],
+  "new_tags": ["FAILURE"],
+  "new_personality": [],
+  "biomessage": "[LPD_INTRO]",
+  "biogram": {
+    "[LPD_INTRO]": [
+        "Unfortunately, your plans for life were upturned by a single mistake.",
+        "Just when your life started looking up, a single accident turned everything upside down."
+    ]
+  },
+  "stat_mods": {},
+  "push_stages": [
+    {"prompt": "What sort of failure did you experience?", "id": "CRISIS:FAILURE"}
+  ],
+  "merit_badges": []
+},
+{
+  "name": "Shadow of Death",
+  "desc": "My friend died and I couldn't save them.",
+  "stage": "CRISIS:FAILURE",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "A routine mission went bad. One of your lancemates was critically injured, and you couldn't save [object_pronoun].",
+      "Your friend got shot during a mission. You tried to save [object_pronoun], but failed."
+    ]
+  },
+  "stat_mods": {
+    "Medicine": 1
+  }
+},
+{
+  "name": "One Hit Wonder",
+  "desc": "My music career went nowhere.",
+  "stage": "CRISIS:FAILURE",
+  "required_tags": [],
+  "forbidden_tags": [],
+  "new_tags": [],
+  "new_personality": [],
+  "merit_badges": ["BADGE_POPSTAR"],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "You decided to start a band. Your one and only single ended up the most hated song of NT154.",
+      "You accepted a recording contract before you were ready for the bigtime and ended up a has-been before you even got a chance to start."
+    ]
+  },
+  "stat_mods": {
+    "Performance": 1
+  }
+},
+{
+  "name": "Easy Come, Easy Go",
+  "desc": "I've had many failures but I don't let them get me down.",
+  "stage": "CRISIS:FAILURE",
+  "required_tags": [],
+  "forbidden_tags": ["Passionate"],
+  "new_tags": [],
+  "new_personality": ["Easygoing"],
+  "merit_badges": [],
+  "biomessage": "[LPD_DETAILS]",
+  "biogram": {
+    "[LPD_DETAILS]": [
+      "Despite many failures, you keep trying.",
+      "Still, you keep going."
+    ]
+  },
+  "stat_mods": {
+    "Vitality": 2
+  }
 }
-
-
 
 ]

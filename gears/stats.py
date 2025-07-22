@@ -354,8 +354,8 @@ class Performance(Skill):
     desc = "This skill enables you to play music. Do it well enough and you might even inspire allies and demoralize enemies during combat."
 
     @classmethod
-    def add_invocations(self, pc, invodict):
-        invodict[self].append(listentomysong.Invocation(att_stat=Charm
+    def add_invocations(cls, pc, invodict):
+        invodict[cls].append(listentomysong.Invocation(att_stat=Charm
                                                         , att_skill=Performance
                                                         , def_stat=Ego
                                                         , def_skill=Concentration,
@@ -368,10 +368,10 @@ class Negotiation(Skill):
     desc = "This skill is used to verbally influence other characters."
 
     @classmethod
-    def add_invocations(self, pc, invodict):
+    def add_invocations(cls, pc, invodict):
         encourage = pbge.effects.Invocation(
             name="Encourage",
-            fx=geffects.DoEncourage(Charm, self),
+            fx=geffects.DoEncourage(Charm, cls),
             area=pbge.scenes.targetarea.SingleTarget(reach=10),
             used_in_combat=True, used_in_exploration=True,
             ai_tar=aitargeters.GenericTargeter(
@@ -385,7 +385,7 @@ class Negotiation(Skill):
             targets=1,
             help_text="You can expend some of your stamina to recharge a single ally's mental points."
         )
-        invodict[self].append(encourage)
+        invodict[cls].append(encourage)
 
 
 class Scouting(Skill):
