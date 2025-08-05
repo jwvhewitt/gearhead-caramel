@@ -1036,13 +1036,6 @@ A_EARTH = LifePathNode(
 
 STARTING_CHOICES = (A_EARTH,)
 
-STAGE_ORIGIN = "ORIGIN"
-STAGE_CHILDHOOD = "CHILDHOOD"
-STAGE_VOCATION = "VOCATION"
-STAGE_CRISIS = "CRISIS"
-STAGE_RESOLUTION = "RESOLUTION"
-
-STAGES = (STAGE_ORIGIN, STAGE_CHILDHOOD, STAGE_VOCATION, STAGE_CRISIS, STAGE_RESOLUTION)
 
 class BioBlock( object ):
     def __init__(self,model,width=220,bio_font=None,**kwargs):
@@ -1079,21 +1072,14 @@ class CGNonComSkillBlock(object):
 class LifePathStatusPanel(gears.info.InfoPanel):
     DEFAULT_BLOCKS = (BioBlock,CGNonComSkillBlock)
 
-def generate_random_lifepath(cgen):
-    current = random.choice(STARTING_CHOICES)
-    while current:
-        if current.auto_fx:
-            current.auto_fx.apply(cgen)
 
-        for c in current.choices:
-            myop = random.choice(c.options)
-            myop.apply(cgen)
+STAGE_ORIGIN = "ORIGIN"
+STAGE_CHILDHOOD = "CHILDHOOD"
+STAGE_VOCATION = "VOCATION"
+STAGE_CRISIS = "CRISIS"
+STAGE_RESOLUTION = "RESOLUTION"
 
-        if current.next:
-            current = random.choice(current.next)
-        else:
-            break
-
+STAGES = (STAGE_ORIGIN, STAGE_CHILDHOOD, STAGE_VOCATION, STAGE_CRISIS, STAGE_RESOLUTION)
 
 
 class LifePathEvent:
@@ -1132,7 +1118,6 @@ class LifePathEvent:
         for tag in taglist:
             if tag in gears.SINGLETON_TYPES:
                 nulist.append(gears.SINGLETON_TYPES[tag])
-                print(tag)
             else:
                 nulist.append(tag)
         return nulist
@@ -1170,12 +1155,57 @@ class LifePathEvent:
             "brightly colored skin", "visible mutations"
         ]
     }
+
     def apply_mutation(self, cgen):
         mutation = random.choice(personality.MUTATIONS)
         cgen.bio_personality.append(mutation)
         mutation.apply(cgen.pc,cgen.bio_bonuses)
         cgen.biogram["[mutation]"] = self.MUTANT_BIOGRAM[mutation]
 
+    def matches(self, lpath):
+        return self.required_tags.issubset(lpath.tags) and self.forbidden_tags.isdisjoint(lpath.tags)
+
+
+class Lifepath:
+    def __init__(self):
+        self.biogram = pbge.dialogue.grammar.Grammar()
+        self.bio_personality = list()
+        self.bio_badges = list()
+        self.lifepath_tags = set()
+        self.stages = list(STAGES)
+
+    @property
+    def tags(self):
+        ptags = set(self.bio_personality)
+        for badge in self.bio_badges:
+            if hasattr(badge, "tags") and badge.tags:
+                ptags |= badge.tags
+        return set(self.bio_personality) | ptags
+
+    @classmethod
+    def random_lifepath(cls):
+        mylp = cls()
+
+        while mylp.stages:
+            next_stage, next_stage_desc = mylp.stages.pop(0)
+
+        return mylp
+
+
+def generate_random_lifepath(cgen):
+    current = random.choice(STARTING_CHOICES)
+    while current:
+        if current.auto_fx:
+            current.auto_fx.apply(cgen)
+
+        for c in current.choices:
+            myop = random.choice(c.options)
+            myop.apply(cgen)
+
+        if current.next:
+            current = random.choice(current.next)
+        else:
+            break
 
 
 def init_lifepath():

@@ -79,6 +79,11 @@ OPPOSED_PAIRS = (
     (Peace, Violent), (Failure, Glory), (Corrupt, Justice), (Duty, Irresponsible), (Fellowship, Heartless)
 )
 
+OPPOSITES = {
+    Sociable: Shy, Shy: Sociable,
+    Easygoing: Passionate, Passionate: Easygoing,
+    Cheerful: Grim, Grim: Cheerful
+}
 
 # Origin Tags- Use one of these to mark the home/culture of a character.
 

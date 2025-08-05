@@ -1496,6 +1496,114 @@
   "stat_mods": {
     "Vitality": 2
   }
+},
+{
+  "name": "Resolution: Duty",
+  "desc": "I know no life other than being a cavalier, and live in strict adherence to the Cavalier Code.",
+  "stage": "RESOLUTION",
+  "required_tags": [],
+  "forbidden_tags": ["BETRAYAL", "DESTINY"],
+  "new_tags": [],
+  "new_personality": ["Duty"],
+  "merit_badges": [],
+  "biomessage": "[LPE_DETAILS]",
+  "biogram": {
+    "[LPE_DETAILS]": [
+      "You strive every day to fulfil your duty as a cavalier.",
+      "Life so far has taught you the importance of responsibility. You accept your duty with steely resolve."
+    ]
+  },
+  "stat_mods": {}
+},
+{
+  "name": "Resolution: Fellowship",
+  "desc": "I swear to never harm others in the way I have been harmed.",
+  "stage": "RESOLUTION",
+  "required_tags": ["BETRAYAL"],
+  "forbidden_tags": ["FAILURE", "WAR"],
+  "new_tags": [],
+  "new_personality": ["Fellowship"],
+  "merit_badges": [],
+  "biomessage": "[LPE_DETAILS]",
+  "biogram": {
+    "[LPE_DETAILS]": [
+      "Having suffered betrayal, you vow to be a loyal friend yourself.",
+      "You promise never to harm others as you have been harmed yourself, and choose to honor the virtue of fellowship."
+    ]
+  },
+  "stat_mods": {}
+},
+{
+  "name": "Resolution: Fellowship",
+  "desc": "I choose to build bridges instead of just blowing them up.",
+  "stage": "RESOLUTION",
+  "required_tags": [],
+  "forbidden_tags": ["FAILURE", "WAR", "BETRAYAL"],
+  "new_tags": [],
+  "new_personality": ["Fellowship"],
+  "merit_badges": [],
+  "biomessage": "[LPE_DETAILS]",
+  "biogram": {
+    "[LPE_DETAILS]": [
+      "If life has taught you anything, it's that we're all in this together. You strive to honor this fellowship with other cavaliers.",
+      "These days, you enjoy being a cavalier mostly for the fellowship."
+    ]
+  },
+  "stat_mods": {}
+},
+{
+  "name": "Resolution: Justice",
+  "desc": "I have sworn to uphold the principles of justice.",
+  "stage": "RESOLUTION",
+  "required_tags": [],
+  "forbidden_tags": ["POVERTY", "WAR"],
+  "new_tags": [],
+  "new_personality": ["Justice"],
+  "merit_badges": [],
+  "biomessage": "[LPE_DETAILS]",
+  "biogram": {
+    "[LPE_DETAILS]": [
+      "Now, you have dedicated your life to the pursuit of justice.",
+      "Following that, you pledged yourself to the quest for justice. This is the principle that motivates you as a cavalier."
+    ]
+  },
+  "stat_mods": {}
+},
+{
+  "name": "Resolution: Glory",
+  "desc": "I seek a life of danger and excitement. Riches and fame would be pretty good too.",
+  "stage": "RESOLUTION",
+  "required_tags": [],
+  "forbidden_tags": ["FAILURE", "BETRAYAL"],
+  "new_tags": [],
+  "new_personality": ["Glory"],
+  "merit_badges": [],
+  "biomessage": "[LPE_DETAILS]",
+  "biogram": {
+    "[LPE_DETAILS]": [
+      "Now, you have dedicated your life to seeking adventure and glory.",
+      "So far you haven't had great success, but you know it's only a matter of time before you're number one!"
+    ]
+  },
+  "stat_mods": {}
+},
+{
+  "name": "Resolution: Peace",
+  "desc": "I vow to protect the weak, and prevent tragedies like those I've witnessed from happening again.",
+  "stage": "RESOLUTION",
+  "required_tags": [],
+  "forbidden_tags": ["POVERTY", "DESTINY"],
+  "new_tags": [],
+  "new_personality": ["Peace"],
+  "merit_badges": [],
+  "biomessage": "[LPE_DETAILS]",
+  "biogram": {
+    "[LPE_DETAILS]": [
+      "Now, you have dedicated your life to peace and protecting the powerless.",
+      "These days you work to protect people and stop tragedies like those you've witnessed from happening again."
+    ]
+  },
+  "stat_mods": {}
 }
 
 ]
