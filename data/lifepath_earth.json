@@ -8,7 +8,7 @@
   "new_tags": ["EARTH"],
   "new_personality": [],
   "push_stages": [
-    {"prompt": "What part of Earth are you from?", "id": "ORIGIN:REGION"}
+    ["What part of Earth are you from?", "ORIGIN:REGION"]
   ]
 },
 {
@@ -87,7 +87,7 @@
     "Body": 1, "Perception": 1
   },
     "push_stages": [
-    {"prompt": "How was growing up in your frontier town?", "id": "CHILDHOOD:DETAILS"}
+    ["How was growing up in your frontier town?", "CHILDHOOD:DETAILS"]
   ]
 },
 {
@@ -108,7 +108,7 @@
     "Charm": 1, "Knowledge": 1
   },
     "push_stages": [
-    {"prompt": "What part of the city were you raised in?", "id": "CHILDHOOD:DETAILS"}
+    ["What part of the city were you raised in?", "CHILDHOOD:DETAILS"]
   ]
 },
 {
@@ -129,7 +129,7 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "How did you perform in school?", "id": "CHILDHOOD:SCHOOLING"}
+    ["How did you perform in school?", "CHILDHOOD:SCHOOLING"]
   ]
 },
 {
@@ -150,8 +150,8 @@
   "stat_mods": {
     "Reflexes": 1, "Craft": 1
   },
-    "push_stages": [
-    {"prompt": "What is it that set you apart from your peers?", "id": "CHILDHOOD:DETAILS"}
+  "push_stages": [
+    ["What is it that set you apart from your peers?", "CHILDHOOD:DETAILS"]
   ]
 },
 {
@@ -175,7 +175,7 @@
     "Ego": 1, "Speed": 1
   },
     "push_stages": [
-    {"prompt": "How did you cope with the loss of your parents?", "id": "CHILDHOOD:DETAILS"}
+    ["How did you cope with the loss of your parents?", "CHILDHOOD:DETAILS"]
   ]
 },
 {
@@ -513,7 +513,7 @@
   },
   "stat_mods": {"MechaPiloting": 1},
   "push_stages": [
-    {"prompt": "What was your position in the army?", "id": "VOCATION:MOS"}
+    ["What was your position in the army?", "VOCATION:MOS"]
   ],
   "merit_badges": [
     "BADGE_SOLDIER"
@@ -660,8 +660,8 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "What was your major in university?", "id": "VOCATION:MAJOR"},
-    {"prompt": "What was your minor in university?", "id": "VOCATION:MINOR"}
+    ["What was your major in university?", "VOCATION:MAJOR"],
+    ["What was your minor in university?", "VOCATION:MINOR"]
   ],
   "merit_badges": [
     "BADGE_ACADEMIC"
@@ -834,7 +834,7 @@
   },
   "stat_mods": {"Concentration": 2},
   "push_stages": [
-    {"prompt": "What subject captivated your interest?", "id": "VOCATION:AUTODIDACT"}
+    ["What subject captivated your interest?", "VOCATION:AUTODIDACT"]
   ],
   "merit_badges": []
 },
@@ -894,7 +894,7 @@
   },
   "stat_mods": {"Athletics": 2},
   "push_stages": [
-    {"prompt": "What sort of criminal activity were you involved in?", "id": "VOCATION:CRIMINAL"}
+    ["What sort of criminal activity were you involved in?", "VOCATION:CRIMINAL"]
   ],
   "merit_badges": ["BADGE_CRIMINAL"]
 },
@@ -983,7 +983,7 @@
   },
   "stat_mods": {"Vitality": 2},
   "push_stages": [
-    {"prompt": "What allowed you to get through this period?", "id": "VOCATION:SURVIVAL"}
+    ["What allowed you to get through this period?", "VOCATION:SURVIVAL"]
   ],
   "merit_badges": []
 },
@@ -1048,7 +1048,7 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "What did you do during the war?", "id": "CRISIS:WAR"}
+    ["What did you do during the war?", "CRISIS:WAR"]
   ],
   "merit_badges": []
 },
@@ -1148,7 +1148,7 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "How did you survive during this time?", "id": "CRISIS:POVERTY"}
+    ["How did you survive during this time?", "CRISIS:POVERTY"]
   ],
   "merit_badges": []
 },
@@ -1249,7 +1249,7 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "What is your great destiny?", "id": "CRISIS:DESTINY"}
+    ["What is your great destiny?", "CRISIS:DESTINY"]
   ],
   "merit_badges": []
 },
@@ -1351,7 +1351,7 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "What was your reaction to this betrayal?", "id": "CRISIS:BETRAYAL"}
+    ["What was your reaction to this betrayal?", "CRISIS:BETRAYAL"]
   ],
   "merit_badges": []
 },
@@ -1433,7 +1433,7 @@
   },
   "stat_mods": {},
   "push_stages": [
-    {"prompt": "What sort of failure did you experience?", "id": "CRISIS:FAILURE"}
+    ["What sort of failure did you experience?", "CRISIS:FAILURE"]
   ],
   "merit_badges": []
 },

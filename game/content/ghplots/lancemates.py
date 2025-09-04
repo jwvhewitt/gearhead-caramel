@@ -4,9 +4,8 @@ from game.content import backstory
 from pbge.plots import Plot, Rumor
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
+from game.content import plotutility
 import gears
-import game.content.gharchitecture
-import game.content.ghterrain
 import random
 
 Memo = pbge.memos.Memo
@@ -32,17 +31,17 @@ class UtterlyRandomLancemate(Plot):
         npc = gears.selector.random_character(rank=min(random.randint(10, 50), random.randint(10, 50)),
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
-        scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        _ = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
         specialties = [sk for sk in gears.stats.NONCOMBAT_SKILLS if sk in npc.statline]
         if random.randint(-12, 3) > len(specialties):
             npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1, 4)
 
-        self.register_element("NPC", npc, dident="NPC_SCENE")
+        _=self.register_element("NPC", npc, dident="NPC_SCENE")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
 
-    def _is_best_scene(self, nart, candidate):
+    def _is_best_scene(self, _nart, candidate):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
@@ -59,13 +58,13 @@ class UtterlyGenericLancemate(Plot):
         if random.randint(1, 20) == 1:
             npc.statline[random.choice(gears.stats.NONCOMBAT_SKILLS)] += random.randint(1, 4)
 
-        scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
+        _scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
 
-        self.register_element("NPC", npc, dident="NPC_SCENE")
+        _=self.register_element("NPC", npc, dident="NPC_SCENE")
         self.add_sub_plot(nart, "RLM_Relationship")
         return True
 
-    def _is_best_scene(self, nart, candidate):
+    def _is_best_scene(self, _nart, candidate):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
@@ -177,7 +176,7 @@ class MutantLancemate(Plot):
                                               local_tags=tuple(self.elements["METROSCENE"].attributes),
                                               combatant=True)
         scene = self.seek_element(nart, "NPC_SCENE", self._is_best_scene, scope=self.elements["METROSCENE"])
-        mutation = random.choice(gears.personality.MUTATIONS)
+        mutation = random.choice(gears.mutations.MUTATIONS)
         mutation.apply(npc)
         npc.personality.add(mutation)
 
@@ -318,7 +317,7 @@ class RLM_Beginner(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -361,7 +360,7 @@ class RLM_Friendly(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -420,7 +419,7 @@ class RLM_Medic(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -487,7 +486,7 @@ class RLM_Mercenary(Plot):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         camp.credits -= self.hire_cost
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -548,7 +547,7 @@ class RLM_Professional(Plot):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
         camp.credits -= self.hire_cost
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -616,7 +615,7 @@ class RLM_RatherGeneric(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -671,7 +670,7 @@ class RLM_PersonForHire(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -734,7 +733,7 @@ class RLM_StraightOutOfWork(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -808,7 +807,7 @@ class RLM_DamagedGoodsSale(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -916,7 +915,7 @@ class RLM_HauntedByTyphon(Plot):
             "you were almost killed by Typhon",
             memtags=(gears.relationships.MEM_Trauma,)
         ))
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -1046,7 +1045,7 @@ class RLM_MechaOtaku(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)
 
@@ -1097,6 +1096,6 @@ class RLM_FarmKid(Plot):
     def _join_lance(self, camp):
         npc = self.elements["NPC"]
         npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-        effect = game.content.plotutility.AutoJoiner(npc)
+        effect = plotutility.AutoJoiner(npc)
         effect(camp)
         self.end_plot(camp)

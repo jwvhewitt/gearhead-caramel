@@ -50,7 +50,7 @@ class PlotState(object):
                 if k not in self.elements:
                     self.elements[k] = v
         if update_elements:
-            self.elements.update(update_elements)
+            _=self.elements.update(update_elements)
         # Why return self? Because this function will often be called straight
         # from the generator.
         return self
@@ -228,7 +228,7 @@ class Plot(object):
         if not ident:
             ident = "_autoident_{0}".format(len(self.subplots))
         if elements:
-            spstate.elements.update(elements)
+            _=spstate.elements.update(elements)
         if rank:
             spstate.rank = rank
         sp = nart.generate_sub_plot(spstate, splabel)
@@ -454,7 +454,7 @@ class Plot(object):
         return None
 
     @classmethod
-    def matches(cls, pstate: PlotState):
+    def matches(cls, pstate: PlotState) -> bool:
         """Returns True if this plot matches the current plot state."""
         return True
 
@@ -512,7 +512,7 @@ class Plot(object):
 class NarrativeRequest(object):
     """The builder class which constructs a story out of individual plots."""
 
-    def __init__(self, camp, pstate=None, adv_type="ADVENTURE_STUB", plot_list={}):
+    def __init__(self, camp, pstate, adv_type, plot_list):
         self.camp = camp
         self.generators = list()
         self.errors = list()

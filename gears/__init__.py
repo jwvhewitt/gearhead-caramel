@@ -1,4 +1,3 @@
-import gears.tags
 import pbge
 import random
 import copy
@@ -34,6 +33,7 @@ from . import usables
 from . import meritbadges
 from . import treasuretype
 from . import ghuiutil
+from . import mutations
 
 import inspect
 import os
@@ -75,6 +75,7 @@ harvest(tags, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(usables, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest(mutations, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 
 
 def harvest_color(dict_to_add_to):
@@ -749,7 +750,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                     if hasattr(pc, "pilot"):
                         pc.pilot = None
         npcs = [candidate for candidate in self.all_contents(self) if (
-                isinstance(candidate, gears.base.Character) and
+                isinstance(candidate, base.Character) and
                 candidate.relationship and candidate.relationship.is_interesting()
         )]
         for pc in npcs:
@@ -1168,9 +1169,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
     def activate_pet(self, pet: base.Monster):
         if pet.is_operational():
             if not pet.pet_data.trainer.is_operational():
-                pbge.BasicNotification("Cannot activate {} because trainer {} is not active.".format(pet, pet.pet_data.trainer))
+                _=pbge.BasicNotification("Cannot activate {} because trainer {} is not active.".format(pet, pet.pet_data.trainer))
             elif pet.pet_data.trainer.get_root() not in self.scene.contents:
-                pbge.BasicNotification(
+                _=pbge.BasicNotification(
                     "Cannot activate {} because trainer {} is not on the map.".format(pet, pet.pet_data.trainer))
             else:
                 for opet in self.party:
@@ -1341,14 +1342,14 @@ class Loader(object):
                 nulist = list()
                 if current_list is not None:
                     stack.append(current_list)
-                    current_list.append(nulist)
+                    _=current_list.append(nulist)
                 current_list = nulist
                 start_token = i + 1
             elif c in ')]':
                 # Pop out to previous list
                 if start_token < i:
                     toke = string[start_token:i]
-                    current_list.append(self.string_to_object(toke))
+                    _=current_list.append(self.string_to_object(toke))
                 if stack:
                     current_list = stack.pop()
                 start_token = i + 1
@@ -1356,7 +1357,7 @@ class Loader(object):
                 # Store the current item in the list
                 toke = string[start_token:i]
                 if toke:
-                    current_list.append(self.string_to_object(toke))
+                    _=current_list.append(self.string_to_object(toke))
                 start_token = i + 1
         return current_list
 
@@ -1404,7 +1405,7 @@ class Loader(object):
         dict_desc = dict_desc.replace('{', '')
         dict_desc = dict_desc.replace('}', '')
         while dict_desc:
-            a, b, c = dict_desc.partition('=')
+            a, _b, c = dict_desc.partition('=')
             # a should be the key.
             k = self.string_to_object(a)
 
@@ -1438,7 +1439,7 @@ class Loader(object):
                     # This is the start of a dictionary.
                     # Load the rest of the dict from the file,
                     # then pass it to the dictionary expander.
-                    a, b, c = line.partition('=')
+                    a, _b, c = line.partition('=')
                     k = self.string_to_object(a)
                     my_dict_lines = [c, ]
                     while "}" not in my_dict_lines[-1]:
@@ -1453,7 +1454,7 @@ class Loader(object):
 
                 elif "=" in line:
                     # This is a dict line. Add to the current_dict.
-                    a, b, c = line.partition('=')
+                    a, _b, c = line.partition('=')
                     k = self.string_to_object(a)
                     v = self.string_to_object(c)
                     if k and v:
@@ -1588,8 +1589,8 @@ def harvest_merit_badges():
 def string_tags_to_singletons(tag_list):
     tags = set()
     for t in tag_list:
-        if t in gears.SINGLETON_TYPES:
-            tags.add(gears.SINGLETON_TYPES[t])
+        if t in SINGLETON_TYPES:
+            tags.add(SINGLETON_TYPES[t])
         else:
             tags.add(t)
     return tags

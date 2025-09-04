@@ -734,7 +734,7 @@ class AegisJoinerPlot(Plot):
                     ContextTag([context.CUSTOM]), effect=self._reject_pc,
                     data={"reply": "I pledge my services to Aegis Overlord Luna."}
                 ))
-            elif camp.pc.get_tags().intersection(gears.personality.MUTATIONS):
+            elif camp.pc.get_tags().intersection(gears.mutations.MUTATIONS):
                 mylist.append(Offer(
                     "I'm afraid the Aegis Expeditionary Force only accepts human pilots. Maybe the Solar Navy is desperate enough to hire a malformed deviant like you.",
                     ContextTag([context.CUSTOM]), effect=self._reject_pc,

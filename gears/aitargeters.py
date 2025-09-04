@@ -1,6 +1,6 @@
 # Targeting Conditions
 # Callable objects; take camp,pc,npc as paramaters, return True if condition met.
-from pbge import scenes
+
 
 class TargetIsEnemy(object):
     def __call__(self, camp, pc, npc):
@@ -140,7 +140,7 @@ class GenericTargeter(object):
     # This targeter will attempt to use its invocation against an enemy model.
     DEFAULT_CONDITIONS = ()
 
-    def __init__(self, impulse_score=5, conditions=[], targetable_types=object):
+    def __init__(self, impulse_score=5, conditions=(), targetable_types=object):
         self.impulse_score = impulse_score
         self.conditions = list(conditions)
         for con in self.DEFAULT_CONDITIONS:
@@ -148,7 +148,6 @@ class GenericTargeter(object):
         self.targetable_types = targetable_types
 
     def is_potential_target(self, camp, pc, npc):
-        # type: (GearHeadCampaign, object, object) -> bool
         # Return True if npc is a good target for this invocation.
         return isinstance(npc,self.targetable_types) and all(con(camp, pc, npc) for con in self.conditions)
 

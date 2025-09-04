@@ -161,6 +161,7 @@ class GameState(object):
         self.message_log = list()
 
         self.ui_stack = list()
+        self.widget_tooltip = None
 
         # self.client = SteamClient()
 
@@ -489,6 +490,7 @@ class GameState(object):
 
             # RENDER YOUR GAME HERE
             self.anim_phase = (self.anim_phase + 1) % 6000
+            self.widget_tooltip = None
             for w in self.widgets:
                 w.update(delta)
 

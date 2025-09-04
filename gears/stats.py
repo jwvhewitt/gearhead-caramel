@@ -22,10 +22,7 @@ def get_skill_target(rank, difficulty=DIFFICULTY_AVERAGE):
 #  ***************
 
 class Stat(Singleton):
-    @classmethod
-    def __str__(self):
-        return self.name
-
+    pass
 
 class Reflexes(Stat):
     name = 'Reflexes'
@@ -43,8 +40,8 @@ class Perception(Stat):
     name = 'Perception'
 
     @classmethod
-    def add_invocations(self, pc, invodict):
-        pc_skill = pc.get_skill_score(self, Scouting)
+    def add_invocations(cls, pc, invodict):
+        _pc_skill = pc.get_skill_score(cls, Scouting)
         ba = pbge.effects.Invocation(
             name='Search',
             fx=geffects.CheckConditions([aitargeters.TargetIsEnemy(), aitargeters.TargetIsHidden()],
@@ -138,8 +135,8 @@ class Repair(Skill):
     desc = "This skill allows you to repair damage to mecha and equipment. Use of this skill costs MP."
 
     @classmethod
-    def add_invocations(self, pc, invodict):
-        pc_skill = pc.get_skill_score(Craft, self)
+    def add_invocations(cls, pc, invodict):
+        pc_skill = pc.get_skill_score(Craft, cls)
         n, extra = divmod(pc_skill, 6)
         if random.randint(1, 6) <= extra:
             n += 1
@@ -163,7 +160,7 @@ class Repair(Skill):
             targets=1,
             help_text="Restore HP to inorganic mecha, equipment, and robots."
         )
-        invodict[self].append(ba)
+        invodict[cls].append(ba)
 
 
 class Medicine(Skill):
@@ -171,8 +168,8 @@ class Medicine(Skill):
     desc = "This skill allows you to heal wounded lancemates. Use of this skill costs MP."
 
     @classmethod
-    def add_invocations(self, pc, invodict):
-        pc_skill = pc.get_skill_score(Craft, self)
+    def add_invocations(cls, pc, invodict):
+        pc_skill = pc.get_skill_score(Craft, cls)
         n, extra = divmod(pc_skill, 6)
         if random.randint(1, 6) <= extra:
             n += 1
@@ -195,7 +192,7 @@ class Medicine(Skill):
             targets=1,
             help_text="Restore HP to people and animals."
         )
-        invodict[self].append(ba)
+        invodict[cls].append(ba)
 
         antidote = pbge.effects.Invocation(
             name='Cure Poison',
@@ -212,11 +209,11 @@ class Medicine(Skill):
                                                targetable_types=pbge.scenes.PlaceableThing),
             shot_anim=None,
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 15),
-            price=[geffects.MentalPrice(5), geffects.StatValuePrice(self, 5)],
+            price=[geffects.MentalPrice(5), geffects.StatValuePrice(cls, 5)],
             targets=1,
             help_text="Remove the \"Poisoned\" status effect from one target."
         )
-        invodict[self].append(antidote)
+        invodict[cls].append(antidote)
 
 
 class Biotechnology(Skill):
@@ -224,8 +221,8 @@ class Biotechnology(Skill):
     desc = "This skill allows you to repair biotechnological constructs. Use of this skill requires MP."
 
     @classmethod
-    def add_invocations(self, pc, invodict):
-        pc_skill = pc.get_skill_score(Craft, self)
+    def add_invocations(cls, pc, invodict):
+        pc_skill = pc.get_skill_score(Craft, cls)
         n, extra = divmod(pc_skill, 6)
         if random.randint(1, 6) <= extra:
             n += 1
@@ -248,7 +245,7 @@ class Biotechnology(Skill):
             targets=1,
             help_text="Restore HP to biotechnological mecha, synths, and equipment."
         )
-        invodict[self].append(ba)
+        invodict[cls].append(ba)
 
 
 class Stealth(Skill):
@@ -256,7 +253,7 @@ class Stealth(Skill):
     desc = "This skill allows you to hide during combat. Stealth attacks get bonuses."
 
     @classmethod
-    def add_invocations(self, pc, invodict):
+    def add_invocations(cls, pc, invodict):
         ba = pbge.effects.Invocation(
             name='Hide',
             fx=geffects.StealthSkillRoll(
@@ -275,7 +272,7 @@ class Stealth(Skill):
             targets=1,
             help_text="While hidden, enemies will be unable to directly target you with attacks. Your attacks will gain a bonus to hit and to damage."
         )
-        invodict[self].append(ba)
+        invodict[cls].append(ba)
 
 
 class Science(Skill):
