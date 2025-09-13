@@ -11,26 +11,27 @@ import collections
 
 ALL_LP_EVENTS = list()
 LP_EVENTS_BY_STAGE = collections.defaultdict(list)
+LP_EVENT_USAGE = collections.defaultdict(int)
 
 
 class BioBlock( object ):
-    def __init__(self,model,width=220,bio_font=None,**kwargs):
-        self.model = model
+    def __init__(self,lpath: "Lifepath",width=220,bio_font=None,**kwargs):
+        self.lpath = lpath
         self.width = width
         self.image:pygame.Surface=None
         self.font = bio_font or pbge.MEDIUMFONT
         self.update()
 
     def update(self):
-        self.image = pbge.render_text(self.font, self.model.bio, self.width, justify=-1)
+        self.image = pbge.render_text(self.font, self.lpath.bio_text, self.width, justify=-1)
         self.height = self.image.get_height()
 
     def render(self,x,y):
         _=pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
 
 class CGNonComSkillBlock(object):
-    def __init__(self,cgen,width=220,skill_font=None,**kwargs):
-        self.cgen = cgen
+    def __init__(self,lpath: "Lifepath",width=220,skill_font=None,**kwargs):
+        self.lpath = lpath
         self.width = width
         self.image:pygame.Surface=None
         self.font = skill_font or pbge.MEDIUMFONT
@@ -38,7 +39,7 @@ class CGNonComSkillBlock(object):
         self.height = self.image.get_height()
 
     def update(self):
-        skillz = [sk.name for sk in list(self.cgen.bio_bonuses.keys()) if sk in stats.NONCOMBAT_SKILLS]
+        skillz = [sk.name for sk in list(self.lpath.bio_bonuses.keys()) if sk in stats.NONCOMBAT_SKILLS]
         self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1)
 
     def render(self,x,y):
@@ -111,7 +112,8 @@ class LifePathEvent:
         if self.biomessage:
             nugramdict = lpath.biogram.copy()
             ghdialogue.trait_absorb(nugramdict,ghdialogue.ghgrammar.DEFAULT_GRAMMAR,lpath.tags)
-            lpath.bio_text += ' {}: '.format(self.stage) + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
+            #lpath.bio_text += ' {}: '.format(self.stage) + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
+            lpath.bio_text += ' ' + pbge.dialogue.grammar.convert_tokens(self.biomessage,nugramdict,allow_maybe=False)
         for k,v in list(self.stat_mods.items()):
             lpath.bio_bonuses[k] += v
         gears.meritbadges.add_badges(lpath.bio_badges,self.merit_badges)
@@ -121,6 +123,7 @@ class LifePathEvent:
             self.apply_idealist_bonus(lpath)
         for stage in reversed(self.push_stages):
             lpath.stages.insert(0, stage)
+        LP_EVENT_USAGE[self] += 1
 
     def apply_idealist_bonus(self, lpath: "Lifepath"):
         stat_list = random.sample(gears.stats.PRIMARY_STATS,3)
@@ -152,6 +155,9 @@ class LifePathEvent:
     def matches(self, lpath):
         return self.required_tags.issubset(lpath.tags) and self.forbidden_tags.isdisjoint(lpath.tags)
 
+    def __str__(self):
+        return self.name
+
 
 class Lifepath:
     def __init__(self):
@@ -170,7 +176,7 @@ class Lifepath:
         for badge in self.bio_badges:
             if hasattr(badge, "tags") and badge.tags:
                 ptags |= badge.tags
-        return set(self.bio_personality) | ptags
+        return set(self.bio_personality) | ptags | self.lifepath_tags
 
     def get_candidates_for_stage(self, stage):
         return [a for a in LP_EVENTS_BY_STAGE[stage] if a.matches(self)]
@@ -181,13 +187,20 @@ class Lifepath:
 
         while mylp.stages:
             _, next_stage = mylp.stages.pop(0)
-            print(next_stage)
+            #print(next_stage)
             candidates = mylp.get_candidates_for_stage(next_stage)
             if candidates:
                 my_event = random.choice(candidates)
                 my_event.apply(mylp)
 
         return mylp
+
+    def get_character_colors(self):
+        my_colors = list(gears.color.CHARACTER_COLOR_CHANNELS)
+        if self.mutation and self.mutation.COLOR_CHANNELS:
+            for k,v in self.mutation.COLOR_CHANNELS.items():  # pyright: ignore[reportGeneralTypeIssues]
+                my_colors[k] = v
+        return my_colors
 
     def apply(self, pc: gears.base.Character):
         pc.personality.update( self.bio_personality)

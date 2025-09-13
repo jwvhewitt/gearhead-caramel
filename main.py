@@ -19,6 +19,7 @@ import pbge
 import sys
 import os
 
+
 # Step one is to find our gamedir. The process is slightly different depending on whether we are running from
 # source, running from a PyInstaller build, or running from a cx_Freeze build.
 if getattr(sys, "_MEIPASS", False):

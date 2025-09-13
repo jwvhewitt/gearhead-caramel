@@ -8,7 +8,7 @@ import copy
 
 
 class LifepathChooserW(pbge.widgets.Widget):
-    def __init__(self, cgen):
+    def __init__(self, cgen: "CharacterGeneratorW"):
         super().__init__(0,0,0,0,)
         self.cgen = cgen
 
@@ -17,6 +17,16 @@ class LifepathChooserW(pbge.widgets.Widget):
         self.charsheet_zone = pbge.frects.Frect(-125,-200,500,180)
         self.info_zone = pbge.frects.Frect(-125,80,170,120)
         self.menu_zone = pbge.frects.Frect(75, 80, 300, 120)
+
+        self.lpath = lifepath.Lifepath()
+
+        self.info = lifepath.LifePathStatusPanel(
+            lpath=self.lpath,width=self.charsheet_zone.w,draw_border=False,padding=5
+        )
+        self.children.append(gears.info.InfoWidget(
+            self.charsheet_zone.dx, self.charsheet_zone.dy, self.charsheet_zone.w, self.charsheet_zone.h,
+            info_panel=self.info
+        ))
 
         self.menu = pbge.widgetmenu.MenuWidget(
             self.menu_zone.dx, self.menu_zone.dy, self.menu_zone.w, self.menu_zone.h, draw_border=False, font=pbge.BIGFONT,
@@ -37,9 +47,6 @@ class LifepathChooserW(pbge.widgets.Widget):
         pbge.default_border.render(self.menu_zone.get_rect())
         if self.title:
             pbge.draw_text(pbge.BIGFONT,self.title,self.title_zone.get_rect(),pbge.WHITE,justify=0)
-        if self.info:
-            myrect = self.charsheet_zone.get_rect()
-            self.info.render(myrect.x,myrect.y)
 
     def prep_next_choice(self, choices):
         self.menu.clear()
@@ -48,9 +55,9 @@ class LifepathChooserW(pbge.widgets.Widget):
 
     def on_path_choice(self, widg, _ev):
         mychoice = widg.data
-        if mychoice.auto_fx:
-            mychoice.auto_fx.apply(self.cgen)
-            self.info.update()
+
+        mychoice.apply(self.cgen.lp)
+
         for c in mychoice.choices:
             self.title = c.prompt
             mymenu = self.create_menu()
@@ -66,7 +73,6 @@ class LifepathChooserW(pbge.widgets.Widget):
         self.prep_next_choices(mychoice.next)
 
     def choose_lifepath(self):
-        self.info = lifepath.LifePathStatusPanel(model=self.cgen.pc,cgen=self.cgen,width=self.charsheet_zone.w,draw_border=False,padding=5)
         self.cgen.active = False
 
         self.title = "Where is your character from?"
@@ -100,8 +106,6 @@ class LifepathChooserW(pbge.widgets.Widget):
     def finish(self):
         if self.cancelled:
             self.cgen.biography_randomize(None,None)
-        self.cgen.reset_mecha_menu()
-
 
 
 class PortraitBitSelector(pbge.widgets.RowWidget):
@@ -467,9 +471,9 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def biography_display(self,_wid):
         return self.lp.bio_text
 
-    def _reset_biography(self):
-        self.lp = lifepath.Lifepath.random_lifepath()
+    def _update_lifepath(self):
         self.pc.portrait_gen.color_channels = list(gears.color.CHARACTER_COLOR_CHANNELS)
+        self.reset_mecha_menu()
 
     def reset_mecha_menu(self):
         mymek = self.mecha_menu.menu.current_data
@@ -492,12 +496,12 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             self.mecha_menu.menu.set_item_by_data(random.choice(mecha_shopping_list.best_choices))
 
     def biography_randomize(self,_wid,_ev):
-        self._reset_biography()
-        self.reset_mecha_menu()
+        self.lp = lifepath.Lifepath.random_lifepath()
+        self._update_lifepath()
 
     def biography_choose(self,_wid,_ev):
-        self._reset_biography()
         LifepathChooserW.push_state_and_instantiate(self, cgen=self)
+        self._update_lifepath()
 
     def get_portrait_tags(self):
         mytags = gears.portraits.Portrait.get_form_tags(self.pc)

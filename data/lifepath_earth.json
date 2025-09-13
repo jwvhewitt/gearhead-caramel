@@ -894,7 +894,7 @@
   },
   "stat_mods": {"Athletics": 2},
   "push_stages": [
-    ["What sort of criminal activity were you involved in?", "VOCATION:CRIMINAL"]
+    ["What sort of criminal activity were you involved in?", "VOCATION:CRIME"]
   ],
   "merit_badges": ["BADGE_CRIMINAL"]
 },

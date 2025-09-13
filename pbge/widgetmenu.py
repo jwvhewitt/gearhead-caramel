@@ -204,6 +204,9 @@ class DropdownWidget(widgets.Widget):
     def set_item_by_data( self , dat ):
         self.menu.set_item_by_data(dat)
 
+    def has_data( self , dat ):
+        return self.menu.has_data(dat)
+
 
 class ColDropdownWidget(widgets.RowWidget):
     def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, add_desc=False, **kwargs):

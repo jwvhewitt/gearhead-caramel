@@ -2,14 +2,13 @@ from . import stats, base, personality
 from pbge import Singleton
 from . import color
 import random
-from typing import Any
 
 
 class FelineMutation(Singleton):
     name = "Feline Mutation"
     COLOR_CHANNELS = {1: color.HAIR}
     @staticmethod
-    def get_stat_modifier() -> dict[Any, int]:
+    def get_stat_modifier():
         return {stats.Speed: 2, stats.Body: -2}
 
     @staticmethod
