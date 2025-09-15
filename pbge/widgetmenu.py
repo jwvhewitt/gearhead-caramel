@@ -23,11 +23,14 @@ class MenuWidget(widgets.ColumnWidget):
         on_activate_item=None, center_interior=True, padding=5,
         item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
         font=None, item_class=widgets.LabelWidget, item_data=None, 
-        on_click_child=None,
+        on_click_child=None, on_escape=None,
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
         #  Basically this is just passed to the interior ScrollColumn as its on_activate_child parameter.
+        # on_click_child: callable with signature (child_widget, event)
+        # on_escape: callable with signature (widget, event) called when escape key pressed
+        #   Does not actually close menu; exact workings are up to whoever created this menu.
         super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
                          **kwargs)
         self.off_border = off_border
@@ -56,6 +59,7 @@ class MenuWidget(widgets.ColumnWidget):
         if item_data:
             self.item_data.update(item_data)
         self.item_class = item_class
+        self.on_escape = on_escape
 
     def _enter_column(self, wid):
         my_state.focused_widget = wid
@@ -135,6 +139,11 @@ class MenuWidget(widgets.ColumnWidget):
                 self.scroll_column.selected_widget_id = n
                 break
 
+    def _builtin_responder(self, ev):
+        if ((my_state.focused_widget is self.scroll_column) or self.scroll_column.focus_locked) and (ev.type == pygame.KEYDOWN):
+            if my_state.is_key_for_action(ev, "exit") and self.on_escape:
+                self.on_escape(self, ev)
+
 
 class DropdownWidget(widgets.Widget):
     MENU_HEIGHT = 150
@@ -151,6 +160,7 @@ class DropdownWidget(widgets.Widget):
         self.menu = MenuWidget(
             dx, dy, w, self.MENU_HEIGHT, border=widgets.popup_menu_border, font=font,
             anchor=frects.ANCHOR_UPPERLEFT, on_click_child=self._click_item, activate_child_on_enter=True,
+            on_escape=self.close_menu
         )
         self.menu.TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
         
@@ -189,6 +199,10 @@ class DropdownWidget(widgets.Widget):
         self.menu.dx, self.menu.dy = mydest.x, mydest.y
         self.menu.push_and_deploy()
         self.menu.activate()
+
+    def close_menu(self, _also_self_probably, _ev):
+        if self.menu in my_state.widgets:
+            self.menu.pop()
 
     @property
     def active_item(self):

@@ -146,6 +146,7 @@ class LifePathEvent:
     def apply_mutation(self, lpath):
         mutation = random.choice(gears.mutations.MUTATIONS)
         lpath.bio_personality.append(mutation)
+        lpath.mutation = mutation
         bonuses = mutation.get_stat_modifier()
         for k,v in bonuses.items():
             lpath.bio_bonuses[k] += v
@@ -154,6 +155,18 @@ class LifePathEvent:
 
     def matches(self, lpath):
         return self.required_tags.issubset(lpath.tags) and self.forbidden_tags.isdisjoint(lpath.tags)
+
+    def list_bonuses(self):
+        skillz = ["{} {:+}".format(sk, v) for sk,v in list(self.stat_mods.items())]
+        skillz.sort()
+        sk_block = ', '.join(skillz or ["None"])
+        badges = [b.name for b in self.merit_badges]
+        badges.sort()
+        bad_block = ', '.join(badges or ["None"])
+        tagz =  [b.name for b in self.new_personality]
+        tagz.sort()
+        tag_block = ', '.join(tagz or ["None"])
+        return 'Skills: {}\n Badges: {}\n Tags: {}'.format(sk_block,bad_block,tag_block)
 
     def __str__(self):
         return self.name

@@ -560,6 +560,8 @@ class ScrollColumnWidget(Widget):
         for w in list(self._interior_widgets):
             self._interior_widgets.remove(w)
             self.children.remove(w)
+        self.selected_widget_id = 0
+        self.top_widget = 0
 
     def remove(self, other_widget):
         if other_widget in self._interior_widgets:

@@ -4,7 +4,6 @@ import json
 import os.path
 import random
 from . import stats
-from . import base
 
 import pbge
 import pygame
@@ -137,7 +136,10 @@ class Portrait(object):
         porimage = pbge.image.Image(frame_width=400, frame_height=700)
         porimage.custom_frames = FRAMES
 
-        self.verify(pc, self.get_form_tags(pc))
+        if pc and not form_tags:
+            form_tags = self.get_form_tags(pc)
+
+        self.verify(pc, form_tags)
 
         # Check first to see if the portrait already exists.
         if add_color and (self,repr(pc.colors)) in pbge.image.pre_loaded_images and not force_rebuild:

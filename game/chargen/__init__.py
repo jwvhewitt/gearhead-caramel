@@ -8,104 +8,72 @@ import copy
 
 
 class LifepathChooserW(pbge.widgets.Widget):
+    BIOGRAPHY_ZONE = pbge.frects.Frect(-250,-250,500,205)
+    PROMPT_ZONE = pbge.frects.Frect(-350,-20,700,30)
+    MENU_ZONE = pbge.frects.Frect(-100,35,425,215)
+    DESC_ZONE = pbge.frects.Frect(-325,35,200,210)
+
     def __init__(self, cgen: "CharacterGeneratorW"):
         super().__init__(0,0,0,0,)
         self.cgen = cgen
 
-        # Record the character generator zones.
-        self.title_zone = pbge.frects.Frect(-100,10,450,40)
-        self.charsheet_zone = pbge.frects.Frect(-125,-200,500,180)
-        self.info_zone = pbge.frects.Frect(-125,80,170,120)
-        self.menu_zone = pbge.frects.Frect(75, 80, 300, 120)
-
-        self.lpath = lifepath.Lifepath()
+        self.cgen.lp = lifepath.Lifepath()
 
         self.info = lifepath.LifePathStatusPanel(
-            lpath=self.lpath,width=self.charsheet_zone.w,draw_border=False,padding=5
+            lpath=self.cgen.lp,width=self.BIOGRAPHY_ZONE.w,draw_border=False,padding=5
         )
         self.children.append(gears.info.InfoWidget(
-            self.charsheet_zone.dx, self.charsheet_zone.dy, self.charsheet_zone.w, self.charsheet_zone.h,
+            self.BIOGRAPHY_ZONE.dx, self.BIOGRAPHY_ZONE.dy, self.BIOGRAPHY_ZONE.w, self.BIOGRAPHY_ZONE.h,
             info_panel=self.info
         ))
 
         self.menu = pbge.widgetmenu.MenuWidget(
-            self.menu_zone.dx, self.menu_zone.dy, self.menu_zone.w, self.menu_zone.h, draw_border=False, font=pbge.BIGFONT,
-            on_click_child=self.on_path_choice
+            self.MENU_ZONE.dx, self.MENU_ZONE.dy, self.MENU_ZONE.w, self.MENU_ZONE.h, draw_border=False, 
+            font=pbge.BIGFONT,
+            on_click_child=self.on_path_choice, on_escape=self.cancel,
+            activate_child_on_enter=True,
         )
         self.children.append(self.menu)
-        self.children.append(pbge.widgetmenu.DescBoxWidget(self.info_zone.dx,self.info_zone.dy,self.info_zone.w,self.info_zone.h,font=pbge.MEDIUMFONT, menu=self.menu))
+        self.children.append(pbge.widgetmenu.DescBoxWidget(
+            self.DESC_ZONE.dx,self.DESC_ZONE.dy,self.DESC_ZONE.w,self.DESC_ZONE.h,
+            font=pbge.MEDIUMFONT, menu=self.menu, color=pbge.INFO_GREEN
+        ))
 
         self.cancelled = False
 
         self.title = ''
-        self.info = None
+        self.update_menu()
 
     def _render(self, _delta):
-        pbge.default_border.render(self.title_zone.get_rect())
-        pbge.default_border.render(self.charsheet_zone.get_rect())
-        pbge.default_border.render(self.info_zone.get_rect())
-        pbge.default_border.render(self.menu_zone.get_rect())
+        pbge.default_border.render(self.PROMPT_ZONE.get_rect())
+        pbge.default_border.render(self.BIOGRAPHY_ZONE.get_rect())
+        pbge.default_border.render(self.DESC_ZONE.get_rect())
+        pbge.default_border.render(self.MENU_ZONE.get_rect())
         if self.title:
-            pbge.draw_text(pbge.BIGFONT,self.title,self.title_zone.get_rect(),pbge.WHITE,justify=0)
+            pbge.draw_text(pbge.HUGEFONT,self.title,self.PROMPT_ZONE.get_rect(),pbge.WHITE,justify=0)
 
-    def prep_next_choice(self, choices):
-        self.menu.clear()
-        for c in choices:
-            _=self.menu.add_item(c.name,data=c,desc=c.desc)
+    def update_menu(self):
+        if self.cgen.lp.stages:
+            self.title, next_stage = self.cgen.lp.stages.pop(0)
+            choices = self.cgen.lp.get_candidates_for_stage(next_stage)
+            self.menu.clear()
+            self.info.update()
+            for c in choices:
+                _=self.menu.add_item(c.desc,data=c,desc=c.list_bonuses())
+            self.menu.activate()
+        else:
+            self.pop()
+            self.cgen.update_lifepath()
 
     def on_path_choice(self, widg, _ev):
         mychoice = widg.data
-
         mychoice.apply(self.cgen.lp)
+        self.update_menu()
 
-        for c in mychoice.choices:
-            self.title = c.prompt
-            mymenu = self.create_menu()
-            for c2 in c.options:
-                mymenu.add_item(c2.name,c2,c2.desc)
-            myop = mymenu.query()
-            if myop:
-                myop.apply(self.cgen)
-                self.info.update()
-            else:
-                self.cancelled = True
-        self.title = mychoice.next_prompt
-        self.prep_next_choices(mychoice.next)
-
-    def choose_lifepath(self):
-        self.cgen.active = False
-
-        self.title = "Where is your character from?"
-        choices = lifepath.STARTING_CHOICES
-        while choices and not self.cancelled:
-            mymenu =self.create_menu()
-            for c in choices:
-                mymenu.add_item(c.name,c,c.desc)
-
-            mychoice = mymenu.query()
-            if mychoice:
-                if mychoice.auto_fx:
-                    mychoice.auto_fx.apply(self.cgen)
-                    self.info.update()
-                for c in mychoice.choices:
-                    self.title = c.prompt
-                    mymenu = self.create_menu()
-                    for c2 in c.options:
-                        mymenu.add_item(c2.name,c2,c2.desc)
-                    myop = mymenu.query()
-                    if myop:
-                        myop.apply(self.cgen)
-                        self.info.update()
-                    else:
-                        self.cancelled = True
-                self.title = mychoice.next_prompt
-                choices = mychoice.next
-            else:
-                self.cancelled = True
-
-    def finish(self):
-        if self.cancelled:
-            self.cgen.biography_randomize(None,None)
+    def cancel(self, _widj, _ev):
+        self.cgen.lp = lifepath.Lifepath.random_lifepath()
+        self.pop()
+        self.cgen.update_lifepath()
 
 
 class PortraitBitSelector(pbge.widgets.RowWidget):
@@ -215,7 +183,7 @@ class PortraitEditorW(pbge.widgets.Widget):
         bit_pos = self.por.bits.index(bname)
         self.por.bits[bit_pos] = mylist[new_i].name
         self.por.verify(self.pc,self.form_tags)
-        self.portrait = self.por.build_portrait(self.pc,force_rebuild=True)
+        self.portrait = self.por.build_portrait(self.pc,force_rebuild=True, form_tags=self.form_tags)
         self.rebuild_menu()
 
     def _render(self, delta):
@@ -418,6 +386,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
         self.portrait_view = gears.portraits.PortraitView(self.pc.portrait_gen.build_portrait(self.pc,form_tags=self.get_portrait_tags()))
 
+        self.update_lifepath()
+
     def set_age(self,new_age):
         self.pc.birth_year = self.year - new_age
 
@@ -471,8 +441,8 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def biography_display(self,_wid):
         return self.lp.bio_text
 
-    def _update_lifepath(self):
-        self.pc.portrait_gen.color_channels = list(gears.color.CHARACTER_COLOR_CHANNELS)
+    def update_lifepath(self):
+        self.pc.portrait_gen.color_channels = self.lp.get_character_colors()
         self.reset_mecha_menu()
 
     def reset_mecha_menu(self):
@@ -497,28 +467,31 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def biography_randomize(self,_wid,_ev):
         self.lp = lifepath.Lifepath.random_lifepath()
-        self._update_lifepath()
+        self.update_lifepath()
 
     def biography_choose(self,_wid,_ev):
         LifepathChooserW.push_state_and_instantiate(self, cgen=self)
-        self._update_lifepath()
 
     def get_portrait_tags(self):
         mytags = gears.portraits.Portrait.get_form_tags(self.pc)
         for pt in self.lp.bio_personality:
-            _=mytags.append(pt.name)
+            _=mytags.append(str(pt))
+        #if self.lp.mutation:
+        #    _=mytags.append(str(self.lp.mutation))
         return mytags
 
     def portrait_edit(self,_wid,_ev):
         PortraitEditorW.push_state_and_instantiate_with_cgen(self, cgen=self, formtags=self.get_portrait_tags())
 
     def portrait_random(self,_wid,_ev):
-        self.pc.portrait_gen.random_portrait(self.pc,form_tags=self.get_portrait_tags())
-        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        ft = self.get_portrait_tags()
+        self.pc.portrait_gen.random_portrait(self.pc,form_tags=ft)
+        print(ft)
+        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True, form_tags=self.get_portrait_tags())
 
     def color_edit(self,_wid,ev):
         self.active = False
-        myui = cosplay.ColorEditor(self.pc.portrait_gen.build_portrait(self.pc,add_color=False),0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors)
+        myui = cosplay.ColorEditor(self.pc.portrait_gen.build_portrait(self.pc,add_color=False, form_tags=self.get_portrait_tags()),0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors)
         pbge.my_state.widgets.append(myui)
         myui.finished = False
         myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=self.color_done,draw_border=True,data=myui))
@@ -534,7 +507,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
                     keepgoing = False
 
         self.pc.colors = myui.colors
-        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True, form_tags=self.get_portrait_tags())
 
         pbge.my_state.widgets.remove(myui)
         pygame.event.clear()
@@ -545,7 +518,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def color_random(self,_wid,_ev):
         self.pc.colors = self.pc.portrait_gen.generate_random_colors(self.pc)
-        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True)
+        self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True, form_tags=self.get_portrait_tags())
 
     def save_egg(self,_wid,_ev):
         if not pbge.my_state.widget_responded:
@@ -564,7 +537,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
                 for sk in random.sample(gears.stats.COMBATANT_SKILLS,num_fives):
                     self.pc.statline[sk] += 1
 
-            my_egg.mecha = copy.deepcopy(self.mecha_menu.value)
+            my_egg.mecha = copy.deepcopy(self.mecha_menu.current_data)
             my_egg.mecha.colors = gears.color.random_mecha_colors()
             my_egg.credits = 200000 - my_egg.mecha.cost // 2
             my_egg.save()
@@ -581,6 +554,9 @@ class CharacterGeneratorW(pbge.widgets.Widget):
             if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
                 self.pop()
                 self.register_response()
+
+    def on_activate(self):
+        self.update_lifepath()
 
     TAGS_TO_HIDE = {"WTAG_TITLEMENU",}
 
