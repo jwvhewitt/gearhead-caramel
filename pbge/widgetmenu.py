@@ -143,6 +143,7 @@ class MenuWidget(widgets.ColumnWidget):
         if ((my_state.focused_widget is self.scroll_column) or self.scroll_column.focus_locked) and (ev.type == pygame.KEYDOWN):
             if my_state.is_key_for_action(ev, "exit") and self.on_escape:
                 self.on_escape(self, ev)
+                self.register_response()
 
 
 class DropdownWidget(widgets.Widget):

@@ -47,7 +47,12 @@ class ColorMenu(pbge.widgets.Widget):
 
 
 class ColorEditor(pbge.widgets.Widget):
-    def __init__(self, proto_sprite, sprite_frame, channel_filters, colors=None, **kwargs):
+    def __init__(
+        self, proto_sprite, sprite_frame, channel_filters, colors=None, 
+        on_done=None, on_cancel=None, **kwargs
+        ):
+        # on_done and on_cancel are callables with the signature (color list) that get called
+        # when the color selector is exited.
         super(ColorEditor, self).__init__(20, -200, 239, 400, **kwargs)
         self.proto_sprite = proto_sprite
         self.sprite_frame = sprite_frame
@@ -77,6 +82,18 @@ class ColorEditor(pbge.widgets.Widget):
         self.colors = list(colors)
         self.recolor_sprite()
 
+        self.children.append(pbge.widgets.LabelWidget(
+            150,220,80,0,text="Done",justify=0,on_click=self.color_done,draw_border=True
+        ))
+
+        self.on_done = on_done
+        self.on_cancel = on_cancel
+
+    def color_done(self, _wid, _ev):
+        self.pop()
+        if self.on_done:
+            self.on_done(self.colors)
+
     def click_swatch(self,new_color):
         if new_color != self.colors[self.active_menu]:
             self.colors[self.active_menu] = new_color
@@ -104,23 +121,8 @@ class ColorEditor(pbge.widgets.Widget):
         pbge.default_border.render(self.get_rect())
         self.display_view.render()
 
-    @classmethod
-    def explo_invoke(cls, redraw):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
-        myui = cls(pbge.image.Image("mecha_buruburu.png",0,0),0,channel_filters=gears.color.MECHA_COLOR_CHANNELS)
-        pbge.my_state.widgets.append(myui)
-        keepgoing = True
-        while keepgoing:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                redraw()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-                elif ev.key == pygame.K_F1:
-                    pygame.image.save(myui.display_sprite.bitmap, pbge.util.user_dir("out.png"))
-
-        pbge.my_state.widgets.remove(myui)
-        return myui.colors
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.color_done(self, ev)
+                self.register_response()

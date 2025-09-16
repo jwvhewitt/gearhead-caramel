@@ -117,7 +117,11 @@ class LifePathEvent:
         for k,v in list(self.stat_mods.items()):
             lpath.bio_bonuses[k] += v
         gears.meritbadges.add_badges(lpath.bio_badges,self.merit_badges)
-        lpath.bio_personality += self.new_personality
+        for ptrait in self.new_personality:
+            if ptrait not in lpath.bio_personality:
+                if ptrait in personality.OPPOSITES and personality.OPPOSITES[ptrait] in lpath.bio_personality:
+                    lpath.bio_personality.remove(personality.OPPOSITES[ptrait])
+                lpath.bio_personality.append(ptrait)
         lpath.lifepath_tags |= self.new_tags
         if self.idealist_bonus:
             self.apply_idealist_bonus(lpath)
@@ -166,7 +170,7 @@ class LifePathEvent:
         tagz =  [b.name for b in self.new_personality]
         tagz.sort()
         tag_block = ', '.join(tagz or ["None"])
-        return 'Skills: {}\n Badges: {}\n Tags: {}'.format(sk_block,bad_block,tag_block)
+        return 'Skills: {}\n\n Badges: {}\n\n Tags: {}'.format(sk_block,bad_block,tag_block)
 
     def __str__(self):
         return self.name

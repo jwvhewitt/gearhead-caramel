@@ -301,6 +301,26 @@ class GenderCustomizationWidget(pbge.widgets.ColumnWidget):
     #    modified version.
 
 
+class StatEditorWidget(pbge.widgets.RowWidget):
+    def __init__(self, width, stat, cgen, **kwargs):
+        super().__init__(0, 0, width, 30, can_take_focus=True, data=stat, **kwargs)
+        minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
+        self.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize(),text=str(stat),font=pbge.BIGFONT))
+        self.add_right(pbge.widgets.ButtonWidget(0,0,16,16,sprite=minus_plus_image,frame=0,data=stat,on_click=cgen.stat_minus))
+        self.add_right(pbge.widgets.LabelWidget(0,0,32,pbge.BIGFONT.get_linesize(),text_fun=cgen.stat_display,data=stat,font=pbge.BIGFONT,justify=0))
+        self.add_right(pbge.widgets.ButtonWidget(0,0,16,16,sprite=minus_plus_image,frame=1,data=stat,on_click=cgen.stat_plus))
+        self.stat_minus = cgen.stat_minus
+        self.stat_plus = cgen.stat_plus
+
+    def _builtin_responder(self, ev):
+        if self.should_hilight(self) and (ev.type == pygame.KEYDOWN):
+            if pbge.my_state.is_key_for_action(ev, "left"):
+                self.stat_minus(self, ev)
+                self.register_response()
+            elif pbge.my_state.is_key_for_action(ev, "right"):
+                self.stat_plus(self, ev)
+                self.register_response()
+
 
 class CharacterGeneratorW(pbge.widgets.Widget):
     STAT_POINTS = 105
@@ -326,12 +346,17 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.name_field = pbge.widgets.TextEntryWidget(0,0,200,30,justify=0,text=gears.selector.random_name(self.pc))
         self.column_one.set_header(self.name_field)
         age_gender_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
-        age_menu = pbge.widgetmenu.DropdownWidget(0,0,140,30,font=pbge.BIGFONT,on_select=self.set_age)
+        age_menu = pbge.widgetmenu.DropdownWidget(
+            0,0,140,30,font=pbge.BIGFONT,on_select=self.set_age, up_widget=self.name_field, return_links=True
+        )
         for age in range(18,36):
             age_menu.add_item("{} year old".format(age), None, age)
         age_menu.menu.set_item_by_position(min(random.randint(0,17),random.randint(0,17)))
         age_gender_row.add_center(age_menu)
-        gender_menu = pbge.widgetmenu.DropdownWidget(0,0,110,30,font=pbge.BIGFONT,on_select=self.set_gender)
+        gender_menu = pbge.widgetmenu.DropdownWidget(
+            0,0,110,30,font=pbge.BIGFONT,on_select=self.set_gender, left_widget=age_menu, return_links=True
+        )
+        gender_menu.up_widget = self.name_field
         gender_menu.add_item("Male", None, gears.genderobj.Gender.get_default_male())
         gender_menu.add_item("Female", None, gears.genderobj.Gender.get_default_female())
         gender_menu.add_item("Nonbinary", None, gears.genderobj.Gender.get_default_nonbinary())
@@ -342,22 +367,31 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         age_gender_row.add_center(gender_menu)
         self.column_one.add_interior(age_gender_row)
 
-        self.mecha_menu = pbge.widgetmenu.DropdownWidget(0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT)
+        self.mecha_menu = pbge.widgetmenu.DropdownWidget(
+            0,0,self.C1_WIDTH,25,font=pbge.MEDIUMFONT, up_widget=gender_menu, return_links=True
+        )
+        age_menu.down_widget = self.mecha_menu
         self.reset_mecha_menu()
         self.column_one.add_interior(self.mecha_menu)
 
-        minus_plus_image = pbge.image.Image("sys_minus_plus.png",16,16)
+        prev_widget = self.mecha_menu
         for s in gears.stats.PRIMARY_STATS:
-            nu_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
-            nu_row.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize(),text=s.name,font=pbge.BIGFONT))
-            nu_row.add_right(pbge.widgets.ButtonWidget(0,0,16,16,sprite=minus_plus_image,frame=0,data=s,on_click=self.stat_minus))
-            nu_row.add_right(pbge.widgets.LabelWidget(0,0,32,pbge.BIGFONT.get_linesize(),text_fun=self.stat_display,data=s,font=pbge.BIGFONT,justify=0))
-            nu_row.add_right(pbge.widgets.ButtonWidget(0,0,16,16,sprite=minus_plus_image,frame=1,data=s,on_click=self.stat_plus))
+            nu_row = StatEditorWidget(self.C1_WIDTH, s, self, up_widget=prev_widget, return_links=True)
             self.column_one.add_interior(nu_row)
+            prev_widget = nu_row
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,0,text_fun=self.stat_point_display,justify=0))
         random_reset_row = pbge.widgets.RowWidget(0,0,self.C1_WIDTH,30)
-        random_reset_row.add_left(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.stat_randomize,draw_border=True,justify=0,can_take_focus=True))
-        random_reset_row.add_right(pbge.widgets.LabelWidget(0,0,100,pbge.SMALLFONT.get_linesize(),text="Reset",font=pbge.SMALLFONT,on_click=self.stat_reset,draw_border=True,justify=0, can_take_focus=True))
+        random_button = pbge.widgets.LabelWidget(
+            0,0,100,pbge.SMALLFONT.get_linesize(),text="Random",font=pbge.SMALLFONT,on_click=self.stat_randomize,
+            draw_border=True,justify=0,can_take_focus=True, up_widget=prev_widget, return_links=True
+        )
+        random_reset_row.add_left(random_button)
+        reset_button=pbge.widgets.LabelWidget(
+            0,0,100,pbge.SMALLFONT.get_linesize(),text="Reset",font=pbge.SMALLFONT,on_click=self.stat_reset,
+            draw_border=True,justify=0, can_take_focus=True, left_widget=random_button, return_links=True
+        )
+        random_reset_row.add_right(reset_button)
+        reset_button.up_widget = prev_widget
         self.column_one.add_interior(random_reset_row)
 
         self.column_one.add_interior(pbge.widgets.LabelWidget(0,0,self.C1_WIDTH,100,text_fun=self.skill_display))
@@ -486,35 +520,19 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def portrait_random(self,_wid,_ev):
         ft = self.get_portrait_tags()
         self.pc.portrait_gen.random_portrait(self.pc,form_tags=ft)
-        print(ft)
         self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True, form_tags=self.get_portrait_tags())
 
     def color_edit(self,_wid,ev):
-        self.active = False
-        myui = cosplay.ColorEditor(self.pc.portrait_gen.build_portrait(self.pc,add_color=False, form_tags=self.get_portrait_tags()),0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors)
-        pbge.my_state.widgets.append(myui)
-        myui.finished = False
-        myui.children.append(pbge.widgets.LabelWidget(150,220,80,0,text="Done",justify=0,on_click=self.color_done,draw_border=True,data=myui))
+        cosplay.ColorEditor.push_state_and_instantiate(
+            self,
+            proto_sprite=self.pc.portrait_gen.build_portrait(self.pc,add_color=False, form_tags=self.get_portrait_tags()), 
+            sprite_frame=0,channel_filters=self.pc.portrait_gen.color_channels,colors=self.pc.colors,
+            on_done=self.color_done
+        )
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        self.pc.colors = myui.colors
+    def color_done(self,colors):
+        self.pc.colors = colors
         self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True, form_tags=self.get_portrait_tags())
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
-        self.active = True
-
-    def color_done(self,wid,_ev):
-        wid.data.finished = True
 
     def color_random(self,_wid,_ev):
         self.pc.colors = self.pc.portrait_gen.generate_random_colors(self.pc)

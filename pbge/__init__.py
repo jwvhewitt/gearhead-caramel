@@ -437,16 +437,32 @@ class GameState(object):
         return (my_rect.centery, my_rect.centerx)
 
     def activate_down_widget(self):
-        self.activate_next_widget(key=self._sort_widgets_vertically)
+        fwid = self.focused_widget
+        if fwid and fwid.down_widget:
+            self.focused_widget = fwid.down_widget
+        else:
+            self.activate_next_widget(key=self._sort_widgets_vertically)
 
     def activate_up_widget(self):
-        self.activate_next_widget(backwards=True, key=self._sort_widgets_vertically)
+        fwid = self.focused_widget
+        if fwid and fwid.up_widget:
+            self.focused_widget = fwid.up_widget
+        else:
+            self.activate_next_widget(backwards=True, key=self._sort_widgets_vertically)
 
     def activate_right_widget(self):
-        self.activate_next_widget(key=self._sort_widgets_horizontally)
+        fwid = self.focused_widget
+        if fwid and fwid.right_widget:
+            self.focused_widget = fwid.right_widget
+        else:
+            self.activate_next_widget(key=self._sort_widgets_horizontally)
 
     def activate_left_widget(self):
-        self.activate_next_widget(backwards=True, key=self._sort_widgets_horizontally)
+        fwid = self.focused_widget
+        if fwid and fwid.left_widget:
+            self.focused_widget = fwid.left_widget
+        else:
+            self.activate_next_widget(backwards=True, key=self._sort_widgets_horizontally)
 
     def play(self):
         # A nonblocking game loop.

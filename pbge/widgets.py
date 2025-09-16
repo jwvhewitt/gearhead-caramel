@@ -92,6 +92,7 @@ class Widget(frects.Frect):
     def __init__(self, dx, dy, w, h, data=None, on_click: On_Click=None, tooltip=None, children=(), active=True,
                  on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None, can_take_focus=False,
                  on_enter=None, on_leave=None, visible=True, tags=(), should_hilight=None, desc=None,
+                 up_widget=None, down_widget=None, left_widget=None, right_widget=None, return_links=False,
                  **kwargs):
         # on_click is a callable with signature (widget, event)
         # on_right_click is a callable with signature (widget, event)
@@ -102,6 +103,10 @@ class Widget(frects.Frect):
         # desc is a test description of this widget which may be useful for debugging, but otherwise
         #   is only sometimes used by the menu widgets. Note that this comment might stop being true
         #   if/when desc gets used in more places.
+        # up_widget, down_widget, left_widget, and right_widget are overrides for keyboard/joypad
+        #   widget navigation
+        # return_links: if true, setting one of the properties above will set the corresponding property
+        #   in the other widget.
         super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
         self.active = active
@@ -118,6 +123,19 @@ class Widget(frects.Frect):
         self.can_take_focus = can_take_focus
         self.should_hilight = should_hilight or self._default_should_hilight
         self.desc = desc
+
+        self.up_widget = up_widget
+        if up_widget and return_links:
+            up_widget.down_widget = self
+        self.down_widget = down_widget
+        if down_widget and return_links:
+            down_widget.up_widget = self
+        self.left_widget = left_widget
+        if left_widget and return_links:
+            left_widget.right_widget = self
+        self.right_widget = right_widget
+        if right_widget and return_links:
+            right_widget.left_widget = self
 
     @staticmethod
     def _default_should_hilight(widg):
@@ -147,13 +165,13 @@ class Widget(frects.Frect):
                         my_state.focused_widget = self
                     if self.on_click:
                         self.on_click(self, ev)
-                    my_state.widget_responded = True
+                    self.register_response()
                 elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
                         ev.button == 3) and self.on_right_click and not my_state.widget_responded:
                     if not my_state.widget_responded:
                         my_state.focused_widget = self
                     self.on_right_click(self, ev)
-                    my_state.widget_responded = True
+                    self.register_response()
                 if not self._mouse_is_over:
                     self._mouse_is_over = True
                     if self.on_enter:
@@ -166,7 +184,7 @@ class Widget(frects.Frect):
             if self.should_hilight(self) and not my_state.widget_responded and not my_state.widget_responded:
                 if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
                     self.on_click(self, ev)
-                    my_state.widget_responded = True
+                    self.register_response()
             if not my_state.widget_responded:
                 self._builtin_responder(ev)
         else:
@@ -644,7 +662,7 @@ class ScrollColumnWidget(Widget):
             #        mybutton = self._interior_widgets[self.selected_widget_id]
             #        if mybutton.on_click:
             #            mybutton.on_click(mybutton, ev)
-            #        my_state.widget_responded = True
+            #        self.register_response()
             if my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
                 self.selected_widget_id -= 1
                 self.register_response()
@@ -792,7 +810,7 @@ class TextEntryWidget(Widget):
                     self.cursor_i += len(ev.text)
                     if self.on_change:
                         self.on_change(self, ev)
-                    my_state.widget_responded = True
+                    self.register_response()
             elif ev.type == pygame.KEYDOWN:
                 if my_state.is_key_for_action(ev, "backspace"):
                     if (len(self.char_list) > 0) and self.cursor_i > 0:
@@ -800,7 +818,7 @@ class TextEntryWidget(Widget):
                         self.cursor_i -= 1
                         if self.on_change:
                             self.on_change(self, ev)
-                        my_state.widget_responded = True
+                        self.register_response()
                     elif self.on_backspace_at_zero:
                         self.on_backspace_at_zero()
 
@@ -809,13 +827,13 @@ class TextEntryWidget(Widget):
                         self.cursor_i -= 1
                     elif self.on_left_at_zero:
                         self.on_left_at_zero()
-                    my_state.widget_responded = True
+                    self.register_response()
                 elif my_state.is_key_for_action(ev, "right"):
                     if self.cursor_i < len(self.char_list):
                         self.cursor_i += 1
                     elif self.on_right_at_end:
                         self.on_right_at_end()
-                    my_state.widget_responded = True
+                    self.register_response()
         if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and self.get_rect().collidepoint(my_state.mouse_pos):
             mytext = self.text
             mydest = self.get_rect()
@@ -973,7 +991,7 @@ class TextEditorPanel(ScrollColumnWidget):
                 self.scroll_up()
             elif (ev.button == 5):
                 self.scroll_down()
-            my_state.widget_responded = True
+            self.register_response()
 
         elif ((my_state.focused_widget in self._interior_widgets) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
             if my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
@@ -981,13 +999,13 @@ class TextEditorPanel(ScrollColumnWidget):
                 self.selected_widget_id -= 1
                 self._interior_widgets[self.selected_widget_id].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.selected_widget_id].char_list))
-                my_state.widget_responded = True
+                self.register_response()
             elif my_state.is_key_for_action(ev, "down") and self.selected_widget_id < (len(self._interior_widgets) - 1):
                 cursor_i = self._interior_widgets[self.selected_widget_id].cursor_i
                 self.selected_widget_id += 1
                 self._interior_widgets[self.selected_widget_id].cursor_i = min(cursor_i, len(
                     self._interior_widgets[self.selected_widget_id].char_list))
-                my_state.widget_responded = True
+                self.register_response()
 
 
 class TextEditorWidget(Widget):
