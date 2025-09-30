@@ -522,7 +522,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
         self.pc.portrait_gen.random_portrait(self.pc,form_tags=ft)
         self.portrait_view.portrait = self.pc.portrait_gen.build_portrait(self.pc,force_rebuild=True, form_tags=self.get_portrait_tags())
 
-    def color_edit(self,_wid,ev):
+    def color_edit(self,_wid,_ev):
         cosplay.ColorEditor.push_state_and_instantiate(
             self,
             proto_sprite=self.pc.portrait_gen.build_portrait(self.pc,add_color=False, form_tags=self.get_portrait_tags()), 

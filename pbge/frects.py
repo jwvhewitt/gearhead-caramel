@@ -21,6 +21,12 @@ class Frect( object ):
         self.anchor = anchor
         self.parent = parent
 
+    def get_dict(self):
+        return {
+            "dx": self.dx, "dy": self.dy, "w": self.w, "h": self.h,
+            "anchor": self.anchor, "parent": self.parent
+        }
+
     def get_rect( self ):
         if self.parent:
             prect = self.parent.get_rect()

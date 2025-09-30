@@ -1,12 +1,11 @@
 import collections
 import weakref
-from .. import my_state, anim_delay, WHITE, wrap_multi_line
+from .. import my_state, WHITE, wrap_multi_line, widgets
 from .. import util, image
 import pygame
 from . import waypoints, terrain
 import random
 import math
-import time
 
 
 OVERLAY_ITEM = 0
@@ -21,7 +20,7 @@ SCROLL_STEP = 12
 
 PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
 
-DEBUG_ON = True
+DEBUG_ON = False
 
 
 class TextTicker(object):
@@ -101,11 +100,6 @@ class SceneView(object):
         self.needs_update = True
     
         my_state.view = self
-
-        if DEBUG_ON:
-            self._num_renders = 0
-            self._timer = 0.0
-            self._prev_time = time.perf_counter()
 
     def update_tile_data(self):
         self.floor_border_data.clear()
@@ -368,6 +362,9 @@ class SceneView(object):
     def focus(self, x, y):
         self._focus_x, self._focus_y = self.scene.clamp_pos((x, y))
 
+    def change_focus(self, dx, dy):
+        self.focus(self._focus_x+dx, self._focus_y +dy)
+
     def regenerate_avatars(self, models):
         """Regenerate the avatars for the listed models."""
         for m in models:
@@ -380,50 +377,28 @@ class SceneView(object):
         my_state.screen.fill((36, 37, 36), myfill)
         my_state.screen.blit(myimage, mydest)
 
-    def handle_anim_sequence(self, record_anim=False):
-        # Disable widgets while animation playing.
-        push_widget_state = my_state.widgets_active
-        my_state.widgets_active = False
+    def has_animations(self):
+        return self.anim_list or self.tickers
 
-        tick = 0
-        if record_anim:
-            self.anims.clear()
-            self()
-            my_state.do_flip()
-            pygame.image.save(my_state.screen, util.user_dir("anim_{:0>3}.png".format(tick)))
-            tick += 1
-
-        while self.anim_list or self.tickers:
-            should_delay = False
-            self.anims.clear()
-            for a in list(self.anim_list):
-                if a.needs_deletion:
-                    self.anim_list.remove(a)
-                    self.anim_list += a.children
-                else:
-                    should_delay = True
-                    a.update(self)
-            if should_delay or self.tickers:
-                self()
-                my_state.do_flip()
-            if record_anim:
-                pygame.image.save(my_state.screen, util.user_dir("anim_{:0>3}.png".format(tick)))
-
-            anim_delay()
-            tick += 1
+    def process_anims(self):
         self.anims.clear()
+        for a in list(self.anim_list):
+            if a.needs_deletion:
+                self.anim_list.remove(a)
+                self.anim_list += a.children
+            else:
+                nothing_to_show = False
+                a.update(self)
+        if not self.has_animations():
+            self.anims.clear()
+            # Update any placable things that need updates.
+            for thing in self.scene.contents:
+                if hasattr(thing, 'update_graphics'):
+                    thing.update_graphics()
 
-        # Restore the widgets.
-        my_state.widgets_active = push_widget_state
-
-        # Update any placable things that need updates.
-        for thing in self.scene.contents:
-            if hasattr(thing, 'update_graphics'):
-                thing.update_graphics()
 
     def play_anims(self, *args):
         self.anim_list += args
-        self.handle_anim_sequence()
 
     def pos_to_key(self, pos):
         # Convert the x,y coordinates to a model_map key...
@@ -669,24 +644,55 @@ class SceneView(object):
         if self.postfx:
             self.postfx()
 
+
+WTAG_SCENEVIEW = "WTAG_SCENEVIEW"
+WTAG_DEACTIVATE_DURING_ANIMATION = "WTAG_DEACTIVATE_DURING_ANIMATION"
+WTAG_HIDE_DURING_ANIMATION = "WTAG_HIDE_DURING_ANIMATION"
+
+
+class SceneViewWidget(widgets.Widget):
+    def __init__(self, scene_view: SceneView):
+        super().__init__(0, 0, 0, 0, tags={WTAG_SCENEVIEW,})
+        self.scene_view = scene_view
+        self.showing_animation = False
+        self._timer = 0
+        self._num_renders = 0
+
+    def _render(self, delta):
+        if self.scene_view.has_animations():
+            self.scene_view.process_anims()
+            if not self.showing_animation:
+                _=widgets.FrozenUIState(
+                    tags_to_deactivate={WTAG_DEACTIVATE_DURING_ANIMATION,},
+                    tags_to_hide={WTAG_HIDE_DURING_ANIMATION,}
+                )
+                self.showing_animation=True
+        elif self.showing_animation:
+            self.showing_animation = False
+            widgets.FrozenUIState.pop()
+
+        self.scene_view()
+
         if DEBUG_ON:
             self._num_renders += 1
-            self._timer = time.perf_counter() - self._prev_time
-            if self._timer > 5:
-                print("{} renders in {} seconds ({} FPS)".format(self._num_renders, self._timer, self._num_renders/self._timer))
+            self._timer += delta
+            if self._timer > 1000:
+                print("{} renders in {} seconds ({} FPS)".format(self._num_renders, self._timer/1000, self._num_renders*1000/self._timer))
                 self._num_renders = 0
-                self._prev_time = time.perf_counter()
+                self._timer = 0
 
-    def check_event(self, ev):
+    FOCUS_SHIFT = 0.5
+
+    def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if my_state.is_key_for_action(ev, "scroll_map_north"):
-                self.focus(self._focus_x, self._focus_y - 1)
+                self.scene_view.change_focus(0, -self.FOCUS_SHIFT)
             elif my_state.is_key_for_action(ev, "scroll_map_west"):
-                self.focus(self._focus_x - 1, self._focus_y)
+                self.scene_view.change_focus(-self.FOCUS_SHIFT, 0)
             elif my_state.is_key_for_action(ev, "scroll_map_south"):
-                self.focus(self._focus_x, self._focus_y + 1)
+                self.scene_view.change_focus(0, self.FOCUS_SHIFT)
             elif my_state.is_key_for_action(ev, "scroll_map_east"):
-                self.focus(self._focus_x + 1, self._focus_y)
+                self.scene_view.change_focus(self.FOCUS_SHIFT, 0)
 
-        if self.cursor:
-            self.cursor.update(self, ev)
+        if self.scene_view.cursor:
+            self.scene_view.cursor.update(self.scene_view, ev)

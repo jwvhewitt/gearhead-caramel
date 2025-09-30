@@ -28,14 +28,23 @@ popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor
 
 WTAG_WIDGET = "WTAG_WIDGET"
 
+class WidgetException(Exception):
+    pass
+
 
 class FrozenUIState:
     # Widgets may have "on_activate" and "on_freeze" methods that get called when the widget is either popped or
     # pushed.
-    def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=()):
+    def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=(), tags_to_push=()):
         self.pushed_widgets = list()
         for wtp in widgets_to_push:
             self.push_widget(wtp)
+
+        if tags_to_push:
+            tags_to_push = set(tags_to_push)
+            for widg in list(my_state.widgets):
+                if widg.tags.intersection(tags_to_push):
+                    self.push_widget(widg)
 
         self.deactivated_widgets = list()
         self.hidden_widgets = list()
@@ -84,6 +93,13 @@ class FrozenUIState:
             reactivate_this = self.focused_widget_wr()
             if reactivate_this in list(my_state.all_widgets()):
                 my_state.focused_widget = reactivate_this
+
+    @staticmethod
+    def pop():
+        if my_state.ui_stack:
+            froz = my_state.ui_stack.pop(-1)
+            froz.unfreeze()
+
 
 type On_Click = Callable[[Widget, pygame.event.Event], None]|None
 
@@ -156,7 +172,7 @@ class Widget(frects.Frect):
 
     def respond_event(self, ev):
         if self.active and self.visible:
-            for c in self.children:
+            for c in list(self.children):
                 c.respond_event(ev)
             if self.get_rect().collidepoint(my_state.mouse_pos):
                 if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
@@ -224,26 +240,41 @@ class Widget(frects.Frect):
     def close(self):
         if self in my_state.widgets:
             my_state.widgets.remove(self)
+        else:
+            raise WidgetException("{} attempted to close but not currently active".format(self))
 
     def pop(self):
         #print("Popping {}".format(self))
         self.close()
-        if my_state.ui_stack:
-            froz = my_state.ui_stack.pop(-1)
-            froz.unfreeze()
+        FrozenUIState.pop()
 
     TAGS_TO_DEACTIVATE = set()
     TAGS_TO_HIDE = ()
+    TAGS_TO_PUSH = ()
+    ACTIVATE_IMMEDIATELY = False
 
     @classmethod
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
-        _=FrozenUIState(*widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, tags_to_hide=cls.TAGS_TO_HIDE)
+        _=FrozenUIState(
+            *widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, 
+            tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH
+        )
         my_widget = cls(**kwargs)
         my_state.widgets.append(my_widget)
+        if my_widget.ACTIVATE_IMMEDIATELY:
+            my_widget.activate()
+
+    @staticmethod
+    def close_widgets_with_tag(tag_to_close):
+        for w in list(my_state.widgets):
+            if tag_to_close in w.tags:
+                my_state.widgets.remove(w)
 
     def push_and_deploy(self, *widgets_to_push):
-        _=FrozenUIState(*widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, tags_to_hide=self.TAGS_TO_HIDE)
+        _=FrozenUIState(*widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH)
         my_state.widgets.append(self)
+        if self.ACTIVATE_IMMEDIATELY:
+            self.activate()
 
 
 class ButtonWidget(Widget):
@@ -612,10 +643,10 @@ class ScrollColumnWidget(Widget):
         else:
             self.down_button.frame = self.down_button.off_frame
 
-        if self.selected_widget_id < self.top_widget:
-            self.selected_widget_id = self.top_widget
-        elif self.selected_widget_id >= (n - 1):
-            self.selected_widget_id = max(n - 2, 0)
+        if self._selected_widget_id < self.top_widget:
+            self._selected_widget_id = self.top_widget
+        elif self._selected_widget_id >= (n - 1):
+            self._selected_widget_id = max(n - 2, 0)
 
     def scroll_up(self, *_args):
         if self.top_widget > 0:
@@ -953,7 +984,7 @@ class TextEditorPanel(ScrollColumnWidget):
 
     def _set_active_widget(self, widindex):
         if 0 <= widindex < len(self._interior_widgets): # and widindex != self._active_widget:
-            self._active_widget = widindex
+            self._active_widget = widindex  # pyright: ignore[reportUninitializedInstanceVariable]
             wid = self._interior_widgets[widindex]
             my_state.focused_widget = wid
             if not wid.active:

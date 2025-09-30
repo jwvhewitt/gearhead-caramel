@@ -4,6 +4,7 @@ import pbge
 import pygame
 from game import teams, ghdialogue
 from game.ghdialogue import context
+from pbge.scenes.waypoints import Waypoint
 from pbge.scenes.movement import Walking, Flying
 from gears.tags import Skimming, Rolling
 import random
@@ -75,7 +76,7 @@ class WinterMochaBurningBarrelTerrain(pbge.scenes.terrain.AnimTerrain):
     blocks = (Walking, Skimming, Rolling)
 
 
-class WinterMochaBurningBarrel(ghwaypoints.Waypoint):
+class WinterMochaBurningBarrel(Waypoint):
     name = 'Barrel Fire'
     TILE = pbge.scenes.Tile(None, None, WinterMochaBurningBarrelTerrain)
     desc = "There's a fire in this barrel. It's nice and warm."
@@ -87,13 +88,13 @@ class WinterMochaGeneratorTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
 
 
-class WinterMochaGenerator(ghwaypoints.Waypoint):
+class WinterMochaGenerator(Waypoint):
     name = 'Geothermal Generator'
     TILE = pbge.scenes.Tile(None, None, WinterMochaGeneratorTerrain)
     desc = "You stand before a geothermal generator."
 
 
-class WinterMochaToolbox(ghwaypoints.Waypoint):
+class WinterMochaToolbox(Waypoint):
     name = 'Toolbox'
     TILE = pbge.scenes.Tile(None, None, ghterrain.WinterMochaToolboxTerrain)
     desc = "You stand before an abandoned toolbox."
@@ -105,19 +106,19 @@ class WinterMochaHeatLampTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
 
 
-class WinterMochaHeatLamp(ghwaypoints.Waypoint):
+class WinterMochaHeatLamp(Waypoint):
     name = 'Heat Lamp'
     TILE = pbge.scenes.Tile(None, None, WinterMochaHeatLampTerrain)
     desc = "You stand before an industrial heat lamp. It's probably being used in the construction of the new arena."
 
 
-class WinterMochaBarrel(ghwaypoints.Waypoint):
+class WinterMochaBarrel(Waypoint):
     name = 'Barrel'
     TILE = pbge.scenes.Tile(None, None, ghterrain.WinterMochaBarrelTerrain)
     desc = "You stand before a big container of fuel."
 
 
-class WinterMochaShovel(ghwaypoints.Waypoint):
+class WinterMochaShovel(Waypoint):
     name = 'Broken Shovel'
     TILE = pbge.scenes.Tile(None, None, ghterrain.WinterMochaBrokenShovel)
     desc = "You stand before a broken shovel."
@@ -129,7 +130,7 @@ class WinterMochaDomeTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
 
 
-class WinterMochaDome(ghwaypoints.Waypoint):
+class WinterMochaDome(Waypoint):
     name = 'Dome'
     TILE = pbge.scenes.Tile(None, None, WinterMochaDomeTerrain)
     desc = "You stand before a half buried dome. No idea what its function is."
@@ -141,7 +142,7 @@ class WinterMochaBlowerTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
 
 
-class WinterMochaBlower(ghwaypoints.Waypoint):
+class WinterMochaBlower(Waypoint):
     name = 'Industrial Blower'
     TILE = pbge.scenes.Tile(None, None, WinterMochaBlowerTerrain)
     desc = "You stand before an industrial air blower. It's probably being used in the construction of the new arena."
@@ -157,7 +158,7 @@ class WinterMochaTruckTerrain(pbge.scenes.terrain.Terrain):
     blocks = (Walking, Skimming, Rolling)
 
 
-class WinterMochaTruck(ghwaypoints.Waypoint):
+class WinterMochaTruck(Waypoint):
     name = 'Wrecked Truck'
     TILE = pbge.scenes.Tile(None, None, WinterMochaTruckTerrain)
     desc = "You stand before one of the trucks from the convoy that was attacked."
@@ -168,7 +169,7 @@ class WinterMochaClaymoreTerrain(pbge.scenes.terrain.Terrain):
     frame = 1
 
 
-class WinterMochaClaymore(ghwaypoints.Waypoint):
+class WinterMochaClaymore(Waypoint):
     name = 'Wrecked Claymore'
     TILE = pbge.scenes.Tile(None, None, WinterMochaClaymoreTerrain)
     desc = "You stand before a totalled mecha."
@@ -217,11 +218,11 @@ class SnowField(object):
         self.snow = pbge.image.Image("sys_wm_snow.png", 24, 24)
         self.flakes = list()
         dest = pbge.my_state.screen.get_rect()
-        for t in range(random.randint(200,500)):
+        for _ in range(random.randint(200,500)):
             self.flakes.append(Snowflake(dest, y=random.randint(1,dest.h)))
 
     def add_snow(self, dest):
-        for t in range(min(random.randint(1, 3), random.randint(1, 3))):
+        for _ in range(min(random.randint(1, 3), random.randint(1, 3))):
             self.flakes.append(Snowflake(dest))
 
     def __call__(self):
@@ -259,7 +260,7 @@ class MochaStub(Plot):
         self.ADVENTURE_MODULE_DATA.apply(nart.camp)
 
         w: gears.GearHeadCampaign = nart.camp
-        self.register_element("WORLD", w)
+        _=self.register_element("WORLD", w)
         self.adv = Adventure(world=w)
         self.add_first_locale_sub_plot(nart, locale_type="MOCHA_MAUNA")
         w.convoborder = "sys_wintermocha_convoborder.png"
@@ -302,15 +303,15 @@ class FrozenHotSpringCity(Plot):
 
         myscenegen.contents.append(myroom)
 
-        hangar_gate = self.register_element("HANGAR_GATE", ghwaypoints.Waypoint(name="Hangar Door", plot_locked=True,
+        hangar_gate = self.register_element("HANGAR_GATE", Waypoint(name="Hangar Door", plot_locked=True,
                                                                                 desc="This is the door of the mecha hangar."))
-        snow_drift = self.register_element("SNOW_DRIFT", ghwaypoints.Waypoint(name="Snowdrift",
+        snow_drift = self.register_element("SNOW_DRIFT", Waypoint(name="Snowdrift",
                                                                               desc="The snow has blocked the entrance to the mecha hangar. You're going to have to take one of the backup mecha from the storage yard."))
         myroom2 = pbge.randmaps.rooms.NoWallRoom(15, 15)
         myroom3 = WinterMochaHangar(parent=myroom2, waypoints={"DOOR": hangar_gate, "DRIFT": snow_drift})
         myscenegen.contents.append(myroom2)
 
-        fence_gate = self.register_element("FENCE_GATE", ghwaypoints.Waypoint(name="Storage Yard", plot_locked=True,
+        fence_gate = self.register_element("FENCE_GATE", Waypoint(name="Storage Yard", plot_locked=True,
                                                                               desc="This is the gate of the mecha storage yard."))
 
         myroom4 = self.register_element("FENCE_GATE_ROOM",
@@ -375,7 +376,7 @@ class FrozenHotSpringCity(Plot):
             gears.selector.get_design_by_full_name("TR-93 XS Razer")
         ]
         mek1, mek2 = random.sample(mygearlist, 2)
-        mek1.colors = gears.random_mecha_colors()
+        mek1.colors = gears.color.random_mecha_colors()
         mek2.colors = self.elements["VIKKI"].mecha_colors
         camp.party.append(mek1)
         camp.assign_pilot_to_mecha(camp.pc, mek1)
@@ -390,7 +391,7 @@ class FrozenHotSpringCity(Plot):
     def _give_good_mecha(self, camp: gears.GearHeadCampaign):
         mek1 = gears.selector.get_design_by_full_name("Z45-60 Zerosaiko")
         mek2 = gears.selector.get_design_by_full_name("THD-35 Thorshammer")
-        mek1.colors = gears.random_mecha_colors()
+        mek1.colors = gears.color.random_mecha_colors()
         mek2.colors = self.elements["VIKKI"].mecha_colors
         camp.party.append(mek1)
         camp.assign_pilot_to_mecha(camp.pc, mek1)
@@ -577,7 +578,7 @@ class WinterMochaChaletForEnding(Plot):
                                       dident="LOCALE")
         foyer.contents.append(team2)
 
-        self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_introom")
+        self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_introom")
         self.register_element("POSTER", ghwaypoints.MechaPoster(name="Poster", desc="A promotional poster for the charity mecha tournament.", plot_locked=True), dident="_introom")
 
         self.register_element("EXIT",
@@ -965,11 +966,11 @@ class MochaMissionBattleBuilder(Plot):
 
         myroom = self.register_element("FIRST_ENTRANCE_ROOM", pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene1,
                                                                                             anchor=pbge.randmaps.anchors.south))
-        myent = self.register_element("FIRST_ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("FIRST_ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
 
         myroom2 = pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene2, anchor=pbge.randmaps.anchors.south)
-        myent2 = self.register_element("SECOND_ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent2 = self.register_element("SECOND_ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom2.contents.append(myent2)
 
         mygoal = pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene1, anchor=pbge.randmaps.anchors.north)
@@ -1016,7 +1017,7 @@ NO_STAKES, STOLEN_TOYS, GET_THE_LEADER, PROTOTYPE_MECHA = list(range(4))
 
 
 class MercFaction(gears.factions.Faction):
-    mecha_colors = gears.random_mecha_colors()
+    mecha_colors = gears.color.random_mecha_colors()
 
 
 class ConvoyFaction(gears.factions.Faction):
@@ -1191,12 +1192,12 @@ class Encounter_StealthTest(Plot):
     CHANGES = {ENEMY: BANDITS}
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         # Note that the lack of an ENCOUNTER_NUMBER implies that this
         # plot is being loaded as a debug encounter.
         return "ENCOUNTER_NUMBER" not in pstate.elements or all(
-            pstate.elements.get(k, 0) == self.REQUIRES[k] for k in self.REQUIRES.keys())
+            pstate.elements.get(k, 0) == cls.REQUIRES[k] for k in cls.REQUIRES.keys())
 
     def load_next(self, nart):
         self.elements.update(self.CHANGES)
@@ -1238,12 +1239,12 @@ class Encounter_BasicBandits(Plot):
     CHANGES = {ENEMY: BANDITS}
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         # Note that the lack of an ENCOUNTER_NUMBER implies that this
         # plot is being loaded as a debug encounter.
         return "ENCOUNTER_NUMBER" not in pstate.elements or all(
-            pstate.elements.get(k, 0) == self.REQUIRES[k] for k in self.REQUIRES.keys())
+            pstate.elements.get(k, 0) == cls.REQUIRES[k] for k in cls.REQUIRES.keys())
 
     def load_next(self, nart):
         self.elements.update(self.CHANGES)
@@ -1945,7 +1946,7 @@ class Choice_BringJusticeToScumHive(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(ENEMY, 0) == PIRATES and pstate.elements.get(VIRTUE,
                                                                                 0) != personality.Justice and pstate.elements.get(
@@ -1983,7 +1984,7 @@ class Choice_PeaceAgainstSynths(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(COMPLICATION, 0) == FERAL_SYNTHS and pstate.elements.get(VIRTUE,
                                                                                             0) != personality.Peace and pstate.elements.get(
@@ -2026,7 +2027,7 @@ class Choice_FellowshipToDefendAgainstSynths(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(COMPLICATION, 0) == FERAL_SYNTHS and pstate.elements.get(VIRTUE,
                                                                                             0) != personality.Fellowship and pstate.elements.get(
@@ -2069,7 +2070,7 @@ class Choice_BringJusticeToMercenaries(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(ENEMY, 0) == MERCENARY and pstate.elements.get(VIRTUE,
                                                                                   0) != personality.Justice and pstate.elements.get(
@@ -2108,7 +2109,7 @@ class Choice_DutyToFightPirates(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(ENEMY, 0) == PIRATES and pstate.elements.get(VIRTUE,
                                                                                 0) != personality.Duty and pstate.elements.get(
@@ -2147,7 +2148,7 @@ class Choice_FellowshipWithSmugglers(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(COMPLICATION, 0) == CONTRABAND_CARGO and pstate.elements.get(VIRTUE,
                                                                                                 0) != personality.Fellowship and pstate.elements.get(
@@ -2187,7 +2188,7 @@ class Choice_BringJusticeToSmugglers(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(COMPLICATION, 0) == CONTRABAND_CARGO and pstate.elements.get(VIRTUE,
                                                                                                 0) != personality.Justice and pstate.elements.get(
@@ -2230,7 +2231,7 @@ class Choice_JusticeForWujungOrphans(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(STAKES, 0) == STOLEN_TOYS and pstate.elements.get(VIRTUE,
                                                                                      0) != personality.Justice and pstate.elements.get(
@@ -2269,7 +2270,7 @@ class Choice_GloryByDestroyingBigBase(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(COMPLICATION, 0) == PROFESSIONAL_OPERATION and pstate.elements.get(VIRTUE,
                                                                                                       0) != personality.Glory and pstate.elements.get(
@@ -2308,7 +2309,7 @@ class Choice_GloryByDestroyingBanditBase(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(ENEMY, 0) == BANDITS and pstate.elements.get(VIRTUE,
                                                                                 0) != personality.Glory and pstate.elements.get(
@@ -2346,7 +2347,7 @@ class Choice_PeaceByDefeatingAegis(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(COMPLICATION, 0) == AEGIS_SCOUTS and pstate.elements.get(VIRTUE,
                                                                                             0) != personality.Peace and pstate.elements.get(
@@ -2391,7 +2392,7 @@ class Choice_GloryByFightingTheLeader(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(STAKES, 0) == GET_THE_LEADER and pstate.elements.get(VIRTUE,
                                                                                         0) != personality.Glory and pstate.elements.get(
@@ -2430,7 +2431,7 @@ class Choice_DutyToCatchTheLeader(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(STAKES, 0) == GET_THE_LEADER and pstate.elements.get(VIRTUE,
                                                                                         0) != personality.Duty and pstate.elements.get(
@@ -2469,7 +2470,7 @@ class Choice_PeaceToDisableThePrototype(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(STAKES, 0) == PROTOTYPE_MECHA and pstate.elements.get(VIRTUE,
                                                                                          0) != personality.Peace and pstate.elements.get(
@@ -2512,7 +2513,7 @@ class Choice_DutyToStopThePrototype(Plot):
     chose_this_route = False
 
     @classmethod
-    def matches(self, pstate):
+    def matches(cls, pstate):
         """Returns True if this plot matches the current plot state."""
         return pstate.elements.get(STAKES, 0) == PROTOTYPE_MECHA and pstate.elements.get(VIRTUE,
                                                                                          0) != personality.Duty and pstate.elements.get(
@@ -2597,7 +2598,7 @@ class FinalBattleAgainstSynths(Plot):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene, anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
         mygoal = self.register_element("_goalroom", pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene,
                                                                                   anchor=pbge.randmaps.anchors.middle))
@@ -2634,7 +2635,7 @@ class FinalBattleAgainstBase(Plot):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene, anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
         mygoal = self.register_element("_goalroom", WinterMochaFortressRoom(10, 10, parent=myscene,
                                                                             anchor=pbge.randmaps.anchors.middle))
@@ -2673,7 +2674,7 @@ class FinalBattleAgainstTrucks(Plot):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene, anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
         boringroom = pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene, anchor=pbge.randmaps.anchors.north)
         mygoal = self.register_element("_goalroom", pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene,
@@ -2716,7 +2717,7 @@ class FinalBattleAgainstBoss(Plot):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene, anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
         boringroom = pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene, anchor=pbge.randmaps.anchors.north)
         mygoal = self.register_element("_goalroom", pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene,
@@ -2757,7 +2758,7 @@ class FinalBattleAgainstBossInWoods(Plot):
         myscene.exploration_music = 'Lines.ogg'
         myscene.combat_music = 'Late.ogg'
         myroom = pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene, anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
         mygoal = self.register_element("_goalroom", pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene,
                                                                                   anchor=pbge.randmaps.anchors.middle))
@@ -2825,7 +2826,7 @@ class WinterBattle(Plot):
         myscene.combat_music = 'Late.ogg'
 
         myroom = pbge.randmaps.rooms.NoWallRoom(10, 10, parent=myscene, anchor=pbge.randmaps.anchors.south)
-        myent = self.register_element("ENTRANCE", ghwaypoints.Waypoint(anchor=pbge.randmaps.anchors.middle))
+        myent = self.register_element("ENTRANCE", Waypoint(anchor=pbge.randmaps.anchors.middle))
         myroom.contents.append(myent)
 
         boringroom = pbge.randmaps.rooms.NoWallRoom(5, 5, parent=myscene)

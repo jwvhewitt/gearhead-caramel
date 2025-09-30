@@ -346,12 +346,38 @@ class ExploMenu(object):
         pc = self.explo.camp.first_active_pc()
         pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
 
+WTAG_TITLESCREEN = "WTAG_TITLESCREEN"
+WTAG_TITLEMENU = "WTAG_TITLEMENU"
 
-class Explorer(object):
+
+class ExploCommandWidget(pbge.widgets.Widget):
+    def __init__(self, camp: gears.GearHeadCampaign, view):
+        super().__init__(
+            0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
+        )
+        self.camp = camp
+        self.view = view
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.MOUSEBUTTONUP:
+            if ev.button == 1:
+                self.view.play_anims(gears.geffects.BigBoom(pos=self.view.mouse_tile))
+        elif ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "quit_game"):
+                # self.camp.save(self.screen)
+                self.no_quit = False
+            elif pbge.my_state.is_key_for_action(ev, "center_on_pc"):
+                pc = self.camp.first_active_pc()
+                self.view.focus(pc.pos[0], pc.pos[1])
+
+
+class Explorer(pbge.campaign.ExploPrototype):
     # The object which is exploration of a scene. OO just got existential.
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
+    TAGS_TO_PUSH = {WTAG_TITLESCREEN,}
     def __init__(self, camp: gears.GearHeadCampaign):
+        super().__init__(0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,})
         pbge.please_stand_by()
         self.camp = camp
         self.scene: gears.GearHeadScene = camp.scene
@@ -364,6 +390,7 @@ class Explorer(object):
         else:
             mycursor = pbge.scenes.mapcursor.MapCursor(0, 0, pbge.image.Image('sys_mapcursor.png', 64, 64))
         self.view = scenes.viewer.SceneView(camp.scene, cursor=mycursor)
+        self.children.append(pbge.scenes.viewer.SceneViewWidget(self.view))
         self.time = 0
 
         self.threat_tiles = set()
@@ -409,7 +436,11 @@ class Explorer(object):
             if hasattr(thing, 'update_graphics'):
                 thing.update_graphics()
 
+        self.children.append(ExploCommandWidget(camp, self.view))
+
         # Save the game, if the config says to.
+        self.view()
+        pygame.display.flip()
         if pbge.util.config.getboolean("GENERAL", "auto_save"):
             camp.save()
 
@@ -774,3 +805,12 @@ class Explorer(object):
             self.camp.check_trigger("EXIT")
 
         current_explo = None
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "center_on_pc"):
+                pc = self.camp.first_active_pc()
+                self.view.focus(pc.pos[0], pc.pos[1])
+
+
+

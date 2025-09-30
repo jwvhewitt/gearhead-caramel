@@ -1,8 +1,9 @@
 from . import widgets
 from . import image
-from . import my_state, Border, TEXT_COLOR, default_border
+from . import my_state, Border, TEXT_COLOR, default_border, draw_text
 from . import frects
 import pygame
+from collections.abc import Callable
 
 
 DEFAULT_UPDOWN_IMAGE_W_H = ("sys_updownbuttons.png", 128, 16)
@@ -23,7 +24,8 @@ class MenuWidget(widgets.ColumnWidget):
         on_activate_item=None, center_interior=True, padding=5,
         item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
         font=None, item_class=widgets.LabelWidget, item_data=None, 
-        on_click_child=None, on_escape=None,
+        on_click_child: widgets.On_Click=None, 
+        on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
@@ -118,6 +120,9 @@ class MenuWidget(widgets.ColumnWidget):
 
     def get_items(self):
         return self.scroll_column.get_items()
+
+    def is_empty(self):
+        return not self.scroll_column.get_items()
 
     # Utility function for adding default menu items.
     def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
@@ -257,3 +262,31 @@ class DescBoxWidget(widgets.LabelWidget):
         my_item = self.menu.active_item
         if my_item:
             return my_item.desc
+
+
+class AlertMenuWidget(MenuWidget):
+    WIDTH = 350
+    HEIGHT = 250
+    MENU_HEIGHT = 75
+
+    FULL_RECT = frects.Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT)
+    TEXT_RECT = frects.Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT - MENU_HEIGHT - 10)
+    MENU_RECT = frects.Frect(-WIDTH//2, HEIGHT//2-MENU_HEIGHT, WIDTH, MENU_HEIGHT)
+
+    ACTIVATE_IMMEDIATELY = True
+
+    def __init__(self, msg, alert_font=None, **kwargs):
+        if "draw_border" in kwargs:
+            kwargs.pop("draw_border")
+        super().__init__(
+            **self.MENU_RECT.get_dict(),
+            draw_border=False, **kwargs
+        )
+        self.alert_font = alert_font or my_state.medium_font
+        self.msg = msg
+
+    def _render(self, delta):
+        default_border.render(self.FULL_RECT.get_rect())
+        draw_text(self.alert_font, self.msg, self.TEXT_RECT.get_rect(), justify=0)
+        super()._render(delta)
+

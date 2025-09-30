@@ -510,12 +510,11 @@ class GameState(object):
             for w in self.widgets:
                 w.update(delta)
 
-            #print(self.focused_widget)
-
             # flip() the display to put your work on screen
             pygame.display.flip()
 
             delta = myclock.tick(FPS)
+            self.standing_by = False
 
 
 class StretchyLayer():
@@ -778,7 +777,8 @@ def please_stand_by(caption=None):
             default_border.render(dest2)
             _=my_state.screen.blit(mytext, dest2)
         my_state.standing_by = True
-        my_state.do_flip(False, reset_standing_by=False)
+        pygame.event.clear()
+        pygame.display.flip()
 
 
 from . import frects

@@ -1,5 +1,6 @@
+* Animations run automatically
 * Merit badges now added to singleton list
-* Changed from multiple blocking 
+* Changed from multiple blocking game loops to a central game loop with stack based UI
 * Improved map rendering speed; hopefully less choppiness
 * Map positions clamped on display
 * Animations are cached on game start

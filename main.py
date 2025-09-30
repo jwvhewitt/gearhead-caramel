@@ -15,9 +15,12 @@
 # nuitka-project: --lto
 
 
+from game import exploration
 import pbge
 import sys
 import os
+
+#from pbge.widgets import On_Click
 
 
 # Step one is to find our gamedir. The process is slightly different depending on whether we are running from
@@ -55,8 +58,6 @@ import logging
 import traceback
 
 VERSION = "v0.977"
-
-WTAG_TITLEMENU = "WTAG_TITLEMENU"
 
 
 class DZDTitleScreenRedraw(object):
@@ -217,20 +218,42 @@ def prep_eggs_for_steam(tsrd):
         except Exception as err:
             print(err)
 
+class BadSaveFileWidget(pbge.widgetmenu.AlertMenuWidget):
+    def __init__(self, fname, err):
+        super().__init__(
+            "File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err),
+            on_escape=self._do_nothing
+        )
+        self.fname = fname
+        _=self.add_item("Eject the character and delete the broken campaign file.", self._eject_character)
+        _=self.add_item("Leave it alone for now.", self._do_nothing)
 
-class LoadGameMenu:
+    def _eject_character(self, _wid, _ev):
+        minimal_saves[self.fname][1].save()
+        if os.path.exists(self.fname):
+            os.remove(self.fname)
+        check_rpg_saves()
+        self.pop()
+
+    def _do_nothing(self, _wid, _ev):
+        self.pop()
+
+
+class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
     PORTRAIT_AREA = pbge.frects.Frect(-400, -300, 400, 600)
     THUMB_AREA = pbge.frects.Frect(-375, -180, 480, 360)
     MENU_COLUMN = pbge.frects.Frect(130,-100,225,350)
     WARNING_AREA = pbge.frects.Frect(-350, 0, 300, 54)
 
-    def __init__(self, tsrd):
+    TAGS_TO_HIDE = {exploration.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
+
+    def __init__(self):
         check_rpg_saves()
-        self.tsrd = tsrd
-        self.menu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
-                                   self.MENU_COLUMN.w, self.MENU_COLUMN.h,
-                                   predraw=self, font=pbge.my_state.huge_font,
-                                   )
+        super().__init__(
+            self.MENU_COLUMN.dx, self.MENU_COLUMN.dy, self.MENU_COLUMN.w, self.MENU_COLUMN.h,
+            on_escape=self.cancel_load, font=pbge.HUGEFONT
+        )
         self.myportraits = dict()
         self.current_version = self._string_to_major_version(VERSION)
 
@@ -238,31 +261,35 @@ class LoadGameMenu:
         rcdest = pygame.Rect(0,0,480,360)
 
         for fname, args in minimal_saves.items():
-            _=self.menu.add_item(args[1].pc.name, fname, desc=args)
+            _=self.add_item(args[1].pc.name, on_click=self.load_game, data=fname, desc=args)
             self.myportraits[args] = args[1].pc.get_portrait()
             if args[2]:
                 args[2].blit(rc, rcdest)
                 args[2].convert_alpha()
                 args[2].set_colorkey((0,0,255))
 
-
-        if not self.menu.items:
-            _=self.menu.add_item('[No campaigns found]', None, desc=None)
+        if self.is_empty():
+            _=self.add_item('[No campaigns found]', on_click=self.cancel_load)
 
         self.sl = pbge.StretchyLayer()
 
-        self.menu.sort()
-        fname = self.menu.query()
-        if fname:
-            pbge.please_stand_by()
-            # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
-            try:
-                camp = copy.deepcopy(gears.GearHeadCampaign.load(fname)[3])
-            except Exception as err:
-                print(err)
-                self.deal_with_bad_file(fname, err)
-                return
-            camp.play()
+        self.sort()
+
+    def load_game(self, menuitem, _ev):
+        self.close()
+        fname = menuitem.data
+        pbge.please_stand_by()
+        # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
+        try:
+            camp = copy.deepcopy(gears.GearHeadCampaign.load(fname)[3])
+        except Exception as err:
+            print(err)
+            pbge.my_state.widgets.append(BadSaveFileWidget(fname=fname, err=err))
+            return
+        camp.play()
+
+    def cancel_load(self, _wid, _ev):
+        self.pop()
 
     def deal_with_bad_file(self, fname, err):
         mymenu = pbge.rpgmenu.AlertMenu("File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err))
@@ -280,9 +307,9 @@ class LoadGameMenu:
         # files. Print a warning if this is the case.
         return math.floor(float(version[1:])*10)
 
-    def __call__(self):
-        self.tsrd()
-        menu_item = self.menu.get_current_item()
+    def _render(self, delta):
+        super()._render(delta)
+        menu_item = self.active_item
 
         if menu_item.desc:
             self.sl.clear()
@@ -335,7 +362,7 @@ def open_config_menu(tsrd):
 
 
 def open_chargen_menu(*args, **kwargs):
-    game.chargen.CharacterGeneratorW.push_state_and_instantiate()
+    game.chargen.CharacterGeneratorW.push_state_and_instantiate(*args, **kwargs)
 
 def draw_border():
     _=pbge.my_state.screen.fill((0, 0, 255))
@@ -402,18 +429,18 @@ class MainMenu(pbge.widgets.Widget):
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
 
     def __init__(self):
-        super().__init__(0,0,0,0,)
+        super().__init__(0,0,0,0,tags={exploration.WTAG_TITLESCREEN,})
         self.background = DZDTitleScreenRedraw()
 
         self._menu = pbge.widgetmenu.MenuWidget(
             self.MENU_DEST.dx, self.MENU_DEST.dy, self.MENU_DEST.w, self.MENU_DEST.h,
             font=pbge.my_state.huge_font, activate_child_on_enter=True,
-            tags={WTAG_TITLEMENU,}
+            tags={exploration.WTAG_TITLEMENU,}
             #no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
         )
         self.children.append(self._menu)
 
-        _=self._menu.add_item("Load Campaign", LoadGameMenu)
+        _=self._menu.add_item("Load Campaign", self._open_load_menu)
         _=self._menu.add_item("Start Campaign", StartGameMenu)
         _=self._menu.add_item("Create Character", open_chargen_menu)
         _=self._menu.add_item("Import GH1 Character", import_arena_character)
@@ -443,6 +470,9 @@ class MainMenu(pbge.widgets.Widget):
 
     def quit_game(self, *args, **kwargs):
         self.pop()
+
+    def _open_load_menu(self, _widget, _ev):
+        LoadGameMenuWidget.push_state_and_instantiate()
 
     def _builtin_responder(self, ev):
         if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:

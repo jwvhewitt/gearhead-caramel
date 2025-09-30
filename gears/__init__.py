@@ -722,9 +722,9 @@ class GearHeadCampaign(pbge.campaign.Campaign):
 
     def play(self):
         super().play()
-        if self.pc in self.dead_party:
-            pbge.alert("Game Over", font=pbge.my_state.huge_font)
-            self.delete_save_file()
+        #if self.pc in self.dead_party:
+        #    pbge.alert("Game Over", font=pbge.my_state.huge_font)
+        #    self.delete_save_file()
 
     def eject(self):
         # This campaign is over. Eject the egg.

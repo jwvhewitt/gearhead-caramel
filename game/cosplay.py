@@ -53,6 +53,7 @@ class ColorEditor(pbge.widgets.Widget):
         ):
         # on_done and on_cancel are callables with the signature (color list) that get called
         # when the color selector is exited.
+        # TODO: Keyboard/gamepad support
         super(ColorEditor, self).__init__(20, -200, 239, 400, **kwargs)
         self.proto_sprite = proto_sprite
         self.sprite_frame = sprite_frame

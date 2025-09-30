@@ -7,12 +7,20 @@
 
 from . import my_state
 from . import container
-from . import util, dialogue
+from . import util, dialogue, widgets
 import pickle
 import os
 from . import scenes, challenges, randmaps
 
 ALL_CONTENTS_SEARCH_PATH = ["contents", "sub_scenes"]
+
+# The explo_class is a widget with this tag. When the explo widget needs to be
+# replaced, all active widgets with this type will be removed.
+WTAG_SCENEHANDLER = "WTAG_SCENEHANDLER"
+
+
+class ExploPrototype(widgets.Widget):
+    pass
 
 
 class Campaign(object):
@@ -174,7 +182,17 @@ class Campaign(object):
             if pc in self.scene.contents:
                 self.scene.contents.remove(pc)
 
+    def play_scene(self):
+        widgets.Widget.close_widgets_with_tag(WTAG_SCENEHANDLER)
+        self._update_plots()
+        exp: ExploPrototype = self.explo_class.push_state_and_instantiate(camp=self)
+
     def play(self):
+        # Take this loop apart and turn it into a series of callbacks.
+        # Do the same for the subclass in gears
+        # Exploration needs to be a widget that calls back to the campaign upon scene change/game over
+        self.play_scene()
+        """
         while self.keep_playing_campaign() and not my_state.got_quit:
             self._update_plots()
             exp = self.explo_class(self)
@@ -190,6 +208,7 @@ class Campaign(object):
                 self.remove_party_from_scene()
                 self.go(self.home_base)
                 self._really_go()
+        """
 
     def _update_plots(self):
         # Perform maintenance on all plots. This happens in between scenes, so don't do anything screwy during
