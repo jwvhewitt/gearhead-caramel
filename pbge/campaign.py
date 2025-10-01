@@ -17,25 +17,56 @@ ALL_CONTENTS_SEARCH_PATH = ["contents", "sub_scenes"]
 # The explo_class is a widget with this tag. When the explo widget needs to be
 # replaced, all active widgets with this type will be removed.
 WTAG_SCENEHANDLER = "WTAG_SCENEHANDLER"
+WTAG_SESSIONMONITOR = "WTAG_SESSIONMONITOR"
+
+# Session data keys
+SDAT_DESTINATION = "SDAT_DESTINATION"
+SDAT_GOT_QUIT = "SDAT_GOT_QUIT"
 
 
 class ExploPrototype(widgets.Widget):
     pass
 
 
+class SessionMonitor(widgets.Widget):
+    def __init__(self, camp: "Campaign"):
+        super().__init__(0,0,0,0,tags={WTAG_SESSIONMONITOR,})
+        self.camp = camp
+
+    def on_activate(self):
+        if my_state.session_data.get(SDAT_DESTINATION, None):
+            self.camp.arrive_at_destination()
+            self.play_campaign()
+        elif my_state.session_data.get(SDAT_GOT_QUIT, None):
+            self.camp.save()
+            self.pop()
+        elif not self.camp.first_active_pc() and self.camp.home_base:
+            # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!
+            # Otherwise this is gonna get stuck in an endless loop of going to home base over and over.
+            self.camp.go(self.camp.home_base)
+            self.camp.arrive_at_destination()
+            self.play_campaign()
+        else:
+            self.pop()
+
+    def play_campaign(self):
+        widgets.Widget.close_widgets_with_tag(WTAG_SCENEHANDLER)
+        self.camp.update_plots()
+        _exp: ExploPrototype = self.camp.scene_handler.push_state_and_instantiate(self, camp=self.camp)
+
+
 class Campaign(object):
     """Barebones campaign featuring functionality used by other pbge units."""
 
-    def __init__(self, name="BobDwarf19", explo_class=None, home_base=None):
+    def __init__(self, name="BobDwarf19", scene_handler=None, home_base=None):
         # home_base is a (scene,entrance) tuple to be used in case no scene is found.
         self.name = name
         self.party = list()
         self.scene = None
-        self._destination = None
         self.contents = container.ContainerList()
         self.scripts = container.ContainerList()
         self.uniques = set()
-        self.explo_class = explo_class
+        self.scene_handler = scene_handler
         self.time = 1
         self.campdata = dict()
         # home_base is a scene where the party gets sent if they get utterly defeated in combat.
@@ -53,21 +84,6 @@ class Campaign(object):
         if "entered_via" not in state:
             self.entered_via = None
 
-    def go(self, dest_wp: scenes.waypoints.Waypoint):
-        dest_scene = dest_wp.scene
-        if dest_scene:
-            self._destination = dest_wp
-
-    def _really_go(self):
-        dest_wp = self._destination
-        dest_scene = self._destination.scene
-
-        if self.scene:
-            self.remove_party_from_scene()
-        self.scene, self._destination = dest_scene, None
-        self.place_party(dest_wp)
-        self.entered_via = dest_wp
-
     def save(self):
         with open(util.user_dir(util.sanitize_filename("rpg_" + self.name + ".sav")), "wb") as f:
             pickle.dump(self, f, 4)
@@ -77,16 +93,16 @@ class Campaign(object):
         if os.path.exists(util.user_dir("rpg_{}.sav".format(name))):
             os.remove(util.user_dir("rpg_{}.sav".format(name)))
 
-    def keep_playing_campaign(self):
-        # The default version of this method will keep playing forever.
-        # You're probably gonna want to redefine this in your subclass.
-        return True
+    # def keep_playing_campaign(self):
+    #     # The default version of this method will keep playing forever.
+    #     # You're probably gonna want to redefine this in your subclass.
+    #     return True
 
-    def keep_playing_scene(self):
-        return not self._destination
+    # def keep_playing_scene(self):
+    #     return not self.destination
 
     def has_a_destination(self):
-        return self._destination
+        return my_state.session_data.get(SDAT_DESTINATION, None)
 
     def active_plots(self):
         for p in self.scene.scripts:
@@ -143,7 +159,7 @@ class Campaign(object):
         # Only check a trigger if the campaign has been constructed.
         if self.scene:
             if trigger == "UPDATE":
-                self._update_plots()
+                self.update_plots()
             for p in self.active_plots():
                 p.handle_trigger(self, trigger, thing)
 
@@ -182,35 +198,35 @@ class Campaign(object):
             if pc in self.scene.contents:
                 self.scene.contents.remove(pc)
 
-    def play_scene(self):
-        widgets.Widget.close_widgets_with_tag(WTAG_SCENEHANDLER)
-        self._update_plots()
-        exp: ExploPrototype = self.explo_class.push_state_and_instantiate(camp=self)
+    def go(self, dest_wp: scenes.waypoints.Waypoint):
+        # When the scene changes, the following things need to be done:
+        # - Close any widgets relating to the previous scene.
+        # - Update plots. This will happen between scenes.
+        dest_scene = dest_wp.scene
+        if dest_scene:
+            my_state.session_data[SDAT_DESTINATION] = dest_wp
+
+    def arrive_at_destination(self):
+        dest_wp = my_state.session_data[SDAT_DESTINATION]
+        dest_scene = self.destination.scene
+
+        if self.scene:
+            self.remove_party_from_scene()
+        self.scene = dest_scene
+        del my_state.session_data[SDAT_DESTINATION]
+        self.place_party(dest_wp)
+        self.entered_via = dest_wp
 
     def play(self):
         # Take this loop apart and turn it into a series of callbacks.
         # Do the same for the subclass in gears
-        # Exploration needs to be a widget that calls back to the campaign upon scene change/game over
-        self.play_scene()
-        """
-        while self.keep_playing_campaign() and not my_state.got_quit:
-            self._update_plots()
-            exp = self.explo_class(self)
-            exp.go()
-            if self._destination:
-                self._really_go()
-            elif not exp.no_quit:
-                # If the player quit in exploration mode, exit to main menu.
-                break
-            elif not self.first_active_pc() and self.home_base:
-                # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!
-                # Otherwise this is gonna get stuck in an endless loop of going to home base over and over.
-                self.remove_party_from_scene()
-                self.go(self.home_base)
-                self._really_go()
-        """
+        # Exploration needs to be a widget that pops back to the campaign upon scene change/game over
+        my_state.session_data.clear()
+        camp_handler = SessionMonitor(self)
+        my_state.widgets.append(camp_handler)
+        camp_handler.play_campaign()
 
-    def _update_plots(self):
+    def update_plots(self):
         # Perform maintenance on all plots. This happens in between scenes, so don't do anything screwy during
         # the update. Mostly this is for removing expired plots from the campaign.
         for p in self.all_plots():

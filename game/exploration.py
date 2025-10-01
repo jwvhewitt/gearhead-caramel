@@ -356,6 +356,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
             0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
         )
         self.camp = camp
+        self.scene = camp.scene
         self.view = view
 
     def _builtin_responder(self, ev):
@@ -365,10 +366,15 @@ class ExploCommandWidget(pbge.widgets.Widget):
         elif ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "quit_game"):
                 # self.camp.save(self.screen)
-                self.no_quit = False
+                pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
+
             elif pbge.my_state.is_key_for_action(ev, "center_on_pc"):
                 pc = self.camp.first_active_pc()
                 self.view.focus(pc.pos[0], pc.pos[1])
+
+    def on_activate(self):
+        if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
+            pbge.my_state.start_music(self.scene.exploration_music)
 
 
 class Explorer(pbge.campaign.ExploPrototype):
@@ -377,7 +383,9 @@ class Explorer(pbge.campaign.ExploPrototype):
     # anew when the game is loaded.
     TAGS_TO_PUSH = {WTAG_TITLESCREEN,}
     def __init__(self, camp: gears.GearHeadCampaign):
-        super().__init__(0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,})
+        super().__init__(
+            0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
+        )
         pbge.please_stand_by()
         self.camp = camp
         self.scene: gears.GearHeadScene = camp.scene
@@ -413,9 +421,11 @@ class Explorer(pbge.campaign.ExploPrototype):
         # Preload the music as well.
         if pbge.util.config.getboolean("GENERAL", "music_on"):
             if hasattr(self.scene, 'exploration_music'):
-                pbge.my_state.locate_music(self.scene.exploration_music)
+                _=pbge.my_state.locate_music(self.scene.exploration_music)
+                if not camp.fight:
+                    pbge.my_state.start_music(self.scene.exploration_music)
             if hasattr(self.scene, 'combat_music'):
-                pbge.my_state.locate_music(self.scene.combat_music)
+                _=pbge.my_state.locate_music(self.scene.combat_music)
 
         # Update the view of all party members.
         first_pc = None
@@ -444,12 +454,11 @@ class Explorer(pbge.campaign.ExploPrototype):
         if pbge.util.config.getboolean("GENERAL", "auto_save"):
             camp.save()
 
-    def update_scene(self):
-        for npc in self.scene.contents:
-            if hasattr(npc, "gear_up") and npc.pos and self.scene.on_the_map(*npc.pos):
-                npc.gear_up(self.scene)
+        del pbge.my_state.notifications[:]
+        _=pbge.BasicNotification(str(self.scene))
 
     def keep_exploring(self):
+        # TODO: Delete this bit.
         return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and self.camp.keep_playing_scene() and self.camp.egg
 
     def npc_inactive(self, mon):
@@ -544,14 +553,7 @@ class Explorer(pbge.campaign.ExploPrototype):
         global current_explo
         current_explo = self
 
-        self.update_scene()
-        # self.scene.update_party_position(self.camp)
-
         # Remove any NPCs that are not part of the lance from the player team.
-        if self.scene.player_team:
-            for npc, npcteam in list(self.scene.local_teams.items()):
-                if npcteam is self.scene.player_team and npc not in self.camp.party:
-                    self.scene.local_teams[npc] = self.scene.civilian_team
 
         # Clear the event queue, in case switching scenes took a long time.
         pygame.event.clear([pbge.TIMEREVENT, pygame.KEYDOWN])
@@ -805,6 +807,23 @@ class Explorer(pbge.campaign.ExploPrototype):
             self.camp.check_trigger("EXIT")
 
         current_explo = None
+
+    def should_stop_exploring(self):
+        if self.camp.has_a_destination():
+            return True
+        elif not (self.camp.egg and self.camp.first_active_pc()):
+            return True
+
+    def update(self, delta):
+        super().update(delta)
+        if pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT):
+            self.pop()
+        elif self.should_stop_exploring():
+            if self.active:
+                self.camp.check_trigger("EXIT")
+                self.active = False
+            if not pbge.my_state.ui_is_active():
+                self.pop()
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:

@@ -237,6 +237,9 @@ class Widget(frects.Frect):
     def _render(self, _delta):
         pass
 
+    def activate(self):
+        my_state.focused_widget = self
+
     def close(self):
         if self in my_state.widgets:
             my_state.widgets.remove(self)

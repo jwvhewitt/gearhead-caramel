@@ -163,13 +163,15 @@ class GameState(object):
         self.ui_stack = list()
         self.widget_tooltip = None
 
+        self.session_data = dict()
+
         # self.client = SteamClient()
 
     def render_notifications(self):
-        for n in list(self.notifications):
-            n.render()
-            if n.is_done():
-                self.notifications.remove(n)
+        if self.notifications:
+            self.notifications[0].render()
+            if self.notifications[0].is_done():
+                del self.notifications[0]
 
     def render_and_flip(self, show_widgets=True, reset_standing_by=True):
         if self.view:
@@ -464,6 +466,21 @@ class GameState(object):
         else:
             self.activate_next_widget(backwards=True, key=self._sort_widgets_horizontally)
 
+    def _draw_tooltip(self):
+        x, y = self.mouse_pos
+        x += 16
+        y += 16
+        if x + 200 > self.screen.get_width():
+            x -= 200
+        myimage = render_text(self.small_font, self.widget_tooltip, 200)
+        myrect = myimage.get_rect(topleft=(x, y))
+        default_border.render(myrect)
+        _=self.screen.blit(myimage, myrect)
+
+    def ui_is_active(self):
+        # Return True if there are any active UI elements.
+        return any([w.active for w in self.widgets])
+
     def play(self):
         # A nonblocking game loop.
         myclock = pygame.time.Clock()
@@ -504,11 +521,14 @@ class GameState(object):
                         elif self.is_key_for_action(ev, "right"):
                             self.activate_right_widget()
 
-            # RENDER YOUR GAME HERE
+            # Rendering happens here.
             self.anim_phase = (self.anim_phase + 1) % 6000
             self.widget_tooltip = None
             for w in self.widgets:
                 w.update(delta)
+            self.render_notifications()
+            if self.widget_tooltip:
+                self._draw_tooltip()
 
             # flip() the display to put your work on screen
             pygame.display.flip()

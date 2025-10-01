@@ -322,7 +322,6 @@ class GearHeadScene(pbge.scenes.Scene):
                 if items:
                     return info.ListDisplay(items=items, view=view, view_pos=pos)
 
-
     def place_actor(self, actor, x0, y0, team=None):
         entry_points = pbge.scenes.pfov.MModeReach(self.environment.LEGAL_MOVEMODES[0], self, x0, y0, 5, True).tiles
         entry_points = entry_points.difference(self.get_blocked_tiles())
@@ -375,6 +374,7 @@ class GearHeadScene(pbge.scenes.Scene):
                 self.contents.remove(thing)
 
     def tidy_at_start(self, camp):
+        # Called when a scene is entered initially. Moves everything back into place.
         for npc in self.contents:
             if hasattr(npc, "pos"):
                 myteam = self.local_teams.get(npc, None)
@@ -396,6 +396,13 @@ class GearHeadScene(pbge.scenes.Scene):
                     else:
                         print("Warning: {} could not be placed in {}".format(npc, self))
                         #npc.pos = (0,0)
+                if hasattr(npc, "gear_up") and npc.pos and self.on_the_map(*npc.pos):
+                    npc.gear_up(self.scene)
+
+        if self.player_team:
+            for npc, npcteam in list(self.local_teams.items()):
+                if npcteam is self.player_team and npc not in camp.party:
+                    self.local_teams[npc] = self.civilian_team
 
     def deploy_team(self, members, team, area=None):
         if team.home:
@@ -514,6 +521,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         # A custom reaction modifier is a callable of form (npc, camp) which returns a reaction modifier.
         if "custom_reaction_modifers" not in state:
             self.custom_reaction_modifiers = list()
+        if "scene_handler" not in state:
+            self.scene_handler = state["explo_class"]
+            del state["explo_class"]
+
         self.__dict__.update(state)
 
     def save(self):
@@ -614,6 +625,19 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         return (npc not in self.party and
                 (not npc.relationship or relationships.RT_LANCEMATE not in npc.relationship.tags))
 
+    def freeze(self, thing):
+        # Move something, probably an NPC, into storage.
+        if hasattr(thing, "container") and thing.container:
+            thing.container.remove(thing)
+        self.storage.contents.append(thing)
+
+    def keep_playing_campaign(self):
+        return (self.pc.is_operational() or self.fight) and self.egg
+
+    # *************************
+    # ***  GAME RULES BITS  ***
+    # *************************
+
     def get_party_skill(self, stat_id, skill_id):
         return max([pc.get_skill_score(stat_id, skill_id) for pc in self.get_active_party()] + [0])
 
@@ -664,6 +688,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                           untrained_ok=False, no_random=False, include_pc=True):
         modifier = -npc.get_reaction_score(self.pc, self) // 4
         return self.do_skill_test(stat_id, skill_id, rank, difficulty, untrained_ok, no_random, include_pc, modifier)
+
+    #  *************************
+    #  ***  PARTY UTILITIES  ***
+    #  *************************
 
     def party_has_skill(self, skill_id):
         return any(pc for pc in self.get_active_party() if pc.has_skill(skill_id))
@@ -716,15 +744,39 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             if pc and pc.mecha_colors and pbge.util.config.getboolean("GENERAL", "lancemates_repaint_mecha"):
                 mek.colors = pc.mecha_colors
 
+    def deactivate_pet(self, pet: base.Monster):
+        pet.pet_data.active = False
+        if pet in self.scene.contents:
+            self.scene.contents.remove(pet)
 
-    def keep_playing_campaign(self):
-        return (self.pc.is_operational() or self.fight) and self.egg
+    def activate_pet(self, pet: base.Monster):
+        if pet.is_operational():
+            if not pet.pet_data.trainer.is_operational():
+                _=pbge.BasicNotification("Cannot activate {} because trainer {} is not active.".format(pet, pet.pet_data.trainer))
+            elif pet.pet_data.trainer.get_root() not in self.scene.contents:
+                _=pbge.BasicNotification(
+                    "Cannot activate {} because trainer {} is not on the map.".format(pet, pet.pet_data.trainer))
+            else:
+                for opet in self.party:
+                    if isinstance(opet, base.Monster) and opet.pet_data and opet.pet_data.trainer is pet.pet_data.trainer:
+                        self.deactivate_pet(opet)
+                pet.pet_data.active = True
+                if self.pc_suits_map(pet, self.scene.scale, self.scene.environment):
+                    self.scene.place_gears_near_spot(*pet.pet_data.trainer.get_root().pos, self.scene.player_team, pet)
 
-    def play(self):
-        super().play()
-        #if self.pc in self.dead_party:
-        #    pbge.alert("Game Over", font=pbge.my_state.huge_font)
-        #    self.delete_save_file()
+    def get_max_number_of_pets(self, pc):
+        if pc.get_pilot() is self.pc:
+            return 3
+        else:
+            return 2
+
+    def get_pets(self, pc):
+        pc = pc.get_pilot()
+        mypets = list()
+        for pet in self.party + self.incapacitated_party:
+            if isinstance(pet, base.Monster) and pet.pet_data.trainer is pc:
+                mypets.append(pet)
+        return mypets
 
     def eject(self):
         # This campaign is over. Eject the egg.
@@ -952,7 +1004,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             npc.relationship = relationships.Relationship()
             return npc.relationship
 
-    # Faction Methods
+    #  ***********************
+    #  ***  FACTION STUFF  ***
+    #  ***********************
+
     def get_faction(self, mything):
         if isinstance(mything, factions.Circle):
             return mything
@@ -1086,12 +1141,6 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             it = it or other_thing.relationship.is_unfavorable()
         return it
 
-    def freeze(self, thing):
-        # Move something, probably an NPC, into storage.
-        if hasattr(thing, "container") and thing.container:
-            thing.container.remove(thing)
-        self.storage.contents.append(thing)
-
     def add_faction_score(self, fac: factions.Circle, delta):
         if fac:
             self.egg.faction_scores[fac.get_faction_tag()] += delta
@@ -1136,6 +1185,10 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         else:
             return self.campdata
 
+    #  ************************
+    #  ***  PLOT UTILITIES  ***
+    #  ************************
+
     def get_major_npc(self, mnpcid):
         # Return a major NPC. The NPC might be located in the PC's Dramatis Personae, or in the STL files.
         # If the NPC is already in use in this adventure, None will be returned, so be ready for that.
@@ -1160,40 +1213,6 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 self.egg.dramatis_personae.add(mynpc)
             self.uniques.add(mynpc)
         return mynpc
-
-    def deactivate_pet(self, pet: base.Monster):
-        pet.pet_data.active = False
-        if pet in self.scene.contents:
-            self.scene.contents.remove(pet)
-
-    def activate_pet(self, pet: base.Monster):
-        if pet.is_operational():
-            if not pet.pet_data.trainer.is_operational():
-                _=pbge.BasicNotification("Cannot activate {} because trainer {} is not active.".format(pet, pet.pet_data.trainer))
-            elif pet.pet_data.trainer.get_root() not in self.scene.contents:
-                _=pbge.BasicNotification(
-                    "Cannot activate {} because trainer {} is not on the map.".format(pet, pet.pet_data.trainer))
-            else:
-                for opet in self.party:
-                    if isinstance(opet, base.Monster) and opet.pet_data and opet.pet_data.trainer is pet.pet_data.trainer:
-                        self.deactivate_pet(opet)
-                pet.pet_data.active = True
-                if self.pc_suits_map(pet, self.scene.scale, self.scene.environment):
-                    self.scene.place_gears_near_spot(*pet.pet_data.trainer.get_root().pos, self.scene.player_team, pet)
-
-    def get_max_number_of_pets(self, pc):
-        if pc.get_pilot() is self.pc:
-            return 3
-        else:
-            return 2
-
-    def get_pets(self, pc):
-        pc = pc.get_pilot()
-        mypets = list()
-        for pet in self.party + self.incapacitated_party:
-            if isinstance(pet, base.Monster) and pet.pet_data.trainer is pc:
-                mypets.append(pet)
-        return mypets
 
     def get_challenges_needing_plots(self):
         my_challenges = set()

@@ -276,7 +276,7 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
         self.sort()
 
     def load_game(self, menuitem, _ev):
-        self.close()
+        self.pop()
         fname = menuitem.data
         pbge.please_stand_by()
         # See note above for why the deepcopy is here. TLDR: keeping pickles fresh and delicious.
