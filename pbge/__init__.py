@@ -481,6 +481,12 @@ class GameState(object):
         # Return True if there are any active UI elements.
         return any([w.active for w in self.widgets])
 
+    def flip(self):
+        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
+            w, h = self.physical_screen.get_size()
+            _=pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
+        pygame.display.flip()
+
     def play(self):
         # A nonblocking game loop.
         myclock = pygame.time.Clock()
@@ -531,7 +537,7 @@ class GameState(object):
                 self._draw_tooltip()
 
             # flip() the display to put your work on screen
-            pygame.display.flip()
+            self.flip()
 
             delta = myclock.tick(FPS)
             self.standing_by = False

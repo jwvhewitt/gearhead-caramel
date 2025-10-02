@@ -367,10 +367,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
             if pbge.my_state.is_key_for_action(ev, "quit_game"):
                 # self.camp.save(self.screen)
                 pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
-
-            elif pbge.my_state.is_key_for_action(ev, "center_on_pc"):
-                pc = self.camp.first_active_pc()
-                self.view.focus(pc.pos[0], pc.pos[1])
+                self.register_response()
 
     def on_activate(self):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
@@ -830,6 +827,7 @@ class Explorer(pbge.campaign.ExploPrototype):
             if pbge.my_state.is_key_for_action(ev, "center_on_pc"):
                 pc = self.camp.first_active_pc()
                 self.view.focus(pc.pos[0], pc.pos[1])
+                self.register_response()
 
 
 
