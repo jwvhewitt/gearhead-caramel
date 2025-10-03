@@ -104,7 +104,7 @@ class EliminateScoutsConsolidation(Plot):
 
     def METROSCENE_ENTER(self, camp):
         if self.intro_ready:
-            pbge.alert("The next step is to consolidate your victory in {METROSCENE}. There have been reports of scouts from {ENEMY_FACTION} operating nearby.".format(**self.elements))
+            pbge.alerts.TextAlert("The next step is to consolidate your victory in {METROSCENE}. There have been reports of scouts from {ENEMY_FACTION} operating nearby.".format(**self.elements))
             self.elements["CHALLENGE"].activate(camp)
             self.intro_ready = False
 
@@ -179,7 +179,7 @@ class SleeperCellConsolidation(Plot):
         #print(mychallenge.active)
         #print(self.elements["METROSCENE"])
         if self.intro_ready:
-            pbge.alert("The next step is to consolidate your victory in {METROSCENE}. Headquarters reports that {FORMER_FACTION} may have left behind a sleeper cell mecha team to cause problems for {ALLIED_FACTION}.".format(**self.elements))
+            pbge.alerts.TextAlert("The next step is to consolidate your victory in {METROSCENE}. Headquarters reports that {FORMER_FACTION} may have left behind a sleeper cell mecha team to cause problems for {ALLIED_FACTION}.".format(**self.elements))
             self.elements["CHALLENGE"].activate(camp)
             self.intro_ready = False
 
@@ -257,7 +257,7 @@ class DiplomaticConsolidation(Plot):
 
     def METROSCENE_ENTER(self, camp):
         if self.intro_ready:
-            pbge.alert("The next step is to consolidate your victory in {METROSCENE}. Check the area for signs of potential insurgency.".format(**self.elements))
+            pbge.alerts.TextAlert("The next step is to consolidate your victory in {METROSCENE}. Check the area for signs of potential insurgency.".format(**self.elements))
             self.elements["CHALLENGE"].activate(camp)
             self.intro_ready = False
 

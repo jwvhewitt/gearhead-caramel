@@ -109,7 +109,7 @@ class FriendlyFriend(LMPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alert("As you enter {METROSCENE}, {NPC} approaches you for a conversation.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} approaches you for a conversation.".format(**self.elements))
 
             mymenu = ghcutscene.SimpleMonologueMenu(
                 "So [audience], I've been thinking about this [lance], and was wondering if you know what I've been thinking about you.",
@@ -210,7 +210,7 @@ class AdventuringAdventurer(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} rushes to you excitedly.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} rushes to you excitedly.".format(**self.elements))
 
             mymenu = ghcutscene.SimpleMonologueMenu("I just got an alert for a new mission! It sounds pretty important. More importantly, it sounds adventurous!", npc, camp)
             mymenu.no_escape = True
@@ -266,7 +266,7 @@ class CheerfulGlorySeeker(LMPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alert("As you enter {METROSCENE}, you notice {NPC} doing some stretching exercises.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, you notice {NPC} doing some stretching exercises.".format(**self.elements))
             npc.personality.add(personality.Glory)
 
             mymenu = ghcutscene.SimpleMonologueMenu(
@@ -282,7 +282,7 @@ class CheerfulGlorySeeker(LMPlot):
             if choice:
                 choice(camp)
 
-            _=pbge.alert("You train for a while with {NPC}.".format(**self.elements))
+            _=pbge.alerts.TextAlert("You train for a while with {NPC}.".format(**self.elements))
             self.proper_end_plot(camp)
 
     def _train_athletics(self, camp: gears.GearHeadCampaign):
@@ -370,7 +370,7 @@ class ProfessionalColleagueBecomesRival(LMPlot):
                     npc)(camp)
             self.proper_end_plot(camp)
         elif not self.started_convo:
-            _=pbge.alert("As you enter {METROSCENE}, {NPC} approaches you.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} approaches you.".format(**self.elements))
             self.started_convo = True
             npc.relationship.expectation = gears.relationships.E_RIVAL
 
@@ -444,7 +444,7 @@ class DespairCrushPersonalMission(LMMissionPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alert("As you enter {METROSCENE}, {NPC} approaches you anxiously.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} approaches you anxiously.".format(**self.elements))
 
             mymenu = ghcutscene.SimpleMonologueMenu(
                 "I'm sorry but I need to leave the lance. There's an urgent personal matter that I must attend to.",
@@ -477,7 +477,7 @@ class DespairCrushPersonalMission(LMMissionPlot):
         npc: gears.base.Character = self.elements["NPC"]
         plotutility.AutoLeaver(npc)(camp)
         camp.freeze(npc)
-        pbge.alert("Without saying another word, {} leaves.".format(npc))
+        pbge.alerts.TextAlert("Without saying another word, {} leaves.".format(npc))
         if npc.get_reaction_score(camp.pc, camp) < 20:
             # If this crush isn't feeling it, end this plot here. They aren't coming back.
             # Or at least, they aren't coming back until next scenario...
@@ -581,7 +581,7 @@ class CriminalOpponentWithMission(LMMissionPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alert("As you enter {METROSCENE}, you see {NPC} sending a message on {NPC.gender.possessive_determiner} phone.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, you see {NPC} sending a message on {NPC.gender.possessive_determiner} phone.".format(**self.elements))
 
             mymenu = ghcutscene.SimpleMonologueMenu(
                 "[I_GOT_A_MISSION_OFFER] There's a corporation running some clandestine ops nearby; another corp is willing to pay top money to find out what they're working on. Technically it isn't thieving if your target is doing illegal stuff too.",
@@ -685,7 +685,7 @@ class KnowledgeSeeker(LMPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alert("As you enter {METROSCENE}, you notice {NPC} reading an old worn-out book.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, you notice {NPC} reading an old worn-out book.".format(**self.elements))
 
             candidates = list()
             for sk in self.MOST_USEFUL_SKILLS:
@@ -751,7 +751,7 @@ class HowDoYouLikeThat(LMMissionPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, you notice {NPC} looking at {NPC.gender.possessive_determiner} phone. After a moment {NPC.gender.subject_pronoun} turns to you.".format(
                     **self.elements))
 
@@ -766,7 +766,7 @@ class HowDoYouLikeThat(LMMissionPlot):
                 ghcutscene.SimpleMonologueDisplay(
                     "[GOODBYE] I just got a better offer to join a different lance. I guess I'll see you around.",
                     npc)(camp, False)
-                pbge.alert("And with that, {NPC} quits the lance.".format(**self.elements))
+                pbge.alerts.TextAlert("And with that, {NPC} quits the lance.".format(**self.elements))
                 plotutility.AutoLeaver(npc)(camp)
                 npc.place(self.elements["OTHER_SCENE"], team=self.elements["OTHER_SCENE"].civilian_team)
                 self.proper_end_plot(camp, False)
@@ -847,7 +847,7 @@ class BetterCallAPlumber(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.had_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, {NPC} approaches you.".format(
                     **self.elements))
 
@@ -905,7 +905,7 @@ class PartyPlanner(LMPlot):
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc: gears.base.Character = self.elements["NPC"]
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "As you enter {METROSCENE}, {NPC} calls you over; {NPC.gender.subject_pronoun} has a spreadsheet open on {NPC.gender.possessive_determiner} phone.".format(
                 **self.elements))
         self.new_skill = random.choice(list(self.candidates))
@@ -985,7 +985,7 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.had_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, you notice {NPC} looking anxiously at {NPC.gender.possessive_determiner} phone.".format(
                     **self.elements))
 
@@ -1076,7 +1076,7 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
         if not self.started_convo:
             npc = self.elements["NPC"]
             defender = self.elements["DEFENDER"]
-            pbge.alert("As you enter {METROSCENE}, {DEFENDER} rushes to you in a near-panic.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {DEFENDER} rushes to you in a near-panic.".format(**self.elements))
 
             ghcutscene.SimpleMonologueDisplay(
                 "[THIS_IS_AN_EMERGENCY] There's a convoy under attack just outside of town. It includes civilian transports. You're the only lance in the area that can possibly make it there in time to defend.",
@@ -1091,7 +1091,7 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
                 act(camp)
 
     def _start_mission(self, camp):
-        pbge.alert("You rush to intercept the bandits before they can reach the convoy.")
+        pbge.alerts.TextAlert("You rush to intercept the bandits before they can reach the convoy.")
         npc = self.elements["NPC"]
         npc.relationship.role = gears.relationships.R_COLLEAGUE
         self.mission_seed(camp)
@@ -1108,7 +1108,7 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
             act(camp)
 
     def _grudgingly_start_mission(self, camp):
-        pbge.alert("You go to intercept the bandits before they can reach the convoy. Hopefully you are not too late.")
+        pbge.alerts.TextAlert("You go to intercept the bandits before they can reach the convoy. Hopefully you are not too late.")
         npc = self.elements["NPC"]
         npc.relationship.role = gears.relationships.R_CHAPERONE
         self.mission_seed(camp)
@@ -1130,7 +1130,7 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
             mymsg = " and ".join(deserter_names) + " leave"
         else:
             mymsg = "{} leaves".format(npc)
-        pbge.alert("{} your lance to go rescue the convoy.".format(mymsg))
+        pbge.alerts.TextAlert("{} your lance to go rescue the convoy.".format(mymsg))
         for lm in deserters:
             plotutility.AutoLeaver(lm)(camp)
             lm.relationship.reaction_mod -= random.randint(1, 20)
@@ -1160,7 +1160,7 @@ class HowDoYouSeeMe(LMPlot):
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
-        pbge.alert("As you enter {METROSCENE}, {NPC} calls you aside for a talk.".format(**self.elements))
+        pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} calls you aside for a talk.".format(**self.elements))
 
         mymenu = ghcutscene.SimpleMonologueMenu(
             "I just wanted to have a chat, get to know you better. They say that Fellowship is one of the primary cavalier virtues. Of course, it means different things to different people. How do you envision our relationship as part of this lance?",
@@ -1279,7 +1279,7 @@ class Earth_ProBonoMetalPanic(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} rushes over to talk.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} rushes over to talk.".format(**self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
@@ -1379,7 +1379,7 @@ class FriendInTroubleRightNow(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} rushes over to tell you something.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} rushes over to tell you something.".format(**self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
@@ -1485,7 +1485,7 @@ class DDLD_ContactInTown(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("{NPC} approaches you, smiling broadly.".format(**self.elements))
+            pbge.alerts.TextAlert("{NPC} approaches you, smiling broadly.".format(**self.elements))
             npc.relationship.attitude = relationships.A_FRIENDLY
             ghcutscene.SimpleMonologueDisplay(
                 "I just got a message from [foaf]. {MISSIONGIVER} at {MISSIONGIVER.scene} is looking for a cavalier to run a lucrative mission.".format(
@@ -1557,7 +1557,7 @@ class BeFriendsRaidFactory(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} pulls you aside for a private chat.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} pulls you aside for a private chat.".format(**self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
@@ -1635,7 +1635,7 @@ class PureBiznessRelationship(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "{NPC}'s phone rings. After a short conversation, {NPC.gender.subject_pronoun} turns to you.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
@@ -1776,7 +1776,7 @@ class PrezeroMacguffin(LMPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, you notice {} gazing out toward the horizon.".format(camp.scene, npc))
+            pbge.alerts.TextAlert("As you enter {}, you notice {} gazing out toward the horizon.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_conversation = True
 
@@ -1907,7 +1907,7 @@ class DeadZoneSortingDuel(LMPlot):
     def t_UPDATE(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, you notice {} giving you a quizzical look.".format(camp.scene, npc))
+            pbge.alerts.TextAlert("As you enter {}, you notice {} giving you a quizzical look.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
 
@@ -1970,7 +1970,7 @@ class ProfessionalGlory(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "{NPC}'s phone rings. After a short conversation, {NPC.gender.subject_pronoun} turns to you.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
@@ -2056,7 +2056,7 @@ class LD_SurpriseMechaPresent(LMPlot):
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
-        pbge.alert("As you enter {METROSCENE}, your lancemates surround you. They have a cake.".format(**self.elements))
+        pbge.alerts.TextAlert("As you enter {METROSCENE}, your lancemates surround you. They have a cake.".format(**self.elements))
 
         ghcutscene.SimpleMonologueDisplay(
             "Surprise! In honor of you being such a good team leader, we've bought you a brand new {}!".format(
@@ -2111,7 +2111,7 @@ class DDLD_ProfessionalColleague(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, {NPC} walks up to show you something on {NPC.gender.possessive_determiner} phone.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc,
@@ -2225,7 +2225,7 @@ class DDLD_HermitMechaniac(LMPlot):
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} runs up to you excitedly.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} runs up to you excitedly.".format(**self.elements))
 
             ghcutscene.SimpleMonologueDisplay(
                 "There's a workshop just outside of town belonging to the famous mecha designer {SHOPKEEPER}. We should go and see if we can get some custom gear!".format(
@@ -2335,7 +2335,7 @@ class WangttaScent(LMPlot):
     def t_UPDATE(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, {} waves you over for a conversation.".format(camp.scene, npc))
+            pbge.alerts.TextAlert("As you enter {}, {} waves you over for a conversation.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
 
@@ -2398,7 +2398,7 @@ class FinishingRegrets(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "{NPC}'s phone rings. After a short and tense conversation, {NPC.gender.subject_pronoun} turns to you.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
@@ -2484,7 +2484,7 @@ class LD_GladToBeHere(LMPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, {NPC} approaches you for a conversation.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.INFO)))
@@ -2569,7 +2569,7 @@ class LD_MercenaryColleague(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "{NPC}'s phone rings. After a short conversation, {NPC.gender.subject_pronoun} turns to you.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
@@ -2652,7 +2652,7 @@ class LD_DutyColleagueMission(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} rushes over to talk.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} rushes over to talk.".format(**self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PROPOSAL)))
             self.started_convo = True
 
@@ -2735,7 +2735,7 @@ class LD_JuniorQuestions(LMPlot):
     def t_UPDATE(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
+            pbge.alerts.TextAlert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
             npc.relationship.attitude = relationships.A_JUNIOR
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
@@ -2867,7 +2867,7 @@ class LD_CareerChange(LMPlot):
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "As you enter {METROSCENE}, {NPC}'s phone beeps loudly; {NPC.gender.subject_pronoun} checks the screen and then gives a shout of joy.".format(
                 **self.elements))
 
@@ -2934,7 +2934,7 @@ class LD_ThePurposeOfMoneyIsMecha(LMPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("You notice {NPC} gazing longingly at {GARAGE}.".format(**self.elements))
+            pbge.alerts.TextAlert("You notice {NPC} gazing longingly at {GARAGE}.".format(**self.elements))
             ghcutscene.SimpleMonologueDisplay(
                 "What good is money, if not to spend it on the best mecha available? [TIME_TO_UPGRADE_MECHA] Let's go to {GARAGE} and see what they have.".format(
                     **self.elements),
@@ -3043,7 +3043,7 @@ class DDLD_LackingVirtue(LMPlot):
     def t_UPDATE(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
+            pbge.alerts.TextAlert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
 
@@ -3139,7 +3139,7 @@ class LMD_PassingJudgment(LMPlot):
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.started_convo:
             npc: gears.base.Character = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} pulls you aside for a private talk.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} pulls you aside for a private talk.".format(**self.elements))
             if npc.get_reaction_score(camp.pc, camp) > 20:
                 ghcutscene.SimpleMonologueDisplay(
                     "When we started, I was suspicious of you. I didn't know what kind of person you were. But now, after all we've been through, I do know. I want you to know that I believe in you and I'm glad to be your lancemate.",
@@ -3190,7 +3190,7 @@ class LMD_GotMyEyeOnYou(LMPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} pulls you aside for a private talk.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} pulls you aside for a private talk.".format(**self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PERSONAL)))
             self.started_convo = True
 
@@ -3270,7 +3270,7 @@ class LMD_SociableSorting(LMPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert("As you enter {METROSCENE}, {NPC} strikes up a conversation.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} strikes up a conversation.".format(**self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PERSONAL)))
             self.started_convo = True
 
@@ -3345,7 +3345,7 @@ class LMD_ShyFolk(LMPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, you notice {NPC} staring into the distance as though lost in thought.".format(
                     **self.elements))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.PERSONAL)))

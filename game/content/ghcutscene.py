@@ -41,7 +41,7 @@ class MonologuePresentation(cutscene.PresentationTemplate):
 
 class AlertThenMonologuePresentation(MonologuePresentation):
     def play(self, camp, info_blocks, node_state: cutscene.CutsceneState):
-        pbge.alert(self.strings[0].format(**self.get_info_strings(info_blocks, node_state)))
+        pbge.alerts.TextAlert(self.strings[0].format(**self.get_info_strings(info_blocks, node_state)))
         msg = self.strings[1].format(**self.get_info_strings(info_blocks, node_state))
         npc = node_state.elements.get(self.speaker_id, None)
         if npc:
@@ -140,7 +140,7 @@ class MonologueDisplay( object ):
             mygrammar = pbge.dialogue.grammar.Grammar()
             pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,npc,None)
             myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
-            pbge.alert_display(myviz.render)
+            pbge.alerts.FunAlert(myviz.render)
 
 
 class ExplosionDisplay(object):
@@ -186,7 +186,7 @@ class SimpleMonologueDisplay( object ):
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc, True)
         myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
-        pbge.alert_display(myviz.render)
+        pbge.alerts.FunAlert(myviz.render)
         pbge.my_state.record_message("{}: {}".format(self.npc.get_pilot(), myviz.text))
 
 
@@ -195,7 +195,7 @@ def alert_with_grammar(camp, text):
     mygrammar = pbge.dialogue.grammar.Grammar()
     pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,camp.pc,camp.pc)
     altered_text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)
-    pbge.alert(altered_text)
+    pbge.alerts.TextAlert(altered_text)
 
 
 class SimpleMonologueMenu(pbge.rpgmenu.Menu):

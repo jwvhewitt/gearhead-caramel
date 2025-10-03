@@ -11,7 +11,7 @@ import random
 def end_mission_lance_recovery(camp):
     creds = camp.totally_restore_party()
     if creds > 0:
-        pbge.alert("Repair/Reload: ${}".format(creds))
+        pbge.alerts.TextAlert("Repair/Reload: ${}".format(creds))
         camp.credits -= creds
         camp.time += 1
 

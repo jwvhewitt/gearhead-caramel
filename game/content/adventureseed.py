@@ -142,7 +142,7 @@ class AdventureSeed(Adventure):
                     mydisplay = CombatResultsDisplay(title="Failure: {}".format(grade),
                                                      title_color=pygame.color.Color(250, 50, 0), mission_seed=self,
                                                      width=400)
-                pbge.alert_display(mydisplay.show)
+                pbge.alerts.FunAlert(mydisplay.show)
 
             self.finished = True
 

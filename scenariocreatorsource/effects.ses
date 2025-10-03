@@ -10,7 +10,7 @@
     "sorting_rank": 4000
 
 *SCRIPT effect
-pbge.alert({message})
+pbge.alerts.TextAlert({message})
 
 
 

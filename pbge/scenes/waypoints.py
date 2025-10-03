@@ -1,5 +1,5 @@
 
-from .. import container,image,KeyObject,rpgmenu,frects,draw_text,default_border,my_state,alert
+from .. import container,image,KeyObject,rpgmenu,frects,draw_text,default_border,my_state,alerts
 import pygame
 
 
@@ -73,7 +73,7 @@ class Waypoint( object ):
     def unlocked_use( self, camp ):
         # Perform this waypoint's special action.
         if self.desc:
-            alert( self.desc )
+            alerts.TextAlert( self.desc )
 
     def bump( self, camp, pc ):
         # Send a BUMP trigger.

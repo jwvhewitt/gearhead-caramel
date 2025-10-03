@@ -61,7 +61,7 @@ class ItemGiverWithDisplay:
     def __call__(self):
         if self.item:
             self.camp.give_item(self.item)
-            pbge.alert_display(self.render)
+            pbge.alerts.FunAlert(self.render)
 
     def render(self):
         mydest = self.CAPTION_COLUMN.get_rect()
@@ -464,7 +464,7 @@ class EnterTownLanceRecovery(object):
         creds = camp.totally_restore_party()
         self.did_recovery = False
         if creds > 0:
-            pbge.alert("Repair/Reload: ${}".format(creds))
+            pbge.alerts.TextAlert("Repair/Reload: ${}".format(creds))
             camp.credits -= creds
             camp.time += 1
         if camp.incapacitated_party or camp.dead_party or any(

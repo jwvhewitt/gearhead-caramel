@@ -87,7 +87,7 @@ class RWMO_ThisTimeItsPersonal(Plot):
             self.alert_ready = False
             # Allow the PC to decide whether or not to accept the challenge.
             npc = self.elements["_commander"]
-            pbge.alert("The way forward is blocked by {}'s lance.".format(npc))
+            pbge.alerts.TextAlert("The way forward is blocked by {}'s lance.".format(npc))
 
     def _commander_offers(self, camp):
         mylist = list()
@@ -105,7 +105,7 @@ class RWMO_ThisTimeItsPersonal(Plot):
         return mylist
 
     def _retreat(self, camp):
-        pbge.alert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
+        pbge.alerts.TextAlert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
         self.elements["_eteam"].retreat(camp)
 
 
@@ -166,7 +166,7 @@ class RWMO_TheGambler(Plot):
             self.choice_ready = False
             # Allow the PC to decide whether or not to accept the challenge.
             npc = self.elements["_commander"]
-            pbge.alert("You are approached by {}.".format(npc))
+            pbge.alerts.TextAlert("You are approached by {}.".format(npc))
 
             mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_DUEL]", npc, camp)
 
@@ -246,7 +246,7 @@ class RWMO_GenericChallenger(Plot):
                     camp.dole_xp(50,sk)
             if self.bounty_primed:
                 bounty_amount = gears.selector.calc_threat_points(self.elements["_commander"].renown,200)//5
-                pbge.alert("You earn a bounty of ${:,} for defeating {}.".format(bounty_amount, self.elements["_commander"]))
+                pbge.alerts.TextAlert("You earn a bounty of ${:,} for defeating {}.".format(bounty_amount, self.elements["_commander"]))
                 camp.credits += bounty_amount
 
     def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
@@ -254,7 +254,7 @@ class RWMO_GenericChallenger(Plot):
             self.choice_ready = False
             # Allow the PC to decide whether or not to accept the challenge.
             npc = self.elements["_commander"]
-            pbge.alert("Without warning, you are confronted by {}.".format(npc))
+            pbge.alerts.TextAlert("Without warning, you are confronted by {}.".format(npc))
 
             mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_BATTLE]", npc, camp)
 
@@ -293,7 +293,7 @@ class RWMO_GenericChallenger(Plot):
         if camp.do_skill_test(gears.stats.Ego, gears.stats.Negotiation, npc.renown):
             ghcutscene.SimpleMonologueDisplay("[CHANGE_MIND_AND_RETREAT]", npc)
 
-            pbge.alert("Your challengers flee the battlefield.")
+            pbge.alerts.TextAlert("Your challengers flee the battlefield.")
             self.elements["_eteam"].retreat(camp)
 
             camp.check_trigger("ENDCOMBAT")
@@ -368,7 +368,7 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
             self.choice_ready = False
             # Allow the PC to decide whether or not to respond to the distress call.
             npc = self.elements["PILOT"]
-            pbge.alert("While traveling, you receive a distress call from {}.".format(npc))
+            pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
 
             mymenu = game.content.ghcutscene.SimpleMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
 
@@ -407,9 +407,9 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
             self.eteam_activated = True
             if not self.pilot_fled:
                 if self.intimidation_primed:
-                    pbge.alert("The hostile mecha freeze at the sight of {} striding confidently into battle.".format(self.intimidating_npc))
+                    pbge.alerts.TextAlert("The hostile mecha freeze at the sight of {} striding confidently into battle.".format(self.intimidating_npc))
                     ghcutscene.SimpleMonologueDisplay("[THREATEN]", self.intimidating_npc)(camp)
-                    pbge.alert("The hostile mecha flee the battlefield.")
+                    pbge.alerts.TextAlert("The hostile mecha flee the battlefield.")
                     self.elements["_eteam"].retreat(camp)
                 else:
                     npc = self.elements["PILOT"]
@@ -473,7 +473,7 @@ class FavorableDistressCall(missionbuilder.BAM_RescueSomeone):
             self.choice_ready = False
             # Allow the PC to decide whether or not to respond to the distress call.
             npc = self.elements["PILOT"]
-            pbge.alert("While traveling, you receive a distress call from {}.".format(npc))
+            pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
 
             mymenu = game.content.ghcutscene.SimpleMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
 
@@ -537,7 +537,7 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
             self.choice_ready = False
             # Allow the PC to decide whether or not to respond to the distress call.
             npc = self.elements["PILOT"]
-            pbge.alert("While traveling, you receive a distress call from {}.".format(npc))
+            pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
 
             mymenu = game.content.ghcutscene.SimpleMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
 
@@ -640,7 +640,7 @@ class FightSomeRandos(Plot):
 
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
-            pbge.alert(self.INTRO_ALERT.format(**self.elements))
+            pbge.alerts.TextAlert(self.INTRO_ALERT.format(**self.elements))
             self.intro_ready = False
 
     def t_ENDCOMBAT(self, camp):

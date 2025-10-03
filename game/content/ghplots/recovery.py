@@ -75,12 +75,12 @@ class PC_HospitalRecovery( Plot ):
             self.started_mission = True
 
     def HOSPITAL_ENTER(self, camp):
-        pbge.alert("You wake up in the hospital.")
+        pbge.alerts.TextAlert("You wake up in the hospital.")
         
         if random.randint(1,200) < camp.pc.renown and gears.stats.Cybertech not in camp.pc.statline:
             camp.pc.statline[gears.stats.Cybertech] = 1
             gears.selector._try_cyberize(camp.pc,  camp.pc.renown + 10)
-            pbge.alert("You required cybernetic surgery to save your life.")
+            pbge.alerts.TextAlert("You required cybernetic surgery to save your life.")
             
         for p in self.plots_to_run:
             p.start_recovery(camp)
@@ -226,7 +226,7 @@ class GoToHospital( Plot ):
     def start_recovery(self,camp):
         npc = self.elements["NPC"]
         hospital = self.elements["HOSPITAL"]
-        pbge.alert("{} is rushed to {}.".format(npc,hospital))
+        pbge.alerts.TextAlert("{} is rushed to {}.".format(npc,hospital))
         plotutility.AutoLeaver(npc)(camp)
         npc.place(hospital)
 
@@ -246,7 +246,7 @@ class BoringDeathNotification( Plot ):
     def start_recovery(self,camp):
         dead_names = [str(npc) for npc in camp.dead_party]
         msg = pbge.dialogue.list_nouns(dead_names)
-        pbge.alert('{} did not survive the last mission.'.format(msg))
+        pbge.alerts.TextAlert('{} did not survive the last mission.'.format(msg))
         for npc in camp.dead_party:
             for pc in list(camp.party):
                 if hasattr(pc,"owner") and pc.owner is npc:

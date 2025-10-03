@@ -2,7 +2,7 @@
   {
     "label": "EFFECT",
     "scripts": {
-      "effect": "pbge.alert({message})\n\n\n\n"
+      "effect": "pbge.alerts.TextAlert({message})\n\n\n\n"
     },
     "name": "Alert Message",
     "display_name": "Alert: {message}",

@@ -129,7 +129,7 @@ class Graduation(Plot):
         thingmenu.add_item("Stay here for a bit longer.", None)
 
     def _end_adventure(self, camp: gears.GearHeadCampaign):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "You're still not sure that you got your money's worth, but one thing is certain: you'll never forget Bear Bastard's Mecha Camp.")
         camp.eject()
 
@@ -260,7 +260,7 @@ class FinalBattle(Plot):
 
     def LOCALE_ENTER(self, camp):
         if self.intro_ready:
-            pbge.alert("In the morning, everyone heads back to Last Hope Quarry for one final combat practice.")
+            pbge.alerts.TextAlert("In the morning, everyone heads back to Last Hope Quarry for one final combat practice.")
             self.intro_ready = False
 
     def _switch_teams(self, camp, npc):
@@ -497,8 +497,8 @@ class TheCabinInTheDeadzone(Plot):
     def BPLOT_LOSE(self, camp):
         # PC must've gotten taken down in the combat. But since this is the tutorial, we don't want them to die...
         # restore the PC and jump straight to the final combat.
-        pbge.alert("Everything goes dark...")
-        pbge.alert(
+        pbge.alerts.TextAlert("Everything goes dark...")
+        pbge.alerts.TextAlert(
             "You wake up the next morning in your camp bed, a bit sore but still alive. It's time for the final exam.")
         self._go_to_final_scene(camp)
 
@@ -720,13 +720,13 @@ class BCamMouse(Plot):
     def MTEAM_ACTIVATETEAM(self, camp: gears.GearHeadCampaign):
         if not self.did_mouse_intro:
             if gears.personality.DeadZone in camp.pc.personality:
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "Without warning, the denizen of this dusty place attacks you! It seems to be a mechanical mouse... this must be some kind of robot monster built in the green zone.")
             elif gears.personality.GreenZone in camp.pc.personality:
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "Without warning, the denizen of this dusty place attacks you! It's some kind of mechanical mouse... it must have wandered into Last Hope from the PreZero ruins of the dead zone.")
             else:
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "Without warning, the denizen of this dusty place attacks you! It appears to be some kind of feral robotic hamster... this confirms all the bad things you've ever heard about living on Earth.")
             self.did_mouse_intro = True
 
@@ -1339,10 +1339,10 @@ class SceneOne(Plot):
 
     def LOCALE_ENTER(self, camp):
         if self.intro_ready:
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "You enter Last Hope Memorial Park, eager for the first day of mecha camp. Today is the day you learn how to be a proper cavalier!")
             if camp.pc.has_badge("Typhon Slayer"):
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "Not that you aren't already a highly accomplished cavalier. But it never hurts to get a refresher every once in a while.")
             ghcutscene.SimpleMonologueDisplay(
                 "Listen close, {pc.gender.noun}-cub! I'm Bear Bastard, hero of the Typhon Incident! I'll be running this camp for aspiring cavaliers such as yourself. Why don't you come over here so we can talk?".format(
@@ -1552,7 +1552,7 @@ class SceneOne(Plot):
         present.place(self.elements["LOCALE"], (23, 12))
 
     def PRESENT_GET(self, camp):
-        pbge.alert("Suddenly, the box explodes in your hands!")
+        pbge.alerts.TextAlert("Suddenly, the box explodes in your hands!")
         pbge.my_state.view.play_anims(gears.geffects.SuperBoom(pos=camp.pc.pos),
                                       pbge.scenes.animobs.Caption("Surprise!", pos=camp.pc.pos, delay=6))
         present: gears.base.Treasure = self.elements["PRESENT"]

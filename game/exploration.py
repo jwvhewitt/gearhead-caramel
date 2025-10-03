@@ -520,7 +520,7 @@ class Explorer(pbge.campaign.ExploPrototype):
         if candidates:
             i = candidates.pop()
             pc.inv_com.append(i)
-            pbge.alert("{} picks up {}.".format(pc, i))
+            pbge.alerts.TextAlert("{} picks up {}.".format(pc, i))
             self.camp.check_trigger("GET", i)
 
     def click_left(self):

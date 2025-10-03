@@ -895,12 +895,12 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 elif isinstance(pc, base.Monster):
                     if pbge.util.config.getboolean("DIFFICULTY", "pets_can_die") and random.randint(1, 100) > skill:
                         if announce_character_state:
-                            pbge.alert("{} has died.".format(pc))
+                            pbge.alerts.TextAlert("{} has died.".format(pc))
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
                         if announce_character_state:
-                            pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
+                            pbge.alerts.TextAlert("{} has been severely injured and is removed to a safe place.".format(pc))
                             if pc in self.scene.contents:
                                 self.scene.contents.remove(pc)
 
@@ -911,18 +911,18 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                             self.freeze(pc)
                             pc.restore_all()
                             if announce_character_state:
-                                pbge.alert("{} has been severely injured and will need a long time to recover.".format(pc))
+                                pbge.alerts.TextAlert("{} has been severely injured and will need a long time to recover.".format(pc))
                         else:
                             self.dead_party.append(pc)
                             if announce_character_state:
-                                pbge.alert("{} has died.".format(pc))
+                                pbge.alerts.TextAlert("{} has died.".format(pc))
                     else:
                         self.incapacitated_party.append(pc)
                         pc.restore_all()
                         if hasattr(pc, "relationship") and pc.relationship:
                             pc.relationship.reaction_mod -= random.randint(1, 10)
                         if announce_character_state:
-                            pbge.alert("{} has been severely injured and is removed to a safe place.".format(pc))
+                            pbge.alerts.TextAlert("{} has been severely injured and is removed to a safe place.".format(pc))
                             if pc in self.scene.contents:
                                 self.scene.contents.remove(pc)
 
@@ -934,7 +934,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                                                                           "relationship") and lancemate.relationship:
                         lancemate.relationship.reaction_mod -= random.randint(1, 6)
                 elif announce_mecha_state:
-                    pbge.alert("{} was wrecked beyond recovery.".format(pc.get_full_name()))
+                    pbge.alerts.TextAlert("{} was wrecked beyond recovery.".format(pc.get_full_name()))
 
     def remove_party_from_scene(self):
         # Check for dead and/or incapacitated characters first.

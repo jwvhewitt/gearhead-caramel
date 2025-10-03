@@ -130,7 +130,7 @@ class SocialSpending(Plot):
         self.memo = None
 
     def MAKE_BUILDING_WIN(self, camp: gears.GearHeadCampaign):
-        pbge.alert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
+        pbge.alerts.TextAlert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
         if self.elements["NPC"].is_operational():
@@ -200,17 +200,17 @@ class TheNightStalker(Plot):
 
     def METROSCENE_ENTER(self, camp):
         if self.defeated_monster and not self.got_ending_message:
-            pbge.alert("In thanks for defeating the night stalker, the people of {METROSCENE} present you with ${REWARD:,}.".format(**self.elements))
+            pbge.alerts.TextAlert("In thanks for defeating the night stalker, the people of {METROSCENE} present you with ${REWARD:,}.".format(**self.elements))
             self.elements["METRO"].local_reputation += 5
             self.got_ending_message = True
             self.end_plot(camp)
 
     def BOSSTEAM_ACTIVATETEAM(self, camp):
         if not self.combat_entered:
-            pbge.alert("You seem to have found the night stalker of {METROSCENE}...".format(**self.elements))
+            pbge.alerts.TextAlert("You seem to have found the night stalker of {METROSCENE}...".format(**self.elements))
 
     def BOSS_FAINT(self, camp):
-        pbge.alert("The night stalker of {METROSCENE} has been defeated.".format(**self.elements))
+        pbge.alerts.TextAlert("The night stalker of {METROSCENE} has been defeated.".format(**self.elements))
         self.RUMOR = None
         self.memo = None
         self.defeated_monster = True
@@ -360,13 +360,13 @@ class TheCursedSoil(Plot):
 
     def FINAL_LEVEL_ENTER(self, camp):
         if not self.got_final_level_message:
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "You have discovered a PreZero ruin. The miners must have tunneled into here before the mine shut down.")
             self.got_final_level_message = True
 
     def METROSCENE_ENTER(self, camp):
         if self.defeated_smogspewer and not self.got_ending_message:
-            pbge.alert("As you enter {METROSCENE}, the air seems fresher than before. Maybe the curse has finally been broken.".format(**self.elements))
+            pbge.alerts.TextAlert("As you enter {METROSCENE}, the air seems fresher than before. Maybe the curse has finally been broken.".format(**self.elements))
             self.elements["METRO"].local_reputation += 10
             self.got_ending_message = True
 
@@ -374,7 +374,7 @@ class TheCursedSoil(Plot):
         camp.go(self.elements["ENTRANCE"])
 
     def SMOGSPEWER_FAINT(self, camp):
-        pbge.alert("With the smog spewer destroyed, the haze begins to clear...")
+        pbge.alerts.TextAlert("With the smog spewer destroyed, the haze begins to clear...")
         self.elements["MINE_ENTRANCE"].turn_off_smoke()
         self.RUMOR = None
         self.memo = None
@@ -489,7 +489,7 @@ class DeadzoneDefenseSpending(Plot):
         self.memo = None
 
     def MAKE_BUILDING_WIN(self, camp):
-        pbge.alert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
+        pbge.alerts.TextAlert("{METROSCENE} has finally completed work on {BUILDING_NAME}.".format(**self.elements))
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
         if self.elements["NPC"].is_operational():
@@ -696,7 +696,7 @@ class SregorThrunet(Plot):
     def _eteam_ACTIVATETEAM(self, camp):
         if not self.started_combat:
             self.started_combat = True
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you approach the control room, you see a procession of robots circling the main server, emitting bleeps in binaric code... almost as if they were worshipping it.")
 
     def SERVER_menu(self, camp: gears.GearHeadCampaign, thingmenu):
@@ -722,7 +722,7 @@ class SregorThrunet(Plot):
         self.QOL = gears.QualityOfLife(prosperity=3)
         self.RUMOR = None
         self.memo = Memo("You fixed {NPC}'s Thrunet server.".format(**self.elements), self.elements["NPC_SCENE"])
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "With a loud beep and a few more sparks than you're comfortable with, the Thrunet server roars back into action. It seems you have successfully repaired it.")
         camp.dole_xp(100)
         camp.check_trigger("WIN", self)
@@ -868,7 +868,7 @@ class ClassicMurderMystery(Plot):
         reward = gears.selector.calc_mission_reward(self.rank, 150)
         camp.credits += reward
         camp.freeze(self.elements["CULPRIT"])
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "For catching {}, you earn ${:,}.".format(self.elements["CULPRIT"], reward))
         self.end_plot(camp, True)
         camp.check_trigger("WIN", self)
@@ -908,12 +908,12 @@ class ThePlague(Plot):
         self.subplots["MAKE_DRUGS"].activate(camp)
 
     def EPIDEMIC_WIN(self, camp):
-        pbge.alert("The epidemic appears to be under control now.")
+        pbge.alerts.TextAlert("The epidemic appears to be under control now.")
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
     def MAKE_DRUGS_WIN(self, camp):
-        pbge.alert("{METROSCENE} now has enough {THECURE} to bring {DISEASE} under control.".format(**self.elements))
+        pbge.alerts.TextAlert("{METROSCENE} now has enough {THECURE} to bring {DISEASE} under control.".format(**self.elements))
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)
 
@@ -1235,14 +1235,14 @@ class RabbleRouser(Plot):
             cityhall = self.elements["LEADER"].scene
             self.elements["NPC"].place(cityhall)
             content.load_dynamic_plot(camp, "CONSEQUENCE_CULTOFPERSONALITY", PlotState().based_on(self))
-            pbge.alert("With {LEADER} out of the picture, {NPC} becomes the new leader of {METROSCENE}.".format(
+            pbge.alerts.TextAlert("With {LEADER} out of the picture, {NPC} becomes the new leader of {METROSCENE}.".format(
                 **self.elements))
         elif self.elements["LEADER"] is culprit:
             camp.freeze(self.elements["NPC"])
             content.load_dynamic_plot(camp, "CONSEQUENCE_TOTALCRACKDOWN", PlotState().based_on(self, update_elements={
                 "CRACKDOWN_REASON": "{LEADER} has eliminated all resistance to {LEADER.gender.possessive_determiner} absolute rule".format(
                     **self.elements)}))
-            pbge.alert("With all resistance eliminated, {LEADER} becomes the absolute dictator of {METROSCENE}.".format(
+            pbge.alerts.TextAlert("With all resistance eliminated, {LEADER} becomes the absolute dictator of {METROSCENE}.".format(
                 **self.elements))
         else:
             self.elements["METRO"].city_leader = culprit
@@ -1250,7 +1250,7 @@ class RabbleRouser(Plot):
             camp.freeze(self.elements["LEADER"])
             culprit.place(cityhall)
             content.load_dynamic_plot(camp, "CONSEQUENCE_KLEPTOCRACY", PlotState().based_on(self))
-            pbge.alert("While {LEADER} was busy worrying about {NPC}, {CULPRIT} seized control of {METROSCENE}.".format(
+            pbge.alerts.TextAlert("While {LEADER} was busy worrying about {NPC}, {CULPRIT} seized control of {METROSCENE}.".format(
                 **self.elements))
 
     def LEADER_offers(self, camp: gears.GearHeadCampaign):
@@ -1392,7 +1392,7 @@ class RabbleRouser(Plot):
         camp.freeze(self.elements["CULPRIT"])
         if self.elements["CULPRIT"] is self.elements["LEADER"]:
             self.elements["METRO"].city_leader = None
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "With {CULPRIT} out of the way, life soon returns to normal in {METROSCENE}.".format(**self.elements))
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)

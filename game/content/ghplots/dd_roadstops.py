@@ -1052,7 +1052,7 @@ class TreasureCave(Plot):
     def _hack_compy(self, camp):
         self.compy_hacked = True
         self.elements["_eteam"].make_allies(self.elements["DGOAL"].player_team)
-        pbge.alert("The security protocols have been disabled.")
+        pbge.alerts.TextAlert("The security protocols have been disabled.")
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.dungeon_unlocked:

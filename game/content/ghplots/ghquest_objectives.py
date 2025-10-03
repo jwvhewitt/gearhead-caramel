@@ -33,7 +33,7 @@ class QO_ArtilleryStrike( Plot ):
                     targets.append(pc)
 
             if targets:
-                pbge.alert("As you approach the mission site, you are targeted by artillery fire!")
+                pbge.alerts.TextAlert("As you approach the mission site, you are targeted by artillery fire!")
                 anims = list()
                 for pc in targets:
                     total_damage = 0

@@ -10,7 +10,7 @@
       }
     },
     "scripts": {
-      "effect": "pbge.alert('''{message}''')"
+      "effect": "pbge.alerts.TextAlert('''{message}''')"
     },
     "sorting_rank": 4000
   },

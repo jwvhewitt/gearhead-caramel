@@ -1,5 +1,5 @@
 import random
-from . import alert
+from . import alerts
 import collections
 import glob
 import json
@@ -296,7 +296,7 @@ class AlertPresentation(PresentationTemplate):
         super().__init__(**kwargs)
 
     def play(self, camp, info_blocks, node_state):
-        alert(self.strings[0].format(**self.get_info_strings(info_blocks, node_state)))
+        alerts.TextAlert(self.strings[0].format(**self.get_info_strings(info_blocks, node_state)))
 
 
 class CutsceneRequirement:
@@ -411,7 +411,7 @@ class AlertDisplay( object ):
     def __init__(self,text):
         self.text=text
     def __call__(self,camp,cutscene):
-        alert(self.text.format(**cutscene.library))
+        alerts.TextAlert(self.text.format(**cutscene.library))
 
 
 

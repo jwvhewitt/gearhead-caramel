@@ -122,10 +122,10 @@ class OccupationFortify(Plot):
         return True
 
     def _occupier_wins(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The occupier wins!")
+        pbge.alerts.TextAlert("The occupier wins!")
 
     def _occupier_loses(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The resistance wins!")
+        pbge.alerts.TextAlert("The resistance wins!")
 
 
 WMWO_IRON_FIST = "WMWO_IRON_FIST"  # The faction will impose totalitarian rule on this location.
@@ -243,10 +243,10 @@ class OccupationCrushDissent(Plot):
         return True
 
     def _occupier_wins(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The occupier wins!")
+        pbge.alerts.TextAlert("The occupier wins!")
 
     def _resistance_wins(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The resistance wins!")
+        pbge.alerts.TextAlert("The resistance wins!")
 
 
 WMWO_MARTIAL_LAW = "WMWO_MARTIAL_LAW"  # The faction will attempt to impose law and order on the territory.
@@ -331,7 +331,7 @@ class OccupationRestoreOrder(Plot):
         return True
 
     def _occupier_wins(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The occupier wins!")
+        pbge.alerts.TextAlert("The occupier wins!")
 
     def _occupier_loses(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The resistance wins!")
+        pbge.alerts.TextAlert("The resistance wins!")

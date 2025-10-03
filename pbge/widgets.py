@@ -278,6 +278,7 @@ class Widget(frects.Frect):
         my_state.widgets.append(self)
         if self.ACTIVATE_IMMEDIATELY:
             self.activate()
+        pygame.event.clear()
 
 
 class ButtonWidget(Widget):

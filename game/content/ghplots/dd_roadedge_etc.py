@@ -320,7 +320,7 @@ class BMB_AttemptEntry(Plot):
         return mylist
 
     def _retreat(self, camp):
-        pbge.alert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
+        pbge.alerts.TextAlert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
         self.elements["_eteam"].retreat(camp)
 
     def _withdraw(self, camp):
@@ -484,7 +484,7 @@ class MechaGraveyardAdventure(Plot):
                 thingmenu.add_item("Activate the FINAL_DEATH command", self._shutdown)
 
     def _smash(self, camp: gears.GearHeadCampaign):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "You smash the computer until the lights stop blinking. Then you smash it a bit more just to be safe. If that doesn't take care of the zombie mecha problem, you're not sure what will.")
         self.zombots_active = False
         self.subplots["OUTENCOUNTER"].end_plot(camp)
@@ -494,7 +494,7 @@ class MechaGraveyardAdventure(Plot):
                          self.rank//2)
 
     def _shutdown(self, camp: gears.GearHeadCampaign):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "You activate the emergency shutdown. For the first time in nearly two hundred years, the computer powers off and comes to a rest.")
         self.zombots_active = False
         self.safe_shutdown = True
@@ -528,7 +528,7 @@ class MechaGraveyardAdventure(Plot):
             myteam = teams.Team(enemies=(camp.scene.player_team,))
             camp.scene.place_gears_near_spot(self.elements["BIO_A"].pos[0],self.elements["BIO_A"].pos[1],myteam, mymonster)
         else:
-            pbge.alert("ERROR: Alpha Chamber not responding. Please consult manual.")
+            pbge.alerts.TextAlert("ERROR: Alpha Chamber not responding. Please consult manual.")
 
     def _toggle_beta(self, camp):
         if self.beta_full:
@@ -557,7 +557,7 @@ class MechaGraveyardAdventure(Plot):
                 thingmenu.desc = "This biotank is empty."
 
     def _get_box(self, camp):
-        pbge.alert("You retrieve the box from the biotank. It appears to be some kind of mecha component.")
+        pbge.alerts.TextAlert("You retrieve the box from the biotank. It appears to be some kind of mecha component.")
         self.set_collector = False
         myitem = gears.selector.get_design_by_full_name("NC-1 Self Repair System")
         camp.party.append(myitem)
@@ -567,28 +567,28 @@ class MechaGraveyardAdventure(Plot):
         thingmenu.add_item("Search for hidden files", self._search_l2)
 
     def _read_overview(self, camp):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "The NC-1 Self Repair Module is a revolutionary new technology for conventional battlemovers. It uses bionite agents to effect instantaneous repair of mechanical systems.")
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "Direction is provided by the gestalt intelligence of the bionite network. This allows the system to operate without a central control unit and to make efficient use of available resources.")
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "Join the battleforce of the future, today. Support development of the NC-1 Self Repair Module now and get early backer exclusive rewards.")
 
     def _search_l2(self, camp: gears.GearHeadCampaign):
         pc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Computers, self.rank, difficulty=gears.stats.DIFFICULTY_EASY, no_random=True)
         if pc:
             if pc is camp.pc:
-                pbge.alert("You easily hack into the ancient computer system.")
+                pbge.alerts.TextAlert("You easily hack into the ancient computer system.")
             else:
-                pbge.alert("{} hacks into the ancient computer system.".format(pc))
-            pbge.alert("You discover an additional data file for a secondary project.")
-            pbge.alert("Test subject HC-Alpha shows the potential for the NC-1 system to be used not just for battlemovers, but individual soldiers as well. Biotechnology allows perfect fusion of organic and inorganic components.")
-            pbge.alert("If the neural degradation problem can be solved, imagine the potential: Immortal soldiers who instantly recover from any damage. The keys to their immortality safely held by illumos who control the power source.")
-            pbge.alert("Even if the degradation problem is intractable, there are ways to weaponize this phenomenon. Imagine high-C munitions loaded with NC bionites. Initial casulties could be reanimated to eliminate surviving defenders.")
-            pbge.alert("Anyway, it's something to think about when we submit the third round of grant applications.")
+                pbge.alerts.TextAlert("{} hacks into the ancient computer system.".format(pc))
+            pbge.alerts.TextAlert("You discover an additional data file for a secondary project.")
+            pbge.alerts.TextAlert("Test subject HC-Alpha shows the potential for the NC-1 system to be used not just for battlemovers, but individual soldiers as well. Biotechnology allows perfect fusion of organic and inorganic components.")
+            pbge.alerts.TextAlert("If the neural degradation problem can be solved, imagine the potential: Immortal soldiers who instantly recover from any damage. The keys to their immortality safely held by illumos who control the power source.")
+            pbge.alerts.TextAlert("Even if the degradation problem is intractable, there are ways to weaponize this phenomenon. Imagine high-C munitions loaded with NC bionites. Initial casulties could be reanimated to eliminate surviving defenders.")
+            pbge.alerts.TextAlert("Anyway, it's something to think about when we submit the third round of grant applications.")
             self.got_shutdown = True
         else:
-            pbge.alert("This computer uses a PreZero operating system that is far beyond your understanding.")
+            pbge.alerts.TextAlert("This computer uses a PreZero operating system that is far beyond your understanding.")
 
     def LORE1_menu(self, camp, thingmenu):
         thingmenu.add_item("Read the notes of Dr. Herbert Coombs", self._read_hc)
@@ -596,35 +596,35 @@ class MechaGraveyardAdventure(Plot):
         thingmenu.add_item("Search for hidden files", self._search_l1)
 
     def _read_hc(self, camp):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "\"Initial tests of the NC-1 bionite have shown promising results. The program is able to repair damage to mechanical systems, including systems it has never before encountered, thanks to the coordination of the cells' gestalt intelligence.\"")
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "\"There are still limitations. The bionite mass has no internal power source, and so depends upon an external broadcast engine. Individual bionites which move beyond control range perish quickly.\"")
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "\"I have introduced a small amount of NC-1 into my leg prosthetic to see if they can repair my constantly slipping ankle joint.\"")
 
     def _read_ms(self, camp):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "\"Initial tests for the NC-1 bionite have revealed problems not indicated by the prototypes. Among these issues, the infectious nature of the system must be resolved before testing resumes.\"")
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "\"The gestalt intelligence does not differentiate between its host machinery and external units. This leads to the bionites attempting to colonize any machine they are brought into contact with. A self-repair system that will also repair your enemy's machine is, to put it bluntly, less than optimal.\"")
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "\"So far, the spread of the bionites has been limited by their fragility when moved beyond range of the broadcast power system. Testing cannot resume until it's clear we're not risking another Onyx Jelly fiasco.\"")
 
     def _search_l1(self, camp: gears.GearHeadCampaign):
         pc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Computers, self.rank, no_random=True)
         if pc:
             if pc is camp.pc:
-                pbge.alert("You easily hack into the ancient computer system.")
+                pbge.alerts.TextAlert("You easily hack into the ancient computer system.")
             else:
-                pbge.alert("{} hacks into the ancient computer system.".format(pc))
-            pbge.alert("You discover an additional log file from Dr. Millicent Savini which someone attempted to delete from the database.")
-            pbge.alert("\"Attempts to restrain the NC-1 bionite seem to be interpreted by the gestalt intelligence as a form of damage. Thus far, it has outmaneuvered every security protocol we have attempted.\"")
-            pbge.alert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have restrained him in a specimen vat and will be conducting further tests.\"")
-            pbge.alert("\"I have installed an emergency shutdown switch into the factory control mainframe. In the event that we lose control of NC-1, the command FINAL_DEATH will cut power to the system. Active bionites will be moved to the containment system.\"")
+                pbge.alerts.TextAlert("{} hacks into the ancient computer system.".format(pc))
+            pbge.alerts.TextAlert("You discover an additional log file from Dr. Millicent Savini which someone attempted to delete from the database.")
+            pbge.alerts.TextAlert("\"Attempts to restrain the NC-1 bionite seem to be interpreted by the gestalt intelligence as a form of damage. Thus far, it has outmaneuvered every security protocol we have attempted.\"")
+            pbge.alerts.TextAlert("\"Herbert's condition is deteriorating as more of his biomass is being replaced by machinery. It is not clear what effect the infection has had on his brain. In any case, I have restrained him in a specimen vat and will be conducting further tests.\"")
+            pbge.alerts.TextAlert("\"I have installed an emergency shutdown switch into the factory control mainframe. In the event that we lose control of NC-1, the command FINAL_DEATH will cut power to the system. Active bionites will be moved to the containment system.\"")
             self.got_shutdown = True
         else:
-            pbge.alert("This computer uses a PreZero operating system that is far beyond your understanding.")
+            pbge.alerts.TextAlert("This computer uses a PreZero operating system that is far beyond your understanding.")
 
     def go_to_locale(self, camp):
         camp.go(self.elements["ENTRANCE"])
@@ -722,7 +722,7 @@ class WarOnTheHighwayMain(Plot):
 
     def C1_WAR_ADVANCE_CHALLENGE(self, camp):
         if self.elements["C1_WAR"].points_earned >= 10:
-            pbge.alert("{CITY2} has been defeated; the war with {CITY1} is over.".format(**self.elements))
+            pbge.alerts.TextAlert("{CITY2} has been defeated; the war with {CITY1} is over.".format(**self.elements))
             self.elements["C1_WAR"].deactivate(camp)
             self.elements["C2_WAR"].deactivate(camp)
             camp.check_trigger("WIN", self)
@@ -730,7 +730,7 @@ class WarOnTheHighwayMain(Plot):
 
     def C2_WAR_ADVANCE_CHALLENGE(self, camp):
         if self.elements["C2_WAR"].points_earned >= 10:
-            pbge.alert("{CITY1} has been defeated; the war with {CITY2} is over.".format(**self.elements))
+            pbge.alerts.TextAlert("{CITY1} has been defeated; the war with {CITY2} is over.".format(**self.elements))
             self.elements["C1_WAR"].deactivate(camp)
             self.elements["C2_WAR"].deactivate(camp)
             camp.check_trigger("WIN", self)
@@ -840,7 +840,7 @@ class WOTHCB_DoubleTheChallenge(Plot):
 
     def win_peace(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("WIN", self)
-        pbge.alert("Thanks to your efforts, {CITY1} and {CITY2} begin peace negotiations. The war is over.".format(**self.elements))
+        pbge.alerts.TextAlert("Thanks to your efforts, {CITY1} and {CITY2} begin peace negotiations. The war is over.".format(**self.elements))
         camp.set_faction_as_pc_ally(self.elements["CITY1"].faction)
         camp.set_faction_as_pc_ally(self.elements["CITY2"].faction)
         camp.set_faction_neutral(self.elements["CITY1"].faction, self.elements["CITY2"].faction)
@@ -1031,7 +1031,7 @@ class WOTHCB_BothSidesSame(Plot):
         camp.check_trigger("WIN", self)
         self.elements["C1_DIPLOMACY"].deactivate(camp)
         self.elements["C2_DIPLOMACY"].deactivate(camp)
-        pbge.alert("Thanks to your efforts, {CITY1} and {CITY2} begin peace negotiations. The war is over.".format(**self.elements))
+        pbge.alerts.TextAlert("Thanks to your efforts, {CITY1} and {CITY2} begin peace negotiations. The war is over.".format(**self.elements))
         camp.set_faction_as_pc_ally(self.elements["CITY1"].faction)
         camp.set_faction_as_pc_ally(self.elements["CITY2"].faction)
         camp.set_faction_neutral(self.elements["CITY1"].faction, self.elements["CITY2"].faction)
@@ -1514,7 +1514,7 @@ class WOTHCBM_AspiringConqueror(Plot):
                 and gears.tags.SCENE_PUBLIC in candidate.attributes)
 
     def PEACE_CHALLENGE_WIN(self, camp: gears.GearHeadCampaign):
-        pbge.alert("The citizens of {THIS_CITY} relieve {NPC} from {NPC.gender.possessive_determiner} role as warlord. The path to a peaceful resolution for this conflict is now clear.".format(**self.elements))
+        pbge.alerts.TextAlert("The citizens of {THIS_CITY} relieve {NPC} from {NPC.gender.possessive_determiner} role as warlord. The path to a peaceful resolution for this conflict is now clear.".format(**self.elements))
         self.elements["NPC"].faction = None
         self.elements["PEACE_CHALLENGE"].deactivate(camp)
         self.elements["THIS_METRO"].city_leader = None
@@ -1694,7 +1694,7 @@ class WOTHCBM_PeacefulPeople(Plot):
         return True
 
     def _train_soldier(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
-        pbge.alert("You begin training {} in the ways of mecha warfare.".format(npc))
+        pbge.alerts.TextAlert("You begin training {} in the ways of mecha warfare.".format(npc))
         if camp.do_skill_test(gears.stats.Knowledge, gears.stats.MechaPiloting, self.rank, gears.stats.DIFFICULTY_HARD):
             ghcutscene.SimpleMonologueDisplay("[I_LEARNED_SOMETHING] I'm all ready to take on {THAT_CITY}!".format(**self.elements), npc)(camp, False)
             self.elements["PEACE_CHALLENGE"].advance(camp, 1)
@@ -1762,7 +1762,7 @@ class WOTHCBM_PeacefulPeople(Plot):
         self.army_untrained = False
 
     def PEACE_CHALLENGE_WIN(self, camp):
-        pbge.alert("{THIS_CITY} is all ready to defend itself against {THAT_CITY}.".format(**self.elements))
+        pbge.alerts.TextAlert("{THIS_CITY} is all ready to defend itself against {THAT_CITY}.".format(**self.elements))
         self.elements["PEACE_CHALLENGE"].deactivate(camp)
         self.elements["THIS_WAR"].activate(camp)
 

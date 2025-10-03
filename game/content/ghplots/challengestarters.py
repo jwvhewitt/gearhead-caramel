@@ -383,11 +383,11 @@ class EpidemicStarter(ChallengeStarterPlot):
         return True
 
     def attempt_treatment(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
-        pbge.alert("You attempt to treat {} for {}...".format(npc, self.elements["DISEASE"]))
+        pbge.alerts.TextAlert("You attempt to treat {} for {}...".format(npc, self.elements["DISEASE"]))
         if camp.do_skill_test(
             gears.stats.Knowledge, gears.stats.Medicine, self.rank, difficulty=gears.stats.DIFFICULTY_HARD,
         ):
-            pbge.alert("{} is cured!".format(npc))
+            pbge.alerts.TextAlert("{} is cured!".format(npc))
             camp.dole_xp(50)
             npc.relationship.history.append(gears.relationships.Memory(
                 "you cured me of {DISEASE}".format(**self.elements),
@@ -396,7 +396,7 @@ class EpidemicStarter(ChallengeStarterPlot):
             ))
             self._advance_challenge(camp)
         else:
-            pbge.alert("You fail. {} goes home to rest.".format(npc))
+            pbge.alerts.TextAlert("You fail. {} goes home to rest.".format(npc))
             myvac = game.content.load_dynamic_plot(
                 camp, "NPC_VACATION", PlotState().based_on(self, update_elements={"NPC": npc})
             )

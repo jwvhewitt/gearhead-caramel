@@ -366,7 +366,7 @@ class WorldMapWarTurn:
                 self.world_map_war.war_teams[self.fac].home_base).entrance
         else:
             self.target_waypoint = None
-        pbge.alert_display(self.render_alert)
+        pbge.alerts.FunAlert(self.render_alert)
 
     def render_alert(self):
         pbge.my_state.view()
@@ -379,7 +379,7 @@ class WorldMapWarTurn:
         self.message = msg
         self.target_node = target_node
         self.target_waypoint = target_node.entrance
-        pbge.alert_display(self.render_war_alert)
+        pbge.alerts.FunAlert(self.render_war_alert)
 
     MECHA_WIGGLE = (-1, -1, 0, 0, 0, 1, 1, 0, 0, 0)
 
@@ -604,7 +604,7 @@ class WorldMapWarTurn:
 class RoundAnnouncer:
     def __init__(self):
         self.bitmap = pbge.my_state.huge_font.render("War Update", True, pbge.TEXT_COLOR)
-        pbge.alert_display(self)
+        pbge.alerts.FunAlert(self)
 
     def __call__(self):
         pbge.my_state.view()
@@ -656,13 +656,13 @@ class EdgeAttack:
             if dest_node.destination.faction:
                 self.adv(camp)
             else:
-                pbge.alert("You move into {} unopposed.".format(dest_node))
+                pbge.alerts.TextAlert("You move into {} unopposed.".format(dest_node))
                 self.war.capture(camp, self.war.player_team, dest_node)
                 camp.go(dest_node.entrance)
                 self.adv.end_plot(camp, True)
             self.war.ready_for_next_round = True
         else:
-            pbge.alert("You are not equipped with mecha that can attack {}.".format(dest_node))
+            pbge.alerts.TextAlert("You are not equipped with mecha that can attack {}.".format(dest_node))
             self.adv.end_plot(camp, True)
 
 
@@ -711,7 +711,7 @@ class WorldMapWarHandler(Plot):
                         self.adventure_seed(camp)
                         break
                     else:
-                        pbge.alert("Without working mecha, you are unable to take part in the battle.")
+                        pbge.alerts.TextAlert("Without working mecha, you are unable to take part in the battle.")
                         self.adventure_seed.on_loss(camp)
                         self.adventure_seed = None
                 self.check_war_status(camp)

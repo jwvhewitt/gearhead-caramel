@@ -88,7 +88,7 @@ class MyMi_DoubleEncounter(Plot):
 
         if len(ateam.get_members_in_play(camp)) < 1:
             if not self.team_b_deployed:
-                _=pbge.alert("Just when you think the battle is over, a second force arrives to claim the cargo.")
+                _=pbge.alerts.TextAlert("Just when you think the battle is over, a second force arrives to claim the cargo.")
                 camp.scene.deploy_team(bteam.contents, bteam, self.elements["ROOM"].area)
                 self.team_b_deployed = True
             elif len(bteam.get_members_in_play(camp)) < 1:

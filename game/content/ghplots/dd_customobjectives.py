@@ -69,7 +69,7 @@ class DDBAMO_BloodFromASynth(Plot):
 
     def _eteam_ACTIVATETEAM(self, camp):
         if not self.combat_entered:
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you approach the battle site, you are confronted by a hostile mecha team who are also investigating the situation.")
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
@@ -107,7 +107,7 @@ class DDBAMO_BloodFromASynth(Plot):
         if len(myteam.get_members_in_play(camp)) < 1 or self.sample_collected:
             self.obj.win(camp)
             if not self.combat_finished:
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "You have secured the battle zone. There is a pool of unknown fluid that might provide some clues about the mysterious flying object.")
                 self.combat_finished = True
         else:
@@ -117,10 +117,10 @@ class DDBAMO_BloodFromASynth(Plot):
     def OOZE_BUMP(self, camp):
         if not self.sample_collected:
             self.sample_collected = True
-            pbge.alert("You collect a sample of the mysterious ooze.")
+            pbge.alerts.TextAlert("You collect a sample of the mysterious ooze.")
             self.obj.win(camp)
         else:
-            pbge.alert("You don't need more of this stuff, whatever it is.")
+            pbge.alerts.TextAlert("You don't need more of this stuff, whatever it is.")
 
 
 class DDBAMO_PracticeDuel(Plot):
@@ -234,7 +234,7 @@ class DDBAMO_EncounterZombots(Plot):
         if self.intro_ready and not camp.campdata.get(DDBAMO_ENCOUNTER_ZOMBOTS, False):
             self.intro_ready = False
             camp.campdata[DDBAMO_ENCOUNTER_ZOMBOTS] = True
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "The road ahead is blocked by hostile mecha. Ominously, your sensors cannot detect any energy readings from them, though they are clearly moving.")
 
 
@@ -275,7 +275,7 @@ class DDBAMO_HelpFromTheStars(Plot):
     def _eteam_ACTIVATETEAM(self, camp):
         if self.intro_ready:
             npc = self.elements["NPC"]
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you approach the supposed crash site, the true nature of the falling star becomes clear: it's a lone mecha, having descended to Earth with an atmospheric drop chute. And from the look of things {}'s going to need your help.".format(
                     npc.gender.subject_pronoun))
             self.eteam_activated = True
@@ -351,7 +351,7 @@ class DDBAMO_ChampionsFromTheStars(Plot):
 
     def _eteam_ACTIVATETEAM(self, camp):
         if not self.combat_entered:
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you approach the supposed crash site, it becomes clear what the meteor actually was: it's a cargo pod containing a few souped-up mecha. And the recipients of the delivery have already claimed it...")
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
@@ -372,7 +372,7 @@ class DDBAMO_ChampionsFromTheStars(Plot):
         if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
             if not self.combat_finished:
-                pbge.alert("You stopped the delivery of modified mecha.")
+                pbge.alerts.TextAlert("You stopped the delivery of modified mecha.")
                 self.combat_finished = True
 
 
@@ -415,7 +415,7 @@ class DDBAMO_CargoFromTheStars(Plot):
 
     def _eteam_ACTIVATETEAM(self, camp):
         if not self.combat_entered:
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you approach the supposed crash site, it becomes clear what the meteor actually was: a cargo pod dropped from low orbit. It also becomes clear who the cargo belongs to...")
             npc = self.elements["_commander"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
@@ -438,7 +438,7 @@ class DDBAMO_CargoFromTheStars(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      cargoteam.get_members_in_play(camp)])) // self.starting_number_of_containers)
             if not self.combat_finished:
-                pbge.alert("You have captured the cargo.")
+                pbge.alerts.TextAlert("You have captured the cargo.")
                 self.combat_finished = True
 
 
@@ -516,11 +516,11 @@ class DDBAMO_FightKerberos(Plot):
                 pilot = pc.get_pilot()
                 is_pc = pilot == camp.pc
                 if is_pc:
-                    pbge.alert(
+                    pbge.alerts.TextAlert(
                         "Suddenly, the monster's heads wrap around your {} and begin to drag you underground...".format(
                             pc))
                 else:
-                    pbge.alert(
+                    pbge.alerts.TextAlert(
                         "Suddenly, the monster's heads wrap around {} and begin to drag {} {} underground.".format(
                             pilot, pilot.gender.possessive_determiner, pc))
                 pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=pc.pos),
@@ -578,7 +578,7 @@ class DDBAM_FightCetusFirstTime(Plot):
         myteam = self.elements["_eteam"]
         if self.cetus.current_health < (self.cetus.max_health // 2) or not self.cetus.is_operational():
             self.cetus.restore_all()
-            pbge.alert("The eye of Cetus glows brightly for a moment, and then unleashes a wave of energy.")
+            pbge.alerts.TextAlert("The eye of Cetus glows brightly for a moment, and then unleashes a wave of energy.")
             pbge.my_state.view.play_anims(gears.geffects.BiotechnologyAnim(pos=self.cetus.pos))
             my_invo = pbge.effects.Invocation(
                 fx=gears.geffects.DoDamage(3, 6, anim=gears.geffects.DeathWaveAnim,
@@ -588,7 +588,7 @@ class DDBAM_FightCetusFirstTime(Plot):
             pbge.my_state.view.anim_list.append(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
             my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
             pbge.my_state.view.handle_anim_sequence()
-            pbge.alert("Cetus rockets into the air and quickly disappears from sight.")
+            pbge.alerts.TextAlert("Cetus rockets into the air and quickly disappears from sight.")
             pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
                                           pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
             camp.scene.contents.remove(self.cetus)
@@ -653,13 +653,13 @@ class DDBAM_FightCetusNextTime(Plot):
             pbge.my_state.view.handle_anim_sequence()
 
             if self.regen_count > 1 and not self._has_an_advantage(camp):
-                pbge.alert("Once again, Cetus rockets into the air and quickly disappears from sight.")
+                pbge.alerts.TextAlert("Once again, Cetus rockets into the air and quickly disappears from sight.")
                 pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
                                               pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
                 camp.scene.contents.remove(self.cetus)
             elif self.regen_count > 2:
                 if camp.campdata["DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED:
-                    pbge.alert(
+                    pbge.alerts.TextAlert(
                         "As Cetus regenerates again, your allies from across the dead zone arrive at the battlefield.")
                     pc = camp.pc.get_root()
                     camp.scene.deploy_team(self.allied_mecha, self.elements["_ateam"])
@@ -667,18 +667,18 @@ class DDBAM_FightCetusNextTime(Plot):
                     SimpleMonologueDisplay(
                         "You can't win, Cetus. There are many of us, and only one of you. This is our home. Go back to the deep wasteland and find your own home.",
                         pc)(camp)
-                    pbge.alert(
+                    pbge.alerts.TextAlert(
                         "The biomonster appears to consider your words. Its titanic eye scans all of the mecha in attendance.")
-                    pbge.alert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(
+                    pbge.alerts.TextAlert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(
                         **self.elements))
                     pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
                                                   pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
                     camp.scene.contents.remove(self.cetus)
                     camp.scene.player_team.retreat(camp)
                 else:
-                    pbge.alert(
+                    pbge.alerts.TextAlert(
                         "This last regeneration seems to have left Cetus dazed. You contact The Voice of Iijima with your current coordinates.")
-                    pbge.alert("Your lance makes a hasty withdrawl as hypervelocity missiles streak overhead.")
+                    pbge.alerts.TextAlert("Your lance makes a hasty withdrawl as hypervelocity missiles streak overhead.")
                     camp.scene.player_team.retreat(camp)
                     my_invo = pbge.effects.Invocation(
                         fx=gears.geffects.DoDamage(20, 8, anim=gears.geffects.SuperBoom,

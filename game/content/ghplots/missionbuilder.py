@@ -241,9 +241,9 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                 return super().__call__(camp)
         else:
             if self.scale is gears.scale.MechaScale:
-                pbge.alert("You cannot proceed on this mission without a mecha.")
+                pbge.alerts.TextAlert("You cannot proceed on this mission without a mecha.")
             else:
-                pbge.alert("You cannot proceed on this mission.")
+                pbge.alerts.TextAlert("You cannot proceed on this mission.")
 
     def is_good_enemy_npc(self, nart, candidate):
         # Utility function for doing an enemy search. If the enemy_faction is a base faction, this function
@@ -333,7 +333,7 @@ class BuildAMissionPlot(Plot):
     def t_START(self, camp):
         if camp.scene is self.elements["LOCALE"] and not self.gave_mission_reminder:
             mydisplay = adventureseed.CombatMissionDisplay(title=self.adv.name, mission_seed=self.adv, width=400)
-            pbge.alert_display(mydisplay.show)
+            pbge.alerts.FunAlert(mydisplay.show)
             if self.elements.get("ENEMY_FACTION"):
                 camp.add_faction_score(self.elements.get("ENEMY_FACTION"), -5)
             self.gave_mission_reminder = True
@@ -356,10 +356,10 @@ class BuildAMissionPlot(Plot):
             if not self.gave_ending_message:
                 if self.adv.is_won():
                     if "WIN_MESSAGE" in self.elements:
-                        pbge.alert(self.elements["WIN_MESSAGE"])
+                        pbge.alerts.TextAlert(self.elements["WIN_MESSAGE"])
                     pbge.BasicNotification("Mission Complete", count=160)
                 elif "LOSS_MESSAGE" in self.elements:
-                    pbge.alert(self.elements["LOSS_MESSAGE"])
+                    pbge.alerts.TextAlert(self.elements["LOSS_MESSAGE"])
                     pbge.BasicNotification("Mission Failed", count=160)
                 self.gave_ending_message = True
             if self.elements.get("AUTO_EXIT", False) and not self.exited_mission:
@@ -395,7 +395,7 @@ class BuildAMissionPlot(Plot):
                                                            title_color=pygame.color.Color(250, 50, 0),
                                                            mission_seed=self.adv,
                                                            width=400)
-            pbge.alert_display(mydisplay.show)
+            pbge.alerts.FunAlert(mydisplay.show)
             self.adv.results = list()
 
             for npc in [n for n in camp.scene.contents if isinstance(n, gears.base.BaseGear)]:
@@ -589,7 +589,7 @@ class BAM_AidAlliedForces(Plot):
             if len(eteam.get_members_in_play(camp)) < 1:
                 if self.enemy_team_ok[eteam]:
                     self.enemy_team_ok[eteam] = False
-                    pbge.alert("Area secured.")
+                    pbge.alerts.TextAlert("Area secured.")
                 num_destroyed_teams += 1
 
         if num_destroyed_teams >= self.num_battles:
@@ -636,7 +636,7 @@ class BAM_CaptureMine(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
-                pbge.alert("The mine has been secured.")
+                pbge.alerts.TextAlert("The mine has been secured.")
                 self.combat_finished = True
 
 
@@ -680,7 +680,7 @@ class BAM_CaptureBuildings(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
-                pbge.alert("The complex has been secured.")
+                pbge.alerts.TextAlert("The complex has been secured.")
                 self.combat_finished = True
 
 
@@ -1469,7 +1469,7 @@ class BAM_ProtectBuildings(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
-                pbge.alert("The buildings have been secured.")
+                pbge.alerts.TextAlert("The buildings have been secured.")
                 self.combat_finished = True
 
 
@@ -1514,7 +1514,7 @@ class BAM_ProtectBuildingsFromDinos(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      propteam.get_members_in_play(camp)])) // self.starting_number_of_props)
             if not self.combat_finished:
-                pbge.alert("The buildings have been secured.")
+                pbge.alerts.TextAlert("The buildings have been secured.")
                 self.combat_finished = True
 
 
@@ -1557,7 +1557,7 @@ class BAM_RecoverCargo(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      cargoteam.get_members_in_play(camp)])) // self.starting_number_of_containers)
             if not self.combat_finished:
-                pbge.alert("The missing cargo has been secured.")
+                pbge.alerts.TextAlert("The missing cargo has been secured.")
                 self.combat_finished = True
 
 
@@ -1691,7 +1691,7 @@ class BAM_RespondToDistressCall(Plot):
             self.obj.win(camp, (sum([(100 - c.get_percent_damage_over_health()) for c in
                                      cargoteam.get_members_in_play(camp)])) // self.starting_number_of_containers)
             if not self.combat_finished:
-                pbge.alert("The missing cargo has been secured.")
+                pbge.alerts.TextAlert("The missing cargo has been secured.")
                 self.combat_finished = True
 
 
@@ -1866,9 +1866,9 @@ class BAM_SurviveTheAmbush(Plot):
         if self.intro_ready:
             myfac = self.elements.get("ENEMY_FACTION")
             if myfac:
-                pbge.alert("Without warning, you are ambushed by {}!".format(myfac))
+                pbge.alerts.TextAlert("Without warning, you are ambushed by {}!".format(myfac))
             else:
-                pbge.alert("Without warning, you are ambushed by enemy mecha!")
+                pbge.alerts.TextAlert("Without warning, you are ambushed by enemy mecha!")
             self.intro_ready = False
 
     def t_ENDCOMBAT(self, camp):
@@ -1916,7 +1916,7 @@ class BAM_FindHerbs(Plot):
             thingmenu.add_item("Collect some herbs.", self._collect_herbs)
 
     def _collect_herbs(self, camp):
-        pbge.alert("You collect the herbs that you need.")
+        pbge.alerts.TextAlert("You collect the herbs that you need.")
         self.obj.win(camp, 100)
         self.collected_herbs = True
 
@@ -2024,20 +2024,20 @@ class BAM_RepairMachine(Plot):
         if camp.do_skill_test(
             gears.stats.Craft, gears.stats.Repair, self.rank, difficulty=gears.stats.DIFFICULTY_HARD
         ):
-            pbge.alert("You have repaired the machine.")
+            pbge.alerts.TextAlert("You have repaired the machine.")
             self.elements["MACHINE"].desc = "The machine appears to be working normally now."
             self.repaired_machine = True
             self.obj.win(camp, 100)
             camp.dole_xp(100, gears.stats.Repair)
         elif self.tries < 1:
-            pbge.alert("After several failed attempts, you have bodged this machine into a semblance of normal operation. Hopefully it will keep running long enough for you to get out of here.")
+            pbge.alerts.TextAlert("After several failed attempts, you have bodged this machine into a semblance of normal operation. Hopefully it will keep running long enough for you to get out of here.")
             self.elements["MACHINE"].desc = "The machine appears to be working now. Mostly. You hope."
             self.repaired_machine = True
             self.obj.win(camp, 65)
             camp.dole_xp(100, gears.stats.Repair)
         else:
             self.tries -= 1
-            pbge.alert("You attempt to repair the machine. The noise you make attracts monsters!")
+            pbge.alerts.TextAlert("You attempt to repair the machine. The noise you make attracts monsters!")
             myunit = gears.selector.RandomMonsterUnit(
                 self.rank, random.randint(90, 120), camp.scene.environment,
                 self.elements.get(BAMEP_MONSTER_TYPE, ("ROBOT", "FACTORY")), camp.scene.scale
@@ -2083,7 +2083,7 @@ class BAM_RescueVictim(Plot):
             thingmenu.add_item("Rescue {VICTIM}".format(**self.elements), self._rescue_victim)
 
     def _rescue_victim(self, camp: gears.GearHeadCampaign):
-        pbge.alert("You have rescued {VICTIM}.".format(**self.elements))
+        pbge.alerts.TextAlert("You have rescued {VICTIM}.".format(**self.elements))
         self.obj.win(camp, 100)
         camp.dole_xp(100, gears.stats.Medicine)
         self.rescued_npc = True

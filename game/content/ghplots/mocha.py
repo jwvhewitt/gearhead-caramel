@@ -495,20 +495,20 @@ class FrozenHotSpringCity(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_opening_sequence:
-            pbge.alert("December 23, NT157. It's been an awful year for the Federated Territories of Earth.")
+            pbge.alerts.TextAlert("December 23, NT157. It's been an awful year for the Federated Territories of Earth.")
             if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name):
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. Fortunately, a team of cavaliers was able to destroy it before it reached Snake Lake. You were there.")
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "Now, six months later, you are meeting with several of your former lancemates for a charity mecha tournament in the recently constructed Mauna Arena.")
             else:
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. You watched the destruction unfold on vidnet, and saw the final battle when a team of cavaliers brought the beast down just outside of Snake Lake City."
                 )
-                pbge.alert(
+                pbge.alerts.TextAlert(
                     "Now, six months later, you have been invited to a charity mecha tournament at Mauna Arena. The funds raised will be donated to reconstruction efforts in Wujung."
                 )
-            pbge.alert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.")
+            pbge.alerts.TextAlert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.")
 
             npc = self.elements["VIKKI"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=Cue(ContextTag([self])))
@@ -594,9 +594,9 @@ class WinterMochaChaletForEnding(Plot):
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_intro:
             if self.won_mission:
-                pbge.alert("You return to the Mauna Chalet Resort in victory. The sun is just beginning to rise as you reach the lounge.")
+                pbge.alerts.TextAlert("You return to the Mauna Chalet Resort in victory. The sun is just beginning to rise as you reach the lounge.")
             else:
-                pbge.alert("You return to the Mauna Chalet Resort cold, wet, and utterly defeated. The sun is just beginning to rise as you reach the lounge.")
+                pbge.alerts.TextAlert("You return to the Mauna Chalet Resort cold, wet, and utterly defeated. The sun is just beginning to rise as you reach the lounge.")
             camp.dole_xp(300)
             self.can_get_blitzen = self.won_mission and (camp.campdata.get(MOVAR_CHEAPMEKS)
                                                          or not camp.campdata.get(MOVAR_LANCEMATE)) and camp.campdata.get(MOVAR_FOUGHTBLITZEN)
@@ -1562,7 +1562,7 @@ class Encounter_LastBanditStanding(Encounter_BasicBandits):
 
     def _run_away(self, camp):
         # The bandits will run away.
-        pbge.alert("{} withdraws.".format(str(self.elements["_MIDBOSS"])))
+        pbge.alerts.TextAlert("{} withdraws.".format(str(self.elements["_MIDBOSS"])))
         self.elements["ETEAM"].retreat(camp)
         self.t_ENDCOMBAT(camp)
 
@@ -1574,7 +1574,7 @@ class Encounter_LastBanditStanding(Encounter_BasicBandits):
             meks = gears.selector.RandomMechaUnit(25, 50, gears.factions.AegisOverlord, myscene.environment).mecha_list
             for mek in meks:
                 myscene.place_actor(mek, pos[0], pos[1], self.elements["ETEAM"])
-            pbge.alert("Suddenly, a group of Aegis mecha emerge from the forest.")
+            pbge.alerts.TextAlert("Suddenly, a group of Aegis mecha emerge from the forest.")
 
     def _MIDBOSS_offers(self, camp):
         mylist = list()
@@ -1684,7 +1684,7 @@ class Encounter_TheEnemyOfMyEnemy(Encounter_BasicBandits):
             boss = self.elements["_MIDMEK"]
             pos = self.elements["_room"].area.center
             myscene.place_actor(boss, pos[0], pos[1], self.elements["ETEAM"])
-            pbge.alert("As you finish fighting the bandit, one of the convoy guards emerges from the woods.")
+            pbge.alerts.TextAlert("As you finish fighting the bandit, one of the convoy guards emerges from the woods.")
             npc = self.elements["_MIDBOSS"]
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=ghdialogue.ATTACK_STARTER)
 
@@ -1774,7 +1774,7 @@ class Encounter_WeHaveBlitzen(Encounter_BasicBandits):
 
     def _run_away(self, camp):
         # The bandits will run away.
-        pbge.alert("The bandits withdraw.")
+        pbge.alerts.TextAlert("The bandits withdraw.")
         for npc in list(camp.scene.contents):
             if camp.scene.local_teams.get(npc, None) == self.elements["ETEAM"]:
                 camp.scene.contents.remove(npc)
@@ -2015,7 +2015,7 @@ class Choice_PeaceAgainstSynths(Plot):
 
     def t_MOCHAVICTORY(self, camp):
         if not self.chose_this_route:
-            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to warn people about the synths in the area.")
+            pbge.alerts.TextAlert("You have won the battle. On the way back to Mauna, you radio the Guardians to warn people about the synths in the area.")
 
 
 class Choice_FellowshipToDefendAgainstSynths(Plot):
@@ -2058,7 +2058,7 @@ class Choice_FellowshipToDefendAgainstSynths(Plot):
 
     def t_MOCHAVICTORY(self, camp):
         if not self.chose_this_route:
-            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to warn people about the synths in the area.")
+            pbge.alerts.TextAlert("You have won the battle. On the way back to Mauna, you radio the Guardians to warn people about the synths in the area.")
 
 
 class Choice_BringJusticeToMercenaries(Plot):
@@ -2380,7 +2380,7 @@ class Choice_PeaceByDefeatingAegis(Plot):
 
     def t_MOCHAVICTORY(self, camp):
         if not self.chose_this_route:
-            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Defense Force to let them know there are Aegis infiltrators in the area.")
+            pbge.alerts.TextAlert("You have won the battle. On the way back to Mauna, you radio the Defense Force to let them know there are Aegis infiltrators in the area.")
 
 
 class Choice_GloryByFightingTheLeader(Plot):
@@ -2501,7 +2501,7 @@ class Choice_PeaceToDisableThePrototype(Plot):
 
     def t_MOCHAVICTORY(self, camp):
         if not self.chose_this_route and not camp.campdata.get(MOVAR_FOUGHTBLITZEN, False):
-            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to let them know the missing prototype is still out there.")
+            pbge.alerts.TextAlert("You have won the battle. On the way back to Mauna, you radio the Guardians to let them know the missing prototype is still out there.")
 
 
 class Choice_DutyToStopThePrototype(Plot):
@@ -2539,7 +2539,7 @@ class Choice_DutyToStopThePrototype(Plot):
 
     def t_MOCHAVICTORY(self, camp):
         if not self.chose_this_route and not camp.campdata.get(MOVAR_FOUGHTBLITZEN, False):
-            pbge.alert("You have won the battle. On the way back to Mauna, you radio the Guardians to let them know the missing prototype is still out there.")
+            pbge.alerts.TextAlert("You have won the battle. On the way back to Mauna, you radio the Guardians to let them know the missing prototype is still out there.")
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?' + ONE_WAY_WARNING
@@ -2843,9 +2843,9 @@ class WinterBattle(Plot):
     def t_ENDCOMBAT(self, camp):
         myboss = self.elements["BOSS"]
         if not myboss.is_operational():
-            pbge.alert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")
+            pbge.alerts.TextAlert("Victory! Thank you for trying GearHead Caramel. Keep watching for more updates.")
         elif not camp.first_active_pc():
-            pbge.alert("Game over. Better luck next time.")
+            pbge.alerts.TextAlert("Game over. Better luck next time.")
 
     def t_START(self, camp):
         pass
@@ -2914,7 +2914,7 @@ class BurnTheBarrels(Plot):
     SPRITE_OFF = [(0, 0), (-14, 0), (-6, 12), (6, 9), (14, 0), (6, -12), (-6, -12)]
 
     def PUZZITEM_IGNITE(self, camp):
-        pbge.alert("The barrel of fuel fires up, melting some of the nearby snow.")
+        pbge.alerts.TextAlert("The barrel of fuel fires up, melting some of the nearby snow.")
         scene = self.elements["LOCALE"]
         barrel = self.elements["PUZZITEM"]
 
@@ -2946,7 +2946,7 @@ class IndustrialStrengthHeater(Plot):
         return True
 
     def PUZZITEM_ENERGIZE(self, camp):
-        pbge.alert("The industrial heat lamp fires up, melting some of the nearby snow.")
+        pbge.alerts.TextAlert("The industrial heat lamp fires up, melting some of the nearby snow.")
         camp.check_trigger("HEAT", self.elements["TARGET"])
         self.active = False
 
@@ -2968,7 +2968,7 @@ class IndustrialStrengthBlower(Plot):
         return True
 
     def PUZZITEM_ENERGIZE(self, camp):
-        pbge.alert("The industrial blower roars into action, melting some of the nearby snow.")
+        pbge.alerts.TextAlert("The industrial blower roars into action, melting some of the nearby snow.")
         camp.check_trigger("WIND", self.elements["TARGET"])
         self.active = False
 
@@ -2990,7 +2990,7 @@ class OpenGeothermalVent(Plot):
         return True
 
     def PUZZITEM_OPEN(self, camp):
-        pbge.alert("A sudden blast of steam escapes from the geothermal vent, melting some of the nearby snow.")
+        pbge.alerts.TextAlert("A sudden blast of steam escapes from the geothermal vent, melting some of the nearby snow.")
         camp.check_trigger("WIND", self.elements["TARGET"])
         self.active = False
 
@@ -3006,7 +3006,7 @@ class LazyassOpener(Plot):
         thingmenu.add_item('Try to open it', self._try_open)
 
     def _try_open(self, camp):
-        pbge.alert("You open it easily. Who leaves stuff like this unlocked?!")
+        pbge.alerts.TextAlert("You open it easily. Who leaves stuff like this unlocked?!")
         camp.check_trigger("OPEN", self.elements["TARGET"])
         self.active = False
 
@@ -3031,12 +3031,12 @@ class UniversalLockpick(Plot):
             thingmenu.add_item('Try to open it', self._try_open)
 
     def _open_thing(self, camp):
-        pbge.alert("The crowbar makes short work of the lock.")
+        pbge.alerts.TextAlert("The crowbar makes short work of the lock.")
         camp.check_trigger("OPEN", self.elements["TARGET"])
         self.active = False
 
     def _try_open(self, camp):
-        pbge.alert("It's locked.")
+        pbge.alerts.TextAlert("It's locked.")
         self.subplots["FINDER"].activate(camp)
 
     def PUZZITEM_FIND(self, camp):
@@ -3058,7 +3058,7 @@ class FindAbandonedToolbox(Plot):
         return True
 
     def get_crowbar(self, camp):
-        pbge.alert("You take the {}. It might be useful for something.".format(self.elements["TARGET"]))
+        pbge.alerts.TextAlert("You take the {}. It might be useful for something.".format(self.elements["TARGET"]))
         camp.check_trigger("FIND", self.elements["TARGET"])
         self.active = False
 
@@ -3086,7 +3086,7 @@ class BorrowAnItem(Plot):
 
     def t_UPDATE(self, camp):
         if self.active and self.elements["NPC"] in camp.party:
-            pbge.alert("{} says 'Here, you can borrow my {}'.".format(self.elements["NPC"], self.elements["TARGET"]))
+            pbge.alerts.TextAlert("{} says 'Here, you can borrow my {}'.".format(self.elements["NPC"], self.elements["TARGET"]))
             self._get_item(camp)
 
     def NPC_offers(self, camp):
@@ -3116,12 +3116,12 @@ class ExtensionCord(Plot):
             thingmenu.add_item('Try to turn it on', self._try_activate)
 
     def _open_thing(self, camp):
-        pbge.alert("You connect it to the electrical outlet and press the power button...")
+        pbge.alerts.TextAlert("You connect it to the electrical outlet and press the power button...")
         camp.check_trigger("ENERGIZE", self.elements["TARGET"])
         self.active = False
 
     def _try_activate(self, camp):
-        pbge.alert("Nothing happens. It doesn't have any power. You notice that it isn't plugged in.")
+        pbge.alerts.TextAlert("Nothing happens. It doesn't have any power. You notice that it isn't plugged in.")
         self.subplots["FINDER"].activate(camp)
 
     def PUZZITEM_FIND(self, camp):
@@ -3146,7 +3146,7 @@ class CircuitBroken(Plot):
         thingmenu.add_item('Try to turn it on', self._try_activate)
 
     def _try_activate(self, camp):
-        pbge.alert("Nothing happens. Everything seems to be connected properly, but it isn't getting any power.")
+        pbge.alerts.TextAlert("Nothing happens. Everything seems to be connected properly, but it isn't getting any power.")
 
     def PUZZITEM_menu(self, camp, thingmenu):
         thingmenu.desc = '{} The generator is currently off; the circuit breaker must have blown during the storm.'.format(
@@ -3155,7 +3155,7 @@ class CircuitBroken(Plot):
         thingmenu.add_item("Leave it alone", None)
 
     def _fix_generator(self, camp):
-        pbge.alert("You reset the controls, and the generator flickers back to life.")
+        pbge.alerts.TextAlert("You reset the controls, and the generator flickers back to life.")
         camp.check_trigger("ENERGIZE", self.elements["TARGET"])
         self.active = False
 
@@ -3176,12 +3176,12 @@ class OpenContainer(Plot):
         thingmenu.add_item('Leave it alone', None)
 
     def _try_activate(self, camp):
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "Warning: Contents will react violently when exposed to oxygen. Extreme caution should be used when handling.")
         self.subplots["OPENER"].activate(camp)
 
     def TARGET_OPEN(self, camp):
-        pbge.alert("You open it up and retreat to a safe distance as the fireworks begin.")
+        pbge.alerts.TextAlert("You open it up and retreat to a safe distance as the fireworks begin.")
         camp.check_trigger("IGNITE", self.elements["TARGET"])
         self.active = False
 
@@ -3207,12 +3207,12 @@ class UseFlares(Plot):
             thingmenu.add_item('Read the warning label', self._try_activate)
 
     def _open_thing(self, camp):
-        pbge.alert("You stick the lit flare in the barrel's spigot and retreat to a safe distance...")
+        pbge.alerts.TextAlert("You stick the lit flare in the barrel's spigot and retreat to a safe distance...")
         camp.check_trigger("IGNITE", self.elements["TARGET"])
         self.active = False
 
     def _try_activate(self, camp):
-        pbge.alert("Warning: Highly flammable. Keep away from sparks and open flame.")
+        pbge.alerts.TextAlert("Warning: Highly flammable. Keep away from sparks and open flame.")
         self.subplots["FINDER"].activate(camp)
 
     def PUZZITEM_FIND(self, camp):

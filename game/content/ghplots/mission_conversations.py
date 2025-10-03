@@ -975,14 +975,14 @@ class EnemyConvoTester(Plot):
     def LOCALE_ENTER(self, camp):
         myoffers = self.convoplot.NPC_offers(camp)
         if not isinstance(myoffers, list):
-            pbge.alert("{} returned malformed offers.".format(self.convoplot))
+            pbge.alerts.TextAlert("{} returned malformed offers.".format(self.convoplot))
         for o in myoffers:
             if o.effect:
                 o.effect(camp)
         self.convoplot._start_conversation(camp)
         self.convoplot._win_adventure(camp)
         self.convoplot._lose_adventure(camp)
-        pbge.alert("{} doesn't crash. Good luck.".format(self.convoplot))
+        pbge.alerts.TextAlert("{} doesn't crash. Good luck.".format(self.convoplot))
 
     def _get_dialogue_grammar(self, npc, camp):
         return MissionGrammar()

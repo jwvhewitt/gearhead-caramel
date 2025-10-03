@@ -302,7 +302,7 @@ class InsultinglyEasyAutofindEnemyBase(Plot):
     scope = "METRO"
 
     def t_UPDATE(self, camp: gears.GearHeadCampaign):
-        pbge.alert("You find a piece of paper on the ground with the location of {ENEMY_BASE_NAME} written on it.".format(**self.elements))
+        pbge.alerts.TextAlert("You find a piece of paper on the ground with the location of {ENEMY_BASE_NAME} written on it.".format(**self.elements))
         self.end_plot(camp)
         self.elements["WIN_FUN"](camp)
 
@@ -378,7 +378,7 @@ class SEBOSearchForBase( Plot ):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Wildcraft, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                pbge.alert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
+                pbge.alerts.TextAlert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
             else:
                 ghcutscene.SimpleMonologueDisplay("Take a look at these tracks... I think we can trace them back to {}.".format(self.elements["ENEMY_BASE_NAME"]),pc)(camp)
             self.find_the_base(camp, True)
@@ -387,7 +387,7 @@ class SEBOSearchForBase( Plot ):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Computers, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                pbge.alert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))
+                pbge.alerts.TextAlert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))
             else:
                 ghcutscene.SimpleMonologueDisplay("[LOOK_AT_THIS] I managed to hack into their navcomp and found out where {} is.".format(self.elements["ENEMY_BASE_NAME"]),pc)(camp)
             self.find_the_base(camp, True)

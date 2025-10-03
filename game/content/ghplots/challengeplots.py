@@ -878,7 +878,7 @@ class ReconMissionToFindBase(ChallengePlot):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                pbge.alert("You trace the path taken by the enemy mecha, and find their base.")
+                pbge.alerts.TextAlert("You trace the path taken by the enemy mecha, and find their base.")
             else:
                 ghcutscene.SimpleMonologueDisplay("[I_HAVE_TRACKED_ENEMY_MECHA] We know where their {BASE_NAME} is.".format(**self.elements), pc)(camp)
             self.elements["CHALLENGE"].advance(camp, self.elements["CHALLENGE"].points_target)

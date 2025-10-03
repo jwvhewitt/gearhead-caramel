@@ -284,7 +284,7 @@ class WildernessCoffeeShop(Plot):
         camp.credits -= self.coffee_price
         for pc in camp.get_active_party():
             pc.restore_all()
-        pbge.alert("After drinking the coffee, you feel ready to get back to the adventure!")
+        pbge.alerts.TextAlert("After drinking the coffee, you feel ready to get back to the adventure!")
 
     def _get_explanation(self, camp):
         self.got_explanation = True
@@ -372,11 +372,11 @@ class EternalGuardians(Plot):
     def _eteam_ACTIVATETEAM(self, camp):
         self.last_update = camp.time
         if self.fight_counter < 3:
-            pbge.alert(self.INITIAL_ALERTS[self.fight_counter])
+            pbge.alerts.TextAlert(self.INITIAL_ALERTS[self.fight_counter])
         elif self.fight_counter == 3:
-            pbge.alert(random.choice(self.GIVE_UP_ALERT))
+            pbge.alerts.TextAlert(random.choice(self.GIVE_UP_ALERT))
         else:
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As you approach, the ancient robot looks at you wearily. \"RESTRICTED AREA. TERMINATION. YOU KNOW THE DEAL.\"")
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
@@ -422,7 +422,7 @@ class LevelGuide(Plot):
             thingmenu.add_item("Search for useful information.", self._view_map)
 
     def _view_map(self, camp):
-        pbge.alert("You find a map giving the rough layout of this level.")
+        pbge.alerts.TextAlert("You find a map giving the rough layout of this level.")
         for x in range(camp.scene.width):
             for y in range(camp.scene.height):
                 camp.scene.set_visible(x, y, True)

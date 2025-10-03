@@ -524,20 +524,20 @@ class PowerOutage(Plot):
         if camp.do_skill_test(gears.stats.Knowledge, gears.stats.Repair, self.rank+10, difficulty=gears.stats.DIFFICULTY_HARD):
             self._activate_power_plant(camp)
         else:
-            pbge.alert("You can't even figure out what's wrong with the power plant. This device is beyond your current ability to repair.")
+            pbge.alerts.TextAlert("You can't even figure out what's wrong with the power plant. This device is beyond your current ability to repair.")
 
     def _use_science(self, camp: gears.GearHeadCampaign):
         if camp.do_skill_test(gears.stats.Knowledge, gears.stats.Science, self.rank+10, difficulty=gears.stats.DIFFICULTY_AVERAGE):
             self._activate_power_plant(camp)
         else:
-            pbge.alert("As near as you can tell, there is a mechanical issue with the power plant. Stabilizing the plasma field would require more scientific knowledge than you currently possess.")
+            pbge.alerts.TextAlert("As near as you can tell, there is a mechanical issue with the power plant. Stabilizing the plasma field would require more scientific knowledge than you currently possess.")
 
     def _use_macguffin(self, camp):
         camp.take_item(self.elements["MACGUFFIN"])
         self._activate_power_plant(camp)
 
     def _activate_power_plant(self, camp):
-        pbge.alert("You succeed. The power plant hums back into normal operation.")
+        pbge.alerts.TextAlert("You succeed. The power plant hums back into normal operation.")
         self.elements["POWERPLANT"].activate_core()
         self.repaired_generator = True
         camp.dole_xp(200)
@@ -647,7 +647,7 @@ class SpaceportScramble(Plot):
             self.hid_the_shopkeeper = True
 
     def BLACKMARKET_ENTER(self, camp):
-        _ = pbge.alert("This shop appears to be deserted.")
+        _ = pbge.alerts.TextAlert("This shop appears to be deserted.")
 
     def COMPY_menu(self, camp, thingmenu):
         thingmenu.desc += " Currently the entire spaceport and its surrounding district are highlighted in red."
@@ -655,7 +655,7 @@ class SpaceportScramble(Plot):
         thingmenu.add_item("Leave it alone.", None)
 
     def _deactivate_security(self, camp):
-        _ = pbge.alert("You shut down the security alert for the spaceport district. The spaceport buildings themselves remain highlighted in red.")
+        _ = pbge.alerts.TextAlert("You shut down the security alert for the spaceport district. The spaceport buildings themselves remain highlighted in red.")
         self.elements["SHOPKEEPER"].place(self.elements["BLACKMARKET"])
         camp.campdata[ROPPCD_HERO_POINTS] += 1
         self.end_plot(camp, True)
@@ -947,7 +947,7 @@ class WarehousePasswordsPlot(Plot):
 
     def _get_cargo(self, camp: gears.GearHeadCampaign):
         camp.campdata[ROPPCD_FOUND_CARGO] = True
-        pbge.alert("You gain 100XP.")
+        pbge.alerts.TextAlert("You gain 100XP.")
         camp.dole_xp(100)
         #self.memo = "You have discovered a shipment of food and medicine that might be useful to somebody in Pirate's Point."
         camp.check_trigger("UPDATE")
@@ -1024,15 +1024,15 @@ class WarehousePasswordsPlot(Plot):
         )
         if pc:
             if pc is camp.pc:
-                pbge.alert("You hack the lock. The door can now be opened.")
+                pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
             else:
-                pbge.alert("{} hacks the lock. The door can now be opened.".format(pc))
+                pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
             self.elements[door_ident].plot_locked = False
         else:
-            pbge.alert("You are not skilled enough to hack this lock.")
+            pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
 
     def _unlock_door(self, camp: gears.GearHeadCampaign, door_ident):
         # Lambda this method for all the different doors too.
-        pbge.alert("The code unlocks the door.")
+        pbge.alerts.TextAlert("The code unlocks the door.")
         self.elements[door_ident].plot_locked = False
 

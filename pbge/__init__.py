@@ -164,6 +164,9 @@ class GameState(object):
         self.widget_tooltip = None
 
         self.session_data = dict()
+        # See alerts.py for a more thorough description of alerts. Basically,
+        # a queue of display widgets that get cycled through automatically.
+        self.alert_queue = list()
 
         # self.client = SteamClient()
 
@@ -172,36 +175,6 @@ class GameState(object):
             self.notifications[0].render()
             if self.notifications[0].is_done():
                 del self.notifications[0]
-
-    def render_and_flip(self, show_widgets=True, reset_standing_by=True):
-        if self.view:
-            self.view()
-        self.do_flip(show_widgets=show_widgets, reset_standing_by=reset_standing_by)
-
-    def do_flip(self, show_widgets=True, reset_standing_by=True):
-        self.widget_tooltip = None
-        if show_widgets:
-            self.render_widgets()
-        if self.notifications:
-            self.render_notifications()
-        if self.widget_tooltip:
-            x, y = self.mouse_pos
-            x += 16
-            y += 16
-            if x + 200 > self.screen.get_width():
-                x -= 200
-            myimage = render_text(self.small_font, self.widget_tooltip, 200)
-            myrect = myimage.get_rect(topleft=(x, y))
-            default_border.render(myrect)
-            _=self.screen.blit(myimage, myrect)
-        self.anim_phase = (self.anim_phase + 1) % 6000
-        if reset_standing_by:
-            self.standing_by = False
-        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
-            w, h = self.physical_screen.get_size()
-            _=pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
-            # pygame.transform.scale(self.screen, (w, h), self.physical_screen)
-        pygame.display.flip()
 
     def locate_music(self, mfname):
         if mfname and util.config.get("GENERAL", "music_mode").casefold() != MUSIC_MODE_STREAM.casefold():
@@ -479,7 +452,7 @@ class GameState(object):
 
     def ui_is_active(self):
         # Return True if there are any active UI elements.
-        return any([w.active for w in self.widgets])
+        return any([w.active for w in self.widgets]) or self.alert_queue
 
     def flip(self):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
@@ -487,12 +460,21 @@ class GameState(object):
             _=pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
         pygame.display.flip()
 
+    def update_alerts(self):
+        if self.alert_queue:
+            if not any(alerts.WTAG_ALERT in w.tags for w in self.widgets):
+                aw = self.alert_queue.pop(0)
+                aw.push_and_deploy()
+
     def play(self):
         # A nonblocking game loop.
         myclock = pygame.time.Clock()
         delta = 1000.0 / float(FPS)
 
         while self.widgets and not self.got_quit:
+            # BEFORE polling for events, check for alerts!
+            self.update_alerts()
+
             # poll for events
             # pygame.QUIT event means the user clicked X to close your window
             for ev in pygame.event.get():
@@ -745,49 +727,6 @@ def anim_delay():
         pass
 
 
-def alert(text, font=None, justify=-1):
-    if not font:
-        font = my_state.medium_font
-    # mydest = pygame.Rect( my_state.screen.get_width() // 2 - 200, my_state.screen.get_height()//2 - 100, 400, 200 )
-    mytext = render_text(font, text, 400, justify=justify)
-    mydest = mytext.get_rect(center=(my_state.screen.get_width() // 2, my_state.screen.get_height() // 2))
-    initial_widget_state = my_state.widgets_active
-    my_state.widgets_active = False
-
-    my_state.record_message(text)
-
-    pygame.event.clear([TIMEREVENT, pygame.KEYDOWN])
-    while True:
-        ev = wait_event()
-        if (ev.type == pygame.MOUSEBUTTONUP) or (ev.type == pygame.QUIT) or (ev.type == pygame.KEYDOWN):
-            my_state.widgets_active = initial_widget_state
-            return ev
-        elif ev.type == TIMEREVENT:
-            if my_state.view:
-                my_state.view()
-            default_border.render(mydest)
-            my_state.screen.blit(mytext, mydest)
-            my_state.do_flip()
-
-
-def alert_display(display_fun):
-    pygame.event.clear()
-    wid_state = my_state.widgets_active
-    my_state.widgets_active = False
-    while True:
-        ev = wait_event()
-        if (ev.type == pygame.MOUSEBUTTONUP) or (ev.type == pygame.QUIT):
-            break
-        elif ev.type == pygame.KEYDOWN and my_state.is_key_for_action(ev, "continue"):
-            break
-        elif ev.type == TIMEREVENT:
-            if my_state.view:
-                my_state.view()
-            display_fun()
-            my_state.do_flip()
-    my_state.widgets_active = wid_state
-
-
 def please_stand_by(caption=None):
     if not my_state.standing_by:
         img = pygame.image.load(random.choice(POSTERS)).convert()
@@ -873,6 +812,7 @@ from . import challenges
 from . import memos
 from . import internationalization
 from . import widgetmenu
+from . import alerts
 
 # PG2 Change
 # FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED

@@ -301,13 +301,13 @@ class BAM_TimedDefense(Plot):
         if self.combat_started:
             myteam = self.elements["_bunkerteam"]
             if len(myteam.get_members_in_play(camp)) < 1:
-                pbge.alert("Buildings Destroyed".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
+                pbge.alerts.TextAlert("Buildings Destroyed".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
                 self.obj.failed = True
                 camp.check_trigger("FORCE_EXIT")
 
             else:
                 self.round_counter += 1
-                pbge.alert("Survived Round {}".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
+                pbge.alerts.TextAlert("Survived Round {}".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
                 if self.round_counter >= self.round_target:
                     # Victory!
                     self.obj.win(camp, 100)
@@ -404,7 +404,7 @@ class BAM_EscortShip(Plot):
     def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
         myprop = self.elements["SHIP"]
         if not myprop.get_members_in_play(camp):
-            pbge.alert("Ship Destroyed", font=pbge.HUGEFONT, justify=0)
+            pbge.alerts.TextAlert("Ship Destroyed", font=pbge.HUGEFONT, justify=0)
             self.obj.failed = True
             camp.check_trigger("FORCE_EXIT")
         else:
@@ -412,7 +412,7 @@ class BAM_EscortShip(Plot):
             for t in range(5):
                 myprop.move(camp, *facing)
                 if self._ship_has_escaped(camp, myprop, facing):
-                    pbge.alert("Ship has escaped!")
+                    pbge.alerts.TextAlert("Ship has escaped!")
                     self.obj.win(camp)
                     self.obj2.win(camp, sum([p.current_health for p in myprop.get_members_in_play(camp)]) * 100 // self.initial_health)
                     camp.check_trigger("FORCE_EXIT")

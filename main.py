@@ -193,7 +193,7 @@ class TestStartGame:
 def prep_eggs_for_steam(tsrd):
     if not pickle.HIGHEST_PROTOCOL > 4:
         pbge.my_state.view = tsrd
-        _=pbge.alert("Can't prep eggs for Steam since the version of GearHead Caramel you're running appears to be the Steam version. You need to do this from a non-Steam build.")
+        _=pbge.alerts.TextAlert("Can't prep eggs for Steam since the version of GearHead Caramel you're running appears to be the Steam version. You need to do this from a non-Steam build.")
         return
 
     pbge.please_stand_by()
@@ -344,7 +344,7 @@ def import_arena_character(tsrd):
             egg = mygears.get_egg()
             _=mymenu.add_item(str(egg.pc), egg)
         except Exception as e:
-            _=pbge.alert("Warning: File {} can't be parsed. {}".format(f,e))
+            _=pbge.alerts.TextAlert("Warning: File {} can't be parsed. {}".format(f,e))
     mymenu.sort()
 
     if not mymenu.items:
@@ -457,7 +457,12 @@ class MainMenu(pbge.widgets.Widget):
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
             _=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)
+        _=self._menu.add_item("Test Alert", self._test_alert)
         _=self._menu.add_item("Quit", self.quit_game)
+
+    def _test_alert(self, _widget, _ev):
+        _=pbge.alerts.TextAlert("This is a test of the new alert system.")
+        _=pbge.alerts.TextAlert("Plus a test of the event queue.")
 
     def _render(self, delta):
         self.background()
@@ -549,7 +554,7 @@ def play_the_game():
 
     except Exception as e:
         print(traceback.format_exc())
-        _=pbge.alert("Python Exception ({}) occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.".format(e))
+        _=pbge.alerts.TextAlert("Python Exception ({}) occurred- please send the error.log in your ghcaramel user folder to pyrrho12@yahoo.ca.\nK THX gonna crash now.".format(e))
         logging.exception(e)
         logging.critical("Please email this file to pyrrho12@yahoo.ca")
 

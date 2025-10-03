@@ -424,13 +424,14 @@ class PlayerTurn(object):
         # Export the new config options.
         current_use = pbge.my_state.key_is_in_use(mykey)
         if current_use:
-            pbge.alert("Warning: Key {} is currently in use by \"{}\". It can't be used as a hotkey unless you change your key configuration.".format(mykey, current_use))
+            pbge.alerts.TextAlert("Warning: Key {} is currently in use by \"{}\". It can't be used as a hotkey unless you change your key configuration.".format(mykey, current_use))
 
         with open(pbge.util.user_dir("config.cfg"), "wt") as f:
             pbge.util.config.write(f)
 
     def gui_record_hotkey(self):
-        myevent = pbge.alert(
+        # TODO: replace this alert with a custom widget
+        myevent = pbge.alerts.TextAlert(
             "Press a letter or number key to record a new macro for {}. You could also do this by holding Alt + key.".format(
                 self.name_current_option()))
 
@@ -574,7 +575,7 @@ class PlayerTurn(object):
 
         # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
         if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
-            pbge.alert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
+            pbge.alerts.TextAlert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
 
         keep_going = True
         while self.camp.fight.still_fighting() and (self.pc in self.camp.scene.contents) and self.camp.fight.cstat[
@@ -617,7 +618,7 @@ class PlayerTurn(object):
                     myparty.remove(self.pc)
                     if myparty:
                         victim = random.choice(myparty)
-                        pbge.alert("{} is immobilized!".format(victim))
+                        pbge.alerts.TextAlert("{} is immobilized!".format(victim))
                         for part in victim.get_all_parts():
                             if isinstance(part, gears.base.MovementSystem):
                                 part.hp_damage += part.max_health
@@ -874,13 +875,13 @@ class Combat(object):
 
         mkpc.gear_up(self.scene)
         if mkpc.get_current_speed() > 0:
-            pbge.alert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
+            pbge.alerts.TextAlert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
         else:
-            pbge.alert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
+            pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
             self.scene.contents.remove(mkpc)
 
     def _abandon_mkill(self, party, mkpc: gears.base.Mecha):
-        pbge.alert("You leave {} behind.".format(mkpc.get_pilot()))
+        pbge.alerts.TextAlert("You leave {} behind.".format(mkpc.get_pilot()))
         self.scene.contents.remove(mkpc)
 
     def go(self, explo):
@@ -955,7 +956,7 @@ class Combat(object):
                             self._abandon_mkill(myparty, pc)
 
             if myparty and treasure:
-                pbge.alert("You acquired some valuables from the battle.")
+                pbge.alerts.TextAlert("You acquired some valuables from the battle.")
                 fieldhq.backpack.ItemExchangeWidget.create_and_invoke(self.camp, self.camp.first_active_pc(), treasure)
 
             PostCombatCleanup(self.camp)

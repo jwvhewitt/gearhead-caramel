@@ -95,7 +95,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
                 camp.assign_pilot_to_mecha(camp.pc,mek)
                 camp.party.append(mek)
 
-            pbge.alert("You have spent the past few weeks in the deadzone community {}, helping the sheriff {} defend the town against raiders. Things have not been going well.".format(self.elements["DZ_TOWN_NAME"], self.elements["SHERIFF"]))
+            pbge.alerts.TextAlert("You have spent the past few weeks in the deadzone community {}, helping the sheriff {} defend the town against raiders. Things have not been going well.".format(self.elements["DZ_TOWN_NAME"], self.elements["SHERIFF"]))
 
             npc = self.elements["SHERIFF"]
             npc.relationship = gears.relationships.Relationship(random.randint(1,20))
@@ -270,7 +270,7 @@ class DZDIntro_CousinIntro(DZDIntro_GetInTheMekShimli):
                 camp.assign_pilot_to_mecha(camp.pc,mek)
                 camp.party.append(mek)
 
-            pbge.alert("You have spent the past few weeks in {}, helping your cousin {} defend the town against raiders. Things have been going about as well as expected.".format(self.elements["DZ_TOWN_NAME"], self.elements["SHERIFF"]))
+            pbge.alerts.TextAlert("You have spent the past few weeks in {}, helping your cousin {} defend the town against raiders. Things have been going about as well as expected.".format(self.elements["DZ_TOWN_NAME"], self.elements["SHERIFF"]))
 
             npc = self.elements["SHERIFF"]
             npc.relationship = gears.relationships.Relationship(random.randint(1,20))
@@ -368,7 +368,7 @@ class DZDIntro_SoldierIntro(DZDIntro_GetInTheMekShimli):
                 camp.assign_pilot_to_mecha(camp.pc,mek)
                 camp.party.append(mek)
 
-            pbge.alert("These days you have been working in {DZ_TOWN_NAME}, helping the local militia to push back a Clan Ironwind invasion force. Just when it looked like the town was safe you got called in for one last mission.".format(**self.elements))
+            pbge.alerts.TextAlert("These days you have been working in {DZ_TOWN_NAME}, helping the local militia to push back a Clan Ironwind invasion force. Just when it looked like the town was safe you got called in for one last mission.".format(**self.elements))
 
             npc = self.elements["SHERIFF"]
             npc.relationship = gears.relationships.Relationship(random.randint(1,20))
@@ -474,10 +474,10 @@ class DZDIntro_PopStarIntro(DZDIntro_GetInTheMekShimli):
                 camp.party.append(mek)
 
             if camp.renown > 20:
-                pbge.alert("Your trans-Eurasian concert tour is cut short in the deadzone town of {DZ_TOWN_NAME}. Mere hours before your performance the town was attacked by a large force of raiders from the Bone Devil Gang.".format(**self.elements))
+                pbge.alerts.TextAlert("Your trans-Eurasian concert tour is cut short in the deadzone town of {DZ_TOWN_NAME}. Mere hours before your performance the town was attacked by a large force of raiders from the Bone Devil Gang.".format(**self.elements))
             else:
-                pbge.alert("With the benefit of hindsight, you realize that booking your comeback tour in the middle of the Trans-Eurasian Deadzone probably wasn't the best idea. The day of your concert in {DZ_TOWN_NAME}, the town is attacked by members of the Bone Devil Gang.".format(**self.elements))
-            pbge.alert("Sheriff {SHERIFF} calls you to the mecha hangar to request your assistance in defending the town.".format(**self.elements))
+                pbge.alerts.TextAlert("With the benefit of hindsight, you realize that booking your comeback tour in the middle of the Trans-Eurasian Deadzone probably wasn't the best idea. The day of your concert in {DZ_TOWN_NAME}, the town is attacked by members of the Bone Devil Gang.".format(**self.elements))
+            pbge.alerts.TextAlert("Sheriff {SHERIFF} calls you to the mecha hangar to request your assistance in defending the town.".format(**self.elements))
 
             npc = self.elements["SHERIFF"]
             npc.relationship = gears.relationships.Relationship(random.randint(1,10))
@@ -588,7 +588,7 @@ class DZDIntro_NotSoSmoothCriminal(DZDIntro_GetInTheMekShimli):
                 camp.assign_pilot_to_mecha(camp.pc,mek)
                 camp.party.append(mek)
 
-            pbge.alert("You have spent the past few weeks raiding corporate convoys near the deadzone community {DZ_TOWN_NAME}. The local sheriff, {SHERIFF}, doesn't seem too happy about your exploits but at least {SHERIFF.gender.subject_pronoun} has left you alone... until now.".format(**self.elements))
+            pbge.alerts.TextAlert("You have spent the past few weeks raiding corporate convoys near the deadzone community {DZ_TOWN_NAME}. The local sheriff, {SHERIFF}, doesn't seem too happy about your exploits but at least {SHERIFF.gender.subject_pronoun} has left you alone... until now.".format(**self.elements))
 
             npc = self.elements["SHERIFF"]
             npc.relationship = gears.relationships.Relationship(random.randint(1,20))
@@ -665,7 +665,7 @@ class DZDIntro_NotSoSmoothCriminal(DZDIntro_GetInTheMekShimli):
         return mylist
 
     def _ring_the_alarm(self, camp):
-        pbge.alert("Suddenly, the town defense siren goes off. The security monitor shows hostile mecha approaching the powerplant. They appear to belong to Kettel Industries, one of the corporations you robbed...")
+        pbge.alerts.TextAlert("Suddenly, the town defense siren goes off. The security monitor shows hostile mecha approaching the powerplant. They appear to belong to Kettel Industries, one of the corporations you robbed...")
 
     def _choose_robinhood_reply(self,camp):
         self._did_first_reply = True
@@ -858,9 +858,9 @@ class DZDKettelMission( DZDIntroMission ):
             # If the player team gets wiped out, end the mission.
             myteam = self.elements["_eteam"]
             if len(myteam.get_members_in_play(camp)) < 1:
-                pbge.alert("As combat ends, you receive a comm signal from an unknown transmitter.")
-                pbge.alert('"Kettel Industries reserves the right to defend itself from criminal activity. Those who harbor criminals will be considered accomplaices."', font=pbge.ALTTEXTFONT)
-                pbge.alert('"Thank you for listening, and please consider Kettel Industries for your upcoming reconstruction work."', font=pbge.ALTTEXTFONT)
+                pbge.alerts.TextAlert("As combat ends, you receive a comm signal from an unknown transmitter.")
+                pbge.alerts.TextAlert('"Kettel Industries reserves the right to defend itself from criminal activity. Those who harbor criminals will be considered accomplaices."', font=pbge.ALTTEXTFONT)
+                pbge.alerts.TextAlert('"Thank you for listening, and please consider Kettel Industries for your upcoming reconstruction work."', font=pbge.ALTTEXTFONT)
 
                 pbge.my_state.view.play_anims(gears.geffects.Missile3(start_pos=self.elements["ENTRANCE"].pos, end_pos=self.elements["FUEL_TANKS"].pos))
 

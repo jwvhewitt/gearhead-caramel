@@ -165,7 +165,7 @@ class QuestGiverController(plots.Plot):
         if not self.elements.get("NPC_CAN_DIE"):
             npc = self.elements["NPC"]
             npc.restore_all()
-            pbge.alert("{} is removed to a safe location.".format(npc))
+            pbge.alerts.TextAlert("{} is removed to a safe location.".format(npc))
             pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=npc.pos))
             npc.pos = None
 
@@ -538,7 +538,7 @@ class GatherDefendersForLocation(quests.QuestPlot):
 
 
     def _recruit_guard(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
-        pbge.alert("You have recruited {} to defend the {}.".format(npc, self.elements["_BASE_NAME"]))
+        pbge.alerts.TextAlert("You have recruited {} to defend the {}.".format(npc, self.elements["_BASE_NAME"]))
         self.elements["_CHALLENGE"].advance(camp, 1)
 
     def start_quest_task(self, camp):
@@ -557,7 +557,7 @@ class GatherDefendersForLocation(quests.QuestPlot):
 
     def _CHALLENGE_WIN(self, camp):
         my_lore = self.elements["_LORE"]
-        _=pbge.alert(
+        _=pbge.alerts.TextAlert(
             "{} should now be adequately defended. {}".format(
                 self.elements["_BASE_NAME"],
                 my_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]
@@ -812,8 +812,8 @@ class BaseKnownByCollaborator(quests.QuestPlot):
             my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
             base_name = "{}'s {}".format(self.elements["_ENEMY_FACTION"], self.elements["_BASE_NAME"])
             if self.vigilante_action or my_npc.is_destroyed():
-                pbge.alert("As you enter {CULPRIT_SCENE}, you notice the conspicuous absense of {CULPRIT}.".format(**self.elements))
-                pbge.alert("A dataslate has been left behind with a set of map coordinates. Could this be the location of {}?".format(base_name))
+                pbge.alerts.TextAlert("As you enter {CULPRIT_SCENE}, you notice the conspicuous absense of {CULPRIT}.".format(**self.elements))
+                pbge.alerts.TextAlert("A dataslate has been left behind with a set of map coordinates. Could this be the location of {}?".format(base_name))
                 self.win_da_task(camp)
 
     def _get_generic_offers(self, npc, camp: gears.GearHeadCampaign):
@@ -1009,7 +1009,7 @@ class CommanderKnowsMotive(quests.QuestPlot):
         self.elements["_CHALLENGE"].advance(camp, 100)
 
     def _CHALLENGE_WIN(self, camp):
-        pbge.alert("As you survey your victory, you get one final message from {}.".format(self.elements["_ENEMY_COMMANDER"]))
+        pbge.alerts.TextAlert("As you survey your victory, you get one final message from {}.".format(self.elements["_ENEMY_COMMANDER"]))
         ghcutscene.SimpleMonologueDisplay(
             "[YOU_WILL_NEVER_DEFEAT_US] {}!".format(self.locked_lore.texts[L_MOTIVE_CONFESSION]),
             self.elements["_ENEMY_COMMANDER"]
@@ -1152,7 +1152,7 @@ class DefendThePowerStation(quests.QuestPlot):
         self.elements["_CHALLENGE"].advance(camp, 100)
 
     def _CHALLENGE_WIN(self, camp):
-        pbge.alert("[DISCOVERY_AFTER_MECHA_COMBAT] {}".format(self.locked_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]))
+        pbge.alerts.TextAlert("[DISCOVERY_AFTER_MECHA_COMBAT] {}".format(self.locked_lore.texts[quests.TEXT_LORE_SELFDISCOVERY]))
         self.quest_record.win_task(self, camp)
 
 

@@ -2834,7 +2834,7 @@ class StartingPlot_ropp_4(Plot):
     def t_START(self, camp):
         if not self.did_cutscene:
 
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "The Solar Navy has declared that it is going to remove the Aegis Consulate from Pirate's Point. You arrive at the military camp they have set up just north of the city. There should be plenty of opportunities to find good work here."
             )
             self.did_cutscene = True
@@ -2864,10 +2864,10 @@ class StartingPlot_ropp_5(Plot):
     def t_START(self, camp):
         if not self.did_cutscene:
 
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "You are in Pirate's Point to do some shopping and visit some old friends when suddenly the air raid siren goes off. You quickly learn that the Solar Navy has attacked, intending to destroy the Aegis Consulate in the southern part of town."
             )
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 "As a freelance mecha pilot, you're not sure whether to be glad about all the missions that are likely to be available or terrified because you are standing in the middle of a bona fide war zone."
             )
             self.did_cutscene = True
@@ -3367,7 +3367,7 @@ class MajorNonPlayerCharacter_ropp_41(Plot):
             gears.meritbadges.TagReactionBadge(
                 'Inked', 'You received a basic tattoo from Kira.',
                 dict([(personality.Passionate, 5)]), []))
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "You lie on the tattoo bench and the process begins. It is a little uncomfortable, but nothing you can't handle."
         )
 
@@ -3381,7 +3381,7 @@ class MajorNonPlayerCharacter_ropp_41(Plot):
                 'Inked',
                 'You received a deluxe tattoo from Kira. Now everyone can see your adventurous spirit.',
                 dict([(personality.Passionate, 10)]), []))
-        pbge.alert(
+        pbge.alerts.TextAlert(
             "You lie on the tattoo bench and the process begins. Kira was wrong; you don't feel a bit of discomfort. You feel a great deal of discomfort, as though you were being attacked by a swarm of artistic hornets."
         )
 
@@ -3395,7 +3395,7 @@ class MajorNonPlayerCharacter_ropp_41(Plot):
                 'Inked',
                 'You received a masterpiece tattoo from Kira. Annyone who knows the value of such things will now recognize both your adventurous spirit and your good taste.',
                 dict([(personality.Passionate, 15)]), []))
-        pbge.alert(
+        pbge.alerts.TextAlert(
             'You lie on the tattoo bench and the process begins. Kira brings you to the edge of hell. Just when you think you cannot stand any more, the tattoo is finished and you have become a living work of art.'
         )
 
@@ -4139,7 +4139,7 @@ class DungeonEntry_ropp_125(Plot):
 
         if self.one_time_effect_127_ready:
 
-            pbge.alert(
+            pbge.alerts.TextAlert(
                 'This appears to be the wreckage of the spaceship which crashed, creating the scrapyard in the first place.'
             )
             self.one_time_effect_127_ready = False

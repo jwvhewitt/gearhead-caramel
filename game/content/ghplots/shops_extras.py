@@ -128,10 +128,10 @@ class HospitalHopelessCase(Plot):
         if nurse in camp.scene.contents:
             ghcutscene.SimpleMonologueDisplay("We have tried all we can here. If you know of another treatment, then please do what you can.", nurse)(camp)
         if self.party_doctor is camp.pc:
-            pbge.alert("You attempt emergency treatment for {PATIENT}'s {DISEASE}.".format(**self.elements))
+            pbge.alerts.TextAlert("You attempt emergency treatment for {PATIENT}'s {DISEASE}.".format(**self.elements))
         else:
-            pbge.alert("{LM} attempts emergency treatment for {PATIENT}'s {DISEASE}.".format(LM=self.party_doctor, **self.elements))
-        pbge.alert("The treatment is successful!")
+            pbge.alerts.TextAlert("{LM} attempts emergency treatment for {PATIENT}'s {DISEASE}.".format(LM=self.party_doctor, **self.elements))
+        pbge.alerts.TextAlert("The treatment is successful!")
         self.cured_patient = True
         mybed = self.elements["PATIENT_BED"]
         mybed.get_out_of_bed()

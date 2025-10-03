@@ -134,7 +134,7 @@ class DaBouncer(Plot):
         npc: gears.base.Character = self.elements["BOUNCER"]
         if not npc.is_operational():
             if camp.get_active_party():
-                pbge.alert("You find an passcard for the elevator on {}'s belt.".format(npc))
+                pbge.alerts.TextAlert("You find an passcard for the elevator on {}'s belt.".format(npc))
                 self.win_missiom(camp)
             else:
                 npc.wipe_damage()
