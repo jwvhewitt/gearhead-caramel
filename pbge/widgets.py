@@ -105,6 +105,7 @@ type On_Click = Callable[[Widget, pygame.event.Event], None]|None
 
 
 class Widget(frects.Frect):
+    SORT_LAYER = 0 # If widgets are to be sorted, they will be sorted by (sort layer, str(w)) by default
     def __init__(self, dx, dy, w, h, data=None, on_click: On_Click=None, tooltip=None, children=(), active=True,
                  on_right_click=None, anchor=frects.ANCHOR_CENTER, parent=None, can_take_focus=False,
                  on_enter=None, on_leave=None, visible=True, tags=(), should_hilight=None, desc=None,
@@ -669,9 +670,13 @@ class ScrollColumnWidget(Widget):
             self._position_contents()
             self.selected_widget_id = index
 
+    @staticmethod
+    def widget_sort_key(w: Widget):
+        return (w.SORT_LAYER, str(w))
+
     def sort(self, key=None):
         if not key:
-            key = str
+            key = self.widget_sort_key
         self._interior_widgets.sort(key=key)
         self._position_contents()
 

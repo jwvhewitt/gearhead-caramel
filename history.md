@@ -1,3 +1,4 @@
+* Widgets now have a sort layer
 * Animations run automatically
 * Merit badges now added to singleton list
 * Changed from multiple blocking game loops to a central game loop with stack based UI

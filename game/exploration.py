@@ -10,8 +10,6 @@ from . import invoker
 from pbge import memos
 from . import fieldhq
 import random
-import gc
-
 
 
 # Commands should be callable objects which take the explorer and return a value.
@@ -243,7 +241,7 @@ class DoInvocation(MoveTo):
                         f_pos = pc.pos
                         first = False
                     else:
-                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp), blocked_tiles=exp.scene.get_immovable_positions())
+                        path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp), blocked_tiles=exp.scene.get_immovable_positions())  # pyright: ignore[reportPossiblyUnboundVariable]
                         for t in range(min(3, len(path.results) - 1)):
                             self.move_pc(exp, pc, path.results[t + 1])
 
@@ -358,16 +356,52 @@ class ExploCommandWidget(pbge.widgets.Widget):
         self.camp = camp
         self.scene = camp.scene
         self.view = view
+        self.order = None
+
+    def pick_up_item(self):
+        pc = self.camp.pc.get_root()
+        candidates = [i for i in self.scene.contents if
+                      isinstance(i, gears.base.BaseGear) and i.pos == pc.pos and pc.can_equip(i)]
+        if candidates:
+            i = candidates.pop()
+            pc.inv_com.append(i)
+            pbge.alerts.TextAlert("{} picks up {}.".format(pc, i))
+            self.camp.check_trigger("GET", i)
+
+    def click_left(self):
+        # Left mouse button.
+        if (self.view.mouse_tile != self.camp.pc.get_root().pos) and self.scene.on_the_map(*self.view.mouse_tile):
+            npc = self.view.modelmap.get(self.view.mouse_tile)
+            if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
+                npteam = self.scene.local_teams.get(npc[0])
+                if npteam and self.scene.player_team.is_enemy(npteam):
+                    combat.enter_combat(self.camp, npc[0])
+                elif not isinstance(npc[0], (gears.base.Prop, gears.base.Monster)):
+                    self.order = TalkTo(self, npc[0])
+                    self.view.overlays.clear()
+            else:
+                self.order = MoveTo(self, self.view.mouse_tile)
+                self.view.overlays.clear()
+        elif self.scene.on_the_map(*self.view.mouse_tile):
+            # Clicking the same tile where the PC is standing; get an item.
+            self.pick_up_item()
+
+    def update(self, delta):
+        super().update(delta)
+        if self.order:
+            if not self.order(self):
+                self.order = None
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.MOUSEBUTTONUP:
-            if ev.button == 1:
-                self.view.play_anims(gears.geffects.BigBoom(pos=self.view.mouse_tile))
-        elif ev.type == pygame.KEYDOWN:
-            if pbge.my_state.is_key_for_action(ev, "quit_game"):
-                # self.camp.save(self.screen)
-                pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
-                self.register_response()
+        if not self.order:
+            if ev.type == pygame.MOUSEBUTTONUP:
+                if ev.button == 1:
+                    self.click_left()
+            elif ev.type == pygame.KEYDOWN:
+                if pbge.my_state.is_key_for_action(ev, "quit_game"):
+                    # self.camp.save(self.screen)
+                    pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
+                    self.register_response()
 
     def on_activate(self):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
@@ -397,6 +431,7 @@ class Explorer(pbge.campaign.ExploPrototype):
         self.view = scenes.viewer.SceneView(camp.scene, cursor=mycursor)
         self.children.append(pbge.scenes.viewer.SceneViewWidget(self.view))
         self.time = 0
+        self.thirty_second_timer = 0
 
         self.threat_tiles = set()
         self.threat_viewer = pbge.scenes.areaindicator.AreaIndicator("sys_threatarea.png")
@@ -453,6 +488,10 @@ class Explorer(pbge.campaign.ExploPrototype):
 
         del pbge.my_state.notifications[:]
         _=pbge.BasicNotification(str(self.scene))
+
+        if not self.camp.fight:
+            self.camp.check_trigger("START")
+            self.camp.check_trigger("ENTER", self.scene)
 
     def keep_exploring(self):
         # TODO: Delete this bit.
@@ -513,16 +552,6 @@ class Explorer(pbge.campaign.ExploPrototype):
                 thing.ench_list.update(self.camp, thing)
         self.camp.update_area_enchantments()
 
-    def get_item(self):
-        pc = self.camp.pc.get_root()
-        candidates = [i for i in self.scene.contents if
-                      isinstance(i, gears.base.BaseGear) and i.pos == pc.pos and pc.can_equip(i)]
-        if candidates:
-            i = candidates.pop()
-            pc.inv_com.append(i)
-            pbge.alerts.TextAlert("{} picks up {}.".format(pc, i))
-            self.camp.check_trigger("GET", i)
-
     def click_left(self):
         # Left mouse button.
         if (self.view.mouse_tile != self.camp.pc.get_root().pos) and self.scene.on_the_map(*self.view.mouse_tile):
@@ -564,13 +593,13 @@ class Explorer(pbge.campaign.ExploPrototype):
         pbge.BasicNotification(str(self.scene))
 
         # Do a start trigger, unless we're in combat.
-        if not self.camp.fight:
-            if hasattr(self.scene, "exploration_music"):
-                pbge.my_state.start_music(self.scene.exploration_music)
-            self.camp.check_trigger("START")
-            self.camp.check_trigger("ENTER", self.scene)
-        self.camp.check_trigger("UPDATE")
-        self.update_npcs()
+        # if not self.camp.fight:
+        #     if hasattr(self.scene, "exploration_music"):
+        #         pbge.my_state.start_music(self.scene.exploration_music)
+        #     self.camp.check_trigger("START")
+        #     self.camp.check_trigger("ENTER", self.scene)
+        # self.camp.check_trigger("UPDATE")
+        # self.update_npcs()
 
         while self.keep_exploring():
             first_pc_pos = self.camp.first_active_pc().pos
@@ -813,6 +842,12 @@ class Explorer(pbge.campaign.ExploPrototype):
 
     def update(self, delta):
         super().update(delta)
+
+        self.thirty_second_timer += delta
+        if self.thirty_second_timer > 30000:
+            self.camp.check_trigger("HALFMINUTE")
+            self.thirty_second_timer = 0
+
         if pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT):
             self.pop()
         elif self.should_stop_exploring():

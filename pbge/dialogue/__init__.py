@@ -1,6 +1,6 @@
 import copy
 from . import grammar
-from .. import my_state, default_border, frects, draw_text, rpgmenu, util
+from .. import my_state, default_border, frects, draw_text, widgets, widgetmenu, util
 import random
 
 # Basic context tags.
@@ -150,28 +150,28 @@ class Reply(object):
             text = text.format(**self.destination.data)
         return text
 
-    def apply_to_menu(self, mymenu, pcgrammar, pc):
+    def apply_to_menu(self, mymenu: widgetmenu.MenuWidget, pcgrammar, pc):
         if self.destination and self.destination.custom_menu_fun:
             myitem = self.destination.custom_menu_fun(self, mymenu, pcgrammar)
         else:
             text = self.format_text(pcgrammar)
-            myitem = mymenu.add_item(text, self.destination, "{}: {}".format(pc, text))
+            myitem = mymenu.add_item(text, data=self.destination, desc="{}: {}".format(pc, text))
         if myitem and self.destination.skill_info and util.config.getboolean("GENERAL",
                                                                              "show_convo_skills") and hasattr(myitem,
                                                                                                               "msg"):
-            myitem.msg = myitem.msg + self.destination.skill_info
+            myitem.text = myitem.text + self.destination.skill_info
 
 
 class SimpleVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
-    # It has a "text" property and "render", "get_menu" methods.
+    # It has a "text" property and "render", "get_menu_frect" methods.
     TEXT_AREA = frects.Frect(-150, -100, 300, 100)
     MENU_AREA = frects.Frect(-150, 20, 300, 80)
 
     def __init__(self):
         self.text = ''
 
-    def render(self):
+    def render(self, _delta):
         if my_state.view:
             my_state.view()
         text_rect = self.TEXT_AREA.get_rect()
@@ -179,9 +179,8 @@ class SimpleVisualizer(object):
         draw_text(my_state.small_font, self.text, text_rect)
         default_border.render(self.MENU_AREA.get_rect())
 
-    def get_menu(self):
-        return rpgmenu.Menu(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h, border=None,
-                            predraw=self.render)
+    def get_menu_frect(self):
+        return self.MENU_AREA
 
 
 class DynaConversation(object):
@@ -338,6 +337,58 @@ class DynaConversation(object):
 
             if nextfx:
                 nextfx(self.camp)
+
+
+class ConversationWidget(widgets.Widget):
+    def __init__(self, conversation: DynaConversation, visualizer, **kwargs):
+        super().__init__(0,0,0,0)
+        self.conversation = conversation
+        self.visualizer = visualizer
+
+        self.menu = widgetmenu.MenuWidget(
+            **self.visualizer.get_menu_frect().get_dict(), on_escape=self.pop,
+            on_click_child=self.on_reply, activate_child_on_enter=True,
+            **kwargs
+        )
+        self.children.append(self.menu)
+        self.update_menu()
+
+    def end_the_converation(self, _wid, _ev):
+        self.pop()
+
+    def on_reply(self, item, ev):
+        if item and item.data:
+            if self.conversation.root.effect:
+                self.conversation.root.effect(self.conversation.camp)
+            my_state.record_message(self.menu.current_desc)
+            self.conversation.root = item.data
+            self.update_menu()
+        else:
+            self.pop()
+
+    def update_menu(self):
+        self.menu.clear()
+        coff = self.conversation.root
+        if not coff:
+            self.pop()
+            return
+        if coff.prefx:
+            coff.prefx(self.conversation.camp)
+        self.conversation.build(coff)
+        self.visualizer.text = coff.msg
+        my_state.record_message("{}: {}".format(self.conversation.npc, coff.msg))
+
+        for i in coff.replies:
+            i.apply_to_menu(self.menu, self.conversation.pc_grammar, self.conversation.pc)
+        if self.visualizer.text and self.menu.is_empty():
+            _=self.menu.add_item("[Continue]", None)
+        else:
+            self.menu.sort()
+        self.activate()
+
+    def _render(self, delta):
+        super()._render(delta)
+        self.visualizer.render(delta)
 
 
 def list_nouns(mylist, conjunction="and"):

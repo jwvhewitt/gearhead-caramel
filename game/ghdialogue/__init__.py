@@ -1,6 +1,7 @@
 import pbge
+from pbge import dialogue
 from pbge.dialogue import Offer, ContextTag
-from . import ghgrammar, context
+from . import ghgrammar
 from . import context
 from . import ghdview
 from . import ghreplies
@@ -127,12 +128,13 @@ class SkillBasedPartyReply(object):
             text = text.format(**self.offer.data)
         return text
 
-    def custom_menu_fun(self, reply, mymenu: pbge.rpgmenu.Menu, pcgrammar):
+    def custom_menu_fun(self, reply, mymenu: pbge.widgetmenu.MenuWidget, _pcgrammar):
         text = self.format_text(reply.msg)
         myitem = ghdview.LancemateConvoItem(
-            text, self.offer, "{}: {}".format(self.pc, text), mymenu, self.pc, msg_form=self.message_format
+            text, data=self.offer, desc="{}: {}".format(self.pc, text), npc=self.pc, msg_form=self.message_format,
+            **mymenu.item_data
         )
-        mymenu.items.append(myitem)
+        _=mymenu.add_custom(myitem)
         return myitem
 
 
@@ -233,13 +235,13 @@ class GearHeadConversation(pbge.dialogue.DynaConversation):
             self._gathered_rumors = True
 
         if self.rumors:
-            self.npc_offers.append(Offer(
+            _=self.npc_offers.append(Offer(
                 '[chat_lead_in] {}'.format(self.rumors[0]),
                 context=ContextTag([context.CHAT,]), is_generic=True,
                 prefx=self._display_first_rumor
             ))
         elif self.chat_limit > 0:
-            self.npc_offers.append(Offer(
+            _=self.npc_offers.append(Offer(
                 '[CHAT]',
                 context=ContextTag([context.CHAT,]), is_generic=True,
                 prefx=self._random_chat
@@ -268,9 +270,13 @@ def start_conversation(camp: gears.GearHeadCampaign, pc, npc, cue=None):
         else:
             cue = HELLO_STARTER
     cviz = ghdview.ConvoVisualizer(npc, camp, pc=pc)
-    cviz.rollout()
+    #cviz.rollout()
     convo = GearHeadConversation(camp, realnpc, pc, cue, visualizer=cviz)
-    convo.converse()
+
+    dialogue.ConversationWidget.push_state_and_instantiate(
+        conversation=convo, visualizer=cviz, font=pbge.my_state.medium_font, draw_border=False,
+    )
+
     if realnpc:
         realnpc.relationship.met_before = True
 

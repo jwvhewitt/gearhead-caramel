@@ -252,7 +252,7 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
         check_rpg_saves()
         super().__init__(
             self.MENU_COLUMN.dx, self.MENU_COLUMN.dy, self.MENU_COLUMN.w, self.MENU_COLUMN.h,
-            on_escape=self.cancel_load, font=pbge.HUGEFONT
+            on_escape=self.cancel_load, font=pbge.HUGEFONT, activate_child_on_enter=True
         )
         self.myportraits = dict()
         self.current_version = self._string_to_major_version(VERSION)

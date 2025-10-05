@@ -1,22 +1,22 @@
 import pbge
 import pygame
-from pbge import StretchyLayer, my_state,draw_text,default_border,anim_delay
+from pbge import my_state,draw_text,default_border,anim_delay
 
 import gears
 
-class LancemateConvoItem(pbge.rpgmenu.MenuItem):
+class LancemateConvoItem(pbge.widgets.LabelWidget):
     PORTRAIT_AREA = (-120,50,100,100)
     SORT_LAYER = -1
-    def __init__(self,msg,value,desc,menu,npc,msg_form = '{} says "{}"'):
+    def __init__(self,msg,data,npc,msg_form = '{} says "{}"', **kwargs):
         msg = msg_form.format(npc,msg)
-        super().__init__(msg,value,desc,menu)
+        super().__init__(0,0,0,0,msg,data=data,**kwargs)
         self.npc = npc
-        self.prect = pbge.frects.Frect(*self.PORTRAIT_AREA, anchor=pbge.frects.ANCHOR_UPPERLEFT)
         self.portrait = npc.get_portrait()
-    def render(self,dest,selected=False):
-        super().render(dest,selected)
-        if selected:
-            mydest = dest.copy()
+        
+    def _render(self,delta):
+        super().render(delta)
+        if self.should_hilight(self):
+            mydest = self.get_rect()
             mydest.x -= 125
             mydest.w = 100
             mydest.h = 100
@@ -26,7 +26,7 @@ class LancemateConvoItem(pbge.rpgmenu.MenuItem):
 
 class ConvoVisualizer(object):
     # The visualizer is a class used by the conversation when conversing.
-    # It has a "text" property and "render", "get_menu" methods.
+    # It has a "text" property and "render", "get_menu_frect" methods.
     TEXT_AREA = pbge.frects.Frect(0,-125,350,180)
     MENU_AREA = pbge.frects.Frect(0,80,350,174)
     NAME_AREA = pbge.frects.Frect(25,-185,300,35)
@@ -34,16 +34,16 @@ class ConvoVisualizer(object):
     PORTRAIT_AREA = pbge.frects.Frect(-370,-300,400,600)
     PILOT_AREA = pbge.frects.Frect(-350,-250,100,100)
     
-    def __init__(self,npc,camp,pc=None):
+    def __init__(self,npc,camp,pc=None, do_rollout=True):
         pilot = npc.get_pilot()
         npc = npc.get_root()
         self.npc = pilot
         if hasattr(npc, "get_portrait"):
-            self.npc_sprite: gears.image.Image = npc.get_portrait()
+            self.npc_sprite: gears.image.Image = npc.get_portrait()  # pyright: ignore[reportRedeclaration]
         else:
             self.npc_sprite: gears.image.Image = None
         if pilot is not npc and hasattr(pilot, "get_portrait"):
-            self.pilot_sprite: gears.image.Image = pilot.get_portrait()
+            self.pilot_sprite: gears.image.Image = pilot.get_portrait()  # pyright: ignore[reportRedeclaration]
         else:
             self.pilot_sprite: gears.image.Image = None
         self.npc_desc = self.npc.get_text_desc(camp)
@@ -56,6 +56,9 @@ class ConvoVisualizer(object):
         else:
             self.pc = None
         self.sl = pbge.StretchyLayer()
+
+        self.is_rolling_out = do_rollout
+        self.rollout_timer = 0
     
     def get_portrait_area(self):
         if self.npc_sprite:
@@ -68,9 +71,7 @@ class ConvoVisualizer(object):
     def get_pilot_area(self):
         return pygame.Rect(self.sl.surf.get_width()//2-350,50,100,100)
 
-    def render(self,draw_menu_rect=True):
-        if my_state.view:
-            my_state.view()
+    def render(self, delta):
         self.sl.clear()
 
         self.bottom_sprite.tile(pygame.Rect(0,self.sl.surf.get_height()-200,self.sl.surf.get_width(),200), dest_surface=self.sl.surf)
@@ -85,8 +86,8 @@ class ConvoVisualizer(object):
         text_rect = self.TEXT_AREA.get_rect()
         default_border.render(text_rect)
         draw_text(my_state.medium_font,self.text,text_rect)
-        if draw_menu_rect:
-            default_border.render(self.MENU_AREA.get_rect())
+
+        default_border.render(self.MENU_AREA.get_rect())
 
         name_rect = self.NAME_AREA.get_rect()
         default_border.render(name_rect)
@@ -118,6 +119,6 @@ class ConvoVisualizer(object):
             anim_delay()
             t += 1
 
-    def get_menu(self):
-        return pbge.rpgmenu.Menu(self.MENU_AREA.dx,self.MENU_AREA.dy,self.MENU_AREA.w,self.MENU_AREA.h,border=None,predraw=self.render,font=my_state.medium_font,padding=5)
+    def get_menu_frect(self):
+        return self.MENU_AREA
 

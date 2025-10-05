@@ -110,6 +110,10 @@ class MenuWidget(widgets.ColumnWidget):
         if my_item:
             return my_item.data
 
+    @property
+    def current_desc(self):
+        return self.active_item.desc
+
     @active_index.setter
     def active_index(self, nuval):
         self.scroll_column.scroll_to_index(nuval)
@@ -129,6 +133,10 @@ class MenuWidget(widgets.ColumnWidget):
         item = self.item_class( 0, 0, self.scroll_column.w, 0, text=str(msg), data=data, on_click=on_click, desc=desc, **self.item_data)
         self.add_interior( item )
         return item
+
+    def add_custom(self, new_item: widgets.Widget):
+        self.add_interior(new_item)
+        return new_item
 
     def set_item_by_position( self , n ):
         self.scroll_column.selected_widget_id = n
