@@ -187,13 +187,10 @@ class DynaConversation(object):
     # As above, but instead of building the whole conversation at
     # the start we're gonna build the set of replies when a node
     # is entered.
-    def __init__(self, camp, npc, pc, start, visualizer=None):
+    def __init__(self, camp, npc, pc, start):
         self.camp = camp
         self.npc = npc
         self.pc = pc
-        if not visualizer:
-            visualizer = SimpleVisualizer()
-        self.visualizer = visualizer
         self.root = None
         self.npc_offers = list()
         self.npc_grammar = grammar.Grammar()
@@ -313,31 +310,6 @@ class DynaConversation(object):
         # Add any needed standards: Goodbye, Can I ask something else
         # That's it.
 
-    def converse(self):
-        # coff is the "current offer"
-        coff = self.root
-        while coff:
-            if coff.prefx:
-                coff.prefx(self.camp)
-            self.build(coff)
-            self.visualizer.text = coff.msg
-            my_state.record_message("{}: {}".format(self.npc, coff.msg))
-            mymenu = self.visualizer.get_menu()
-            for i in coff.replies:
-                i.apply_to_menu(mymenu, self.pc_grammar, self.pc)
-            if self.visualizer.text and not mymenu.items:
-                mymenu.add_item("[Continue]", None)
-            else:
-                mymenu.sort()
-            nextfx = coff.effect
-
-            coff = mymenu.query()
-            if coff:
-                my_state.record_message(mymenu.get_current_desc())
-
-            if nextfx:
-                nextfx(self.camp)
-
 
 class ConversationWidget(widgets.Widget):
     def __init__(self, conversation: DynaConversation, visualizer, **kwargs):
@@ -346,7 +318,7 @@ class ConversationWidget(widgets.Widget):
         self.visualizer = visualizer
 
         self.menu = widgetmenu.MenuWidget(
-            **self.visualizer.get_menu_frect().get_dict(), on_escape=self.pop,
+            **self.visualizer.get_menu_frect().get_dict(), on_escape=self.end_the_converation,
             on_click_child=self.on_reply, activate_child_on_enter=True,
             **kwargs
         )
@@ -384,7 +356,7 @@ class ConversationWidget(widgets.Widget):
             _=self.menu.add_item("[Continue]", None)
         else:
             self.menu.sort()
-        self.activate()
+        self.menu.activate()
 
     def _render(self, delta):
         super()._render(delta)

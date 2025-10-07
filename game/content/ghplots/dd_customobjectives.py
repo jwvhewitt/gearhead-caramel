@@ -659,18 +659,19 @@ class DDBAM_FightCetusNextTime(Plot):
                 camp.scene.contents.remove(self.cetus)
             elif self.regen_count > 2:
                 if camp.campdata["DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED:
-                    pbge.alerts.TextAlert(
+                    _=pbge.alerts.TextAlert(
                         "As Cetus regenerates again, your allies from across the dead zone arrive at the battlefield.")
                     pc = camp.pc.get_root()
                     camp.scene.deploy_team(self.allied_mecha, self.elements["_ateam"])
                     pbge.my_state.view.play_anims(*[gears.geffects.SmokePoof(pos=h.pos) for h in self.allied_mecha])
-                    SimpleMonologueDisplay(
+                    _=SimpleMonologueDisplay(
                         "You can't win, Cetus. There are many of us, and only one of you. This is our home. Go back to the deep wasteland and find your own home.",
-                        pc)(camp)
-                    pbge.alerts.TextAlert(
+                        pc, camp)
+                    _=pbge.alerts.TextAlert(
                         "The biomonster appears to consider your words. Its titanic eye scans all of the mecha in attendance.")
-                    pbge.alerts.TextAlert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(
+                    _=pbge.alerts.TextAlert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(
                         **self.elements))
+                    # TODO: AnimAlert here
                     pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
                                                   pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
                     camp.scene.contents.remove(self.cetus)

@@ -66,7 +66,7 @@ class SelectGearDataGatherer:
 
 class TextDisplayWidget(pbge.widgetmenu.MenuWidget):
     def __init__(self, text_list):
-        super().__init__(-300,-250,600,500)
+        super().__init__(-300,-250,600,500, activate_child_on_enter=False)
         self.text_list = text_list
 
         for text in self.text_list:

@@ -735,12 +735,15 @@ class BAM_DefeatArmy(Plot):
     def _commander_offers(self, camp):
         mylist = list()
         mylist.append(Offer("Hey {_assistant}, why don't we [defeat_them]?".format(**self.elements),
-                            effect=self._assistant_monologue,
+                            effect=self._assistant_monologue, dead_end=True,
                             context=ContextTag([context.CHALLENGE, ])))
         return mylist
 
     def _assistant_monologue(self, camp):
-        SimpleMonologueDisplay("[NO_PROBLEM_FOR_TWO_OF_US]", self.elements["_assistant"])(camp)
+        _=SimpleMonologueDisplay(
+            "[NO_PROBLEM_FOR_TWO_OF_US]", 
+            self.elements["_assistant"], camp
+        )
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]

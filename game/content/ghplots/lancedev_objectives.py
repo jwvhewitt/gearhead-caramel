@@ -1,19 +1,13 @@
 from gears import relationships
 from pbge.plots import Plot
-import game
 import gears
 import pbge
-import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility
-from pbge.dialogue import Offer, ContextTag, Reply
+from game.content import ghwaypoints, plotutility
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed, ghcutscene
-from gears import champions
-from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
-    DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 from . import missionbuilder
 
 # Use this custom element to set the lancemate whose mission this is.
@@ -185,10 +179,10 @@ class LMBAM_DiscoverBiotechnology(Plot):
 
     def _get_skill(self, camp: gears.GearHeadCampaign):
         npc: gears.base.Character = self.elements[BAME_LANCEMATE]
-        ghcutscene.SimpleMonologueDisplay(
+        _=ghcutscene.SimpleMonologueDisplay(
             "This is a biotechnological {} {}; give me some time to examine it.".format(random.choice(self.WORD_A),random.choice(self.WORD_B)),
-            npc
-        )(camp)
+            npc, camp
+        )
         pbge.BasicNotification("{} gains biotechnology skill.".format(npc))
         npc.statline[gears.stats.Biotechnology] += 1
         self.obj.win(camp, 100)

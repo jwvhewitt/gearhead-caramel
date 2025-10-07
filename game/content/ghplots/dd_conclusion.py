@@ -153,6 +153,7 @@ class VictoryParty(Plot):
         self.countdown -= 1
 
     def _give_speech(self, camp):
+        #TODO: This needs to be split at the menu.
         pbge.alerts.TextAlert("At this suggestion, everyone in the bar turns to you and applauds. It seems you won't be getting out of here tonight without saying a few words.")
 
         mymenu= pbge.rpgmenu.AlertMenu("How do you want to begin your speech?")
@@ -161,9 +162,9 @@ class VictoryParty(Plot):
 
         answer = mymenu.query()
         if answer:
-            ghcutscene.SimpleMonologueDisplay(answer, camp.pc)(camp,False)
+            _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False)
         else:
-            ghcutscene.SimpleMonologueDisplay("...", camp.pc)(camp,False)
+            _=ghcutscene.SimpleMonologueDisplay("...", camp.pc,camp,False)
             pbge.alerts.TextAlert("The rest of the party watches you with anticipation.")
 
         mymenu= pbge.rpgmenu.AlertMenu("What will you say next?")
@@ -172,10 +173,10 @@ class VictoryParty(Plot):
 
         answer = mymenu.query()
         if answer:
-            ghcutscene.SimpleMonologueDisplay(answer, camp.pc)(camp,False)
+            _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False)
         else:
-            ghcutscene.SimpleMonologueDisplay("um...", camp.pc)(camp,False)
-            pbge.alerts.TextAlert("Everybody stares at you expectantly.")
+            _=ghcutscene.SimpleMonologueDisplay("um...", camp.pc,camp,False)
+            _=pbge.alerts.TextAlert("Everybody stares at you expectantly.")
 
         mymenu= pbge.rpgmenu.AlertMenu("How will you conclude?")
         mymenu.add_item("Make a toast to {}.".format(self.elements["METROSCENE"]), "[DZDC_VICTORY_PARTY:TOAST_TOWN]")
@@ -183,13 +184,13 @@ class VictoryParty(Plot):
 
         answer = mymenu.query()
         if answer:
-            ghcutscene.SimpleMonologueDisplay(answer, camp.pc)(camp,False)
-            pbge.alerts.TextAlert("The people in the bar give you a round of thunderous applause.")
+            _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False)
+            _=pbge.alerts.TextAlert("The people in the bar give you a round of thunderous applause.")
         else:
-            ghcutscene.SimpleMonologueDisplay("...and that's all I have to say about that.", camp.pc)(camp,False)
-            pbge.alerts.TextAlert("The people in the bar nod in polite silence and then get back to whatever they were doing before.")
+            _=ghcutscene.SimpleMonologueDisplay("...and that's all I have to say about that.", camp.pc,camp,False)
+            _=pbge.alerts.TextAlert("The people in the bar nod in polite silence and then get back to whatever they were doing before.")
 
-        pbge.alerts.TextAlert("As you finish your speech, {} rushes over and pulls you aside.".format(self.elements["DZ_CONTACT"]))
+        _=pbge.alerts.TextAlert("As you finish your speech, {} rushes over and pulls you aside.".format(self.elements["DZ_CONTACT"]))
         self._end_the_party(camp)
 
     def _get_dialogue_grammar(self, npc, camp):
@@ -246,10 +247,10 @@ class VictoryParty(Plot):
             self._end_the_party(camp)
 
     def _end_the_party(self, camp):
-        ghcutscene.SimpleMonologueDisplay(
+        _=ghcutscene.SimpleMonologueDisplay(
             "[THIS_IS_AN_EMERGENCY] I just got a distress call from {DOOMED_VILLAGE}- right before the comm signal cut out entirely. Could you go there and make sure everything is alright?".format(**self.elements),
-            self.elements["DZ_CONTACT"]
-        )(camp, True)
+            self.elements["DZ_CONTACT"], camp, False
+        )
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
 
@@ -353,17 +354,17 @@ class DoomedTown(Plot):
             pbge.alerts.TextAlert("You find a large crystal dome that seems to have been uncovered by a construction project. Movement is visible on the inside. A thick violet fluid leaks from a crack near the bottom.")
             if len(camp.get_active_lancemates()) >= 2:
                 mypcs = random.sample(camp.get_active_lancemates(), 2)
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "[WE_ARE_IN_DANGER] Do any of you know what this thing is? It looks like an egg... a giant one.".format(
                         **self.elements),
-                    mypcs[0]
-                )(camp, False)
-                ghcutscene.SimpleMonologueDisplay(
+                    mypcs[0], camp, False
+                )
+                _=ghcutscene.SimpleMonologueDisplay(
                     "[I_DONT_KNOW] Whatever it is, I'm guessing it's not a coincidence that the entire town just got destroyed.".format(
                         **self.elements),
-                    mypcs[1]
-                )(camp, False)
-            BiotechDiscovery(
+                    mypcs[1], camp, False
+                )
+            _=BiotechDiscovery(
                 camp, "We discovered a mecha-sized egg in {}; it may be connected to Cetus.".format(self.elements["LOCALE"]),
                 "Cetus, you say? Oh, this is bad... this is really really bad. We'll send a team to secure the contamination zone immediately. Here is {cash} for your discovery.",
                 max(camp.pc.renown+15, 65), on_sale_fun=self._inform_biocorp
@@ -901,14 +902,14 @@ class BadEnding(Plot):
     def METROSCENE_ENTER(self, camp):
         if not self.town_narration:
             pbge.alerts.TextAlert("A short time later, land is allocated and funds provided for the construction of New {}. This will be a satellite city of Wujung, straddling the line between the green zone and the dead zone.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Let this city be a new beginning, a pact between the people of the deadzone and the Terran Federation. Together we can protect the people of Earth from all threats.",
-                self.elements["TDF_CONTACT"]
-            )(camp)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["TDF_CONTACT"], camp
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Please know that the Federation stands with you and will spare no expense in helping {METROSCENE} to recover from this senseless tragedy.".format(**self.elements),
-                self.elements["TDF_CONTACT"]
-            )(camp, False)
+                self.elements["TDF_CONTACT"], camp, False
+            )
 
             self.town_narration = True
 
@@ -1064,19 +1065,19 @@ class DZAllianceEnding(Plot):
         if not self.town_narration:
             pbge.alerts.TextAlert("After the battle, a victory party is held in {}.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
             if self.elements.get("LEADER"):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "I raise a toast to {TDF_CONTACT} of the Terran Defense Force, without whose help {TOWN} would have been destroyed by Cetus!".format(**self.elements),
-                    self.elements["LEADER"]
-                )(camp)
-                ghcutscene.SimpleMonologueDisplay(
+                    self.elements["LEADER"], camp
+                )
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Please, this victory belongs to the brave soldiers of the dead zone, and to [pc] for uniting us in common cause!".format(**self.elements),
-                    self.elements["TDF_CONTACT"]
-                )(camp, False)
+                    self.elements["TDF_CONTACT"], camp, False
+                )
             else:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "I propose a toast to [pc] for uniting the communities of the dead zone, and allowing us to defeat Cetus together!".format(**self.elements),
-                    self.elements["TDF_CONTACT"]
-                )(camp)
+                    self.elements["TDF_CONTACT"], camp
+                )
 
             self.town_narration = True
 
@@ -1237,19 +1238,19 @@ class TDFMissilesEnding(Plot):
         if not self.town_narration:
             pbge.alerts.TextAlert("After the battle, a victory celebration is held in {}.".format(camp.campdata[DZDCVAR_CETUS_TOWN]))
             if self.elements.get("LEADER"):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "I would like to thank {TDF_CONTACT} of the Terran Defense Force, without whose aid {TOWN} would have certainly been destroyed by Cetus.".format(**self.elements),
-                    self.elements["LEADER"]
-                )(camp)
-                ghcutscene.SimpleMonologueDisplay(
+                    self.elements["LEADER"], camp
+                )
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Thank you. Please rest assured that the Terran Federation is fully committed to repairing the damage caused by Cetus and supporting {TOWN} until the area has been decontaminated.".format(**self.elements),
-                    self.elements["TDF_CONTACT"]
-                )(camp, False)
+                    self.elements["TDF_CONTACT"], camp, False
+                )
             else:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "{TOWN} is now safe from Cetus. Rest assured that the Federation is fully committed to repairing the damage caused by the battle and supporting {TOWN} until this entire area has been decontaminated.".format(**self.elements),
-                    self.elements["TDF_CONTACT"]
-                )(camp)
+                    self.elements["TDF_CONTACT"], camp
+                )
 
             self.town_narration = True
 
@@ -1258,7 +1259,7 @@ class TDFMissilesEnding(Plot):
         thingmenu.add_item("Stay here a while longer", None)
 
     def _end_adventure(self, camp):
-        pbge.alerts.TextAlert("Cetus has been defeated. You are welcomed as a hero in the green zone... though a part of you wonders if this is really over.")
+        _=pbge.alerts.TextAlert("Cetus has been defeated. You are welcomed as a hero in the green zone... though a part of you wonders if this is really over.")
         camp.eject()
 
     def TDF_CONTACT_offers(self, camp):

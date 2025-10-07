@@ -1009,11 +1009,11 @@ class CommanderKnowsMotive(quests.QuestPlot):
         self.elements["_CHALLENGE"].advance(camp, 100)
 
     def _CHALLENGE_WIN(self, camp):
-        pbge.alerts.TextAlert("As you survey your victory, you get one final message from {}.".format(self.elements["_ENEMY_COMMANDER"]))
-        ghcutscene.SimpleMonologueDisplay(
+        _=pbge.alerts.TextAlert("As you survey your victory, you get one final message from {}.".format(self.elements["_ENEMY_COMMANDER"]))
+        _=ghcutscene.SimpleMonologueDisplay(
             "[YOU_WILL_NEVER_DEFEAT_US] {}!".format(self.locked_lore.texts[L_MOTIVE_CONFESSION]),
-            self.elements["_ENEMY_COMMANDER"]
-        )(camp)
+            self.elements["_ENEMY_COMMANDER"], camp
+        )
         self.quest_record.win_task(self, camp)
 
 

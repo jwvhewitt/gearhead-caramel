@@ -571,29 +571,33 @@ class OddJobsBiotechnology(Plot):
         skroll = camp.make_skill_roll(gears.stats.Knowledge, gears.stats.Biotechnology)
         if skroll > gears.stats.get_skill_target(self.rank, gears.stats.DIFFICULTY_AVERAGE):
             if truey_or_fake:
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "You determine that the {MATERIAL} is definitely biotechnological; it probably originates from PreZero times.".format(
                         **self.elements))
-                ghcutscene.SimpleMonologueDisplay("[THATS_INTERESTING] Here is a reward for helping with my research.",
-                                                  npc)(camp)
+                _=ghcutscene.SimpleMonologueDisplay(
+                    "[THATS_INTERESTING] Here is a reward for helping with my research.",
+                    npc, camp
+                )
             else:
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "You determine that the {MATERIAL} is of natural origin. {NPC} probably just made some measurement errors.".format(
                         **self.elements))
-                ghcutscene.SimpleMonologueDisplay(
-                    "Well that's disappointing. Still, here's a reward for helping with my research.", npc)(camp)
-            plotutility.CashRewardWithNotification(camp, self.reward)
-            pbge.BasicNotification("You earn ${:,}.".format(self.reward))
+                _=ghcutscene.SimpleMonologueDisplay(
+                    "Well that's disappointing. Still, here's a reward for helping with my research.", 
+                    npc, camp, data=camp, on_close=self._give_reward
+                )
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(5, 10)
             camp.dole_xp(25)
 
         else:
-            pbge.alerts.TextAlert(
+            _=pbge.alerts.TextAlert(
                 "After much analysis, you conclude that you don't know what this {MATERIAL} is or where it came from.".format(
                     **self.elements))
-            ghcutscene.SimpleMonologueDisplay(
-                "Thanks for trying, at least. I guess I'm going to have to figure this out on my own.", npc)(camp)
+            _=ghcutscene.SimpleMonologueDisplay(
+                "Thanks for trying, at least. I guess I'm going to have to figure this out on my own.", 
+                npc, camp
+            )
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod -= random.randint(1, 4)
             camp.renown -= random.randint(1, 6)
@@ -601,6 +605,10 @@ class OddJobsBiotechnology(Plot):
 
         self.end_plot(camp)
 
+    def _give_reward(self, wid, _ev):
+        camp = wid.data
+        _=plotutility.CashRewardWithNotification(camp, self.reward)
+            
 
 class OddJobsPerformance(Plot):
     # Use your performance skill to earn some money.
@@ -736,37 +744,41 @@ class OddJobsPerformance(Plot):
 
     def _play_concert(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
-        pbge.alerts.TextAlert("You begin to play a concert at {NPC_SCENE}.".format(**self.elements))
+        _=pbge.alerts.TextAlert("You begin to play a concert at {NPC_SCENE}.".format(**self.elements))
 
+        # TODO: Replace with anim alert
         performers = [pc for pc in camp.get_active_party() if pc.get_stat(gears.stats.Performance) > 0]
-        pbge.my_state.view.play_anims(*[gears.geffects.PerformanceAnim(pos=pc.pos) for pc in performers])
+        _=pbge.alerts.AnimAlert(*[gears.geffects.PerformanceAnim(pos=pc.pos) for pc in performers])
 
         skroll = camp.make_skill_roll(gears.stats.Charm, gears.stats.Performance)
         if skroll > gears.stats.get_skill_target(self.rank, gears.stats.DIFFICULTY_LEGENDARY):
             pbge.alerts.TextAlert(random.choice(self.EXCELLENT_CONCERT).format(**self.elements))
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "[THAT_WAS_INCREDIBLE] Here, you attracted so many people that I can pay twice what we agreed to.",
-                npc)(camp)
-            plotutility.CashRewardWithNotification(camp, self.reward*2)
+                npc, camp, data=(camp, self.reward), on_close=self._get_reward
+            )
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(5, 10)
             self.elements["METRO"].local_reputation += random.randint(1, 6)
             camp.dole_xp(50)
 
         elif skroll > gears.stats.get_skill_target(self.rank, gears.stats.DIFFICULTY_AVERAGE):
-            pbge.alerts.TextAlert(random.choice(self.AVERAGE_CONCERT).format(**self.elements))
-            plotutility.CashRewardWithNotification(camp, self.reward)
-            ghcutscene.SimpleMonologueDisplay("[GOOD_JOB] Here's the pay we agreed to.", npc)(camp)
+            _=pbge.alerts.TextAlert(random.choice(self.AVERAGE_CONCERT).format(**self.elements))
+            _=ghcutscene.SimpleMonologueDisplay(
+                "[GOOD_JOB] Here's the pay we agreed to.", npc, camp,
+                data=(camp, self.reward), on_close=self._get_reward
+            )
 
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(1, 8)
             camp.dole_xp(50)
 
         else:
-            pbge.alerts.TextAlert(random.choice(self.FAIL_CONCERT).format(**self.elements))
-            ghcutscene.SimpleMonologueDisplay(
+            _=pbge.alerts.TextAlert(random.choice(self.FAIL_CONCERT).format(**self.elements))
+            _=ghcutscene.SimpleMonologueDisplay(
                 "[THAT_WAS_THE_WORST] I think you actually drove away some people... You have failed at this job.",
-                npc)(camp)
+                npc, camp
+            )
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod -= random.randint(1, 10)
             for pc in camp.get_lancemates():
@@ -776,6 +788,10 @@ class OddJobsPerformance(Plot):
             camp.dole_xp(50)
 
         self.end_plot(camp)
+
+    def _get_reward(self, wid, _ev):
+        camp, reward = wid.data
+        _=plotutility.CashRewardWithNotification(camp, reward)
 
 
 class OddJobsRepair(Plot):
@@ -834,16 +850,21 @@ class OddJobsRepair(Plot):
         skroll = camp.make_skill_roll(gears.stats.Craft, gears.stats.Repair)
         if skroll > gears.stats.get_skill_target(self.rank, gears.stats.DIFFICULTY_AVERAGE):
             pbge.alerts.TextAlert("You fix it!")
-            ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_HELP] Here's a reward for you.", npc)(camp)
-            plotutility.CashRewardWithNotification(camp, self.reward)
+            _=ghcutscene.SimpleMonologueDisplay(
+                "[THANKS_FOR_HELP] Here's a reward for you.", 
+                npc, camp, data=(camp, self.reward), on_close=self._get_reward
+            )
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod += random.randint(1, 4)
             camp.dole_xp(25)
 
         else:
-            pbge.my_state.view.play_anims(gears.geffects.BigBoom(pos=npc.pos))
-            pbge.alerts.TextAlert("Your attempts at repair destroy the {DEVICE} completely.".format(**self.elements))
-            ghcutscene.SimpleMonologueDisplay("[THATSUCKS] I guess I'm going to have to buy a new one...", npc)(camp)
+            _=pbge.alerts.AnimAlert(gears.geffects.BigBoom(pos=npc.pos))
+            _=pbge.alerts.TextAlert("Your attempts at repair destroy the {DEVICE} completely.".format(**self.elements))
+            _=ghcutscene.SimpleMonologueDisplay(
+                "[THATSUCKS] I guess I'm going to have to buy a new one...", 
+                npc, camp
+            )
             relationship = camp.get_relationship(npc)
             relationship.reaction_mod -= random.randint(1, 4)
             self.elements["METRO"].local_reputation -= random.randint(1, 4)
@@ -851,6 +872,10 @@ class OddJobsRepair(Plot):
             camp.dole_xp(50)
 
         self.end_plot(camp)
+
+    def _get_reward(self, wid, _ev):
+        camp, reward = wid.data
+        _=plotutility.CashRewardWithNotification(camp, reward)
 
 
 class TheGoesShoppingPlot(Plot):

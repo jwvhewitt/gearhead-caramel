@@ -1,11 +1,9 @@
 import gears
-from pbge.plots import Plot, Adventure, PlotState
-from game.content.plotutility import LMSkillsSelfIntro
+from pbge.plots import Plot
 import pbge
 from pbge.dialogue import Offer, ContextTag
 from game import teams, ghdialogue
 from game.ghdialogue import context
-import pygame
 import random
 from game.content.plotutility import AdventureModuleData
 from game.content import gharchitecture, ghterrain, ghrooms, ghwaypoints, ghcutscene, plotutility
@@ -95,7 +93,7 @@ class Graduation(Plot):
     def custom_init(self, nart):
         # Not much to do here, since the park has already been created...
         self.elements["ENTRANCE"].plot_locked = True
-        self.gave_speech = False
+        self.gave_speech = False  # pyright: ignore[reportUninitializedInstanceVariable]
         return True
 
     def go_to_graduation(self, camp):
@@ -108,28 +106,28 @@ class Graduation(Plot):
     def LOCALE_ENTER(self, camp):
         if not self.gave_speech:
             if camp.campdata.get(WIN_FINAL_BATTLE):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Congratulations! You've all passed Bear Bastard's Mecha Camp... a little bit better than I would have liked, but they say it's a really great teacher who gets his arse kicked by his students.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
+                    self.elements["BEARBASTARD"], camp
+                )
             else:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Congratulations! You've all survived Bear Bastard's Mecha Camp... now the lot of you can rightfully call yourselves cavaliers, and you'll even have a little card you can stick in your wallet to prove it.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
-            ghcutscene.SimpleMonologueDisplay(
+                    self.elements["BEARBASTARD"], camp
+                )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "That's it. You can all go home now. They're holding a wedding or something here at two. I've got to move all my crap back into storage or the groundskeeper's gonna be pissed again.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
+                self.elements["BEARBASTARD"], camp, do_rollout=False,
+            )
             self.gave_speech = True
 
-    def ENTRANCE_menu(self, camp, thingmenu):
+    def ENTRANCE_menu(self, _camp, thingmenu):
         thingmenu.desc = "Are you ready to leave the camp?"
         thingmenu.add_item("It's time to go.", self._end_adventure)
         thingmenu.add_item("Stay here for a bit longer.", None)
 
     def _end_adventure(self, camp: gears.GearHeadCampaign):
-        pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert(
             "You're still not sure that you got your money's worth, but one thing is certain: you'll never forget Bear Bastard's Mecha Camp.")
         camp.eject()
 
@@ -272,38 +270,38 @@ class FinalBattle(Plot):
 
     def TEAM2_ACTIVATETEAM(self, camp: gears.GearHeadCampaign):
         if self.combat_intro_ready:
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Alright, we've got one last fight practice: everybody against everybody else. In any battle royale like this, the best strategy is to gang up against the strongest fighter... so that's why we're all gonna take out {} first!".format(
                     camp.pc),
-                self.elements["BEARBASTARD"].get_root()
-            )(camp)
+                self.elements["BEARBASTARD"].get_root(), camp
+            )
             ACam: gears.base.Character = self.elements["ACAM"]
             BCam: gears.base.Character = self.elements["BCAM"]
             CCam: gears.base.Character = self.elements["CCAM"]
             num_defectors = 0
             if ACam.relationship and gears.relationships.RT_LANCEMATE in ACam.relationship.tags:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "No way. You're the only person not piloting one of these dispose-a-meks. I'm siding with {}!".format(
                         camp.pc),
-                    ACam.get_root()
-                )(camp, False)
+                    ACam.get_root(), camp, False
+                )
                 self._switch_teams(camp, ACam)
                 num_defectors += 1
 
             if BCam.relationship and gears.relationships.RT_LANCEMATE in BCam.relationship.tags:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Nice try, Bear Bastard, but you've clearly got the better mek. I'm joining {}!".format(camp.pc),
-                    BCam.get_root()
-                )(camp, False)
+                    BCam.get_root(), camp, False
+                )
                 self._switch_teams(camp, BCam)
                 num_defectors += 1
 
             if CCam.relationship and gears.relationships.RT_LANCEMATE in CCam.relationship.tags:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "I still haven't forgiven you over the exploding present, Bear Bastard. I'm team {} from now on!".format(
                         camp.pc),
-                    CCam.get_root()
-                )(camp, False)
+                    CCam.get_root(), camp, False
+                )
                 self._switch_teams(camp, CCam)
                 num_defectors += 1
 
@@ -311,10 +309,10 @@ class FinalBattle(Plot):
                 defector = random.choice([ACam, BCam, CCam])
                 defector.relationship = camp.get_relationship(defector)
                 defector.relationship.tags.add(gears.relationships.RT_LANCEMATE)
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "That's not fair at all. I'm going to join {}!".format(camp.pc),
-                    defector.get_root()
-                )(camp, False)
+                    defector.get_root(), camp, False
+                )
                 self._switch_teams(camp, defector)
 
             camp.fight.check_party_activation()
@@ -327,16 +325,16 @@ class FinalBattle(Plot):
             myteam = self.elements["TEAM2"]
 
             if len(myteam.get_members_in_play(camp)) < 1:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Alright, you win! You win! Let's head back to the park so I can put this defeat behind me.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
+                    self.elements["BEARBASTARD"], camp
+                )
                 camp.campdata[WIN_FINAL_BATTLE] = True
             else:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "And there's your final lesson as a cavalier- sometimes losing is part of the game. But at least it wasn't your mek, right? Let's go back to the park for the closing ceremony.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
+                    self.elements["BEARBASTARD"], camp
+                )
                 camp.campdata[WIN_FINAL_BATTLE] = False
 
             for m in self.movers:
@@ -447,14 +445,14 @@ class TheCabinInTheDeadzone(Plot):
         if self.intro_ready:
             camp.scene.place_gears_near_spot(*self.elements["ENTRANCE"].pos, self.elements["LOCALE"].civilian_team,
                                              self.elements["BEARBASTARD"])
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "That's nearly it for the first day. One thing left to do before going to sleep- over there in front of your bed is a foot locker with all kinds of goodies. Don't worry, no fireworks this time... I'm renting this cabin.",
-                self.elements["BEARBASTARD"]
-            )(camp)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["BEARBASTARD"], camp
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Head over there, grab whatever equipment you like, and try it on.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
+                self.elements["BEARBASTARD"], camp, False
+            )
             self.memo = "Go to your locker and get equipped."
 
             camp.home_base = self.elements["ENTRANCE"]
@@ -463,14 +461,14 @@ class TheCabinInTheDeadzone(Plot):
 
     def LOCKER_BUMP(self, camp: gears.GearHeadCampaign):
         if self.inv_tutorial_ready:
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Once you pick out your stuff you can see your inventory by pressing \"i\". Or you can get to it through the FieldHQ by pressing \"H\". Or you can do either with the popup menu, right click or shift enter...",
-                self.elements["BEARBASTARD"]
-            )(camp)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["BEARBASTARD"], camp
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "I'm tired. You might wanna check out the FieldHQ as well as your inventory, since you probably have some experience to spend. After that just go to bed since there's nothing else to do around here. We'll have the final lesson in the morning.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
+                self.elements["BEARBASTARD"], camp, False
+            )
             camp.freeze(self.elements["BEARBASTARD"])
             self.memo = "Equip your gear, then go to bed. Tomorrow is the final exam."
             self.inv_tutorial_ready = False
@@ -1119,76 +1117,76 @@ class SceneTwo(Plot):
 
     def LOCALE_ENTER(self, camp):
         if self.intro_ready:
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Alright, so Last Hope doesn't really have a mecha arena... but it does have this quarry! That's why I hold the camp on weekends, so no-one accidentally steps on a bulldozer or nothing. Quarries are a great place for mecha battles.",
-                self.elements["BEARBASTARD"]
-            )(camp)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["BEARBASTARD"], camp
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Your mecha for this fight will be the Ice Wind. It's a versatile, high tech machine... and I can get five of 'em together in a value pack. You'll start in exploration mode, just like moving around at the park.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["BEARBASTARD"], camp, False
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "By the way, if you haven't read the instruction manual yet, now would be a great time to start. You should be able to find it under your seat. In the event of a crash over water you can also use it as a floatation device. Too much water is dangerous; that's why I never touch the stuff.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
+                self.elements["BEARBASTARD"], camp, False
+            )
             self.intro_ready = False
 
     def t_PCMOVE(self, camp):
         if self.step_counter >= 0:
             self.step_counter += 1
             if self.step_counter > 9:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "At some point in time, you're gonna see the \"Danger Zone\". It'll look like a flashing red line on the ground. Usually you find 'em on the highway. This line shows an enemy mecha's sensor range; move past the line and combat starts.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
+                    self.elements["BEARBASTARD"], camp
+                )
                 self.step_counter = -1
 
     def TEAM2_ACTIVATETEAM(self, camp: gears.GearHeadCampaign):
         if self.combat_intro_ready:
             npc: gears.base.Character = self.elements["ACAM"]
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "You are now fighting {}... Combat adds a few more controls to yer screen. On the top left, those are your action categories. Then in the middle, that's your action clock. Over on the top right is your action selector.".format(
                     npc),
-                self.elements["BEARBASTARD"]
-            )(camp)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["BEARBASTARD"], camp
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "There's a whole bunch of different things you can do in combat. Usually you get to do two actions on your turn, as shown by the clock. You can spend half an action on movement and still do something else, as long as that clock section stays white.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
-            ghcutscene.SimpleMonologueDisplay(
+                self.elements["BEARBASTARD"], camp, False
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
                 "To see all your possible actions you can scroll through them with either the middle mouse wheel or the arrow keys on your keyboard. Some actions have multiple options; you can click those or press left and right to move through them.",
-                self.elements["BEARBASTARD"]
-            )(camp, False)
+                self.elements["BEARBASTARD"], camp, False
+            )
 
             if camp.party_has_skill(gears.stats.Repair):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Remember that you've got the repair skill. If your mek gets damaged- and it will get damaged, these things are practically made of cardboard- you can use that skill on yourself to heal up.",
-                    self.elements["BEARBASTARD"]
-                )(camp, False)
+                    self.elements["BEARBASTARD"], camp, False
+                )
             if camp.party_has_skill(gears.stats.Stealth):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "You can use yer stealth skill to hide. This will make it much harder for enemies to hit you, and much easier for you to hit them. Doesn't always work but it's worth a shot.",
-                    self.elements["BEARBASTARD"]
-                )(camp, False)
+                    self.elements["BEARBASTARD"], camp, False
+                )
 
             if camp.party_has_skill(gears.stats.Science):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Yer science skill can be used to spot weaknesses in an enemy mecha, making it more likely your shots will go through their armor. Given that these Ice Winds are barely armored at all it's probably not worth using that now..",
-                    self.elements["BEARBASTARD"]
-                )(camp, False)
+                    self.elements["BEARBASTARD"], camp, False
+                )
 
             if camp.party_has_skill(gears.stats.Performance) or camp.party_has_skill(gears.stats.Negotiation):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Performance can be used to inspire your allies. Negotiation can be used to charge up an ally's MP at the cost of your stamina. Since you're fighting alone, neither of these skills will be useful right now.",
-                    self.elements["BEARBASTARD"]
-                )(camp, False)
+                    self.elements["BEARBASTARD"], camp, False
+                )
 
             if npc.has_skill(gears.stats.Stealth):
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Watch out because {npc} knows Stealth; {npc.gender.subject_pronoun} can disappear like a ninja at any time. You can use your search skill to find {npc.gender.object_pronoun}, or just hit {npc.gender.object_pronoun} with a damaging shot.".format(
                         npc=npc),
-                    self.elements["BEARBASTARD"]
-                )(camp, False)
+                    self.elements["BEARBASTARD"], camp, False
+                )
 
             self.combat_intro_ready = False
 
@@ -1197,16 +1195,16 @@ class SceneTwo(Plot):
             myteam = self.elements["TEAM2"]
 
             if len(myteam.get_members_in_play(camp)) < 1:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Congratulations! You've won the mecha combat. That's just about all the training we have for today... Let's head back to the cabin.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
+                    self.elements["BEARBASTARD"], camp
+                )
                 camp.campdata[WIN_FIGHT_ONE] = True
             else:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Congratulations! You've successfully ejected from a doomed mecha. That's just about all the training we have for today... Let's head back to the cabin.",
-                    self.elements["BEARBASTARD"]
-                )(camp)
+                    self.elements["BEARBASTARD"], camp
+                )
                 camp.campdata[WIN_FIGHT_ONE] = False
 
             self.mymover(camp)
@@ -1339,16 +1337,16 @@ class SceneOne(Plot):
 
     def LOCALE_ENTER(self, camp):
         if self.intro_ready:
-            pbge.alerts.TextAlert(
+            _=pbge.alerts.TextAlert(
                 "You enter Last Hope Memorial Park, eager for the first day of mecha camp. Today is the day you learn how to be a proper cavalier!")
             if camp.pc.has_badge("Typhon Slayer"):
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "Not that you aren't already a highly accomplished cavalier. But it never hurts to get a refresher every once in a while.")
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Listen close, {pc.gender.noun}-cub! I'm Bear Bastard, hero of the Typhon Incident! I'll be running this camp for aspiring cavaliers such as yourself. Why don't you come over here so we can talk?".format(
                     pc=camp.pc),
-                self.elements["NPC"]
-            )(camp)
+                self.elements["NPC"], camp
+            )
             self.intro_ready = False
             self.impatience_counter = 0
 
@@ -1357,34 +1355,34 @@ class SceneOne(Plot):
             if not self.had_first_conversation:
                 self.impatience_counter += 1
                 if self.impatience_counter == 2:
-                    ghcutscene.SimpleMonologueDisplay(
+                    _=ghcutscene.SimpleMonologueDisplay(
                         "Alright, I can see you've got some problems with doing what you're told. That's actually kinda relateable. Just see if you can move over to me and we can start the conversation.",
-                        self.elements["NPC"]
-                    )(camp)
+                        self.elements["NPC"], camp
+                    )
 
                 elif self.impatience_counter == 3:
-                    ghcutscene.SimpleMonologueDisplay(
+                    _=ghcutscene.SimpleMonologueDisplay(
                         "Okay, you know what? Let's try a visualization exercise. Pretend you've got a keyboard and/or a mouse right there in front of you. Or a joypad if you're into that steamy stuff. Imagine an orange square on the ground.",
-                        self.elements["NPC"]
-                    )(camp)
-                    ghcutscene.SimpleMonologueDisplay(
+                        self.elements["NPC"], camp
+                    )
+                    _=ghcutscene.SimpleMonologueDisplay(
                         "You can move this orange cursor around with the power of your mind, by which I mean your mouse or numeric keypad or whatever. Move the cursor over to me and left click. Or press enter. That should get the job done.",
-                        self.elements["NPC"]
-                    )(camp, False)
+                        self.elements["NPC"], camp, False
+                    )
             elif self.finished_bump_practice and not self.had_second_conversation:
                 self.impatience_counter += 1
                 if self.impatience_counter % 2 == 0:
-                    ghcutscene.SimpleMonologueDisplay(
+                    _=ghcutscene.SimpleMonologueDisplay(
                         "I'm getting bored over here... finish looking around and come talk to me. It's not that big of a park.",
-                        self.elements["NPC"]
-                    )(camp)
+                        self.elements["NPC"], camp
+                    )
 
     def STATUE_BUMP(self, camp):
         if not self.had_first_conversation:
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "Alright, so you can move. I can see how you'd get us confused, with the both of us being ruggedly handsome and all, but that statue ain't gonna talk back to you. What you need to do is come bump into me.",
-                self.elements["NPC"]
-            )(camp)
+                self.elements["NPC"], camp
+            )
         elif not self.finished_bump_practice:
             self.bumped_objects.add(self.elements["STATUE"])
             if len(self.bumped_objects) > 3:
@@ -1535,10 +1533,10 @@ class SceneOne(Plot):
         if self.had_first_conversation and not self.finished_bump_practice and self.tiles_moved > -1:
             self.tiles_moved += 1
             if self.tiles_moved > 10:
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "Wow, look at you, movin' all around the park, just like a pro!",
-                    self.elements["NPC"]
-                )(camp)
+                    self.elements["NPC"], camp
+                )
                 self.tiles_moved = -1
 
     def _have_first_conversation(self, camp):
@@ -1558,17 +1556,17 @@ class SceneOne(Plot):
         present: gears.base.Treasure = self.elements["PRESENT"]
         if present in camp.pc.inv_com:
             camp.pc.inv_com.remove(present)
-        ghcutscene.SimpleMonologueDisplay(
+        _=ghcutscene.SimpleMonologueDisplay(
             "And let that be a lesson to you- you can't trust everyone you meet. That was just a firecracker but it could've been a plasma grenade or worse. This is what you call the tough love school of teaching. Come back over here; I have one last thing to discuss.",
-            self.elements["NPC"]
-        )(camp)
+            self.elements["NPC"], camp
+        )
         self.memo = "Return to Bear Bastard for one more conversation."
         self.finished_pickup_practice = True
 
     def _complete_bump_practice(self, camp):
         self.finished_bump_practice = True
-        ghcutscene.SimpleMonologueDisplay(
+        _=ghcutscene.SimpleMonologueDisplay(
             "Alright, that's enough bumpin' practice for now. You can finish looking around the park, then come back and talk to me again. We've got one more lesson before you're ready to get in a mek.",
-            self.elements["NPC"]
-        )(camp)
+            self.elements["NPC"], camp
+        )
         self.impatience_counter = 0

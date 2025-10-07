@@ -20,7 +20,7 @@ MENU_SELECT_COLOR = pygame.Color(128,250,230)
 class MenuWidget(widgets.ColumnWidget):
     def __init__(
         self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
-        off_border=widget_menu_border_off, activate_child_on_enter=False,
+        off_border=widget_menu_border_off, activate_child_on_enter=True,
         on_activate_item=None, center_interior=True, padding=5,
         item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
         font=None, item_class=widgets.LabelWidget, item_data=None, 

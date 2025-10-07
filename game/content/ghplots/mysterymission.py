@@ -1,21 +1,14 @@
 from typing import override
-from game.content.ghplots import missionbuilder
 from pbge.plots import Plot
 import game
 import gears
 import pbge
-import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghwaypoints, plotutility, missiontext, ghcutscene
+from game.content import plotutility, ghcutscene
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
-from gears import champions
-from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
-    DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
-import copy
 
 from . import mission_bigobs
 from game.content.ghplots.missionbuilder import MAIN_OBJECTIVE_VALUE
@@ -196,10 +189,10 @@ class MyMi_LancemateTimedDefense(mission_bigobs.BAM_TimedDefense):
     def t_PCMOVE(self, camp: gears.GearHeadCampaign):
         super().t_PCMOVE(camp)
         if self.combat_started and self.convo_ready:
-            ghcutscene.SimpleMonologueDisplay(
+            _=ghcutscene.SimpleMonologueDisplay(
                 "[HELP_ME_VS_MECHA_COMBAT] This [town] is under attack. We just need to hold on until reinforcements arrive.",
-                self.elements["NPC"].get_root()
-            )(camp)
+                self.elements["NPC"].get_root(), camp
+            )
 
             self.convo_ready = False
 
@@ -210,9 +203,9 @@ class MyMi_LancemateTimedDefense(mission_bigobs.BAM_TimedDefense):
             ally = self.elements["NPC"].get_root()
             if ally.is_operational():
                 self.npc_obj.win(camp, 100 - ally.get_percent_damage_over_health())
-                ghcutscene.SimpleMonologueDisplay(
+                _=ghcutscene.SimpleMonologueDisplay(
                     "[THANKS_FOR_MECHA_COMBAT_HELP] I'll be at {NPC_SCENE} later if you need me.".format(**self.elements),
-                    ally
-                )(camp)
+                    ally, camp
+                )
             else:
                 self.elements["NPC"].relationship.reaction_mod -= 20

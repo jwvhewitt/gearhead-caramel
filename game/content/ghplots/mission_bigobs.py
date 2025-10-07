@@ -8,16 +8,11 @@ import pbge
 import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, megaprops
-from pbge.dialogue import Offer, ContextTag, Reply
+from game.content import plotutility, megaprops
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed, ghcutscene, ghrooms
-from .missionbuilder import MAIN_OBJECTIVE_VALUE, BAMO_TEST_MISSION, CONVO_CANT_WITHDRAW
-from gears import champions
-from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
-    DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
-import copy
+from game.content import adventureseed, ghrooms
+from .missionbuilder import MAIN_OBJECTIVE_VALUE, CONVO_CANT_WITHDRAW
 
 from game.content.ghplots import missionbuilder
 
@@ -372,7 +367,7 @@ class BAM_EscortShip(Plot):
         team2: teams.Team = self.register_element(
             CTE_ENEMY_TEAM, teams.Team(faction=myfac, enemies=(myscene.player_team, myship))
         )
-        self.register_element(CTE_INITIAL_ROOM, ghrooms.OpenRoom(10,10, anchor=pbge.randmaps.anchors.middle),
+        _=self.register_element(CTE_INITIAL_ROOM, ghrooms.OpenRoom(10,10, anchor=pbge.randmaps.anchors.middle),
                               dident=std_dident)
 
         threat_type = self.elements.get(BAME_THREAT_TYPE, CTHREAT_MECHA)
@@ -404,7 +399,7 @@ class BAM_EscortShip(Plot):
     def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
         myprop = self.elements["SHIP"]
         if not myprop.get_members_in_play(camp):
-            pbge.alerts.TextAlert("Ship Destroyed", font=pbge.HUGEFONT, justify=0)
+            _=pbge.alerts.TextAlert("Ship Destroyed", font=pbge.HUGEFONT, justify=0)
             self.obj.failed = True
             camp.check_trigger("FORCE_EXIT")
         else:
@@ -412,7 +407,7 @@ class BAM_EscortShip(Plot):
             for t in range(5):
                 myprop.move(camp, *facing)
                 if self._ship_has_escaped(camp, myprop, facing):
-                    pbge.alerts.TextAlert("Ship has escaped!")
+                    _=pbge.alerts.TextAlert("Ship has escaped!")
                     self.obj.win(camp)
                     self.obj2.win(camp, sum([p.current_health for p in myprop.get_members_in_play(camp)]) * 100 // self.initial_health)
                     camp.check_trigger("FORCE_EXIT")

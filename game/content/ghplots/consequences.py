@@ -2,15 +2,11 @@ from pbge.plots import Plot, PlotState, Rumor, TimeExpiration
 import game
 import gears
 import pbge
-import pygame
 import random
 from game import teams,ghdialogue
 from game.content import gharchitecture,ghterrain,ghwaypoints,plotutility,ghcutscene, ghchallenges
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed, GHNarrativeRequest
-from . import missionbuilder, rwme_objectives, campfeatures
 
 
 class CultOfPersonality(Plot):

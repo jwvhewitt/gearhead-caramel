@@ -3,6 +3,7 @@ from . import widgets, my_state, render_text, default_border, frects
 
 
 WTAG_ALERT = "WTAG_ALERT"
+ALERT_EVENT = pygame.event.custom_type()
 
 # Alerts are meant to display narration and other info for the player.
 # Often we want to display several alerts in a row, as in when NPCs are speaking
@@ -66,3 +67,30 @@ class FunAlert(AbstractAlert):
         # Just call the display fun. That's what makes this alert so fun.
         self.display_fun()
 
+
+class AnimAlert(AbstractAlert):
+    # An alert that deploys animations and waits for them to finish.
+    # Waits an extra half a second for emphasis.
+    def __init__(self, *anim_list, **kwargs):
+        # display_fun is a callable with no parameters. It is the display.
+        super().__init__(**kwargs)
+        self.anim_list = anim_list
+        self.timer = 500
+
+    def _render(self, delta):
+        # Just call the display fun. That's what makes this alert so fun.
+        if self.anim_list:
+            my_state.view.play_anims(*self.anim_list)
+            self.anim_list = None
+        elif not my_state.view.has_animations():
+            self.timer -= delta
+            if self.timer <= 0:
+                if self.on_close:
+                    self.on_close(self, pygame.event.Event(ALERT_EVENT, {}))
+                self.register_response()
+                self.pop()
+                my_state.update_alerts()
+
+    def _builtin_responder(self, ev):
+        if not my_state.view.has_animations() and not self.anim_list:
+            super()._builtin_responder(ev)

@@ -149,7 +149,7 @@ class DeadAdventurer(Plot):
             speaker = random.choice(candidates)
         else:
             speaker = camp.pc
-        ghcutscene.SimpleMonologueDisplay("[EULOGY]", speaker)(camp)
+        _=ghcutscene.SimpleMonologueDisplay("[EULOGY]", speaker, camp)
         camp.dole_xp(100)
 
     def _loot_corpse(self, camp):

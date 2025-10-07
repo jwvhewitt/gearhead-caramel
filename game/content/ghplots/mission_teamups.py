@@ -22,13 +22,13 @@ class NoDevTeamUpConversation(Plot):
 
     def NPC_START(self,camp):
         # Check this trigger when combat is started.
-        ghcutscene.SimpleMonologueDisplay(self.START_COMBAT_MESSAGE, self.elements["NPC"])(camp)
+        _=ghcutscene.SimpleMonologueDisplay(self.START_COMBAT_MESSAGE, self.elements["NPC"], camp)
 
     def NPC_WIN(self,camp):
         # Check this trigger if PC wins combat.
-        ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.", self.elements["NPC"])(camp)
+        _=ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.", self.elements["NPC"], camp)
 
-    def NPC_LOSE(self,camp):
+    def NPC_LOSE(self,_camp):
         # Check this trigger if PC loses combat.
         pass
 
@@ -47,7 +47,7 @@ class BasicTeamupConversation(Plot):
 
     START_COMBAT_MESSAGE = "[HELP_ME_VS_MECHA_COMBAT]"
 
-    def custom_init( self, nart ):
+    def custom_init( self, nart ) -> None|bool:
         npc = self.elements["NPC"]
         if not npc.relationship:
             npc.relationship = nart.camp.get_relationship(npc)
@@ -55,18 +55,21 @@ class BasicTeamupConversation(Plot):
 
     def NPC_START(self,camp):
         # Check this trigger when combat is started.
-        ghcutscene.SimpleMonologueDisplay(self.START_COMBAT_MESSAGE, self.elements["NPC"])(camp)
+        _=ghcutscene.SimpleMonologueDisplay(self.START_COMBAT_MESSAGE, self.elements["NPC"], camp)
 
     def NPC_WIN(self,camp):
         # Check this trigger if PC wins combat.
-        ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.", self.elements["NPC"])(camp)
+        _=ghcutscene.SimpleMonologueDisplay(
+            "[THANKS_FOR_MECHA_COMBAT_HELP] I better get back to base.", 
+            self.elements["NPC"], camp
+        )
         self.elements["NPC"].relationship.history.append(Memory(
             "you fought at my side",
             "I helped you in battle",
             5, memtags=(relationships.MEM_AidedByPC,)
         ))
 
-    def NPC_LOSE(self,camp):
+    def NPC_LOSE(self,_camp):
         # Check this trigger if PC loses combat.
         pass
 
@@ -86,7 +89,10 @@ class AngryLancemateForgiveness(BasicTeamupConversation):
 
     def NPC_WIN(self,camp):
         # Check this trigger if PC wins combat.
-        ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] I'll see you around, [audience].", self.elements["NPC"])(camp)
+        _=ghcutscene.SimpleMonologueDisplay(
+            "[THANKS_FOR_MECHA_COMBAT_HELP] I'll see you around, [audience].", 
+            self.elements["NPC"], camp
+        )
         npc: gears.base.Character = self.elements["NPC"]
         while npc.get_reaction_score(camp.pc, camp) < 1:
             npc.relationship.reaction_mod += random.randint(1, 20)
@@ -105,8 +111,10 @@ class PossiblyBecomeLancemateConvo(BasicTeamupConversation):
         npc: gears.base.Character = self.elements["NPC"]
 
         if npc.get_reaction_score(camp.pc, camp) > random.randint(40,80) - camp.get_party_skill(gears.stats.Charm, gears.stats.Negotiation):
-            ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP] Let me know if you ever need me to return the favor.",
-                                              self.elements["NPC"])(camp)
+            _=ghcutscene.SimpleMonologueDisplay(
+                "[THANKS_FOR_MECHA_COMBAT_HELP] Let me know if you ever need me to return the favor.",
+                self.elements["NPC"], camp
+            )
             npc.relationship.tags.add(gears.relationships.RT_LANCEMATE)
             npc.relationship.history.append(Memory(
                 "I promised to help you if you ever needed help",
@@ -114,7 +122,10 @@ class PossiblyBecomeLancemateConvo(BasicTeamupConversation):
                 15, memtags=(relationships.MEM_AidedByPC,)
             ))
         else:
-            ghcutscene.SimpleMonologueDisplay("[THANKS_FOR_MECHA_COMBAT_HELP]", self.elements["NPC"])(camp)
+            _=ghcutscene.SimpleMonologueDisplay(
+                "[THANKS_FOR_MECHA_COMBAT_HELP]", 
+                self.elements["NPC"], camp
+            )
             npc.relationship.reaction_mod += random.randint(1, 10)
 
 

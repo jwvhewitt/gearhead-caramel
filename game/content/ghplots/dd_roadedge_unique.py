@@ -199,13 +199,13 @@ class RONRDungeon(Plot):
             npc = camp.do_skill_test(gears.stats.Knowledge,  gears.stats.Scouting,  self.rank)
             if npc:
                 if npc.get_pilot() is camp.pc:
-                    pbge.alerts.TextAlert("Your long range sensors are giving contradictory readings. This area of the dead zone probably has radioactive interference.")
+                    _=pbge.alerts.TextAlert("Your long range sensors are giving contradictory readings. This area of the dead zone probably has radioactive interference.")
                 else:
-                    ghcutscene.SimpleMonologueDisplay("[BAD_NEWS] There's a strange electromagnetic signal in this area; it's blocking our long range sensors. [WE_ARE_IN_DANGER]",  npc)(camp)
+                    _=ghcutscene.SimpleMonologueDisplay("[BAD_NEWS] There's a strange electromagnetic signal in this area; it's blocking our long range sensors. [WE_ARE_IN_DANGER]",  npc, camp)
             else:
                 candidates = camp.get_active_lancemates()
                 if candidates:
-                    ghcutscene.SimpleMonologueDisplay("[BAD_NEWS] If this attack is related to the disappearances we can assume that the attackers are nearby, and it's a safe bet they know we're here too. [WE_ARE_IN_DANGER]",  random.choice(candidates))(camp)
+                    _=ghcutscene.SimpleMonologueDisplay("[BAD_NEWS] If this attack is related to the disappearances we can assume that the attackers are nearby, and it's a safe bet they know we're here too. [WE_ARE_IN_DANGER]",  random.choice(candidates), camp)
             self.intro_ready = False
 
         if camp.time > self.last_update:
@@ -542,28 +542,28 @@ class KerberosBossFight(Plot):
             mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Biotechnology, self.rank, no_random=True)
             if mypc:
                 if mypc == camp.pc:
-                    pbge.alerts.TextAlert("Your knowledge of PreZero technology allows you to recognize this machine as a PreZero computer interface. It shows this area as it existed before the Night of Fire, and traces Kerberos's route along what is now the highway.")
+                    _=pbge.alerts.TextAlert("Your knowledge of PreZero technology allows you to recognize this machine as a PreZero computer interface. It shows this area as it existed before the Night of Fire, and traces Kerberos's route along what is now the highway.")
                 else:
-                    SimpleMonologueDisplay("I know what this is... it's an oldtype computer display. This hologram shows the megacity that used to exist around {METROSCENE}... Here you can see the path that Kerberos was supposed to take through the service tunnels.".format(**self.elements), mypc)(camp)
-                    SimpleMonologueDisplay("Except, there are no service tunnels anymore. This area is the highway, now. Maybe we could use this computer to send Kerberos on a different path, one far away from human beings.", mypc)(camp, False)
+                    _=SimpleMonologueDisplay("I know what this is... it's an oldtype computer display. This hologram shows the megacity that used to exist around {METROSCENE}... Here you can see the path that Kerberos was supposed to take through the service tunnels.".format(**self.elements), mypc, camp)
+                    _=SimpleMonologueDisplay("Except, there are no service tunnels anymore. This area is the highway, now. Maybe we could use this computer to send Kerberos on a different path, one far away from human beings.", mypc, camp, False)
                 self.unlock_holo()
             else:
                 mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Wildcraft, self.rank, no_random=True)
                 if mypc:
                     if mypc == camp.pc:
-                        pbge.alerts.TextAlert("You quickly recognize the shifting geometric forms of this holographic display as the geological features of this area. The top layer must be the city as it existed before the Night of Fire, and the red path can only be Kerberos's route along what is now the highway.")
+                        _=pbge.alerts.TextAlert("You quickly recognize the shifting geometric forms of this holographic display as the geological features of this area. The top layer must be the city as it existed before the Night of Fire, and the red path can only be Kerberos's route along what is now the highway.")
                     else:
-                        SimpleMonologueDisplay("I don't know exactly what kind of machine this is, but I can tell you what it's showing- that's {METROSCENE}, or at least it's what {METROSCENE} was back when this was built.".format(**self.elements), mypc)(camp)
-                        SimpleMonologueDisplay("I'd guess this line going through it is Kerberos's path. You see this valley? That's part of the highway now, and that's where we got attacked. Maybe we can use this to tell Kerberos where to go...", mypc)(camp, False)
+                        _=SimpleMonologueDisplay("I don't know exactly what kind of machine this is, but I can tell you what it's showing- that's {METROSCENE}, or at least it's what {METROSCENE} was back when this was built.".format(**self.elements), mypc, camp)
+                        _=SimpleMonologueDisplay("I'd guess this line going through it is Kerberos's path. You see this valley? That's part of the highway now, and that's where we got attacked. Maybe we can use this to tell Kerberos where to go...", mypc, camp, False)
                     self.unlock_holo()
                 else:
                     mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Scouting, self.rank, difficulty=gears.stats.DIFFICULTY_HARD, no_random=True)
                     if mypc:
                         if mypc == camp.pc:
-                            pbge.alerts.TextAlert("It takes a minute before you realize that the holographic display is a map of the surrounding area. Of course, it's not the area as you know it today- this is how things were before the Night of Fire. Maybe you can use this to send Kerberos away.")
+                            _=pbge.alerts.TextAlert("It takes a minute before you realize that the holographic display is a map of the surrounding area. Of course, it's not the area as you know it today- this is how things were before the Night of Fire. Maybe you can use this to send Kerberos away.")
                         else:
-                            SimpleMonologueDisplay("I can't believe it- this is a PreZero map of the area around {METROSCENE}! I've heard about holographic map projectors like this but this is my first time seeing one in the reals.".format(**self.elements), mypc)(camp)
-                            SimpleMonologueDisplay("If I'm reading this right, this red line should be where Kerberos is going, and you can see how it intersects with where the highway passes through now. I wonder if we can use this to send Kerberos somewhere else?", mypc)(camp, False)
+                            _=SimpleMonologueDisplay("I can't believe it- this is a PreZero map of the area around {METROSCENE}! I've heard about holographic map projectors like this but this is my first time seeing one in the reals.".format(**self.elements), mypc, camp)
+                            _=SimpleMonologueDisplay("If I'm reading this right, this red line should be where Kerberos is going, and you can see how it intersects with where the highway passes through now. I wonder if we can use this to send Kerberos somewhere else?", mypc, camp, False)
                         self.unlock_holo()
 
     def HOLO_menu(self, camp: gears.GearHeadCampaign, thingmenu):
@@ -573,13 +573,13 @@ class KerberosBossFight(Plot):
 
     def redirect_monster(self, camp):
         camp.check_trigger("WIN", self)
-        BiotechDiscovery(
+        _=BiotechDiscovery(
             camp, "There is a huge subterranean biotech complex near {}.".format(self.elements["METROSCENE"]),
             "[THATS_INTERESTING] I'll get one of our hazmat recovery teams to check it out. Here is the {cash} you've earned.",
             self.rank
         )
         self.elements["_eteam"].make_allies(self.elements["BOSS_LEVEL"].player_team)
-        pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert(
             "At first, nothing happens. Slowly the red line begins to move away from the highway and you hear a low rumbling in the distance. It seems to have worked.")
         self.end_plot(camp)
 

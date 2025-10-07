@@ -153,10 +153,15 @@ class BeBackAfterShopping( Plot ):
         garage = self.elements["GARAGE"]
         if npc.relationship:
             npc.relationship.reaction_mod -= random.randint(1,10)
-        SimpleMonologueDisplay("[MY_MECHA_WAS_DESTROYED] I'm going to go to {} and get a new one.".format(garage),npc)(camp)
+        _=SimpleMonologueDisplay(
+            "[MY_MECHA_WAS_DESTROYED] I'm going to go to {} and get a new one.".format(garage),
+            npc, camp, data=(camp, npc, garage), on_close=self._go_to_garage
+        )
         if random.randint(1,10) == 1:
             # Random chance that instead of getting the same mecha, they'll look for a new kind.
             npc.mecha_pref = None
+    def _go_to_garage(self, wid, _ev):
+        camp, npc, garage = wid.data
         plotutility.AutoLeaver(npc)(camp)
         npc.place(garage)
 
@@ -170,15 +175,18 @@ class UseTheBackupMek( Plot ):
         npc.relationship.data["mecha_level_bonus"] = max(npc.relationship.data.get("mecha_level_bonus",0)-10, -25)
         npc.mecha_pref = None
         mek = plotutility.AutoJoiner.get_mecha_for_character(npc, True)
-        SimpleMonologueDisplay("[MY_MECHA_WAS_DESTROYED] I guess I'm going to have to get my old {} out of storage.".
-                               format(mek.get_full_name()), npc)(camp)
+        _=SimpleMonologueDisplay(
+            "[MY_MECHA_WAS_DESTROYED] I guess I'm going to have to get my old {} out of storage.".
+                               format(mek.get_full_name()), 
+            npc, camp
+        )
         plotutility.AutoJoiner.add_lancemate_mecha_to_party(camp, npc, mek)
 
 
 class INeedAnUpgrade( Plot ):
     LABEL = "LANCEMATE_NEEDS_MECHA"
     @classmethod
-    def matches( cla, pstate: PlotState ):
+    def matches( cls, pstate: PlotState ):
         lm = pstate.elements["NPC"]
         return lm.relationship and lm.relationship.can_do_development() and lm.relationship.data.get("mecha_level_bonus",0) < 50
 
@@ -192,12 +200,19 @@ class INeedAnUpgrade( Plot ):
     def start_recovery(self,camp):
         npc = self.elements["NPC"]
         garage = self.elements["GARAGE"]
-        SimpleMonologueDisplay("[TIME_TO_UPGRADE_MECHA] I'm going to {} to see what they have.".format(garage),npc)(camp)
+        _=SimpleMonologueDisplay(
+            "[TIME_TO_UPGRADE_MECHA] I'm going to {} to see what they have.".format(garage),
+            npc, camp, data=(camp, npc, garage), on_close=self._go_to_garage
+        )
         npc.relationship.development_plots += 1
         npc.relationship.data["mecha_level_bonus"] = npc.relationship.data.get("mecha_level_bonus",0)+10
         npc.mecha_pref = None
+
+    def _go_to_garage(self, wid, _ev):
+        camp, npc, garage = wid.data
         plotutility.AutoLeaver(npc)(camp)
         npc.place(garage)
+
 
 
 #  ************************************
@@ -246,7 +261,7 @@ class BoringDeathNotification( Plot ):
     def start_recovery(self,camp):
         dead_names = [str(npc) for npc in camp.dead_party]
         msg = pbge.dialogue.list_nouns(dead_names)
-        pbge.alerts.TextAlert('{} did not survive the last mission.'.format(msg))
+        _=pbge.alerts.TextAlert('{} did not survive the last mission.'.format(msg))
         for npc in camp.dead_party:
             for pc in list(camp.party):
                 if hasattr(pc,"owner") and pc.owner is npc:

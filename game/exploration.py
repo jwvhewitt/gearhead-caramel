@@ -397,6 +397,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
             if ev.type == pygame.MOUSEBUTTONUP:
                 if ev.button == 1:
                     self.click_left()
+                    self.register_response()
             elif ev.type == pygame.KEYDOWN:
                 if pbge.my_state.is_key_for_action(ev, "quit_game"):
                     # self.camp.save(self.screen)

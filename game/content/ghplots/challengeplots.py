@@ -67,9 +67,9 @@ class ChallengePlot(Plot):
                                                   camp=nart.camp, faction=allied_faction)
             self.elements["_gcganf_allied_faction"] = allied_faction
             scene_ident = "_autogcganfelement_{0}_{1}".format(len(self.elements), hash(npc))
-            self.seek_element(nart, scene_ident, self.__challenge_npc_best_scene, scope=mymetro,
+            _=self.seek_element(nart, scene_ident, self.__challenge_npc_best_scene, scope=mymetro,
                               backup_seek_func=self.__challenge_npc_next_best_scene)
-            self.register_element(ident, npc, dident=scene_ident, lock=lock)
+            _=self.register_element(ident, npc, dident=scene_ident, lock=lock)
             #print(npc, self.elements[scene_ident], allied_faction, enemy_faction)
         return npc
 
@@ -79,7 +79,7 @@ class ChallengePlot(Plot):
             nart.camp.are_faction_allies(candidate, self.elements["_gcganf_allied_faction"])
         )
 
-    def __challenge_npc_next_best_scene(self, nart, candidate):
+    def __challenge_npc_next_best_scene(self, _nart, candidate):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
 
@@ -878,9 +878,9 @@ class ReconMissionToFindBase(ChallengePlot):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                pbge.alerts.TextAlert("You trace the path taken by the enemy mecha, and find their base.")
+                _=pbge.alerts.TextAlert("You trace the path taken by the enemy mecha, and find their base.")
             else:
-                ghcutscene.SimpleMonologueDisplay("[I_HAVE_TRACKED_ENEMY_MECHA] We know where their {BASE_NAME} is.".format(**self.elements), pc)(camp)
+                _=ghcutscene.SimpleMonologueDisplay("[I_HAVE_TRACKED_ENEMY_MECHA] We know where their {BASE_NAME} is.".format(**self.elements), pc, camp)
             self.elements["CHALLENGE"].advance(camp, self.elements["CHALLENGE"].points_target)
         else:
             self.elements["CHALLENGE"].advance(camp, 1)

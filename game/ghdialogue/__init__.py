@@ -254,31 +254,43 @@ class GearHeadConversation(pbge.dialogue.DynaConversation):
         self.chat_limit -= 1
 
 
+class GearHeadConversationWidget(dialogue.ConversationWidget):
+    TAGS_TO_DEACTIVATE={pbge.widgets.WTAG_WIDGET}
+    def __init__(self, camp: gears.GearHeadCampaign, pc, npc, cue=None):
+        # If this NPC has no relationship with the PC, create that now.
+        realnpc = npc.get_pilot()
+        if realnpc and not realnpc.relationship:
+            realnpc.relationship = camp.get_relationship(realnpc)
+        if not cue:
+            npcteam = camp.scene.local_teams.get(npc)
+            if npcteam and camp.scene.player_team.is_enemy(npcteam):
+                cue = ATTACK_STARTER
+            elif camp.is_favorable_to_pc(realnpc):
+                cue = HELLO_STARTER
+            elif npc not in camp.party and camp.is_unfavorable_to_pc(realnpc):
+                cue = UNFAVORABLE_STARTER
+            else:
+                cue = HELLO_STARTER
+        cviz = ghdview.ConvoVisualizer(npc, camp, pc=pc)
+        #cviz.rollout()
+        convo = GearHeadConversation(camp, realnpc, pc, cue)
+
+        super().__init__(conversation=convo, visualizer=cviz, font=pbge.my_state.medium_font, draw_border=False,)
+        self.menu.visible = False
+        self.waiting_on_rollout = True
+
+    def _render(self, delta):
+        super()._render(delta)
+        if self.waiting_on_rollout and not self.visualizer.is_rolling_out:
+            self.menu.visible = True
+            self.waiting_on_rollout = False
+
+
 def start_conversation(camp: gears.GearHeadCampaign, pc, npc, cue=None):
     # If this NPC has no relationship with the PC, create that now.
-    realnpc = npc.get_pilot()
-    if realnpc and not realnpc.relationship:
-        realnpc.relationship = camp.get_relationship(realnpc)
-    if not cue:
-        npcteam = camp.scene.local_teams.get(npc)
-        if npcteam and camp.scene.player_team.is_enemy(npcteam):
-            cue = ATTACK_STARTER
-        elif camp.is_favorable_to_pc(realnpc):
-            cue = HELLO_STARTER
-        elif npc not in camp.party and camp.is_unfavorable_to_pc(realnpc):
-            cue = UNFAVORABLE_STARTER
-        else:
-            cue = HELLO_STARTER
-    cviz = ghdview.ConvoVisualizer(npc, camp, pc=pc)
-    #cviz.rollout()
-    convo = GearHeadConversation(camp, realnpc, pc, cue, visualizer=cviz)
-
-    dialogue.ConversationWidget.push_state_and_instantiate(
-        conversation=convo, visualizer=cviz, font=pbge.my_state.medium_font, draw_border=False,
+    GearHeadConversationWidget.push_state_and_instantiate(
+        camp=camp, pc=pc, npc=npc, cue=cue
     )
-
-    if realnpc:
-        realnpc.relationship.met_before = True
 
 
 class OneShotInfoBlast(object):

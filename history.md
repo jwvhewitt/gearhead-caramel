@@ -1,3 +1,4 @@
+* MenuWidget activate_child_on_enter=True is now the default behaviour
 * Widgets now have a sort layer
 * Animations run automatically
 * Merit badges now added to singleton list

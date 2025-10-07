@@ -779,40 +779,46 @@ class DZDIntroMission( Plot ):
         if camp.scene is self.elements["LOCALE"]:
             self.tiles_moved += 1
             if self.tutorial_on and self.tiles_moved > 10 and not self.move_tutorial_done and not self.threat_tutorial_done:
-                mycutscene = SimpleMonologueDisplay("Good, you've got the basics of movement mastered. Keep going and let's see if we can find the raiders.",
-                                                    self.elements["SHERIFF"])
-                mycutscene(camp)
+                _=SimpleMonologueDisplay(
+                    "Good, you've got the basics of movement mastered. Keep going and let's see if we can find the raiders.",
+                    self.elements["SHERIFF"], camp
+                )
                 self.move_tutorial_done = True
             if self.tutorial_on and not self.threat_tutorial_done and game.exploration.current_explo and camp.scene.in_sight.intersection(game.exploration.current_explo.threat_tiles):
-                mycutscene = SimpleMonologueDisplay("I've identified the enemy's sensor range using my Target Analysis system; you should see it projected on your map as a red line. This region is called the Threat Area. Combat will begin as soon as we move into it.",
-                                                    self.elements["SHERIFF"])
-                mycutscene(camp)
+                _=SimpleMonologueDisplay(
+                    "I've identified the enemy's sensor range using my Target Analysis system; you should see it projected on your map as a red line. This region is called the Threat Area. Combat will begin as soon as we move into it.",
+                    self.elements["SHERIFF"], camp
+                )
                 self.threat_tutorial_done = True
 
     def t_START(self,camp):
         if camp.scene is self.elements["LOCALE"] and not self.started_the_intro:
-            mycutscene = SimpleMonologueDisplay(
+            _=SimpleMonologueDisplay(
                 "We're going to have to search this area to find the attacker. Hopefully we aren't too late.",
-                self.elements["SHERIFF"])
-            mycutscene(camp)
+                self.elements["SHERIFF"], camp
+            )
             if self.tutorial_on:
-                mycutscene = SimpleMonologueDisplay(
+                _=SimpleMonologueDisplay(
                     "Your mecha is controlled using the M.O.U.S.E. system- don't ask me what that stands for. Just click where you want to go and the navigation computer does the rest. I'll follow along right behind you.",
-                    self.elements["SHERIFF"])
-                mycutscene(camp, False)
+                    self.elements["SHERIFF"], camp, False
+                )
 
             self.started_the_intro = True
 
     def t_STARTCOMBAT(self,camp):
         if camp.scene is self.elements["LOCALE"] and self.tutorial_on and not self.combat_tutorial_done:
-            mycutscene = SimpleMonologueDisplay(
+            _=SimpleMonologueDisplay(
                 "Combat has started. Each round you get to take two actions; you can move and attack, or attack twice, or anything else you want to do.",
-                self.elements["SHERIFF"])
-            mycutscene(camp)
-            mycutscene.text = "There on the upper left you'll see the icons for the different types of action you can take: movement, attack, skills, and ending your turn. On the upper right is the interface for your currently selected action."
-            mycutscene(camp, False)
-            mycutscene.text = "To move, make sure your movement action is selected and just click where you want to go. To attack, you can either click on the attack icon or click on the enemy mecha. You can scroll through weapons and special attacks with the mouse wheel or the arrow keys."
-            mycutscene(camp, False)
+                self.elements["SHERIFF"], camp
+            )
+            _=SimpleMonologueDisplay(
+                "There on the upper left you'll see the icons for the different types of action you can take: movement, attack, skills, and ending your turn. On the upper right is the interface for your currently selected action.",
+                self.elements["SHERIFF"], camp, False
+            )
+            _=SimpleMonologueDisplay(
+                "To move, make sure your movement action is selected and just click where you want to go. To attack, you can either click on the attack icon or click on the enemy mecha. You can scroll through weapons and special attacks with the mouse wheel or the arrow keys.",
+                self.elements["SHERIFF"], camp, False
+            )
 
             self.combat_tutorial_done = True
 
@@ -821,10 +827,10 @@ class DZDIntroMission( Plot ):
             # If the player team gets wiped out, end the mission.
             myteam = self.elements["_eteam"]
             if len(myteam.get_members_in_play(camp)) < 1:
-                mycutscene = SimpleMonologueDisplay(
+                _=SimpleMonologueDisplay(
                     "We won! Let's head back to base and discuss our next move...",
-                    self.elements["SHERIFF"])
-                mycutscene(camp)
+                    self.elements["SHERIFF"], camp
+                )
                 self.end_the_mission(camp)
                 camp.check_trigger("WIN",self)
             elif not camp.first_active_pc():
@@ -872,10 +878,10 @@ class DZDKettelMission( DZDIntroMission ):
                 my_invo.invoke(camp, None, [self.elements["FUEL_TANKS"].pos, ], pbge.my_state.view.anim_list)
                 pbge.my_state.view.handle_anim_sequence()
 
-                mycutscene = SimpleMonologueDisplay(
+                _=SimpleMonologueDisplay(
                     "I admit, I was not expecting that. Let's head back to base...",
-                    self.elements["SHERIFF"])
-                mycutscene(camp)
+                    self.elements["SHERIFF"], camp
+                )
 
                 self.end_the_mission(camp)
                 camp.check_trigger("WIN",self)

@@ -1,16 +1,11 @@
-from pbge.plots import Plot, PlotState, Rumor, TimeExpiration
+from pbge.plots import Plot, PlotState
 import game
 import gears
 import pbge
-import pygame
 import random
-from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, ghcutscene, ghchallenges
-from pbge.dialogue import Offer, ContextTag, Reply
+from game.content import ghchallenges
+from pbge.dialogue import ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed, GHNarrativeRequest
-from . import missionbuilder, rwme_objectives, campfeatures
 from pbge.challenges import Challenge, AutoOffer
 
 
@@ -33,7 +28,7 @@ class ChallengeStarterPlot(Plot):
         self.elements["CHALLENGE"].activate(camp)
 
     def CHALLENGE_WIN(self, camp):
-        pbge.BasicNotification("Challenge complete!", count=160)
+        _=pbge.BasicNotification("Challenge complete!", count=160)
         camp.check_trigger("WIN", self)
         self.end_plot(camp)
 
@@ -125,7 +120,7 @@ class DethroneByPopularUprising(ChallengeStarterPlot):
                 reasons_to_support.append(reason.format(**self.elements))
 
         npc = self.elements["NPC"]
-        self.register_element("CHALLENGE", Challenge(
+        _=self.register_element("CHALLENGE", Challenge(
             "Popular Uprising", ghchallenges.DETHRONE_CHALLENGE, (npc,),
             ghchallenges.InvolvedMetroResidentNPCs(self.elements["METROSCENE"], exclude=[npc]),
             active=False, data={
@@ -308,8 +303,8 @@ class DiplomacyToDiscredit(ChallengeStarterPlot):
             list(self.NPC_DISAGREEMENT)]
 
 
-        npc = self.elements["NPC"]
-        self.register_element("CHALLENGE", Challenge(
+        #npc = self.elements["NPC"]
+        _=self.register_element("CHALLENGE", Challenge(
             "Discredit {NPC}".format(**self.elements),
             ghchallenges.DIPLOMACY_CHALLENGE, [faction_to_be_swayed, faction_doing_swaying],
             involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["METROSCENE"]), active=False,

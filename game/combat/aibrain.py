@@ -53,20 +53,6 @@ class DefaultTargeter(object):
                 return myinvo.fx.get_odds(camp, self.npc, target)
         return -1
 
-    def closest_target_selector(self, camp, target):
-        return -camp.scene.distance(self.npc.pos, target.pos)
-
-    def most_damaged_target_selector(self, camp, target):
-        return target.get_percent_damage_over_health()
-
-    def easiest_target_selector(self, camp, target):
-        myat = self.npc.get_primary_attack()
-        if myat:
-            myinvo = myat.get_first_working_invo(self.npc)
-            if myinvo and hasattr(myinvo.fx, "get_odds"):
-                return myinvo.fx.get_odds(camp, self.npc, target)
-        return -1
-
     def strongest_target_selector(self, camp, target):
         return target.cost
 
@@ -352,16 +338,17 @@ class BasicAI(object):
             )
             ejected = False
             if intimidating_pc:
-                ghcutscene.SimpleMonologueDisplay("[INTIMIDATION_MECHA_COMBAT]", intimidating_pc)(camp)
-                ghcutscene.SimpleMonologueDisplay("[EJECT_AFTER_INTIMIDATION]", self.npc)(camp, False)
+                _=ghcutscene.SimpleMonologueDisplay("[INTIMIDATION_MECHA_COMBAT]", intimidating_pc, camp)
+                _=ghcutscene.SimpleMonologueDisplay("[EJECT_AFTER_INTIMIDATION]", self.npc, camp, False)
                 ejected = True
             elif self.npc.get_current_speed() < 10 and perseverence + random.randint(-25,50) < self.npc.get_percent_damage_over_health():
-                ghcutscene.SimpleMonologueDisplay("[EJECT]", self.npc)(camp)
+                _=ghcutscene.SimpleMonologueDisplay("[EJECT]", self.npc, camp)
                 ejected = True
 
             if ejected:
+                # TODO: Turn the ejection into an Alert widget too
                 pbge.my_state.view.play_anims(gears.geffects.AnnounceEjectAnim(pos=self.npc.pos), gears.geffects.CrashAnim(self.npc))
-                self.npc.free_pilots()
+                _=self.npc.free_pilots()
                 return
 
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()

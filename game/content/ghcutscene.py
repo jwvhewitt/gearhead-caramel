@@ -1,5 +1,3 @@
-import collections
-
 from pbge import cutscene
 from .. import ghdialogue
 import random
@@ -35,7 +33,7 @@ class MonologuePresentation(cutscene.PresentationTemplate):
         msg = self.strings[0].format(**self.get_info_strings(info_blocks, node_state))
         npc = node_state.elements.get(self.speaker_id, None)
         if npc:
-            SimpleMonologueDisplay(msg, npc)(camp, self.SPEAKING_HAS_OCCURRED not in node_state.prev_state_tags)
+            _=SimpleMonologueDisplay(msg, npc, camp, self.SPEAKING_HAS_OCCURRED not in node_state.prev_state_tags)
         else:
             print("Error: No NPC found for monologue presentation {}".format(self.name))
 
@@ -45,7 +43,7 @@ class AlertThenMonologuePresentation(MonologuePresentation):
         msg = self.strings[1].format(**self.get_info_strings(info_blocks, node_state))
         npc = node_state.elements.get(self.speaker_id, None)
         if npc:
-            SimpleMonologueDisplay(msg, npc)(camp, self.SPEAKING_HAS_OCCURRED not in node_state.prev_state_tags)
+            _=SimpleMonologueDisplay(msg, npc, camp, self.SPEAKING_HAS_OCCURRED not in node_state.prev_state_tags)
         else:
             print("Error: No NPC found for monologue presentation {}".format(self.name))
 
@@ -175,20 +173,27 @@ class SkillRollCutscene(cutscene.Cutscene):
             self.play_list(camp,self.on_failure)
 
 
-class SimpleMonologueDisplay( object ):
-    def __init__(self,text,npc):
+class SimpleMonologueDisplay( pbge.alerts.AbstractAlert ):
+    def __init__(self, text, npc, camp, do_rollout=True, **kwargs):
         self.text=text
         self.npc=npc
-    def __call__(self,camp,do_rollout=True):
-        myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)
-        if do_rollout:
-            myviz.rollout()
+        self.viz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp, do_rollout=do_rollout)
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc, True)
-        myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
-        pbge.alerts.FunAlert(myviz.render)
-        pbge.my_state.record_message("{}: {}".format(self.npc.get_pilot(), myviz.text))
+        self.viz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
+        self.recorded_message = False
+        super().__init__(0, 0, 0, 0, **kwargs)
 
+    def _render(self, delta):
+        if not self.recorded_message:
+            pbge.my_state.record_message("{}: {}".format(self.npc.get_pilot(), self.viz.text))
+            self.recorded_message = True
+        self.viz.render(delta)
+
+    def _builtin_responder(self, ev):
+        if not self.viz.is_rolling_out:
+            super()._builtin_responder(ev)
+ 
 
 def alert_with_grammar(camp, text):
     # Do an alert display, but with grammar tokens correctly converted.

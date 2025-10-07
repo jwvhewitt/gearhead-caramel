@@ -329,7 +329,7 @@ class Plot(object):
             myscene.is_temporary = True
         return myscene
 
-    def custom_init(self, nart):
+    def custom_init(self, nart) -> bool|None:
         """Return True if everything ok, or False otherwise."""
         return True
 
@@ -454,7 +454,7 @@ class Plot(object):
         return None
 
     @classmethod
-    def matches(cls, pstate: PlotState) -> bool:
+    def matches(cls, pstate: PlotState) ->  bool|None:
         """Returns True if this plot matches the current plot state."""
         return True
 

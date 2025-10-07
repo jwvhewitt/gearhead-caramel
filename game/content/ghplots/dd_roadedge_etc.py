@@ -114,7 +114,7 @@ class BlackMarketBluesMain(Plot):
         mybh = [bh for bh in camp.get_active_party() if isinstance(bh, gears.base.Character) and bh.job and bh.job.name == "Bounty Hunter"]
         if mybh:
             npc = random.choice(mybh)
-            ghcutscene.SimpleMonologueDisplay("[I_DONT_FEEL_WELCOME]", npc)(camp)
+            _=ghcutscene.SimpleMonologueDisplay("[I_DONT_FEEL_WELCOME]", npc, camp)
 
     def _go_to_market(self, camp):
         if self.black_market_entry_status == self.BMES_ENTERED:
@@ -1671,7 +1671,7 @@ class WOTHCBM_PeacefulPeople(Plot):
         that_war.data["challenge_fears"].append("refuse to surrender".format(**self.elements))
 
 
-        self.register_element("PEACE_CHALLENGE", Challenge(
+        _=self.register_element("PEACE_CHALLENGE", Challenge(
             "Train an Army", ghchallenges.RAISE_ARMY_CHALLENGE, (self.elements["THIS_CITY"],),
             involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["THIS_CITY"]),
             active=False, points_target=5,
@@ -1696,10 +1696,10 @@ class WOTHCBM_PeacefulPeople(Plot):
     def _train_soldier(self, camp: gears.GearHeadCampaign, npc: gears.base.Character):
         pbge.alerts.TextAlert("You begin training {} in the ways of mecha warfare.".format(npc))
         if camp.do_skill_test(gears.stats.Knowledge, gears.stats.MechaPiloting, self.rank, gears.stats.DIFFICULTY_HARD):
-            ghcutscene.SimpleMonologueDisplay("[I_LEARNED_SOMETHING] I'm all ready to take on {THAT_CITY}!".format(**self.elements), npc)(camp, False)
+            _=ghcutscene.SimpleMonologueDisplay("[I_LEARNED_SOMETHING] I'm all ready to take on {THAT_CITY}!".format(**self.elements), npc, camp, False)
             self.elements["PEACE_CHALLENGE"].advance(camp, 1)
         else:
-            ghcutscene.SimpleMonologueDisplay("[I_LEARNED_NOTHING] [WE_ARE_DOOMED]", npc)(camp, False)
+            _=ghcutscene.SimpleMonologueDisplay("[I_LEARNED_NOTHING] [WE_ARE_DOOMED]", npc, camp, False)
 
     def _get_generic_offers( self, npc: gears.base.Character, camp ):
         # To start the peace process going, you need at least one person on either side or a lance member who is

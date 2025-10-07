@@ -20,7 +20,7 @@ SCROLL_STEP = 12
 
 PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
 
-DEBUG_ON = True
+DEBUG_ON = False
 
 
 class TextTicker(object):
