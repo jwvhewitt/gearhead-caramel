@@ -1,5 +1,6 @@
 import random
 
+from game.content import plotutility
 import game.content.gharchitecture
 import game.content.ghterrain
 import game.content.ghwaypoints
@@ -84,7 +85,7 @@ class EliminateWitnesses( Plot ):
         return mylist
     def _get_info(self,camp):
         self.obj.failed = True
-        self.elements["_eteam"].retreat(camp)
+        _=plotutility.TeamRetreatAlert(camp, self.elements["_eteam"])
         camp.dole_xp(100)
     def t_ENDCOMBAT(self,camp):
         myteam = self.elements["_eteam"]

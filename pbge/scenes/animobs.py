@@ -93,7 +93,7 @@ class AnimOb(object):
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
             if self.counter == 0 and self.sound_fx:
-                my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
+                _=my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
                                             allow_multiple_copies= self.ALLOW_MULTIPLE_SOUND_FX)
                 self.sound_fx = None
             self.counter += 1
@@ -200,7 +200,7 @@ class ShotAnim(AnimOb):
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
             if self.counter == 0 and self.sound_fx:
-                my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
+                _=my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
                                             allow_multiple_copies=self.ALLOW_MULTIPLE_SOUND_FX)
             self.counter += 1
             if self.counter >= len(self.itinerary):
@@ -238,7 +238,7 @@ class AnimatedShotAnim(ShotAnim):
         else:
             view.anims[view.pos_to_key(self.pos)].append(self)
             if self.counter == 0 and self.sound_fx:
-                my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
+                _=my_state.start_sound_effect(self.sound_fx, loops=self.sound_fx_loops,
                                             allow_multiple_copies=self.ALLOW_MULTIPLE_SOUND_FX)
             self.counter += 1
             self.frame += 1
@@ -276,7 +276,7 @@ class Caption(AnimOb):
             self.delay += -1
         else:
             if self.sound_fx:
-                my_state.start_sound_effect(self.sound_fx, loops=1,
+                _=my_state.start_sound_effect(self.sound_fx, loops=1,
                                             allow_multiple_copies=self.ALLOW_MULTIPLE_SOUND_FX)
 
             view.tickers[view.pos_to_key(self.pos)].add(self.txt, self.dy_off)
@@ -302,7 +302,7 @@ class MoveModel(object):
             start = model.pos
         self.itinerary = get_fline(start, dest, speed)
 
-    def update(self, view):
+    def update(self, _view):
         # This one doesn't appear directly, but moves a model.
         if self.delay > 0:
             self.delay += -1
@@ -312,6 +312,23 @@ class MoveModel(object):
                 self.needs_deletion = True
         else:
             self.needs_deletion = True
+
+class RemoveModel(object):
+    def __init__(self, model, delay=0):
+        self.model = model
+        self.delay = delay
+        self.step = 0
+        self.needs_deletion = False
+        self.children = list()
+
+    def update(self, view):
+        # This one doesn't appear directly, but moves a model.
+        if self.delay > 0:
+            self.delay += -1
+        else:
+            self.model.container.remove(self.model)
+            self.needs_deletion = True
+
 
 class WatchMeWiggle(object):
     # Bear with me. When a model attacks, sometimes it's not clear which model is attacking. So,
@@ -343,7 +360,7 @@ class WatchMeWiggle(object):
 class BlastOffAnim(object):
     # The model will fly up, up, up for around 1000 pixels. It does not come down again so if you want that you better
     # do it manually.
-    def __init__(self, model, delay=0, duration=50, speed=-1, acceleration=-1):
+    def __init__(self, model, delay=0, duration=50, speed=-1, acceleration=-1, children=()):
         self.model = model
         self.duration = duration
         self.height = 0
@@ -352,7 +369,7 @@ class BlastOffAnim(object):
         self.delay = delay
         self.step = 0
         self.needs_deletion = False
-        self.children = list()
+        self.children = list(children)
 
     def update(self, view):
         # This one doesn't appear directly, but moves a model.

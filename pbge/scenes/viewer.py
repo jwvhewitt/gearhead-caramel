@@ -374,8 +374,8 @@ class SceneView(object):
         myimage = my_state.tiny_font.render(txt, True, (240, 240, 240))
         mydest = myimage.get_rect(center=center)
         myfill = pygame.Rect(mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2)
-        my_state.screen.fill((36, 37, 36), myfill)
-        my_state.screen.blit(myimage, mydest)
+        _=my_state.screen.fill((36, 37, 36), myfill)
+        _=my_state.screen.blit(myimage, mydest)
 
     def has_animations(self):
         return self.anim_list or self.tickers

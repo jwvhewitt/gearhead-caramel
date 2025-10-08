@@ -268,6 +268,12 @@ class BigBoom(animobs.AnimOb):
     DEFAULT_SOUND_FX = "hq-explosion-6288.ogg"
 
 
+class FleeAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_flee.png"
+    DEFAULT_END_FRAME = 29
+    DEFAULT_SOUND_FX = "kenney_lose5.ogg"
+
+
 class MiasmaAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_gervais_miasma.png"
     DEFAULT_END_FRAME = 7

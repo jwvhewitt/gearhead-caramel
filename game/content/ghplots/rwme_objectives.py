@@ -2,16 +2,13 @@ from pbge.plots import Plot
 import game
 import gears
 import pbge
-import pygame
 import random
 from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints,plotutility,ghcutscene
-from pbge.dialogue import Offer, ContextTag, Reply
+from game.content import plotutility,ghcutscene
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
 from game.content import adventureseed
 from . import missionbuilder
-from gears import champions
 
 RWMO_A_CHALLENGER_APPROACHES = "RWMO_A_CHALLENGER_APPROACHES"
 RWMO_DISTRESS_CALL = "RWMO_DISTRESS_CALL"
@@ -45,19 +42,19 @@ class RWMO_ThisTimeItsPersonal(Plot):
         if mynpc.renown < self.rank:
             mynpc.job.scale_skills(mynpc, mynpc.renown + random.randint(1,10))
 
-        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
         myunit = gears.selector.RandomMechaUnit(self.rank, 120 - mynpc.get_reaction_score(nart.camp.pc, nart.camp),
                                                 myfac, myscene.environment, add_commander=False)
         self.add_sub_plot(nart,"MC_GRUDGE_MATCH", elements={"NPC":mynpc})
 
         team2.contents += myunit.mecha_list
 
-        self.obj = adventureseed.MissionObjective("Deal with {}".format(self.elements["_commander"]),
+        self.obj = adventureseed.MissionObjective("Deal with {}".format(self.elements["_commander"]),  # pyright: ignore[reportUninitializedInstanceVariable]
                                                   missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
         self.adv.objectives.append(self.obj)
 
-        self.intro_ready = True
-        self.alert_ready = True
+        self.intro_ready = True  # pyright: ignore[reportUninitializedInstanceVariable]
+        self.alert_ready = True  # pyright: ignore[reportUninitializedInstanceVariable]
 
         return True
 
@@ -82,18 +79,18 @@ class RWMO_ThisTimeItsPersonal(Plot):
         if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
 
-    def LOCALE_ENTER(self,camp: gears.GearHeadCampaign):
+    def LOCALE_ENTER(self,_camp: gears.GearHeadCampaign):
         if self.alert_ready:
             self.alert_ready = False
             # Allow the PC to decide whether or not to accept the challenge.
             npc = self.elements["_commander"]
-            pbge.alerts.TextAlert("The way forward is blocked by {}'s lance.".format(npc))
+            _=pbge.alerts.TextAlert("The way forward is blocked by {}'s lance.".format(npc))
 
     def _commander_offers(self, camp):
         mylist = list()
         npc = self.elements["_commander"]
 
-        ghdialogue.SkillBasedPartyReply(
+        _=ghdialogue.SkillBasedPartyReply(
             Offer(
                 "[CHANGE_MIND_AND_RETREAT]",
                 context=ContextTag([context.RETREAT, ]), effect=self._retreat,
@@ -105,8 +102,8 @@ class RWMO_ThisTimeItsPersonal(Plot):
         return mylist
 
     def _retreat(self, camp):
-        pbge.alerts.TextAlert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
-        self.elements["_eteam"].retreat(camp)
+        _=pbge.alerts.TextAlert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
+        _=plotutility.TeamRetreatAlert(camp, self.elements["_eteam"])
 
 
 class RWMO_TheGambler(Plot):
@@ -166,7 +163,7 @@ class RWMO_TheGambler(Plot):
             self.choice_ready = False
             # Allow the PC to decide whether or not to accept the challenge.
             npc = self.elements["_commander"]
-            pbge.alerts.TextAlert("You are approached by {}.".format(npc))
+            _=pbge.alerts.TextAlert("You are approached by {}.".format(npc))
 
             mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_DUEL]", npc, camp)
 
@@ -201,7 +198,7 @@ class RWMO_GenericChallenger(Plot):
         if mynpc.renown < self.rank:
             mynpc.job.scale_skills(mynpc, mynpc.renown + random.randint(1,10))
 
-        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
         myunit = gears.selector.RandomMechaUnit(self.rank, 120, myfac, myscene.environment, add_commander=False)
         self.add_sub_plot(nart,"MC_ENEMY_DEVELOPMENT",elements={"NPC":mynpc})
 
@@ -291,14 +288,14 @@ class RWMO_GenericChallenger(Plot):
         self.peace_npc.relationship.reaction_mod += random.randint(1,10)
         npc = self.elements["_commander"]
         if camp.do_skill_test(gears.stats.Ego, gears.stats.Negotiation, npc.renown):
-            ghcutscene.SimpleMonologueDisplay("[CHANGE_MIND_AND_RETREAT]", npc)
+            _=ghcutscene.SimpleMonologueDisplay("[CHANGE_MIND_AND_RETREAT]", npc, camp)
 
-            pbge.alerts.TextAlert("Your challengers flee the battlefield.")
-            self.elements["_eteam"].retreat(camp)
+            _=pbge.alerts.TextAlert("Your challengers flee the battlefield.")
+            _=plotutility.TeamRetreatAlert(camp, self.elements["_eteam"])
 
             camp.check_trigger("ENDCOMBAT")
 
-    def _choose_glory(self, camp):
+    def _choose_glory(self, _camp):
         self.chose_glory = True
 
     def cancel_the_adventure(self,camp: gears.GearHeadCampaign):
@@ -399,7 +396,9 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
         if candidates:
             npc = random.choice(candidates).get_pilot()
             npc.relationship.reaction_mod -= random.randint(6,10)
-            game.content.ghcutscene.SimpleMonologueDisplay("[WE_SHOULD_HAVE_HELPED_THEM]", npc)(camp)
+            _=game.content.ghcutscene.SimpleMonologueDisplay(
+                "[WE_SHOULD_HAVE_HELPED_THEM]", npc, camp
+            )
         self.cancel_the_adventure(camp)
 
     def _eteam_ACTIVATETEAM(self, camp):
@@ -407,10 +406,12 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
             self.eteam_activated = True
             if not self.pilot_fled:
                 if self.intimidation_primed:
-                    pbge.alerts.TextAlert("The hostile mecha freeze at the sight of {} striding confidently into battle.".format(self.intimidating_npc))
-                    ghcutscene.SimpleMonologueDisplay("[THREATEN]", self.intimidating_npc)(camp)
-                    pbge.alerts.TextAlert("The hostile mecha flee the battlefield.")
-                    self.elements["_eteam"].retreat(camp)
+                    _=pbge.alerts.TextAlert("The hostile mecha freeze at the sight of {} striding confidently into battle.".format(self.intimidating_npc))
+                    _=ghcutscene.SimpleMonologueDisplay(
+                        "[THREATEN]", self.intimidating_npc, camp
+                    )
+                    _=pbge.alerts.TextAlert("The hostile mecha flee the battlefield.")
+                    _=plotutility.TeamRetreatAlert(camp, self.elements["_eteam"])
                 else:
                     npc = self.elements["PILOT"]
                     camp.check_trigger("START",npc)
@@ -513,7 +514,9 @@ class FavorableDistressCall(missionbuilder.BAM_RescueSomeone):
         if candidates:
             npc = random.choice(candidates).get_pilot()
             npc.relationship.reaction_mod -= random.randint(6,10)
-            game.content.ghcutscene.SimpleMonologueDisplay("[WE_SHOULD_HAVE_HELPED_THEM]", npc)(camp)
+            _=game.content.ghcutscene.SimpleMonologueDisplay(
+                "[WE_SHOULD_HAVE_HELPED_THEM]", npc, camp
+            )
         self.cancel_the_adventure(camp)
 
     def cancel_the_adventure(self,camp):
@@ -582,7 +585,9 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
         if candidates:
             npc = random.choice(candidates).get_pilot()
             npc.relationship.reaction_mod -= random.randint(1,6)
-            game.content.ghcutscene.SimpleMonologueDisplay("[WE_SHOULD_HAVE_HELPED_THEM]", npc)(camp)
+            _=game.content.ghcutscene.SimpleMonologueDisplay(
+                "[WE_SHOULD_HAVE_HELPED_THEM]", npc, camp
+            )
         self.cancel_the_adventure(camp)
 
     def go_for_duty(self, camp):
@@ -597,7 +602,10 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
         if candidates:
             npc = random.choice(candidates).get_pilot()
             npc.relationship.reaction_mod -= random.randint(1,6)
-            game.content.ghcutscene.SimpleMonologueDisplay("If your idea of justice is protecting the corporations at the expense of the rest of us, then I want no part in it.", npc)(camp)
+            _=game.content.ghcutscene.SimpleMonologueDisplay(
+                "If your idea of justice is protecting the corporations at the expense of the rest of us, then I want no part in it.", 
+                npc, camp
+            )
 
     def abandon_distress_call(self, camp: gears.GearHeadCampaign):
         # Any non-criminal lancemates won't like this decision.
@@ -606,7 +614,9 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
         if candidates:
             npc = random.choice(candidates).get_pilot()
             npc.relationship.reaction_mod -= random.randint(6,10)
-            game.content.ghcutscene.SimpleMonologueDisplay("[WE_SHOULD_HAVE_HELPED_THEM]", npc)(camp)
+            _=game.content.ghcutscene.SimpleMonologueDisplay(
+                "[WE_SHOULD_HAVE_HELPED_THEM]", npc, camp
+            )
         self.cancel_the_adventure(camp)
 
 

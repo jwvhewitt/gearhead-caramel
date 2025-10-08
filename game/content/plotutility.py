@@ -37,6 +37,20 @@ class AdventureModuleData:
             camp.convoborder = self.convoborder
 
 
+#  **********************
+#  ***  UI UTILITIES  ***
+#  **********************
+
+class TeamRetreatAlert(pbge.alerts.AnimAlert):
+    def __init__(self, camp, team_to_remove, **kwargs):
+        anims = list()
+        for npc in list(camp.scene.contents):
+            if camp.scene.local_teams.get(npc, None) == self:
+                anims.append(gears.geffects.FleeAnim(pos=npc.pos, children=[pbge.scenes.animobs.RemoveModel(npc)]))
+
+        super().__init__(*anims, **kwargs)
+
+
 class CashRewardWithNotification(pbge.BasicNotification):
     def __init__(self, camp: gears.GearHeadCampaign, reward):
         camp.credits += reward
@@ -71,6 +85,9 @@ class ItemGiverWithDisplay:
         self.info_panel.render(mydest.x, mydest.y)
 
 
+#  **************************
+#  ***  SCENE CONNECTORS  ***
+#  **************************
 
 class SceneConnection(object):
     DEFAULT_ROOM_1 = pbge.randmaps.rooms.OpenRoom
@@ -237,6 +254,10 @@ class StairsUpToStairsDownConnector(StairsDownToStairsUpConnector):
     DEFAULT_DOOR_2 = ghwaypoints.StairsDown
 
 
+#  ***************************
+#  ***  RANDOM GENERATORS  ***
+#  ***************************
+
 class RandomBanditCircle(gears.factions.Circle):
     CHART_A = ("Brutal", "Cruel", "Desert", "Deadly", "Frenzied", "Angry", "Despicable", "Evil", "Freaky", "Greedy",
                "Glorious", "Hellbound", "Horrid", "Invincible", "Jolly", "Killer", "Lucky", "Larcenous", "Murderous",
@@ -402,7 +423,7 @@ class CharacterMover(object):
         if not plot.scope:
             print("Warning: Plot {} has no scope set")
 
-        character.restore_all()
+        _=character.restore_all()
         self.character = character
         self.original_container = character.container
 
@@ -426,7 +447,7 @@ class CharacterMover(object):
                 character = mek
 
         self.dest = dest_scene
-        character.place(dest_scene, team=dest_team)
+        _=character.place(dest_scene, team=dest_team)
 
         self.allow_death = allow_death
         plot.call_on_end.append(self)
@@ -441,7 +462,7 @@ class CharacterMover(object):
         if not self.done:
             if self.character.is_not_destroyed() or not self.allow_death:
                 # print("Checking...")
-                self.character.restore_all()
+                _=self.character.restore_all()
                 if self.character.scene is self.dest or not self.character.scene:
                     if hasattr(self.character, "container") and self.character.container:
                         self.character.container.remove(self.character)

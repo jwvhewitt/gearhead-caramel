@@ -2,15 +2,11 @@ from pbge.plots import Plot, PlotState, Rumor
 import game
 import gears
 import pbge
-import pygame
 import random
-from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints,plotutility,ghcutscene
-from pbge.dialogue import Offer, ContextTag, Reply
+from game.content import gharchitecture,ghcutscene
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed
-from . import missionbuilder, rwme_objectives, campfeatures
+from . import missionbuilder, campfeatures
 
 SEEK_ENEMY_BASE_MISSION = "SEEK_ENEMY_BASE_MISSION"
 AUTOFIND_ENEMY_BASE_MISSION = "AUTOFIND_ENEMY_BASE_MISSION"
@@ -247,11 +243,11 @@ class CriminalCombatBaseSearch(BasicCombatBaseSearch):
     MISSION_OBJECTIVES = (missionbuilder.BAMO_RECOVER_CARGO, SEBO_SEARCH_FOR_BASE)
 
     @classmethod
-    def matches( self, pstate ):
+    def matches( cls, pstate ):
         return "ENEMY_FACTION" in pstate.elements and gears.tags.Criminal in pstate.elements["ENEMY_FACTION"].factags
 
     def is_good_npc(self, nart, candidate):
-        return (
+        return bool(
             isinstance(candidate, gears.base.Character) and candidate not in nart.camp.party and
             gears.tags.SCENE_PUBLIC in candidate.scene.attributes and
             {gears.tags.Merchant, gears.tags.CorporateWorker, gears.tags.Laborer}.intersection(candidate.get_tags())
@@ -378,18 +374,24 @@ class SEBOSearchForBase( Plot ):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Wildcraft, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                pbge.alerts.TextAlert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
+                _=pbge.alerts.TextAlert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
             else:
-                ghcutscene.SimpleMonologueDisplay("Take a look at these tracks... I think we can trace them back to {}.".format(self.elements["ENEMY_BASE_NAME"]),pc)(camp)
+                _=ghcutscene.SimpleMonologueDisplay(
+                    "Take a look at these tracks... I think we can trace them back to {}.".format(self.elements["ENEMY_BASE_NAME"]),
+                    pc, camp
+                )
             self.find_the_base(camp, True)
 
     def attempt_computers(self,camp):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Computers, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                pbge.alerts.TextAlert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))
+                _=pbge.alerts.TextAlert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))
             else:
-                ghcutscene.SimpleMonologueDisplay("[LOOK_AT_THIS] I managed to hack into their navcomp and found out where {} is.".format(self.elements["ENEMY_BASE_NAME"]),pc)(camp)
+                _=ghcutscene.SimpleMonologueDisplay(
+                    "[LOOK_AT_THIS] I managed to hack into their navcomp and found out where {} is.".format(self.elements["ENEMY_BASE_NAME"]),
+                    pc, camp
+                )
             self.find_the_base(camp, True)
 
     def find_the_base(self,camp: gears.GearHeadCampaign, win_mission=False):

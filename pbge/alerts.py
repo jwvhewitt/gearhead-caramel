@@ -94,3 +94,12 @@ class AnimAlert(AbstractAlert):
     def _builtin_responder(self, ev):
         if not my_state.view.has_animations() and not self.anim_list:
             super()._builtin_responder(ev)
+
+
+class InvocationAlert(AnimAlert):
+    def __init__(self, invo, camp, originator, target_points, invo_data=None, **kwargs):
+        anim_list = list()
+        invo.invoke(camp, originator, target_points, anim_list, data=invo_data)
+        super().__init__(anim_list, **kwargs)
+
+

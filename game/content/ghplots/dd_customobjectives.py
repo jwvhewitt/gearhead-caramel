@@ -83,7 +83,7 @@ class DDBAMO_BloodFromASynth(Plot):
             context=ContextTag([context.ATTACK, ])))
         mylist.append(Offer("[WITHDRAW]", effect=self._player_retreat, context=ContextTag([context.WITHDRAW, ])))
         mylist.append(Offer("[CHALLENGE]", context=ContextTag([context.CHALLENGE, ])))
-        ghdialogue.SkillBasedPartyReply(
+        _=ghdialogue.SkillBasedPartyReply(
             Offer(
                 "Wait, this is just regular radioactive waste?! Forget you saw us here! Alright, team, move out... this is another dead end.",
                 context=ContextTag([context.COMBAT_CUSTOM]),
@@ -96,11 +96,11 @@ class DDBAMO_BloodFromASynth(Plot):
         return mylist
 
     def _player_retreat(self, camp: gears.GearHeadCampaign):
-        camp.scene.player_team.retreat(camp)
+        _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
 
     def _enemies_retreat(self, camp):
         myteam = self.elements["_eteam"]
-        myteam.retreat(camp)
+        _=plotutility.TeamRetreatAlert(camp, myteam)
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -653,10 +653,10 @@ class DDBAM_FightCetusNextTime(Plot):
             pbge.my_state.view.handle_anim_sequence()
 
             if self.regen_count > 1 and not self._has_an_advantage(camp):
-                pbge.alerts.TextAlert("Once again, Cetus rockets into the air and quickly disappears from sight.")
-                pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
-                                              pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
-                camp.scene.contents.remove(self.cetus)
+                _=pbge.alerts.TextAlert("Once again, Cetus rockets into the air and quickly disappears from sight.")
+                _=pbge.alerts.AnimAlert(gears.geffects.SmokePoof(pos=self.cetus.pos),
+                                              pbge.scenes.animobs.BlastOffAnim(model=self.cetus, children=pbge.scenes.animobs.RemoveModel(self.cetus)))
+
             elif self.regen_count > 2:
                 if camp.campdata["DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED:
                     _=pbge.alerts.TextAlert(
@@ -672,23 +672,26 @@ class DDBAM_FightCetusNextTime(Plot):
                     _=pbge.alerts.TextAlert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(
                         **self.elements))
                     # TODO: AnimAlert here
-                    pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
-                                                  pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
-                    camp.scene.contents.remove(self.cetus)
-                    camp.scene.player_team.retreat(camp)
+                    _=pbge.alerts.AnimAlert(
+                        gears.geffects.SmokePoof(pos=self.cetus.pos),
+                        pbge.scenes.animobs.BlastOffAnim(model=self.cetus, children=pbge.scenes.animobs.RemoveModel(self.cetus))
+                    )
+                    _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
                 else:
-                    pbge.alerts.TextAlert(
+                    _=pbge.alerts.TextAlert(
                         "This last regeneration seems to have left Cetus dazed. You contact The Voice of Iijima with your current coordinates.")
-                    pbge.alerts.TextAlert("Your lance makes a hasty withdrawl as hypervelocity missiles streak overhead.")
-                    camp.scene.player_team.retreat(camp)
-                    my_invo = pbge.effects.Invocation(
-                        fx=gears.geffects.DoDamage(20, 8, anim=gears.geffects.SuperBoom,
-                                                   scale=gears.scale.MechaScale,
-                                                   is_brutal=True),
-                        area=pbge.scenes.targetarea.SelfCentered(radius=9, delay_from=-1))
-                    my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
-                    pbge.my_state.view.handle_anim_sequence()
-                    camp.scene.contents.remove(self.cetus)
+                    _=pbge.alerts.TextAlert("Your lance makes a hasty withdrawl as hypervelocity missiles streak overhead.")
+                    _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team, on_close=self._go_nuclear, data=camp)
+
+    def _go_nuclear(self, wid, _ev):
+        camp = wid.data
+        my_invo = pbge.effects.Invocation(
+            fx=gears.geffects.DoDamage(20, 8, anim=gears.geffects.SuperBoom,
+                                        scale=gears.scale.MechaScale,
+                                        is_brutal=True),
+            area=pbge.scenes.targetarea.SelfCentered(radius=9, delay_from=-1))
+        _=my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
+        camp.scene.contents.remove(self.cetus)
 
     def t_CHEATINGFUCKINGBASTARD(self, camp):
         self.cetus.hp_damage += 100000

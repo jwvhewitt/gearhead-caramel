@@ -291,7 +291,7 @@ class BMB_AttemptEntry(Plot):
             data={"reply": "[LETSFIGHT]"}
         ))
 
-        ghdialogue.SkillBasedPartyReply(
+        _=ghdialogue.SkillBasedPartyReply(
             Offer(
                 "[CHANGE_MIND_AND_RETREAT]",
                 context=ContextTag([context.RETREAT, ]), effect=self._retreat,
@@ -300,7 +300,7 @@ class BMB_AttemptEntry(Plot):
             no_random=False
         )
 
-        ghdialogue.SkillBasedPartyReply(
+        _=ghdialogue.SkillBasedPartyReply(
             Offer(
                 "In that case, you're free to pass.",
                 context=ContextTag([context.COMBAT_CUSTOM, ]), effect=self._permission,
@@ -309,7 +309,7 @@ class BMB_AttemptEntry(Plot):
             no_random=False
         )
 
-        ghdialogue.TagBasedPartyReply(
+        _=ghdialogue.TagBasedPartyReply(
             Offer(
                 "Sounds legit. You're free to pass.",
                 context=ContextTag([context.COMBAT_CUSTOM, ]), effect=self._permission,

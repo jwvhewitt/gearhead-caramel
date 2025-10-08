@@ -403,6 +403,8 @@ class ExploCommandWidget(pbge.widgets.Widget):
                     # self.camp.save(self.screen)
                     pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
                     self.register_response()
+                # elif ev.unicode == "F":
+                #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
 
     def on_activate(self):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
