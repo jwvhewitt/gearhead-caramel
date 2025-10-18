@@ -140,7 +140,7 @@ class MyMi_DoubleEncounter(Plot):
             "I let you go home from a mission early without even fighting",
             10, memtags=(gears.relationships.MEM_Clash, gears.relationships.MEM_CallItADraw)
         ))
-        self.elements["_eteam"].retreat(camp)
+        _=plotutility.TeamRetreatAlert(camp, self.elements["_eteam"])
 
     def friendly_withdraw(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
@@ -151,8 +151,7 @@ class MyMi_DoubleEncounter(Plot):
             10, memtags=(gears.relationships.MEM_Clash, gears.relationships.MEM_CallItADraw)
         ))
         self.obj.win(camp, 25 + npc.get_reaction_score(camp.pc, camp))
-        camp.scene.player_team.retreat(camp)
-
+        _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
 
 
 class MyMi_LancemateTimedDefense(mission_bigobs.BAM_TimedDefense):

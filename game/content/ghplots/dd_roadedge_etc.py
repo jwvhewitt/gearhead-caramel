@@ -320,11 +320,11 @@ class BMB_AttemptEntry(Plot):
         return mylist
 
     def _retreat(self, camp):
-        pbge.alerts.TextAlert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
-        self.elements["_eteam"].retreat(camp)
+        _=pbge.alerts.TextAlert("{}'s lance flees the battlefield.".format(self.elements["_commander"]))
+        _=plotutility.TeamRetreatAlert(camp, self.elements["_eteam"])
 
     def _withdraw(self, camp):
-        self.elements["LOCALE"].player_team.retreat(camp)
+        _=plotutility.TeamRetreatAlert(camp, self.elements["LOCALE"].player_team)
 
     def _permission(self, camp):
         self.adv.cancel_adventure(camp)

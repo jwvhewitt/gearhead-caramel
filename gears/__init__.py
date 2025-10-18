@@ -397,7 +397,7 @@ class GearHeadScene(pbge.scenes.Scene):
                         print("Warning: {} could not be placed in {}".format(npc, self))
                         #npc.pos = (0,0)
                 if hasattr(npc, "gear_up") and npc.pos and self.on_the_map(*npc.pos):
-                    npc.gear_up(self.scene)
+                    npc.gear_up(self)
 
         if self.player_team:
             for npc, npcteam in list(self.local_teams.items()):

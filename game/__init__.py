@@ -19,18 +19,28 @@ import pbge
 import os
 
 
-class AdventureMenu(object):
+class StartCampaignWidget(pbge.widgetmenu.MenuWidget):
     LEFT_COLUMN = pbge.frects.Frect(-300, -250,280,500)
     RIGHT_COLUMN = pbge.frects.Frect(20,-100,280,350)
     TEXT_AREA = pbge.frects.Frect(20,-250,280,110)
 
-    def __init__(self, egg, redrawer):
-        self.egg = egg
-        self.redrawer = redrawer
-        self.posters = dict()
+    TAGS_TO_HIDE = {exploration.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
 
-    def adventure_desc(self, menu_item):
-        item = menu_item.value
+    def __init__(self, egg, version):
+        super().__init__(
+            self.RIGHT_COLUMN.dx, self.RIGHT_COLUMN.dy, self.RIGHT_COLUMN.w, self.RIGHT_COLUMN.h,
+            font=pbge.my_state.huge_font,
+            on_escape=self._cancel
+        )
+        self.egg = egg
+        self.version = version
+        self.posters = dict()
+        self.build_menu()
+
+    def _render(self, delta):
+        item = self.current_data
+        desc = self.current_desc
         if item:
             myrect = self.LEFT_COLUMN.get_rect()
             pbge.default_border.render(myrect)
@@ -38,49 +48,44 @@ class AdventureMenu(object):
                 if item not in self.posters:
                     self.posters[item] = pbge.image.Image(item.ADVENTURE_MODULE_DATA.title_card)
                 self.posters[item].render((myrect.x,myrect.y))
-            if menu_item.desc:
+            if desc:
                 myrect = self.TEXT_AREA.get_rect()
                 pbge.default_border.render(myrect)
-                pbge.draw_text(pbge.MEDIUMFONT, menu_item.desc, myrect)
+                pbge.draw_text(pbge.MEDIUMFONT, desc, myrect)
+        super()._render(delta)
 
-    def __call__(self):
-        mymenu = pbge.rpgmenu.Menu(
-            self.RIGHT_COLUMN.dx,
-            self.RIGHT_COLUMN.dy,
-            self.RIGHT_COLUMN.w, self.RIGHT_COLUMN.h,
-            font=pbge.my_state.huge_font, predraw=self.redrawer, padding=16
-        )
-        mymenu.descobj = self.adventure_desc
-
-        for p in content.ghplots.UNSORTED_PLOT_LIST:
+    def build_menu(self):
+        for p in content.UNSORTED_PLOT_LIST:
             if hasattr(p, "ADVENTURE_MODULE_DATA") and p.ADVENTURE_MODULE_DATA.can_play(self.egg):
-                mymenu.add_item(
-                    p.ADVENTURE_MODULE_DATA.name, p,
-                    'NT{}.{:02}.{:02}: {}'.format(*p.ADVENTURE_MODULE_DATA.date, p.ADVENTURE_MODULE_DATA.desc)
+                _=self.add_item(
+                    p.ADVENTURE_MODULE_DATA.name, on_click=self.click_your_own_adventure, data=p,
+                    desc='NT{}.{:02}.{:02}: {}'.format(*p.ADVENTURE_MODULE_DATA.date, p.ADVENTURE_MODULE_DATA.desc)
                 )
-        mymenu.items.sort(key=lambda x: x.value.ADVENTURE_MODULE_DATA.date)
+        self.sort(key=lambda x: x.data.ADVENTURE_MODULE_DATA.date)
 
-        mymenu.add_item("[Cancel]", None)
-        return mymenu.query()
+        _=self.add_item("[Cancel]", on_click=self._cancel, data=None)
 
+    def _cancel(self, _wid, _ev):
+        self.pop()
 
-def start_campaign(pc_egg, redrawer, version):
-    mymenu = AdventureMenu(pc_egg, redrawer)
-    adv_type = mymenu()
+    def click_your_own_adventure(self, wid, _ev):
+        adv_type = wid.data
+        if adv_type:
+            self.pop()
+            pbge.please_stand_by()
+            cs = content.narrative_convenience_function(self.egg,adv_type=adv_type.LABEL)
+            if cs:
+                camp, story = cs
+                camp.version = self.version
+                #camp._really_go()
+                camp.save()
 
-    if adv_type:
-        pbge.please_stand_by()
-        camp = content.narrative_convenience_function(pc_egg,adv_type=adv_type.LABEL)
-        if camp:
-            camp.version = version
-            camp._really_go()
-            camp.save()
+                if not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    self.egg.backup()
+                    os.remove(pbge.util.user_dir(pbge.util.sanitize_filename("egg_{}.sav".format(self.egg.pc.name))))
 
-            if not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                pc_egg.backup()
-                os.remove(pbge.util.user_dir(pbge.util.sanitize_filename("egg_{}.sav".format(pc_egg.pc.name))))
+                camp.play(dest_wp=story.elements.get(pbge.plots.ENTRANCE))
 
-            camp.play()
 
 
 def init_game():

@@ -3,9 +3,8 @@ from pbge.plots import Plot, PlotState
 from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
 import gears
-import game.content.gharchitecture
-import game.content.plotutility
-import game.content.ghterrain
+import game
+from game.content import plotutility
 import random
 from gears import relationships
 from gears.relationships import Memory
@@ -98,14 +97,14 @@ class BasicBattleConversation(Plot):
 
     def _player_retreat(self, camp: gears.GearHeadCampaign):
         if self.LABEL != "TEST_ENEMY_CONVO":
-            camp.scene.player_team.retreat(camp)
+            plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
 
     def _enemies_retreat(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
         myroot = npc.get_root()
         myteam = camp.scene.local_teams.get(myroot, None)
         if myteam:
-            myteam.retreat(camp)
+            _=plotutility.TeamRetreatAlert(camp, myteam)
         elif myroot in camp.scene.contents:
             camp.scene.contents.remove(myroot)
 

@@ -2,6 +2,9 @@ import random
 from . import dialogue
 from .memos import Memo
 
+LOCALE = "LOCALE"
+ENTRANCE = "ENTRANCE"
+
 
 class PlotError(Exception):
     """Plot init will call this if initialization impossible."""
@@ -247,7 +250,7 @@ class Plot(object):
         sp = self.add_sub_plot(nart, locale_type, ident=ident)
         if sp:
             self.register_element("LOCALE", sp.elements.get("LOCALE"))
-            nart.camp.go(sp.elements.get("ENTRANCE"))
+            self.elements[ENTRANCE] = sp.elements.get("ENTRANCE")
         return sp
 
     def place_element(self, ele, dest):

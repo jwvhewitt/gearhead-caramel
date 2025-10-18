@@ -115,15 +115,16 @@ class DZDTitleScreenRedraw(object):
 TITLE_THEME = 'A wintertale.ogg'
 
 
-class StartGameMenu:
-    MENU_COLUMN = pbge.frects.Frect(20,-100,280,350)
+class StartGameMenuWidget(pbge.widgetmenu.MenuWidget):
+    TAGS_TO_HIDE = {exploration.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
 
-    def __init__(self, tsrd):
-        self.tsrd = tsrd
-        self.menu = pbge.rpgmenu.Menu(self.MENU_COLUMN.dx, self.MENU_COLUMN.dy,
-                                   self.MENU_COLUMN.w, self.MENU_COLUMN.h,
-                                   predraw=self, font=pbge.my_state.huge_font,
-                                   )
+    def __init__(self):
+        super().__init__(
+            dx=20, dy=-100, w=280, h=350, 
+            font=pbge.my_state.huge_font,
+            on_escape=self._cancel
+        )
         self.myportraits = dict()
 
         self.sl = pbge.StretchyLayer()
@@ -141,26 +142,30 @@ class StartGameMenu:
                 print("Error in {}- {}".format(fname, e))
                 egg = None
             if egg:
-                _=self.menu.add_item(str(egg.pc), egg)
+                _=self.add_item(str(egg.pc), on_click=self.choose_pc, data=egg)
                 self.myportraits[egg] = egg.pc.get_portrait()
 
-        if not self.menu.items:
-            _=self.menu.add_item('[No characters found]', None)
+        if self.is_empty():
+            _=self.add_item('[No characters found]', on_click=self._cancel, data=None)
 
-        self.menu.sort()
-        egg = self.menu.query()
-        if egg:
-            game.start_campaign(egg, tsrd, VERSION)
+        self.sort()
 
-    def __call__(self):
-        self.tsrd()
-        menu_item = self.menu.get_current_item()
-        if menu_item and menu_item.value:
+    def choose_pc(self, wid, _ev):
+        self.pop()
+        game.StartCampaignWidget.push_state_and_instantiate(egg=wid.data, version=VERSION)
+
+    def _render(self, delta):
+        menu_item = self.active_item
+        if menu_item and menu_item.data:
             self.sl.clear()
-            myimage = self.myportraits[menu_item.value]
+            myimage = self.myportraits[menu_item.data]
             portrait_area = pygame.Rect(self.sl.get_width()//2 - 400, 0, 400, 600)
             myimage.render(portrait_area, dest_surface=self.sl.surf)
             self.sl.render()
+        super()._render(delta)
+
+    def _cancel(self, _wid, _ev):
+        self.pop()
 
 
 class TestStartGame:
@@ -217,6 +222,7 @@ def prep_eggs_for_steam(tsrd):
             args[-1].save()
         except Exception as err:
             print(err)
+
 
 class BadSaveFileWidget(pbge.widgetmenu.AlertMenuWidget):
     def __init__(self, fname, err):
@@ -364,6 +370,7 @@ def open_config_menu(tsrd):
 def open_chargen_menu(*args, **kwargs):
     game.chargen.CharacterGeneratorW.push_state_and_instantiate(*args, **kwargs)
 
+
 def draw_border():
     _=pbge.my_state.screen.fill((0, 0, 255))
     myarea = pbge.frects.Frect(-250, 150, 500, 100)
@@ -441,7 +448,7 @@ class MainMenu(pbge.widgets.Widget):
         self.children.append(self._menu)
 
         _=self._menu.add_item("Load Campaign", self._open_load_menu)
-        _=self._menu.add_item("Start Campaign", StartGameMenu)
+        _=self._menu.add_item("Start Campaign", self._open_start_menu)
         _=self._menu.add_item("Create Character", open_chargen_menu)
         _=self._menu.add_item("Import GH1 Character", import_arena_character)
         _=self._menu.add_item("Config Options", open_config_menu)
@@ -478,6 +485,9 @@ class MainMenu(pbge.widgets.Widget):
 
     def _open_load_menu(self, _widget, _ev):
         LoadGameMenuWidget.push_state_and_instantiate()
+
+    def _open_start_menu(self, _widget, _ev):
+        StartGameMenuWidget.push_state_and_instantiate()
 
     def _builtin_responder(self, ev):
         if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:

@@ -207,8 +207,8 @@ class Campaign(object):
             my_state.session_data[SDAT_DESTINATION] = dest_wp
 
     def arrive_at_destination(self):
-        dest_wp = my_state.session_data[SDAT_DESTINATION]
-        dest_scene = self.destination.scene
+        dest_wp: scenes.waypoints.Waypoint = my_state.session_data[SDAT_DESTINATION]
+        dest_scene = dest_wp.scene
 
         if self.scene:
             self.remove_party_from_scene()
@@ -217,11 +217,14 @@ class Campaign(object):
         self.place_party(dest_wp)
         self.entered_via = dest_wp
 
-    def play(self):
+    def play(self, dest_wp=None):
         # Take this loop apart and turn it into a series of callbacks.
         # Do the same for the subclass in gears
         # Exploration needs to be a widget that pops back to the campaign upon scene change/game over
         my_state.session_data.clear()
+        if dest_wp:
+            self.go(dest_wp)
+            self.arrive_at_destination()
         camp_handler = SessionMonitor(self)
         my_state.widgets.append(camp_handler)
         camp_handler.play_campaign()

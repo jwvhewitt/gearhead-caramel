@@ -42,7 +42,7 @@ def narrative_convenience_function( pc_egg, adv_type="SCENARIO_DEADZONEDRIFTER" 
     nart = GHNarrativeRequest(camp,init,adv_type,PLOT_LIST)
     if nart.story:
         nart.build()
-        return nart.camp
+        return nart.camp, nart.story
     else:
         for e in nart.errors:
             print(e)

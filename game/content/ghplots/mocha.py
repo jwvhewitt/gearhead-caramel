@@ -1,3 +1,4 @@
+from game.content import plotutility
 from pbge.plots import Plot, Adventure, PlotState
 import gears
 import pbge
@@ -1562,8 +1563,12 @@ class Encounter_LastBanditStanding(Encounter_BasicBandits):
 
     def _run_away(self, camp):
         # The bandits will run away.
-        pbge.alerts.TextAlert("{} withdraws.".format(str(self.elements["_MIDBOSS"])))
-        self.elements["ETEAM"].retreat(camp)
+        _=pbge.alerts.TextAlert("{} withdraws.".format(str(self.elements["_MIDBOSS"])))
+        _=plotutility.TeamRetreatAlert(camp, self.elements["ETEAM"], data=camp, on_close=self._end_combat_from_alert)
+        self.t_ENDCOMBAT(camp)
+
+    def _end_combat_from_alert(self, wid, _ev):
+        camp = wid.data
         self.t_ENDCOMBAT(camp)
 
     def t_ENDCOMBAT(self, camp):
@@ -1574,7 +1579,7 @@ class Encounter_LastBanditStanding(Encounter_BasicBandits):
             meks = gears.selector.RandomMechaUnit(25, 50, gears.factions.AegisOverlord, myscene.environment).mecha_list
             for mek in meks:
                 myscene.place_actor(mek, pos[0], pos[1], self.elements["ETEAM"])
-            pbge.alerts.TextAlert("Suddenly, a group of Aegis mecha emerge from the forest.")
+            _=pbge.alerts.TextAlert("Suddenly, a group of Aegis mecha emerge from the forest.")
 
     def _MIDBOSS_offers(self, camp):
         mylist = list()

@@ -4,11 +4,12 @@ from pbge import my_state,draw_text,default_border
 
 import gears
 
-class LancemateConvoItem(pbge.widgets.LabelWidget):
+
+class CameoMenuItem(pbge.widgets.LabelWidget):
+    # A menu item with a cameo of an NPC off to the side.
     PORTRAIT_AREA = (-120,50,100,100)
     SORT_LAYER = -1
-    def __init__(self,msg,data,npc,msg_form = '{} says "{}"', **kwargs):
-        msg = msg_form.format(npc,msg)
+    def __init__(self,msg,data,npc,**kwargs):
         super().__init__(0,0,0,0,msg,data=data,**kwargs)
         self.npc = npc
         self.portrait = npc.get_portrait()
@@ -22,6 +23,13 @@ class LancemateConvoItem(pbge.widgets.LabelWidget):
             mydest.h = 100
             pbge.default_border.render(mydest)
             self.portrait.render(mydest,1)
+
+
+class LancemateConvoItem(CameoMenuItem):
+    # A Cameo Menu Item that automatically formats the message as '{npc} says "{msg}"'
+    def __init__(self,msg,data,npc,msg_form = '{} says "{}"', **kwargs):
+        msg = msg_form.format(npc,msg)
+        super().__init__(msg, data, npc,**kwargs)
 
 
 class ConvoVisualizer(object):
