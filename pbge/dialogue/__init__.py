@@ -337,6 +337,8 @@ class ConversationWidget(widgets.Widget):
             self.update_menu()
         else:
             self.pop()
+            if self.conversation.root.effect:
+                self.conversation.root.effect(self.conversation.camp)
 
     def update_menu(self):
         self.menu.clear()

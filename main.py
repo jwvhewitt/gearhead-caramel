@@ -15,7 +15,7 @@
 # nuitka-project: --lto
 
 
-from game import exploration
+from game import configedit, geareditor, mechabrowser
 import pbge
 import sys
 import os
@@ -116,7 +116,7 @@ TITLE_THEME = 'A wintertale.ogg'
 
 
 class StartGameMenuWidget(pbge.widgetmenu.MenuWidget):
-    TAGS_TO_HIDE = {exploration.WTAG_TITLEMENU,}
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
     ACTIVATE_IMMEDIATELY = True
 
     def __init__(self):
@@ -251,7 +251,7 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
     MENU_COLUMN = pbge.frects.Frect(130,-100,225,350)
     WARNING_AREA = pbge.frects.Frect(-350, 0, 300, 54)
 
-    TAGS_TO_HIDE = {exploration.WTAG_TITLEMENU,}
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
     ACTIVATE_IMMEDIATELY = True
 
     def __init__(self):
@@ -334,47 +334,47 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
                 pbge.draw_text(pbge.MEDIUMFONT, "Warning: Save from {}.\nThis might cause problems in the current version, or it might not. Good luck!".format(menu_item.desc[0]),mydest, justify=0)
 
 
-def import_arena_character(tsrd):
-    pbge.please_stand_by()
-    myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
-    mymenu = pbge.rpgmenu.Menu(DZDTitleScreenRedraw.MENU_DEST.dx,
-                               DZDTitleScreenRedraw.MENU_DEST.dy,
-                               DZDTitleScreenRedraw.MENU_DEST.w, DZDTitleScreenRedraw.MENU_DEST.h,
-                               predraw=tsrd, font=pbge.my_state.huge_font
-                               )
+class ImportArenaCharacterWidget(pbge.widgetmenu.MenuWidget):
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
 
-    for f in myfiles:
-        try:
-            mygears = gears.oldghloader.GH1Loader(f)
-            mygears.load()
-            egg = mygears.get_egg()
-            _=mymenu.add_item(str(egg.pc), egg)
-        except Exception as e:
-            _=pbge.alerts.TextAlert("Warning: File {} can't be parsed. {}".format(f,e))
-    mymenu.sort()
+    def __init__(self):
+        pbge.please_stand_by()
+        myfiles = gears.oldghloader.GH1Loader.seek_gh1_files()
+        super().__init__(
+            DZDTitleScreenRedraw.MENU_DEST.dx, DZDTitleScreenRedraw.MENU_DEST.dy,
+            DZDTitleScreenRedraw.MENU_DEST.w, DZDTitleScreenRedraw.MENU_DEST.h,
+            font=pbge.my_state.huge_font
+        )
 
-    if not mymenu.items:
-        _=mymenu.add_item('[No GH1 characters found]', None)
+        for f in myfiles:
+            try:
+                mygears = gears.oldghloader.GH1Loader(f)
+                mygears.load()
+                egg = mygears.get_egg()
+                _=self.add_item(str(egg.pc), self._on_select_character, data=egg)
+            except Exception as e:
+                _=pbge.BasicNotification("Warning: File {} can't be parsed. {}".format(f,e))
+        self.sort()
 
-    myegg = mymenu.query()
-    if myegg:
+        if self.is_empty():
+            _=self.add_item('[No GH1 characters found]', self._cancel)
+
+    def _on_select_character(self, wid, _ev):
+        myegg = wid.data
         myegg.save()
+        self.pop()
         _=pbge.BasicNotification("{} has been imported.".format(myegg.pc.name))
 
-
-def open_config_menu(tsrd):
-    myconfigmenu = game.configedit.ConfigEditor(tsrd, dy=-25)
-    myconfigmenu()
-
-
-def open_chargen_menu(*args, **kwargs):
-    game.chargen.CharacterGeneratorW.push_state_and_instantiate(*args, **kwargs)
+    def _cancel(self, _wid, _ev):
+        self.pop()
 
 
 def draw_border():
     _=pbge.my_state.screen.fill((0, 0, 255))
     myarea = pbge.frects.Frect(-250, 150, 500, 100)
     pbge.default_border.render(myarea.get_rect())
+
 
 def just_show_background(_):
     while True:
@@ -436,40 +436,35 @@ class MainMenu(pbge.widgets.Widget):
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
 
     def __init__(self):
-        super().__init__(0,0,0,0,tags={exploration.WTAG_TITLESCREEN,})
+        super().__init__(0,0,0,0,tags={pbge.widgets.WTAG_TITLESCREEN,})
         self.background = DZDTitleScreenRedraw()
 
         self._menu = pbge.widgetmenu.MenuWidget(
             self.MENU_DEST.dx, self.MENU_DEST.dy, self.MENU_DEST.w, self.MENU_DEST.h,
             font=pbge.my_state.huge_font, activate_child_on_enter=True,
-            tags={exploration.WTAG_TITLEMENU,}
+            tags={pbge.widgets.WTAG_TITLEMENU,}
             #no_escape=pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen")
         )
         self.children.append(self._menu)
 
         _=self._menu.add_item("Load Campaign", self._open_load_menu)
         _=self._menu.add_item("Start Campaign", self._open_start_menu)
-        _=self._menu.add_item("Create Character", open_chargen_menu)
-        _=self._menu.add_item("Import GH1 Character", import_arena_character)
-        _=self._menu.add_item("Config Options", open_config_menu)
-        _=self._menu.add_item("Browse Mecha", game.mechabrowser.MechaBrowser())
-        _=self._menu.add_item("Edit Mecha", game.geareditor.LetsEditSomeMeks)
+        _=self._menu.add_item("Create Character", self._open_chargen)
+        _=self._menu.add_item("Import GH1 Character", self._import_arena_character)
+        _=self._menu.add_item("Config Options", self._open_config_menu)
+        _=self._menu.add_item("Browse Mecha", self._open_mecha_browser)
+        _=self._menu.add_item("Edit Mecha", self._open_mecha_editor)
         if quarantined_files:
             _=self._menu.add_item("Quarantined Saves", view_quarantine)
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
             _=self._menu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
             _=self._menu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-            _=self._menu.add_item("Test Map Generator", test_map_generator)
+            #_=self._menu.add_item("Test Map Generator", test_map_generator)
             #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
             _=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)
-        _=self._menu.add_item("Test Alert", self._test_alert)
         _=self._menu.add_item("Quit", self.quit_game)
-
-    def _test_alert(self, _widget, _ev):
-        _=pbge.alerts.TextAlert("This is a test of the new alert system.")
-        _=pbge.alerts.TextAlert("Plus a test of the event queue.")
 
     def _render(self, delta):
         self.background()
@@ -483,11 +478,26 @@ class MainMenu(pbge.widgets.Widget):
     def quit_game(self, *args, **kwargs):
         self.pop()
 
+    def _open_chargen(self, _widget, _ev):
+        game.chargen.CharacterGeneratorW.push_state_and_instantiate()
+
     def _open_load_menu(self, _widget, _ev):
         LoadGameMenuWidget.push_state_and_instantiate()
 
     def _open_start_menu(self, _widget, _ev):
         StartGameMenuWidget.push_state_and_instantiate()
+
+    def _import_arena_character(self, _widget, _ev):
+        ImportArenaCharacterWidget.push_state_and_instantiate()
+
+    def _open_config_menu(self, _widget, _ev):
+        configedit.ConfigEditor.push_state_and_instantiate(dy=-25)
+
+    def _open_mecha_browser(self, _widget, _ev):
+        mechabrowser.MechaBrowser.push_state_and_instantiate()
+
+    def _open_mecha_editor(self, _widget, _ev):
+        geareditor.LetsEditSomeMeksWidget.push_state_and_instantiate()
 
     def _builtin_responder(self, ev):
         if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:

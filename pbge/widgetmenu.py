@@ -24,13 +24,15 @@ class MenuWidget(widgets.ColumnWidget):
         on_activate_item=None, center_interior=True, padding=5,
         item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
         font=None, item_class=widgets.LabelWidget, item_data=None, 
-        on_click_child: widgets.On_Click=None, 
+        on_click_child: widgets.On_Click=None, pop_when_clicked=False,
         on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
         #  Basically this is just passed to the interior ScrollColumn as its on_activate_child parameter.
         # on_click_child: callable with signature (child_widget, event)
+        # pop_when_clicked can ***ONLY BE SET FOR A TOP LEVEL WIDGET!!!***; when a menu item is clicked,
+        #  if truthy, the menu will pop before calling the child effects
         # on_escape: callable with signature (widget, event) called when escape key pressed
         #   Does not actually close menu; exact workings are up to whoever created this menu.
         super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
@@ -48,7 +50,7 @@ class MenuWidget(widgets.ColumnWidget):
         self.scroll_column = widgets.ScrollColumnWidget(
             0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = padding,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
-            on_activate_child=on_activate_item, on_click_child=on_click_child
+            on_activate_child=on_activate_item, on_click_child=self._click_child_wrapper
         )
         super().add_interior(self.up_arrow)
         super().add_interior(self.scroll_column)
@@ -62,6 +64,14 @@ class MenuWidget(widgets.ColumnWidget):
             self.item_data.update(item_data)
         self.item_class = item_class
         self.on_escape = on_escape
+        self._on_click_child = on_click_child
+        self.pop_when_clicked = pop_when_clicked
+
+    def _click_child_wrapper(self, item_wid, ev):
+        if self.pop_when_clicked:
+            self.pop()
+        if self._on_click_child:
+            self._on_click_child(item_wid, ev)
 
     def _enter_column(self, wid):
         my_state.focused_widget = wid
@@ -179,10 +189,12 @@ class DropdownWidget(widgets.Widget):
         self.menu.TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
         
         if add_desc:
-            pass
-            #self.menu.add_descbox(dx-w-16, dy, w, self.MENU_HEIGHT)
-            #self.menu.descobj.anchor = frects.ANCHOR_UPPERLEFT
-            #self.menu.descobj.parent = self.menu
+            self.menu.children.append(
+                DescBoxWidget(
+                    -w-24, 8, w, self.MENU_HEIGHT, menu=self.menu,
+                    anchor=frects.ANCHOR_UPPERLEFT, parent=self.menu
+                )
+            )
 
     def _render(self, delta):
         mydest = self.get_rect()
@@ -235,6 +247,37 @@ class DropdownWidget(widgets.Widget):
     def has_data( self , dat ):
         return self.menu.has_data(dat)
 
+    def sort(self, key=None):
+        self.menu.sort(key)
+
+
+class PopupMenuWidget(MenuWidget):
+    # By default, popup menus take precedence over any other widget.
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
+    ACTIVATE_IMMEDIATELY = True
+
+    def __init__(self, w=200, h=250, pop_when_clicked=True, auto_escape=True, on_escape=None, **kwargs):
+        # auto_escape allows this menu to pop without an on_escape function.
+        x,y = my_state.mouse_pos
+        x += 8
+        y += 8
+        sw,sh = my_state.screen.get_size()
+        if x + w + 32 > sw:
+            x += -w - 32
+        if y + h + 32 > sh:
+            y += -h - 32
+
+        if auto_escape and not on_escape:
+            on_escape = self._auto_escape_fun
+
+        super().__init__(
+            x,y,w,h, anchor=frects.ANCHOR_UPPERLEFT,
+            pop_when_clicked=pop_when_clicked, on_escape=on_escape, **kwargs
+        )
+
+    def _auto_escape_fun(self, _wid, _ev):
+        self.pop()
+
 
 class ColDropdownWidget(widgets.RowWidget):
     def __init__(self, width, prompt="Choose Option", font=None, justify=-1, on_select=None, add_desc=False, **kwargs):
@@ -260,11 +303,14 @@ class ColDropdownWidget(widgets.RowWidget):
     def set_item_by_data( self , dat ):
         self.menu_widget.set_item_by_data(dat)
 
+    def sort(self, key=None):
+        self.menu_widget.sort(key)
+
 
 class DescBoxWidget(widgets.LabelWidget):
     def __init__(self, dx,dy,w=300,h=100,anchor=frects.ANCHOR_CENTER, menu=None, draw_border=True, **kwargs):
         self.menu = menu
-        super().__init__(dx, dy, w, h, draw_border=draw_border, text_fun=self._desc_text_fun, border=default_border, **kwargs)
+        super().__init__(dx, dy, w, h, anchor=anchor, draw_border=draw_border, text_fun=self._desc_text_fun, border=default_border, **kwargs)
 
     def _desc_text_fun(self, _widg):
         my_item = self.menu.active_item

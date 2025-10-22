@@ -344,9 +344,6 @@ class ExploMenu(object):
         pc = self.explo.camp.first_active_pc()
         pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
 
-WTAG_TITLESCREEN = "WTAG_TITLESCREEN"
-WTAG_TITLEMENU = "WTAG_TITLEMENU"
-
 
 class ExploCommandWidget(pbge.widgets.Widget):
     def __init__(self, camp: gears.GearHeadCampaign, view):
@@ -403,6 +400,9 @@ class ExploCommandWidget(pbge.widgets.Widget):
                     # self.camp.save(self.screen)
                     pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
                     self.register_response()
+                elif ev.key == pygame.K_ESCAPE:
+                    configedit.PopupGameMenu.push_state_and_instantiate()
+
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
 
@@ -415,7 +415,7 @@ class Explorer(pbge.campaign.ExploPrototype):
     # The object which is exploration of a scene. OO just got existential.
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
-    TAGS_TO_PUSH = {WTAG_TITLESCREEN,}
+    TAGS_TO_PUSH = {pbge.widgets.WTAG_TITLESCREEN,}
     def __init__(self, camp: gears.GearHeadCampaign):
         super().__init__(
             0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
@@ -686,9 +686,8 @@ class Explorer(pbge.campaign.ExploPrototype):
                         gears.ghuiutil.TextDisplayWidget.create_and_invoke()
 
                     elif gdi.key == pygame.K_ESCAPE:
-                        mymenu = configedit.PopupGameMenu()
-                        mymenu(self)
-
+                        configedit.PopupGameMenu.push_state_and_instantiate()
+                        
                     elif pbge.my_state.is_key_for_action(gdi, "cursor_click"):
                         if gdi.mod & pygame.KMOD_SHIFT:
                             pc = self.scene.get_main_actor(self.view.mouse_tile)

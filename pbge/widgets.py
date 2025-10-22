@@ -27,6 +27,9 @@ popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor
 
 
 WTAG_WIDGET = "WTAG_WIDGET"
+WTAG_TITLESCREEN = "WTAG_TITLESCREEN"
+WTAG_TITLEMENU = "WTAG_TITLEMENU"
+
 
 class WidgetException(Exception):
     pass
@@ -511,7 +514,8 @@ class ColumnWidget(Widget):
 class ScrollColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
                  autoclick=False, focus_locked=False, activate_child_on_enter=False, on_activate_child=None, 
-                 can_take_focus=True, on_click_child=None, focus_border=widget_border_on, **kwargs):
+                 can_take_focus=True, on_click_child=None, focus_border=widget_border_on,
+                 **kwargs):
         # if activate_child_on_enter is True, the contents of this widget will activate on mouseover.
         # on_activate_child is a callable with signature (column_widget, child_widget) that gets called when the
         #  active widget is changed. Note that child_widget may be "None".

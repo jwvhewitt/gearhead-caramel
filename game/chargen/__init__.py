@@ -576,5 +576,5 @@ class CharacterGeneratorW(pbge.widgets.Widget):
     def on_activate(self):
         self.update_lifepath()
 
-    TAGS_TO_HIDE = {"WTAG_TITLEMENU",}
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
 

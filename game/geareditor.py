@@ -7,6 +7,9 @@ import copy
 MODE_CREATIVE = "CREATIVE"
 MODE_RESTRICTED = "RESTRICTED"
 
+WTAG_GEFRONTEND = "WTAG_GEFRONTEND"
+WTAG_GEAREDITOR = "WTAG_GEAREDITOR"
+
 #   **************************
 #   ***  UTILITY  WIDGETS  ***
 #   **************************
@@ -91,32 +94,36 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
         else:
             return ', '.join([str(p) for p in self.ops_taken])
 
-    def _delete_op(self,widg,ev):
+    def _delete_op(self,_wid,_ev):
         if self.ops_taken:
-            mymenu = pbge.rpgmenu.PopUpMenu()
+            mymenu = pbge.widgetmenu.PopupMenuWidget.push_state_and_instantiate(on_click_child=self._delete_this_option)
             for p in self.ops_taken:
-                mymenu.add_item(str(p),p)
-            delete_this_one = mymenu.query()
-            if delete_this_one in self.ops_taken:
-                self.ops_taken.remove(delete_this_one)
-                if not self.change_is_okay():
-                    self.ops_taken.append(delete_this_one)
-            if self.on_change:
-                self.on_change()
+                mymenu.add_item(str(p), None, data=p)
+
+    def _delete_this_option(self, wid, _ev):
+        delete_this_one = wid.data
+        if delete_this_one in self.ops_taken:
+            self.ops_taken.remove(delete_this_one)
+            if not self.change_is_okay():
+                self.ops_taken.append(delete_this_one)
+        if self.on_change:
+            self.on_change()
 
     def _add_op(self,widg,ev):
         if self.max_ops > len(self.ops_taken):
-            mymenu = pbge.rpgmenu.PopUpMenu()
+            mymenu = pbge.widgetmenu.PopupMenuWidget.push_state_and_instantiate(on_click_child=self._add_this_option)
             for p in self.op_candidates:
                 if p not in self.ops_taken:
-                    mymenu.add_item(str(p),p)
-            add_this_one = mymenu.query()
-            if add_this_one:
-                self.ops_taken.append(add_this_one)
-                if not self.change_is_okay():
-                    self.ops_taken.remove(add_this_one)
-            if self.on_change:
-                self.on_change()
+                    _=mymenu.add_item(str(p), None, data=p)
+
+    def _add_this_option(self,wid,ev):
+        add_this_one = wid.data
+        if add_this_one:
+            self.ops_taken.append(add_this_one)
+            if not self.change_is_okay():
+                self.ops_taken.remove(add_this_one)
+        if self.on_change:
+            self.on_change()
 
 
 class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
@@ -125,14 +132,13 @@ class LabeledDropdownWidget(pbge.widgets.RowWidget,WidgetThatChangesSomething):
         super().__init__(0,0,350,pbge.BIGFONT.get_linesize()+8,**kwargs)
         self.mygear = mygear
         self.add_left(pbge.widgets.LabelWidget(0,0,150,pbge.BIGFONT.get_linesize()+8,title,font=pbge.BIGFONT))
-        self.ddwid = pbge.widgetmenu.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
-        self.menu = self.ddwid.menu
+        self.menu = pbge.widgetmenu.DropdownWidget(0,0,200,pbge.BIGFONT.get_linesize()+8,font=pbge.BIGFONT,justify=0,on_select=on_select)
         for o in options:
-            _=self.menu.add_item(str(o), None, o)
+            _=self.menu.add_item(str(o), None, data=o)
         for name,o in nameoptions:
-            _=self.menu.add_item(name, None, o)
+            _=self.menu.add_item(name, None, data=o)
         self.menu.sort()
-        self.add_right(self.ddwid)
+        self.add_right(self.menu)
 
 #   ***********************
 #   ***  PART  EDITORS  ***
@@ -173,7 +179,7 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
     def _set_material(self,result):
         if result:
             self.mygear.material = result
-            self.editor.update()
+            self.editor.refresh()
 
     def _get_mass_string(self,widg):
         return self.mygear.scale.get_mass_string(self.mygear.mass)
@@ -183,11 +189,11 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
 
     def _set_desig(self,widg,ev):
         self.mygear.desig = widg.text
-        self.editor.update()
+        self.editor.refresh()
 
     def _set_name(self,widg,ev):
         self.mygear.name = widg.text
-        self.editor.update()
+        self.editor.refresh()
 
 
 class ComponentEditWidget(PartEditWidget):
@@ -206,7 +212,7 @@ class ComponentEditWidget(PartEditWidget):
     def _set_integral(self,result):
         self.mygear.integral = result == 'True'
         self.integral_menu.menu.set_item_by_data(str(self.mygear.integral))
-        self.editor.update()
+        self.editor.refresh()
 
 
 class ArmorEditWidget(ComponentEditWidget):
@@ -312,7 +318,7 @@ class BallisticWeaponEditWidget(WeaponEditWidget,WidgetThatChangesSomething):
                 if ammo:
                     ammo.ammo_type = old_calibre
             elif value.bang < self.mygear.get_needed_bang():
-                pbge.BasicNotification("Your selected ammo type doesn't have enough bang; penetration will be decreased.")
+                _=pbge.BasicNotification("Your selected ammo type doesn't have enough bang; penetration will be decreased.")
 
 class AmmoEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
@@ -447,8 +453,8 @@ class PartsNodeWidget(pbge.widgets.Widget):
         self.indent = indent
         self.editor = editor
         self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
-        self.regular_image = self._draw_image(pbge.INFO_GREEN)
-        self.mouseover_image = self._draw_image(pbge.rpgmenu.MENU_SELECT_COLOR)
+        self.regular_image = self._draw_image(pbge.widgetmenu.MENU_ITEM_COLOR)
+        self.mouseover_image = self._draw_image(pbge.WHITE)
 
     def _part_text(self):
         if isinstance(self.data,gears.base.Module):
@@ -458,22 +464,22 @@ class PartsNodeWidget(pbge.widgets.Widget):
 
     def _draw_image(self,text_color):
         myimage = pygame.Surface((self.w,self.h))
-        myimage.fill((0, 0, 0))
+        _=myimage.fill((0, 0, 0))
         myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
 
-        myimage.blit(self.font.render(self.prefix + self._part_text(),True,text_color),(self.indent*12,0))
+        _=myimage.blit(self.font.render(self.prefix + self._part_text(),True,text_color),(self.indent*12,0))
         return myimage
 
     def _render(self, flash=False):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
-            pbge.my_state.screen.blit( self.mouseover_image , myrect )
+            _=pbge.my_state.screen.blit( self.mouseover_image , myrect )
             if self.editor:
                 self.editor.mouseover_part = self.data
         elif self.data is self.editor.active_part:
-            pbge.my_state.screen.blit(self.selected_image, myrect)
+            _=pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
-            pbge.my_state.screen.blit( self.regular_image , myrect )
+            _=pbge.my_state.screen.blit( self.regular_image , myrect )
 
 
 class PartsTreeWidget(pbge.widgets.ColumnWidget):
@@ -494,13 +500,13 @@ class PartsTreeWidget(pbge.widgets.ColumnWidget):
         self.scroll_column.clear()
         self.add_gear(self.mygear)
 
-
     def add_gear(self,part,prefix='',indent=0):
         self.scroll_column.add_interior(PartsNodeWidget(part,prefix,indent,self.editor,on_click=self.editor.click_part))
         for bit in part.sub_com:
             self.add_gear(bit,">",indent+1)
         for bit in part.inv_com:
             self.add_gear(bit,"+",indent+1)
+
 
 class PartsListWidget(pbge.widgets.ColumnWidget):
     def __init__(self,dx,dy,w,h,part_list,editor,**kwargs):
@@ -609,6 +615,7 @@ class SourceSelectorTab(pbge.widgets.LabelWidget):
 
     frame = property(_get_frame,_set_frame,None)
 
+
 class PartSelectorWidget(pbge.widgets.ColumnWidget):
     INFO_FRECT = pbge.frects.Frect(-300,-160,220,320)
     def __init__(self,sources,filter_fun,**kwargs):
@@ -669,6 +676,8 @@ class PartSelectorWidget(pbge.widgets.ColumnWidget):
 
 class PartAcceptCancelWidget(PartSelectorWidget):
     # As above, but with Accept and Cancel buttons on the bottom.
+    TAGS_TO_DEACTIVATE = {WTAG_GEAREDITOR,}
+    ACTIVATE_IMMEDIATELY = True
     def __init__(self,sources,filter_fun,on_selection,**kwargs):
         super().__init__(sources, filter_fun, **kwargs)
         self.on_selection = on_selection
@@ -679,11 +688,13 @@ class PartAcceptCancelWidget(PartSelectorWidget):
         myrow.add_center(pbge.widgets.LabelWidget(0,0,50,pbge.MEDIUMFONT.get_linesize(),"Cancel",draw_border=True,on_click=self.cancel,font=pbge.MEDIUMFONT))
         self.add_interior(myrow)
 
-    def accept(self,widj,ev):
+    def accept(self,_widj,_ev):
+        self.pop()
         if self.active_part:
             self.on_selection(self.active_source.get_part(self.active_part))
 
-    def cancel(self,widj,ev):
+    def cancel(self,_widj,_ev):
+        self.pop()
         self.active_part = False
         self.on_selection(None)
 
@@ -713,7 +724,7 @@ class CommonHeader(pbge.widgets.Widget):
 
     def create_image(self, sprite, frame):
         mybmp = pygame.Surface((64, 64))
-        mybmp.fill((0, 0, 255))
+        _=mybmp.fill((0, 0, 255))
         mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
         myimg = sprite
         myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 64, 64), frame=frame)
@@ -768,7 +779,7 @@ class MechaStatsHeader(CommonHeader):
         pbge.default_border.render(mydest)
 
         self.bg.render(pygame.Rect(mydest.x+16, mydest.y, 136, 136), 0)
-        pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
 
         pbge.draw_text(
             pbge.MEDIUMFONT,
@@ -803,7 +814,7 @@ class CharacterHeader(CommonHeader):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
-        pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
 
         pbge.draw_text(
             pbge.MEDIUMFONT,
@@ -825,8 +836,9 @@ class CharacterHeader(CommonHeader):
 #   *****************************
 
 class GearEditor(pbge.widgets.Widget):
+    TAGS_TO_PUSH = {WTAG_GEFRONTEND,}
     def __init__(self, mygear=None, stash=None, mode=MODE_CREATIVE, **kwargs):
-        super().__init__(-400,-300,800,600,**kwargs)
+        super().__init__(-400,-300,800,600, tags={WTAG_GEAREDITOR}, **kwargs)
 
         self.mygear = mygear
         self.active_part = mygear
@@ -861,11 +873,9 @@ class GearEditor(pbge.widgets.Widget):
             mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=8,on_frame=8,off_frame=9,on_click=self._save_design,tooltip="Save Design"))
         mybuttonrow.add_right(pbge.widgets.ButtonWidget(0,0,40,40,mybuttons,frame=6,on_frame=6,off_frame=7,on_click=self._exit_editor,tooltip="Exit Editor"))
 
-        self.part_selector = None
-
         self.finished = False
 
-        self.update_part_editor()
+        self.refresh_part_editor()
 
     def _make_header(self, gear):
         if isinstance(gear, gears.base.Mecha):
@@ -889,9 +899,9 @@ class GearEditor(pbge.widgets.Widget):
         gears.selector.DESIGN_BY_NAME[save_version.get_full_name()] = save_version
 
     def _add_subcom(self,widj,ev):
-        self.part_selector = PartAcceptCancelWidget(self.sources,self._check_can_install,self._return_add_subcom)
-        pbge.my_state.widgets.append(self.part_selector)
-        self.active = False
+        _ = PartAcceptCancelWidget.push_state_and_instantiate(
+            sources=self.sources, filter_fun=self._check_can_install, on_selection=self._return_add_subcom
+        )
 
     def _check_can_install(self, gear):
         # Do not let player install characters and lancemates.
@@ -900,25 +910,19 @@ class GearEditor(pbge.widgets.Widget):
         return self.active_part.can_install(gear)
 
     def _add_invcom(self,widj,ev):
-        self.part_selector = PartAcceptCancelWidget(self.sources,self.active_part.can_equip,self._return_add_invcom)
-        pbge.my_state.widgets.append(self.part_selector)
-        self.active = False
+        _ = PartAcceptCancelWidget.push_state_and_instantiate(
+            sources=self.sources, filter_fun=self.active_part.can_equip, on_selection=self._return_add_invcom
+        )
 
     def _return_add_subcom(self,new_subcom):
-        pbge.my_state.widgets.remove(self.part_selector)
-        self.active = True
-        self.part_selector = None
         if new_subcom:
             self.active_part.sub_com.append(new_subcom)
-            self.update()
+            self.refresh()
 
     def _return_add_invcom(self, new_invcom):
-        pbge.my_state.widgets.remove(self.part_selector)
-        self.active = True
-        self.part_selector = None
         if new_invcom:
             self.active_part.inv_com.append(new_invcom)
-            self.update()
+            self.refresh()
 
     def _remove_gear(self,widj,ev):
         parent = self.active_part.parent
@@ -929,10 +933,10 @@ class GearEditor(pbge.widgets.Widget):
                 parent.inv_com.remove(self.active_part)
             self.stash.append(self.active_part)
             self.set_active_part(parent)
-            self.update()
+            self.refresh()
 
     def _exit_editor(self,widj,ev):
-        self.finished = True
+        self.pop()
 
     def click_part(self,widj,ev):
         if widj.data:
@@ -940,9 +944,9 @@ class GearEditor(pbge.widgets.Widget):
 
     def set_active_part(self,new_part):
         self.active_part = new_part
-        self.update_part_editor()
+        self.refresh_part_editor()
 
-    def update_part_editor(self):
+    def refresh_part_editor(self):
         if self.active_part_editor:
             self.children.remove(self.active_part_editor)
         # IF gear is not supposed to be removable, do not allow removal.
@@ -960,21 +964,12 @@ class GearEditor(pbge.widgets.Widget):
         self.active_part_editor = myeditor(self.active_part,self)
         self.children.append(self.active_part_editor)
 
-    def update(self):
+    def refresh(self):
         self.parts_widget.refresh_gear_list()
-
-    def activate_and_run(self):
-        pbge.my_state.widgets.append(self)
-        while not self.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-        pbge.my_state.widgets.remove(self)
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
-            self.finished = True
+            self.pop()
             pbge.my_state.widget_responded = True
 
     @classmethod
@@ -995,74 +990,91 @@ class GearEditor(pbge.widgets.Widget):
         pbge.my_state.widgets.remove(myui)
 
 
-class LetsEditSomeMeks(object):
-    # A frontend for calling the mecha editor from the main menu.
-    EDITOR_COLORS = (gears.color.ShiningWhite,gears.color.FreedomBlue,gears.color.ElectricYellow,gears.color.WarmGrey,gears.color.GunRed)
-    def __init__(self,redraw):
-        mainmenu = pbge.rpgmenu.Menu(-150,0,300,226,predraw=redraw,font=pbge.my_state.huge_font)
-        mainmenu.add_item("Create New Mecha",self._create_new_mecha)
-        mainmenu.add_item("Edit Mecha Variant",self._edit_user_mecha)
-        mainmenu.add_item("Edit Mecha Champion", self._edit_champion_mecha)
-        mainmenu.add_item("Exit Mecha Editor",None)
+MAIN_MENU_DXYWH = (-150,0,300,226)
+DESC_BOX_DXYWH = (-160,-200,320,176)
+EDITOR_COLORS = (gears.color.ShiningWhite,gears.color.FreedomBlue,gears.color.ElectricYellow,gears.color.WarmGrey,gears.color.GunRed)
 
-        pbge.my_state.view = redraw
-        keep_going = True
-        while keep_going and not pbge.my_state.got_quit:
-            result = mainmenu.query()
-            if not result:
-                keep_going = False
-            else:
-                result()
 
-    def _create_new_mecha(self):
-        mymenu = pbge.rpgmenu.Menu(-150, 0, 300, 140, font=pbge.BIGFONT)
-        mymenu.add_descbox(-150, 180, 300, 80)
+class EditExistingMechaMenu(pbge.widgetmenu.MenuWidget):
+    def __init__(self, championify=False):
+        super().__init__(
+            *MAIN_MENU_DXYWH,font=pbge.my_state.medium_font, on_escape=self._exit_menu,
+            tags={WTAG_GEFRONTEND,}, on_click_child=self._choose_chassis,
+        )
+        self.children.append(pbge.widgetmenu.DescBoxWidget(*DESC_BOX_DXYWH, menu=self, font=pbge.MEDIUMFONT))
+        self.championify = championify
+
+        meklist = [m for m in gears.selector.DESIGN_LIST if isinstance(m,gears.base.Mecha)]
+        for m in meklist:
+            _=self.add_item(m.get_full_name(), None, data=m, desc=m.desc)
+        self.sort()
+
+    def _choose_chassis(self, wid, _ev):
+        result = wid.data
+        if result:
+            mymek = copy.deepcopy(result)
+            mymek.colors = EDITOR_COLORS
+            if self.championify:
+                champions.upgrade_to_champion(mymek)
+            self.pop()
+            GearEditor.push_state_and_instantiate(mygear=mymek)
+
+    def _exit_menu(self, _wid, _ev):
+        self.pop()
+
+
+class CreateNewMechaMenu(pbge.widgetmenu.MenuWidget):
+    def __init__(self):
+        super().__init__(
+            *MAIN_MENU_DXYWH,font=pbge.my_state.huge_font, on_escape=self._exit_menu,
+            tags={WTAG_GEFRONTEND,}, on_click_child=self._choose_form,
+        )
+        self.children.append(pbge.widgetmenu.DescBoxWidget(*DESC_BOX_DXYWH, menu=self, font=pbge.MEDIUMFONT))
+
         for f in gears.base.MECHA_FORMS:
-            mymenu.add_item(f.name, f, f.desc)
-        mymenu.sort()
-        form = mymenu.query()
+            _=self.add_item(f.name, None, data=f, desc=f.desc)
+        self.sort()
+
+    def _choose_form(self, wid, _ev):
+        form = wid.data
         if form:
             mymek = gears.base.Mecha( form=form
                                     , desig="New"
                                     , imagename=form.PROTOTYPE_IMAGENAME
                                     , portrait=form.PROTOTYPE_PORTRAIT
-                                    , colors = self.EDITOR_COLORS
+                                    , colors = EDITOR_COLORS
                                     )
-            self.enter_the_editor(mymek)
+            self.pop()
+            GearEditor.push_state_and_instantiate(mygear=mymek)
 
-    def _select_mecha(self):
-        mymenu = pbge.rpgmenu.Menu(-150,0,300,226,font=pbge.MEDIUMFONT)
-        meklist = [m for m in gears.selector.DESIGN_LIST if isinstance(m,gears.base.Mecha)]
-        for m in meklist:
-            mymenu.add_item(m.get_full_name(),m)
-        mymenu.sort()
-        result = mymenu.query()
-        if result:
-            mymek = copy.deepcopy(result)
-            mymek.colors = self.EDITOR_COLORS
-            return mymek
-        return None
+    def _exit_menu(self, _wid, _ev):
+        self.pop()
 
-    def _edit_user_mecha(self):
-        mymek = self._select_mecha()
-        if mymek:
-            self.enter_the_editor(mymek)
 
-    def _edit_champion_mecha(self):
-        mymek = self._select_mecha()
-        if mymek:
-            champions.upgrade_to_champion(mymek)
-            self.enter_the_editor(mymek)
+class LetsEditSomeMeksWidget(pbge.widgetmenu.MenuWidget):
+    # A frontend for calling the mecha editor from the main menu.
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
 
-    def enter_the_editor(self,mymek):
-        # Create the UI. Run the UI. Clean up after you leave.
-        myui = GearEditor(mymek)
-        pbge.my_state.widgets.append(myui)
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
+    def __init__(self):
+        super().__init__(
+            *MAIN_MENU_DXYWH,font=pbge.my_state.huge_font, on_escape=self._exit_menu,
+            tags={WTAG_GEFRONTEND,}
+        )
+        _=self.add_item("Create New Mecha",self._create_new_mecha)
+        _=self.add_item("Edit Mecha Variant",self._edit_user_mecha)
+        _=self.add_item("Edit Mecha Champion", self._edit_champion_mecha)
+        _=self.add_item("Exit Mecha Editor",self._exit_menu)
 
-        pbge.my_state.widgets.remove(myui)
+    def _exit_menu(self, _wid, _ev):
+        self.pop()
+
+    def _create_new_mecha(self, _wid, _ev):
+        CreateNewMechaMenu.push_state_and_instantiate(self)
+
+    def _edit_user_mecha(self, _wid, _ev):
+        EditExistingMechaMenu.push_state_and_instantiate(self)
+
+    def _edit_champion_mecha(self, _wid, _ev):
+        EditExistingMechaMenu.push_state_and_instantiate(self, championify=True)
+

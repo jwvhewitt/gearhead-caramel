@@ -24,7 +24,7 @@ class StartCampaignWidget(pbge.widgetmenu.MenuWidget):
     RIGHT_COLUMN = pbge.frects.Frect(20,-100,280,350)
     TEXT_AREA = pbge.frects.Frect(20,-250,280,110)
 
-    TAGS_TO_HIDE = {exploration.WTAG_TITLEMENU,}
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
     ACTIVATE_IMMEDIATELY = True
 
     def __init__(self, egg, version):

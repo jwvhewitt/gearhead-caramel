@@ -1,3 +1,4 @@
+* Import GH1 Character should now work with Linux repository installs
 * MenuWidget activate_child_on_enter=True is now the default behaviour
 * Widgets now have a sort layer
 * Animations run automatically

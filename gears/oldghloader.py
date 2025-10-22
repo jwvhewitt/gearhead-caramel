@@ -6,7 +6,7 @@ from . import personality
 import random
 
 from gears.meritbadges import BADGE_CRIMINAL
-from . import random_character_colors, DETAIL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS
+from gears.color import random_character_colors, DETAIL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS
 from . import color
 from . import base
 from . import eggs
@@ -42,6 +42,7 @@ class GH1Loader(object):
     # Class to load and parse a GearHead1 (aka GearHead Arena) save file.
     def __init__(self, fname):
         self.fname = fname
+        self.gb_contents = None
 
     def _read_map(self, myfile):
         # Since we aren't keeping the map, just advance myfile to the end of
@@ -438,15 +439,15 @@ class GH1Loader(object):
         self.gb_contents += self._load_gears(myfile)
 
     @classmethod
-    def all_gears(self, mylist):
+    def all_gears(cls, mylist):
         # Cycle through all the gears in this tree.
         for gear in mylist:
             yield gear
             if gear.sub_com:
-                for p in self.all_gears(gear.sub_com):
+                for p in cls.all_gears(gear.sub_com):
                     yield p
             if gear.inv_com:
-                for p in self.all_gears(gear.inv_com):
+                for p in cls.all_gears(gear.inv_com):
                     yield p
 
     def find_pc(self):
@@ -765,23 +766,25 @@ class GH1Loader(object):
 
     def get_egg(self):
         rpc = self.find_pc()
-        pc = self.convert_character(rpc)
-        pc.renown = pc.renown // 2
-        my_egg = eggs.Egg(pc)
-        my_egg.mecha = selector.MechaShoppingList.generate_single_mecha(pc.renown*2, None, tags.GroundEnv)
-        my_egg.past_adventures.add("The Typhon Incident")
-        my_egg.credits = max(rpc.natt.get((self.NAG_EXPERIENCE, self.NAS_CREDITS), 500000),500000)
-        self.record_pc_stuff(rpc,pc)
-        self.get_relationships(rpc,my_egg)
-        return my_egg
+        if rpc:
+            pc = self.convert_character(rpc)
+            pc.renown = pc.renown // 2
+            my_egg = eggs.Egg(pc)
+            my_egg.mecha = selector.MechaShoppingList.generate_single_mecha(pc.renown*2, None, tags.GroundEnv)
+            my_egg.past_adventures.add("The Typhon Incident")
+            my_egg.credits = max(rpc.natt.get((self.NAG_EXPERIENCE, self.NAS_CREDITS), 500000),500000)
+            self.record_pc_stuff(rpc,pc)
+            self.get_relationships(rpc,my_egg)
+            return my_egg
 
-    @classmethod
-    def seek_gh1_files(self):
+    @staticmethod
+    def seek_gh1_files():
         myfiles = list()
         myfiles += glob.glob(pbge.util.user_dir('RPG*.txt'))
         myfiles += glob.glob(pbge.util.user_dir(os.path.join('gharena', 'RPG*.txt')))
         myfiles += glob.glob(os.path.expanduser(os.path.join('~', '.config', 'gharena', 'SaveGame', 'RPG*.txt')))
         myfiles += glob.glob(os.path.expanduser(os.path.join('~', 'gharena', 'SaveGame', 'RPG*.txt')))
+        myfiles += glob.glob(os.path.expanduser(os.path.join('~', '.gearhead', 'SaveGame', 'RPG*.txt')))
         return myfiles
 
 
