@@ -209,7 +209,7 @@ class DropdownWidget(widgets.Widget):
         my_state.screen.set_clip(None)
 
     def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
-        _=self.menu.add_item(msg, on_click, data, desc)
+        return self.menu.add_item(msg, on_click, data, desc)
 
     def _click_item(self, item: widgets.Widget, _ev):
         self.menu.pop()

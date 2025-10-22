@@ -336,6 +336,32 @@ class GoldPlaque(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.GoldPlaqueTerrain)
     ATTACH_TO_WALL = True
 
+
+class MechEngMenuWidget(pbge.widgetmenu.MenuWidget):
+    ACTIVATE_IMMEDIATELY = True
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
+    def __init__(self, camp):
+        super().__init__(
+            -175,-100,350,250,predraw=self._predraw,font=pbge.BIGFONT,
+            on_click_child=self._edit_this_mecha, on_escape=self._exit_menu
+        )
+        self.camp = camp
+        for mek in camp.party:
+            if isinstance(mek,gears.base.Mecha) and not hasattr(mek,"owner"):
+                _=self.add_item(self._get_meng_name(mek), None, data=mek)
+        self.sort()
+        _=self.add_item("[EXIT]", self._exit_menu, None)
+
+    def _edit_this_mecha(self, wid, _ev):
+        mek = wid.data
+        geareditor.GearEditor.push_state_and_instantiate(
+            self, mygear=mek, stash=self.camp.party, mode=geareditor.MODE_RESTRICTED
+        )
+
+    def _exit_menu(self, _wid, _ev):
+        self.pop()
+
+
 class MechEngTerminal(Waypoint):
     name = "Mecha Engineering Terminal"
     TILE = pbge.scenes.Tile(None,None,ghterrain.MechEngTerminalTerrain)
@@ -355,18 +381,8 @@ class MechEngTerminal(Waypoint):
             return mek.get_full_name()
 
     def unlocked_use( self, camp ):
-        mek = True
-        while mek:
-            mymenu = pbge.rpgmenu.Menu(-175,-100,350,250,predraw=self._predraw,font=pbge.BIGFONT)
-            for mek in camp.party:
-                if isinstance(mek,gears.base.Mecha) and not hasattr(mek,"owner"):
-                    mymenu.add_item(self._get_meng_name(mek),mek)
-            mymenu.sort()
-            mymenu.add_item("[EXIT]",None)
-            mek = mymenu.query()
-            if mek:
-                myui = geareditor.GearEditor(mek,camp.party,mode=geareditor.MODE_RESTRICTED)
-                myui.activate_and_run()
+        MechEngMenuWidget.push_state_and_instantiate(camp=camp)
+
 
 class CyberdocTerminal( Waypoint ):
     name = "Cyberdoc Terminal"

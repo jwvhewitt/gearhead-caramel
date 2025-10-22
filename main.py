@@ -403,13 +403,20 @@ def check_rpg_saves():
             quarantined_files.append(fname)
 
 
-def view_quarantine(tsrd):
-    mymenu = pbge.rpgmenu.AlertMenu("The following campaign files aren't loading properly, probably because they are from an out of date version or require DLC that is not installed. You should be able to restore the backup of your character from the 'ghcaramel' folder.", predraw=tsrd)
+class QuarantineViewer(pbge.widgetmenu.AlertMenuWidget):
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
+    def __init__(self):
+        super().__init__(
+            "The following campaign files aren't loading properly, probably because they are from an out of date version or require DLC that is not installed. You should be able to restore the backup of your character from the 'ghcaramel' folder.",
+            on_select=self._exit_menu, on_escape=self._exit_menu
+        )
+        for f in quarantined_files:
+            _=self.add_item(f, None)
 
-    for f in quarantined_files:
-        _=mymenu.add_item(f, None)
+    def _exit_menu(self, _wid, _ev):
+        self.pop()
 
-    _=mymenu.query()
 
 def test_map_generator(_tsrd):
     intscene = gears.GearHeadScene(30, 30, "Wujung Hospital", player_team=None, civilian_team=None,
@@ -455,15 +462,15 @@ class MainMenu(pbge.widgets.Widget):
         _=self._menu.add_item("Browse Mecha", self._open_mecha_browser)
         _=self._menu.add_item("Edit Mecha", self._open_mecha_editor)
         if quarantined_files:
-            _=self._menu.add_item("Quarantined Saves", view_quarantine)
-        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            _=self._menu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
-            _=self._menu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+            _=self._menu.add_item("Quarantined Saves", self._open_quarantine_viewer)
+        #if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            # _=self._menu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
+            # _=self._menu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
             #_=self._menu.add_item("Test Map Generator", test_map_generator)
             #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
-            _=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)
+            #_=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)
         _=self._menu.add_item("Quit", self.quit_game)
 
     def _render(self, delta):
@@ -498,6 +505,9 @@ class MainMenu(pbge.widgets.Widget):
 
     def _open_mecha_editor(self, _widget, _ev):
         geareditor.LetsEditSomeMeksWidget.push_state_and_instantiate()
+
+    def _open_quarantine_viewer(self, _widget, _ev):
+        QuarantineViewer.push_state_and_instantiate()
 
     def _builtin_responder(self, ev):
         if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:

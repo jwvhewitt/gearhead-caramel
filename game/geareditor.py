@@ -167,9 +167,12 @@ class PartEditWidget(pbge.widgets.ColumnWidget):
 
         mass_volume_row = pbge.widgets.RowWidget(0,0,self.w,pbge.MEDIUMFONT.get_linesize()+8)
         mass_volume_row.add_left(pbge.widgets.LabelWidget(0,0,75,pbge.MEDIUMFONT.get_linesize(),font=pbge.MEDIUMFONT,text_fun=self._get_mass_string))
-        material_dropdown = pbge.widgetmenu.DropdownWidget(0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,on_select=self._set_material,active=editor.mode==MODE_CREATIVE,)
+        material_dropdown = pbge.widgetmenu.DropdownWidget(
+            0,0,100,pbge.MEDIUMFONT.get_linesize()+8,font=pbge.MEDIUMFONT,justify=0,
+            on_select=self._set_material,active=editor.mode==MODE_CREATIVE,
+        )
         for m in gears.materials.MECHA_MATERIALS:
-            material_dropdown.add_item(m.name,m)
+            _=material_dropdown.add_item(m.name, None, m)
         material_dropdown.menu.sort()
         material_dropdown.menu.set_item_by_data(self.mygear.material)
         mass_volume_row.add_center(material_dropdown)
@@ -270,11 +273,11 @@ class WeaponEditWidget(ComponentEditWidget):
         self.add_interior(PlusMinusWidget(mygear,"penetration",mygear.MIN_PENETRATION,mygear.MAX_PENETRATION,active=editor.mode==MODE_CREATIVE))
         self.add_interior(AddRemoveOptionsWidget(mygear,"attributes",mygear.attributes,mygear.LEGAL_ATTRIBUTES,10,active=editor.mode==MODE_CREATIVE))
         self.shot_anim_menu = LabeledDropdownWidget(mygear,"shot_anim",self._set_shot_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.SHOT_ANIMS],active=editor.mode==MODE_CREATIVE)
-        self.shot_anim_menu.menu.add_item("None", None)
+        _=self.shot_anim_menu.menu.add_item("None", None)
         self.shot_anim_menu.menu.set_item_by_data(self.mygear.shot_anim)
         self.add_interior(self.shot_anim_menu)
         self.area_anim_menu = LabeledDropdownWidget(mygear,"area_anim",self._set_area_anim,nameoptions=[(s.__name__,s) for s in gears.geffects.AREA_ANIMS],active=editor.mode==MODE_CREATIVE)
-        self.area_anim_menu.menu.add_item("None", None)
+        _=self.area_anim_menu.menu.add_item("None", None)
         self.area_anim_menu.menu.set_item_by_data(self.mygear.area_anim)
         self.add_interior(self.area_anim_menu)
         self.stat_menu = LabeledDropdownWidget(mygear,"attack_stat",self._set_attack_stat,nameoptions=[(s.__name__,s) for s in gears.stats.PRIMARY_STATS],active=editor.mode==MODE_CREATIVE)
@@ -996,6 +999,8 @@ EDITOR_COLORS = (gears.color.ShiningWhite,gears.color.FreedomBlue,gears.color.El
 
 
 class EditExistingMechaMenu(pbge.widgetmenu.MenuWidget):
+    ACTIVATE_IMMEDIATELY = True
+    
     def __init__(self, championify=False):
         super().__init__(
             *MAIN_MENU_DXYWH,font=pbge.my_state.medium_font, on_escape=self._exit_menu,
@@ -1024,6 +1029,8 @@ class EditExistingMechaMenu(pbge.widgetmenu.MenuWidget):
 
 
 class CreateNewMechaMenu(pbge.widgetmenu.MenuWidget):
+    ACTIVATE_IMMEDIATELY = True
+
     def __init__(self):
         super().__init__(
             *MAIN_MENU_DXYWH,font=pbge.my_state.huge_font, on_escape=self._exit_menu,

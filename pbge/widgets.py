@@ -79,6 +79,9 @@ class FrozenUIState:
     def unfreeze(self):
         for widg in self.pushed_widgets:
             my_state.widgets.append(widg)
+            # Set this widget's active property to whatever it already is...
+            # Weird, but we want to call the private update method.
+            widg.active = widg.active
             if hasattr(widg, "on_activate"):
                 widg.on_activate()
 
@@ -96,6 +99,7 @@ class FrozenUIState:
             reactivate_this = self.focused_widget_wr()
             if reactivate_this in list(my_state.all_widgets()):
                 my_state.focused_widget = reactivate_this
+                reactivate_this.active = reactivate_this.active
 
     @staticmethod
     def pop():
@@ -129,8 +133,8 @@ class Widget(frects.Frect):
         #   in the other widget.
         super().__init__(dx, dy, w, h, anchor, parent)
         self.data = data
-        self.active = active
-        self.visible = visible
+        self._active = active
+        self._visible = visible
         self.tooltip = tooltip
         self.on_click = on_click
         self.on_right_click = on_right_click
@@ -156,6 +160,33 @@ class Widget(frects.Frect):
         self.right_widget = right_widget
         if right_widget and return_links:
             right_widget.left_widget = self
+
+    @property
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, nuval):
+        self._active = nuval
+        self._update_widget_after_status_change()
+
+    @property
+    def visible(self):
+        return self._visible
+
+    @visible.setter
+    def visible(self, nuval):
+        self._visible = nuval
+        self._update_widget_after_status_change()
+
+    def _update_widget_after_status_change(self):
+        """ The unisghtly name of this method is a reminder not to use it.
+            It would be a private method if not for the fact that FrozenState needs to call it.
+            But do you need to call it? No, probably not. 
+        """
+        self._mouse_is_over = False
+        for c in self.children:
+            c._update_widget_after_status_change()
 
     @staticmethod
     def _default_should_hilight(widg):
