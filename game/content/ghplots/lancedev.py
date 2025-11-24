@@ -115,19 +115,24 @@ class FriendlyFriend(LMPlot):
                 "So [audience], I've been thinking about this [lance], and was wondering if you know what I've been thinking about you.",
                 npc, camp
             )
-            mymenu.no_escape = True
 
-            mymenu.add_dialogue_item(camp, camp.pc, "[GOODQUESTION]", self._answer_unknown)
-            mymenu.add_dialogue_item(camp, camp.pc, "I'm a great person to go on adventures with.", self._answer_affirmative)
-            mymenu.add_dialogue_item(camp, camp.pc, "You think I'm hot and highly attractive.", self._answer_flirty)
+            mymenu.add_dialogue_item(
+                camp, camp.pc, "[GOODQUESTION]", 
+                self._answer_unknown, data=camp
+            )
+            mymenu.add_dialogue_item(
+                camp, camp.pc, "I'm a great person to go on adventures with.", 
+                self._answer_affirmative, data=camp
+            )
+            mymenu.add_dialogue_item(
+                camp, camp.pc, "You think I'm hot and highly attractive.", 
+                self._answer_flirty, data=camp
+            )
 
-            result = mymenu.query()
-            if result:
-                result(camp)
-            else:
-                self.proper_end_plot(camp)
+            mymenu.push_and_deploy()
 
-    def _answer_unknown(self, camp):
+    def _answer_unknown(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         if npc.get_reaction_score(camp.pc, camp) >= 20:
             _=ghcutscene.SimpleMonologueDisplay(
@@ -144,7 +149,8 @@ class FriendlyFriend(LMPlot):
         npc.statline[gears.stats.Ego] += 1
         self.proper_end_plot(camp)
 
-    def _answer_affirmative(self, camp):
+    def _answer_affirmative(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         if npc.get_reaction_score(camp.pc, camp) >= 20:
             _=ghcutscene.SimpleMonologueDisplay(
@@ -161,7 +167,8 @@ class FriendlyFriend(LMPlot):
         npc.statline[gears.stats.Perception] += 1
         self.proper_end_plot(camp)
 
-    def _answer_flirty(self, camp):
+    def _answer_flirty(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         if camp.pc.get_stat(gears.stats.Charm) > random.randint(0,15):
             _=ghcutscene.SimpleMonologueDisplay(
@@ -210,20 +217,23 @@ class AdventuringAdventurer(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.started_convo:
             npc = self.elements["NPC"]
-            pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} rushes to you excitedly.".format(**self.elements))
-
-            mymenu = ghcutscene.SimpleMonologueMenu("I just got an alert for a new mission! It sounds pretty important. More importantly, it sounds adventurous!", npc, camp)
-            mymenu.no_escape = True
-            mymenu.add_item("Alright, let's get to work!", self._start_mission)
-            mymenu.add_item("Do you have any idea what kind of mission it is?", self._question_mission)
-
-            act = mymenu.query()
-            if act:
-                act(camp)
-
+            _=pbge.alerts.TextAlert(
+                "As you enter {METROSCENE}, {NPC} rushes to you excitedly.".format(**self.elements),
+                on_close=self._start_convo, data=(camp, npc)
+            )
             self.started_convo = True
 
-    def _start_mission(self, camp):
+    def _start_convo(self, wid, _ev):
+        camp, npc = wid.data
+        mymenu = ghcutscene.SimpleMonologueMenu("I just got an alert for a new mission! It sounds pretty important. More importantly, it sounds adventurous!", npc, camp)
+        mymenu.no_escape = True
+        _=mymenu.add_item("Alright, let's get to work!", self._start_mission, data=camp)
+        _=mymenu.add_item("Do you have any idea what kind of mission it is?", self._question_mission, data=camp)
+
+        mymenu.push_and_deploy()
+
+    def _start_mission(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[THATS_THE_SPIRIT] Adventure is a goal in itself. [LETSGO]", 
@@ -233,7 +243,8 @@ class AdventuringAdventurer(LMMissionPlot):
         _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
         self.mission_active = True
 
-    def _question_mission(self, camp):
+    def _question_mission(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[I_DONT_KNOW] A mission is a mission, and an adventure is an adventure. [LETSGO]", 
@@ -251,7 +262,7 @@ class CheerfulGlorySeeker(LMPlot):
     UNIQUE = True
 
     def custom_init(self, nart):
-        npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
+        _npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
         self.started_convo = False
         return True
 
@@ -266,26 +277,27 @@ class CheerfulGlorySeeker(LMPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, you notice {NPC} doing some stretching exercises.".format(**self.elements))
+            _=pbge.alerts.TextAlert(
+                "As you enter {METROSCENE}, you notice {NPC} doing some stretching exercises.".format(**self.elements)
+            )
             npc.personality.add(personality.Glory)
 
-            mymenu = ghcutscene.SimpleMonologueMenu(
+            mymenu = ghcutscene.AlertMonologueMenu(
                 "[I_ACCLAIM_GLORY] How about we do a quick run around {METROSCENE} to build up our stamina?".format(**self.elements),
                 npc, camp
             )
-            mymenu.no_escape = True
+
             if personality.Glory in camp.pc.personality:
-                mymenu.add_dialogue_item(camp, camp.pc, "I've got a better idea- let's run around {METROSCENE} twice!".format(**self.elements), self._train_all)
-            mymenu.add_dialogue_item(camp, camp.pc, "Sounds good to me!", self._train_athletics)
-            mymenu.add_dialogue_item(camp, camp.pc, "Why don't we sit down and have a game of MonsterCards instead?", self._train_concentration)
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
+                mymenu.add_dialogue_item(camp, camp.pc, "I've got a better idea- let's run around {METROSCENE} twice!".format(**self.elements), 
+                self._train_all, data=camp
+            )
+            mymenu.add_dialogue_item(camp, camp.pc, "Sounds good to me!", self._train_athletics, data=camp)
+            mymenu.add_dialogue_item(camp, camp.pc, "Why don't we sit down and have a game of MonsterCards instead?", self._train_concentration, data=camp)
 
-            _=pbge.alerts.TextAlert("You train for a while with {NPC}.".format(**self.elements))
-            self.proper_end_plot(camp)
+            _=pbge.alerts.TextAlert("You train for a while with {NPC}.".format(**self.elements), on_close=lambda _a,_b: self.proper_end_plot(camp))
 
-    def _train_athletics(self, camp: gears.GearHeadCampaign):
+    def _train_athletics(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[LETSGO] Last one to reach the finish is a [adjective] [noun]!", npc,
@@ -293,7 +305,8 @@ class CheerfulGlorySeeker(LMPlot):
         )
         camp.dole_xp(250, gears.stats.Athletics)
 
-    def _train_concentration(self, camp: gears.GearHeadCampaign):
+    def _train_concentration(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[OK] That could be fun too... and training your brain is just as important as training your body.", 
@@ -301,7 +314,8 @@ class CheerfulGlorySeeker(LMPlot):
         )
         camp.dole_xp(250, gears.stats.Concentration)
 
-    def _train_all(self, camp: gears.GearHeadCampaign):
+    def _train_all(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[GOOD_IDEA] If something is worth doing, it's worth doing to excess!", 
@@ -380,18 +394,13 @@ class ProfessionalColleagueBecomesRival(LMPlot):
             self.started_convo = True
             npc.relationship.expectation = gears.relationships.E_RIVAL
 
-            mymenu = ghcutscene.SimpleMonologueMenu(
+            mymenu = ghcutscene.AlertMonologueMenu(
                 "Say, while we've got some free time, how would you like to have a practice mecha duel? [I_WANT_TO_TEST_PILOT_SKILLS]",
                 npc, camp
             )
-            mymenu.no_escape = True
-            mymenu.add_dialogue_item(camp, camp.pc, "Alright, let's go do that!", self._accept_offer)
-            mymenu.add_dialogue_item(camp, camp.pc, "What do you mean \"free time\"?! We're kind of in the middle of something now.", self._reject_offer)
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
-            else:
-                self.proper_end_plot(camp)
+
+            mymenu.add_dialogue_item(camp, camp.pc, "Alright, let's go do that!", self._accept_offer, data=camp)
+            mymenu.add_dialogue_item(camp, camp.pc, "What do you mean \"free time\"?! We're kind of in the middle of something now.", self._reject_offer, data=camp)
 
     def _start_the_duel(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
@@ -406,7 +415,8 @@ class ProfessionalColleagueBecomesRival(LMPlot):
                 npc.statline[gears.stats.MechaGunnery] += 1
         _=self.duel(camp)
 
-    def _accept_offer(self, camp):
+    def _accept_offer(self, wid, _ev):
+        camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "[GOOD] I'm ready any time you are.",
             self.elements["NPC"], camp, False
@@ -415,7 +425,8 @@ class ProfessionalColleagueBecomesRival(LMPlot):
         self.accepted_duel = True
         self.memo = Memo("{NPC} has challenged you to a practice duel.", self.elements["METROSCENE"])
 
-    def _reject_offer(self, camp):
+    def _reject_offer(self, wid, _ev):
+        camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "You're probably right... but some day, I definitely want to test my skills against yours!",
             self.elements["NPC"], camp, False
@@ -452,20 +463,16 @@ class DespairCrushPersonalMission(LMMissionPlot):
             npc = self.elements["NPC"]
             _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} approaches you anxiously.".format(**self.elements))
 
-            mymenu = ghcutscene.SimpleMonologueMenu(
+            mymenu = ghcutscene.AlertMonologueMenu(
                 "I'm sorry but I need to leave the lance. There's an urgent personal matter that I must attend to.",
                 npc, camp
             )
-            mymenu.no_escape = True
-            mymenu.add_item("If you've got a problem, we'll all go to help you with it.", self._offer_help)
-            mymenu.add_dialogue_item(camp, camp.pc, "[UNDERSTOOD] Good luck handling it.", self._wish_good_luck)
+            _=mymenu.add_item("If you've got a problem, we'll all go to help you with it.", self._offer_help, data=camp)
+            _=mymenu.add_dialogue_item(camp, camp.pc, "[UNDERSTOOD] Good luck handling it.", self._wish_good_luck, data=camp)
             choice = mymenu.query()
-            if choice:
-                choice(camp)
-            else:
-                self._leave_the_party(camp)
 
-    def _offer_help(self, camp):
+    def _offer_help(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "I appreciate the offer, but this is something I really need to face on my own. Goodbye [audience].",
@@ -473,7 +480,8 @@ class DespairCrushPersonalMission(LMMissionPlot):
         )
         self._leave_the_party(camp)
 
-    def _wish_good_luck(self, camp):
+    def _wish_good_luck(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "Thanks, I'll probably need it. Goodbye [audience].",
@@ -501,16 +509,13 @@ class DespairCrushPersonalMission(LMMissionPlot):
             if candidates:
                 lm = random.choice(candidates)
 
-                mymenu = ghcutscene.SimpleMonologueMenu(
+                mymenu = ghcutscene.AlertMonologueMenu(
                     "[WHAT_ARE_YOU_DOING] {NPC} could be in real trouble. We've got to help {NPC.gender.object_pronoun}!".format(**self.elements),
                     lm, camp
                 )
                 mymenu.no_escape = True
-                mymenu.add_dialogue_item(camp, camp.pc, "[YOU_COULD_BE_RIGHT]".format(**self.elements), self._say_lets_go)
-                mymenu.add_item("If {NPC} says {NPC.gender.subject_pronoun} can handle it, {NPC.gender.subject_pronoun} can.".format(**self.elements), self._say_its_ok)
-                choice = mymenu.query()
-                if choice:
-                    choice(camp, lm)
+                mymenu.add_dialogue_item(camp, camp.pc, "[YOU_COULD_BE_RIGHT]".format(**self.elements), self._say_lets_go, data=(camp, lm))
+                mymenu.add_item("If {NPC} says {NPC.gender.subject_pronoun} can handle it, {NPC.gender.subject_pronoun} can.".format(**self.elements), self._say_its_ok, data=(camp, lm))
 
             self.RUMOR = Rumor(
                 "{NPC}'s mecha has been seen outside of town".format(**self.elements),
@@ -521,13 +526,15 @@ class DespairCrushPersonalMission(LMMissionPlot):
             )
             self.proper_non_end(camp, False)
 
-    def _say_lets_go(self, camp, lmnpc):
+    def _say_lets_go(self, wid, _ev):
+        camp, lmnpc = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "I don't know if you've noticed, but {NPC} is rather fond of you... and {NPC.gender.subject_pronoun}'s been really worried about something lately. I suspect {NPC.gender.subject_pronoun} left to protect you from whatever that is.".format(**self.elements),
             lmnpc, camp, False
         )
 
-    def _say_its_ok(self, camp, lmnpc):
+    def _say_its_ok(self, wid, _ev):
+        camp, lmnpc = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "I hope you're right. {NPC} has been really upset about something... and I know {NPC.gender.subject_pronoun} doesn't want to lay all of {NPC.gender.possessive_determiner} problems on you. I don't know if you've noticed, but {NPC} has a bit of a crush on you.".format(**self.elements),
             lmnpc, camp, False
@@ -591,18 +598,15 @@ class CriminalOpponentWithMission(LMMissionPlot):
             npc = self.elements["NPC"]
             _=pbge.alerts.TextAlert("As you enter {METROSCENE}, you see {NPC} sending a message on {NPC.gender.possessive_determiner} phone.".format(**self.elements))
 
-            mymenu = ghcutscene.SimpleMonologueMenu(
+            mymenu = ghcutscene.AlertMonologueMenu(
                 "[I_GOT_A_MISSION_OFFER] There's a corporation running some clandestine ops nearby; another corp is willing to pay top money to find out what they're working on. Technically it isn't thieving if your target is doing illegal stuff too.",
                 npc, camp
             )
-            mymenu.no_escape = True
-            mymenu.add_item("Alright, you've convinced me. Let's get to work.", self._accept_offer)
-            mymenu.add_item("It's still not *not* thieving, though. I'll have to pass.", self._reject_offer)
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
+            _=mymenu.add_item("Alright, you've convinced me. Let's get to work.", self._accept_offer, data=camp)
+            _=mymenu.add_item("It's still not *not* thieving, though. I'll have to pass.", self._reject_offer, data=camp)
 
-    def _accept_offer(self, camp):
+    def _accept_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         self.mission_active = True
         if npc.get_reaction_score(camp.pc, camp) > random.randint(0,20) or personality.Duty in npc.personality:
@@ -614,9 +618,10 @@ class CriminalOpponentWithMission(LMMissionPlot):
             npc, camp, False
         )
         npc.relationship.role = relationships.R_COLLEAGUE
-        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
-    def _reject_offer(self, camp):
+    def _reject_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[UNDERSTOOD] I can see that I'm going to have to work harder to be a bad influence on you.",
@@ -782,17 +787,14 @@ class HowDoYouLikeThat(LMMissionPlot):
 
             else:
                 npc.relationship.attitude = gears.relationships.A_FRIENDLY
-                mymenu = ghcutscene.SimpleMonologueMenu(
+                mymenu = ghcutscene.AlertMonologueMenu(
                     "I can't believe it! [I_GOT_A_MISSION_OFFER] {ENEMY_NPC} is in town, and I thought you might want to fight {ENEMY_NPC.gender.object_pronoun}.".format(
                         **self.elements),
                     npc, camp
                 )
                 mymenu.no_escape = True
-                mymenu.add_item("Of course I do. We've got some scores to settle.", self._accept_offer)
-                mymenu.add_item("Maybe some other time... I'm not in the mood to deal with {ENEMY_NPC} today.".format(**self.elements), self._reject_offer)
-                choice = mymenu.query()
-                if choice:
-                    choice(camp)
+                _=mymenu.add_item("Of course I do. We've got some scores to settle.", self._accept_offer, data=camp)
+                _=mymenu.add_item("Maybe some other time... I'm not in the mood to deal with {ENEMY_NPC} today.".format(**self.elements), self._reject_offer, data=camp)
 
     def _leave_the_party(self, wid, _ev):
         npc, camp = wid.data
@@ -800,16 +802,18 @@ class HowDoYouLikeThat(LMMissionPlot):
         npc.place(self.elements["OTHER_SCENE"], team=self.elements["OTHER_SCENE"].civilian_team)
         self.proper_end_plot(camp, False)
 
-    def _accept_offer(self, camp):
+    def _accept_offer(self, wid, _ev):
+        camp = wid.data
         self.mission_active = True
         npc: gears.base.Character = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "I'm really excited about finding this lead. I think I might be getting the hang of this cavalier thing? [LETSGO]",
             npc, camp, False
         )
-        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
-    def _reject_offer(self, camp):
+    def _reject_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "[UNDERSTOOD] {ENEMY_NPC} can be a [insult]; still, I'm excited to have gotten the call! Maybe I'm getting better at this cavalier stuff.".format(**self.elements),
@@ -868,18 +872,16 @@ class BetterCallAPlumber(LMMissionPlot):
                 "As you enter {METROSCENE}, {NPC} approaches you.".format(
                     **self.elements))
 
-            mymenu = ghcutscene.SimpleMonologueMenu(
+            mymenu = ghcutscene.AlertMonologueMenu(
                 "[I_GOT_A_MISSION_OFFER] A pipe burst somewhere under {METROSCENE} and it's going to take cavalier backup to find and fix it.".format(**self.elements),
                 npc, camp
             )
-            mymenu.no_escape = True
-            mymenu.add_item("Let's get to it, then.", self._accept_offer)
-            mymenu.add_item("Sounds like a dirty job... I'd really rather not.", self._reject_offer)
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
 
-    def _accept_offer(self, camp):
+            _=mymenu.add_item("Let's get to it, then.", self._accept_offer, data=camp)
+            _=mymenu.add_item("Sounds like a dirty job... I'd really rather not.", self._reject_offer, data=camp)
+
+    def _accept_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "This sort of work isn't glamorous, but it's the kind of work that keeps the city functioning. [LETSGO]",
@@ -889,7 +891,8 @@ class BetterCallAPlumber(LMMissionPlot):
         self.had_convo = True
         self.mission_active = True
 
-    def _reject_offer(self, camp):
+    def _reject_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "Yeah, me either. Avoiding jobs like this is one of the reasons I'm trying to become a full time cavalier. Let's go find something a bit more glamorous to do!",
@@ -924,39 +927,37 @@ class PartyPlanner(LMPlot):
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc: gears.base.Character = self.elements["NPC"]
-        pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert(
             "As you enter {METROSCENE}, {NPC} calls you over; {NPC.gender.subject_pronoun} has a spreadsheet open on {NPC.gender.possessive_determiner} phone.".format(
                 **self.elements))
         self.new_skill = random.choice(list(self.candidates))
 
-        mymenu = ghcutscene.SimpleMonologueMenu(
+        mymenu = ghcutscene.AlertMonologueMenu(
             "[CAN_I_ASK_A_QUESTION] Actually, never mind, I just asked you a question. Did you know that we don't have a lancemate who knows {}?".format(self.new_skill),
             npc.get_root(), camp)
 
         npc.statline[self.new_skill] = random.randint(2,5)
         npc.relationship.expectation = gears.relationships.E_ADVENTURE
 
-        mymenu.add_item(
+        _=mymenu.add_item(
             "Yes, I did know that, actually.",
-            self.choose_yes)
+            self.choose_yes, data=(npc, camp))
 
-        mymenu.add_item(
+        _=mymenu.add_item(
             "I can't say that I really noticed.",
-            self.choose_no)
-
-        answer = mymenu.query()
-        if answer:
-            answer(npc, camp)
+            self.choose_no, data=(npc, camp))
 
         self.proper_end_plot(camp)
 
-    def choose_yes(self, npc, camp):
+    def choose_yes(self, wid, _ev):
+        npc, camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "When assembling a lance, it's important to keep the skills and aptitudes of all your party members in mind. I've decided to learn {} so if we ever have an adventure where we need to know it, at least one of us will.".format(self.new_skill),
             npc, camp, False
         )
 
-    def choose_no(self, npc, camp):
+    def choose_no(self, wid, _ev):
+        npc, camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "Well, I've taken it upon myself to study {}. So, if we ever need that skill during an adventure, you can rest assured that someone here knows how to do it.".format(self.new_skill),
             npc, camp, False
@@ -1004,22 +1005,19 @@ class Earth_RescueAndBiotech(LMMissionPlot):
     def METROSCENE_ENTER(self, camp):
         if not self.had_convo:
             npc = self.elements["NPC"]
-            pbge.alerts.TextAlert(
+            _=pbge.alerts.TextAlert(
                 "As you enter {METROSCENE}, you notice {NPC} looking anxiously at {NPC.gender.possessive_determiner} phone.".format(
                     **self.elements))
 
-            mymenu = ghcutscene.SimpleMonologueMenu(
+            mymenu = ghcutscene.AlertMonologueMenu(
                 "A hiker has gone missing in an area known to contain biomonsters... They're calling on all medics in the area to help with the search and rescue.",
                 npc, camp
             )
-            mymenu.no_escape = True
-            mymenu.add_item("Let's go see if we can find find this hiker.", self._accept_offer)
-            mymenu.add_item("We're in no shape to face biomonsters.", self._reject_offer)
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
+            _=mymenu.add_item("Let's go see if we can find find this hiker.", self._accept_offer, data=camp)
+            _=mymenu.add_item("We're in no shape to face biomonsters.", self._reject_offer, data=camp)
 
-    def _accept_offer(self, camp):
+    def _accept_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         _=ghcutscene.SimpleMonologueDisplay(
             "One more thing about this mission... the hiker was probably drawn to these caves because of the rumors of lost biotechnology inside. At the very least, we should keep our eyes open for useful discoveries.",
@@ -1029,7 +1027,8 @@ class Earth_RescueAndBiotech(LMMissionPlot):
         self.had_convo = True
         self.mission_active = True
 
-    def _reject_offer(self, camp):
+    def _reject_offer(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements["NPC"]
         npc.relationship.history.append(gears.relationships.Memory(
             "you refused to aid the search and rescue", "I didn't help you with the search and rescue", -25,
@@ -1103,39 +1102,36 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
         if not self.started_convo:
             npc = self.elements["NPC"]
             defender = self.elements["DEFENDER"]
-            pbge.alerts.TextAlert("As you enter {METROSCENE}, {DEFENDER} rushes to you in a near-panic.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {DEFENDER} rushes to you in a near-panic.".format(**self.elements))
 
             _=ghcutscene.SimpleMonologueDisplay(
                 "[THIS_IS_AN_EMERGENCY] There's a convoy under attack just outside of town. It includes civilian transports. You're the only lance in the area that can possibly make it there in time to defend.",
                 defender, camp
             )
-            mymenu = ghcutscene.SimpleMonologueMenu("We'll do it. [LETS_START_MECHA_MISSION]", npc, camp)
+            mymenu = ghcutscene.AlertMonologueMenu("We'll do it. [LETS_START_MECHA_MISSION]", npc, camp)
 
-            mymenu.add_item("Absolutely right. Let's get to work.", self._start_mission)
-            mymenu.add_item("Wait a minute- Who do you think the boss of this lance is?", self._question_mission)
+            _=mymenu.add_item("Absolutely right. Let's get to work.", self._start_mission, data=camp)
+            _=mymenu.add_item("Wait a minute- Who do you think the boss of this lance is?", self._question_mission, data=camp)
 
-            act = mymenu.query()
-            if act:
-                act(camp)
-
-    def _start_mission(self, camp):
-        pbge.alerts.TextAlert("You rush to intercept the bandits before they can reach the convoy.")
+    def _start_mission(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You rush to intercept the bandits before they can reach the convoy.")
         npc = self.elements["NPC"]
         npc.relationship.role = gears.relationships.R_COLLEAGUE
-        self.mission_seed(camp)
+        _=self.mission_seed(camp)
 
-    def _question_mission(self, camp):
+    def _question_mission(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         mymenu = ghcutscene.SimpleMonologueMenu("Alright then, \"boss\", what do you say we do?", npc, camp)
 
-        mymenu.add_item("I guess we have no choice- we have to rescue the convoy.", self._grudgingly_start_mission)
-        mymenu.add_item("We reject the mission. There are other things we need to do right now.", self._deny_mission)
+        _=mymenu.add_item("I guess we have no choice- we have to rescue the convoy.", self._grudgingly_start_mission, data=camp)
+        _=mymenu.add_item("We reject the mission. There are other things we need to do right now.", self._deny_mission, data=camp)
 
-        act = mymenu.query()
-        if act:
-            act(camp)
+        mymenu.push_and_deploy()
 
-    def _grudgingly_start_mission(self, camp):
+    def _grudgingly_start_mission(self, wid, _ev):
+        camp = wid.data
         _=pbge.alerts.TextAlert(
             "You go to intercept the bandits before they can reach the convoy. Hopefully you are not too late.",
             on_close=self._really_grudgingly_start_mission, data=camp
@@ -1147,7 +1143,8 @@ class Earth_GetInTheMekShimli(LMMissionPlot):
         npc.relationship.role = gears.relationships.R_CHAPERONE
         _=self.mission_seed(camp)
 
-    def _deny_mission(self, camp: gears.GearHeadCampaign):
+    def _deny_mission(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         deserters = [lm for lm in camp.get_lancemates() if
                      (lm is npc) or (lm.get_reaction_score(camp.pc, camp) < 30) or {personality.Peace,
@@ -1199,42 +1196,39 @@ class HowDoYouSeeMe(LMPlot):
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
-        pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} calls you aside for a talk.".format(**self.elements))
+        _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} calls you aside for a talk.".format(**self.elements))
 
-        mymenu = ghcutscene.SimpleMonologueMenu(
+        mymenu = ghcutscene.AlertMonologueMenu(
             "I just wanted to have a chat, get to know you better. They say that Fellowship is one of the primary cavalier virtues. Of course, it means different things to different people. How do you envision our relationship as part of this lance?",
             npc.get_root(), camp)
 
         if personality.Fellowship in camp.pc.personality:
-            mymenu.add_item(
+            _=mymenu.add_item(
                 "I would say that we are friends, adventuring companions. There's a special bond that only cavaliers know.",
-                self.choose_friend)
+                self.choose_friend, data=(npc, camp))
 
-        mymenu.add_item("We are colleagues, coworkers. Professionals working together in a dangerous field.",
-                        self.choose_colleague)
+        _=mymenu.add_item("We are colleagues, coworkers. Professionals working together in a dangerous field.",
+                        self.choose_colleague, data=(npc, camp))
 
         if npc.relationship.attitude == gears.relationships.A_SENIOR or npc.renown > camp.renown:
-            mymenu.add_item(
+            _=mymenu.add_item(
                 "You are a senior pilot to me. I look up to you and try to learn from you. If anything, you are my mentor.",
-                self.choose_mentor)
+                self.choose_mentor, data=(npc, camp))
 
         if gears.relationships.RT_FAMILY not in npc.relationship.tags:
-            mymenu.add_item("Honestly speaking, ever since you joined the team I've had a bit of a crush on you...",
-                            self.choose_crush)
+            _=mymenu.add_item("Honestly speaking, ever since you joined the team I've had a bit of a crush on you...",
+                            self.choose_crush, data=(npc, camp))
 
-        mymenu.add_item(
+        _=mymenu.add_item(
             "I don't know?! What is this, some kind of team building activity? We're just lancemates, alright?",
-            self.choose_confusion)
+            self.choose_confusion, data=(npc, camp))
 
         npc.personality.add(personality.Fellowship)
 
-        answer = mymenu.query()
-        if answer:
-            answer(npc, camp)
-
         self.proper_end_plot(camp)
 
-    def choose_friend(self, npc, camp):
+    def choose_friend(self, wid, _ev):
+        npc, camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "Yes, I would say that's the correct answer. Being a cavalier isn't like any other job... the bonds we form on the battlefield are special.",
             npc, camp, False
@@ -1242,14 +1236,16 @@ class HowDoYouSeeMe(LMPlot):
         npc.relationship.role = gears.relationships.R_FRIEND
         npc.relationship.reaction_mod += 10
 
-    def choose_colleague(self, npc, camp):
+    def choose_colleague(self, wid, _ev):
+        npc, camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "That's a very professional answer. You didn't used to work for the corporations by any chance, did you?",
             npc, camp, False
         )
         npc.relationship.role = gears.relationships.R_COLLEAGUE
 
-    def choose_mentor(self, npc, camp: gears.GearHeadCampaign):
+    def choose_mentor(self, wid, _ev):
+        npc, camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "I suppose I am a mentor to you. I'll do my best to pass on whatever knowledge I have to you and the rest of the lance.",
             npc, camp, False
@@ -1257,7 +1253,8 @@ class HowDoYouSeeMe(LMPlot):
         camp.dole_xp(100)
         npc.relationship.role = gears.relationships.R_MENTOR
 
-    def choose_crush(self, npc: gears.base.Character, camp):
+    def choose_crush(self, wid, _ev):
+        npc, camp = wid.data
         if npc.get_reaction_score(camp.pc, camp) > 20:
             _=ghcutscene.SimpleMonologueDisplay(
                 "Well, that's a pleasant answer to hear. We'll have to talk more about this later.", 
@@ -1273,7 +1270,8 @@ class HowDoYouSeeMe(LMPlot):
             npc.relationship.reaction_mod -= 10
             npc.relationship.role = gears.relationships.R_COLLEAGUE
 
-    def choose_confusion(self, npc, camp):
+    def choose_confusion(self, wid, _ev):
+        npc, camp = wid.data
         if npc.get_reaction_score(camp.pc, camp) > 40:
             _=ghcutscene.SimpleMonologueDisplay(
                 "Sorry, I didn't mean to confuddle you. I can assure you that we are, in fact, friends... even if that doesn't seem obvious to you right now.",

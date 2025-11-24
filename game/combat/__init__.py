@@ -211,7 +211,7 @@ class BonusActionWidget(pbge.widgets.ButtonWidget):
         )
         self.last_update = None
 
-    def buy_action(self, *args):
+    def buy_action(self, *_args):
         if self.comrec.can_buy_bonus_action():
             self.comrec.buy_bonus_action()
             self.on_buy_action()
@@ -296,18 +296,19 @@ class PlayerTurn(object):
     def __init__(self, pc, camp):
         self.pc = pc
         self.camp = camp
+        self.active_ui = None
 
-    def end_turn(self, button, ev):
+    def end_turn(self, _button, _ev):
         self.camp.fight.cstat[self.pc].end_turn()
 
-    def switch_movement(self, button=None, ev=None):
+    def switch_movement(self, _button=None, _ev=None):
         if self.active_ui != self.movement_ui:
             self.active_ui.deactivate()
             self.movement_ui.activate()
             self.active_ui = self.movement_ui
             self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
-    def switch_attack(self, button=None, ev=None):
+    def switch_attack(self, _button=None, _ev=None):
         if self.active_ui != self.attack_ui:
             if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():
                 self.active_ui.deactivate()
@@ -318,7 +319,7 @@ class PlayerTurn(object):
                 # If the attack UI can't be activated, switch back to movement UI.
                 self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
-    def switch_skill(self, button=None, ev=None):
+    def switch_skill(self, _button=None, _ev=None):
         if self.active_ui != self.skill_ui:
             if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library(True):
                 self.active_ui.deactivate()
@@ -329,7 +330,7 @@ class PlayerTurn(object):
                 # If the attack UI can't be activated, switch back to movement UI.
                 self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
-    def switch_programs(self, button=None, ev=None):
+    def switch_programs(self, _button=None, _ev=None):
         if self.active_ui != self.program_ui:
             if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library():
                 self.active_ui.deactivate()
@@ -340,7 +341,7 @@ class PlayerTurn(object):
                 # If the attack UI can't be activated, switch back to movement UI.
                 self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
 
-    def switch_usables(self, button=None, ev=None):
+    def switch_usables(self, _button=None, _ev=None):
         if self.active_ui != self.usable_ui:
             if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library():
                 self.active_ui.deactivate()
@@ -355,15 +356,15 @@ class PlayerTurn(object):
         if self.active_ui in self.top_shelf_funs:
             self.top_shelf_funs[self.active_ui]()
             if pbge.util.config.getboolean("GENERAL", "scroll_to_start_of_action_library") and hasattr(self.active_ui, "set_top_shelf"):
-                self.active_ui.set_top_shelf()
+                _=self.active_ui.set_top_shelf()
             elif hasattr(self.active_ui, "set_bottom_shelf"):
-                self.active_ui.set_bottom_shelf()
+                _=self.active_ui.set_bottom_shelf()
 
     def switch_bottom_shelf(self):
         if self.active_ui in self.bottom_shelf_funs:
             self.bottom_shelf_funs[self.active_ui]()
             if hasattr(self.active_ui, "set_top_shelf"):
-                self.active_ui.set_top_shelf()
+                _=self.active_ui.set_top_shelf()
 
     def focus_on_pc(self):
         pbge.my_state.view.focus(self.pc.pos[0], self.pc.pos[1])
@@ -597,8 +598,7 @@ class PlayerTurn(object):
                 elif pbge.my_state.is_key_for_action(gdi, "center_on_pc"):
                     self.focus_on_pc()
                 elif gdi.key == pygame.K_ESCAPE:
-                    mymenu = configedit.PopupGameMenu()
-                    mymenu(self.camp.fight)
+                    configedit.PopupGameMenu().push_state_and_instantiate()
                 elif gdi.unicode == "," and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     print("Checking...")
                     print(self.camp.fight.cstat[self.pc]._ap_remaining,self.camp.fight.cstat[self.pc].action_points, -self.camp.fight.cstat[self.pc]._mp_spent, self.camp.fight.cstat[self.pc].mp_remaining, self.camp.fight.cstat[self.pc].total_mp_remaining)
@@ -622,7 +622,7 @@ class PlayerTurn(object):
                         for part in victim.get_all_parts():
                             if isinstance(part, gears.base.MovementSystem):
                                 part.hp_damage += part.max_health
-                            elif isinstance(part, gears.base.Module) and part.form is gears.base.MF_Leg:
+                            elif isinstance(part, gears.base.Module) and part.form is gears.base.MF_Leg:  # pyright: ignore[reportUnnecessaryComparison]
                                 part.hp_damage += part.max_health
 
             elif gdi.type == pygame.MOUSEBUTTONUP:
@@ -812,8 +812,12 @@ class Combat(object):
                 return {chara.pos}.intersection(firing_points)
 
     def move_and_invoke(self, pc, nav, invo, target_list, firing_points, record=False):
-        fp = min(firing_points, key=lambda r: nav.cost_to_tile.get(r, 10000))
-        self.move_model_to(pc, nav, fp)
+        # Note that "nav" may not exist, if pc is a prop or other immobile type.
+        if nav:
+            fp = min(firing_points, key=lambda r: nav.cost_to_tile.get(r, 10000))
+            self.move_model_to(pc, nav, fp)
+        else:
+            fp = pc.pos
         if pc.pos == fp:
             pbge.my_state.view.overlays.clear()
             # Launch the effect.
@@ -852,7 +856,9 @@ class Combat(object):
             self.cstat[chara].has_started_turn = False
         self.camp.update_area_enchantments()
 
-    def _try_to_fix_mkill(self, party, mkpc: gears.base.Mecha):
+    def _try_to_fix_mkill(self, wid, _ev):
+        party, mkpc = wid.data
+        
         total = 0
         if mkpc.material is gears.materials.Biotech:
             used_skill = gears.stats.Biotechnology
@@ -880,8 +886,9 @@ class Combat(object):
             pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
             self.scene.contents.remove(mkpc)
 
-    def _abandon_mkill(self, party, mkpc: gears.base.Mecha):
-        pbge.alerts.TextAlert("You leave {} behind.".format(mkpc.get_pilot()))
+    def _abandon_mkill(self, wid, _ev):
+        party, mkpc = wid.data
+        _=pbge.alerts.TextAlert("You leave {} behind.".format(mkpc.get_pilot()))
         self.scene.contents.remove(mkpc)
 
     def go(self, explo):
@@ -943,12 +950,14 @@ class Combat(object):
                     if pc.get_current_speed() < 10:
                         # Looks like we have a genuine Mobility Kill.
                         if pc.get_pilot() is self.camp.pc:
-                            mymenu = pbge.rpgmenu.AlertMenu("Your {} has been immobilized. You can either try to repair the damage, or let the mission continue without you.".format(pc.get_full_name()))
+                            mymenu = pbge.widgetmenu.AlertMenuWidget("Your {} has been immobilized. You can either try to repair the damage, or let the mission continue without you.".format(pc.get_full_name()), pop_when_clicked=True, on_escape=self._abandon_mkill)
                         else:
                             mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_BEEN_IMMOBILIZED] [HELP_WITH_MOBILITY_KILL]", pc, self.camp)
                         if any([m.get_current_mental() > 0 for m in myparty]):
-                            mymenu.add_item("Attempt to repair the damage.", self._try_to_fix_mkill)
-                        mymenu.add_item("Leave {} behind.".format(pc), self._abandon_mkill)
+                            _=mymenu.add_item("Attempt to repair the damage.", self._try_to_fix_mkill, data=(myparty,pc))
+                        _=mymenu.add_item("Leave {} behind.".format(pc), self._abandon_mkill, data=(myparty, pc))
+
+                        mymenu.push_and_deploy()
                         choice = mymenu.query()
                         if choice:
                             choice(myparty, pc)

@@ -80,7 +80,7 @@ class DaBouncer(Plot):
                 effect=self._bribe_guard
             ))
 
-        game.ghdialogue.SkillBasedPartyReply(
+        _=game.ghdialogue.SkillBasedPartyReply(
             Offer("Sorry, my mistake... go right ahead.",
                   context=ContextTag([context.CUSTOM,]),
                   data={"reply": "We have an appointment. Or do you want to tell {} you didn't let {} through?".format(self.elements["NPC"], camp.pc)},
@@ -88,7 +88,7 @@ class DaBouncer(Plot):
             gears.stats.Charm, gears.stats.Negotiation, self.rank, difficulty=gears.stats.DIFFICULTY_AVERAGE
         )
 
-        game.ghdialogue.SkillBasedPartyReply(
+        _=game.ghdialogue.SkillBasedPartyReply(
             Offer("Huh? I don't see anything.",
                   context=ContextTag([context.CUSTOM,]),
                   data={"reply": "[DISTRACTION] (Steal Passcard)"},
@@ -116,25 +116,26 @@ class DaBouncer(Plot):
         thingmenu.desc = "You stand before an elevator. A passcard is needed to operate it."
         self.lockpick_pc = ghcutscene.AddSkillBasedLancemateMenuItem(
             thingmenu, "[I_CAN_PICK_LOCK]", self._pick_lock, camp, gears.stats.Craft, gears.stats.Computers, self.rank,
-            difficulty=gears.stats.DIFFICULTY_HARD, pc_msg="Attempt to pick the lock.", no_random=True
+            difficulty=gears.stats.DIFFICULTY_HARD, pc_msg="Attempt to pick the lock.", no_random=True, data=camp
         )
-        thingmenu.add_item("Leave it alone.", None)
+        _=thingmenu.add_item("Leave it alone.", None)
 
-    def _pick_lock(self, camp):
+    def _pick_lock(self, wid, _ev):
+        camp = wid.data
         camp.dole_xp(100, gears.stats.Computers)
         self.win_missiom(camp)
 
     def win_missiom(self, camp):
         self.elements["_elevator"].plot_locked = False
         self.end_plot(camp)
-        missionbuilder.NewLocationNotification(self.elements["INTERIOR"], self.elements["_elevator"])
+        _=missionbuilder.NewLocationNotification(self.elements["INTERIOR"], self.elements["_elevator"])
 
     def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
         # The bouncer gets plot armor until the PCs can collect the card.
         npc: gears.base.Character = self.elements["BOUNCER"]
         if not npc.is_operational():
             if camp.get_active_party():
-                pbge.alerts.TextAlert("You find an passcard for the elevator on {}'s belt.".format(npc))
+                _=pbge.alerts.TextAlert("You find an passcard for the elevator on {}'s belt.".format(npc))
                 self.win_missiom(camp)
             else:
                 npc.wipe_damage()

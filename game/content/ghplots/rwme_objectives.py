@@ -126,7 +126,7 @@ class RWMO_TheGambler(Plot):
             mynpc.job.scale_skills(mynpc, mynpc.renown + random.randint(1,10))
         self.add_sub_plot(nart,"MC_DUEL_DEVELOPMENT",elements={"NPC":mynpc})
 
-        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
+        _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2)
 
         self.obj = adventureseed.MissionObjective("Defeat challenger {}".format(self.elements["_commander"]),
                                                   missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
@@ -165,14 +165,13 @@ class RWMO_TheGambler(Plot):
             npc = self.elements["_commander"]
             _=pbge.alerts.TextAlert("You are approached by {}.".format(npc))
 
-            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_DUEL]", npc, camp)
+            mymenu = game.content.ghcutscene.AlertMonologueMenu("[I_PROPOSE_DUEL]", npc, camp)
 
-            mymenu.add_item("Accept the challenge", None)
-            mymenu.add_item("Reject the challenge", self.cancel_the_adventure)
+            _=mymenu.add_item("Accept the challenge", None)
+            _=mymenu.add_item("Reject the challenge", self._cancel_the_adventure_from_widget)
 
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
+    def _cancel_the_adventure_from_widget(self, wid, _ev):
+        self.cancel_the_adventure(wid.data)
 
     def cancel_the_adventure(self,camp: gears.GearHeadCampaign):
         camp.go(self.elements["ADVENTURE_GOAL"])
@@ -251,40 +250,38 @@ class RWMO_GenericChallenger(Plot):
             self.choice_ready = False
             # Allow the PC to decide whether or not to accept the challenge.
             npc = self.elements["_commander"]
-            pbge.alerts.TextAlert("Without warning, you are confronted by {}.".format(npc))
+            _=pbge.alerts.TextAlert("Without warning, you are confronted by {}.".format(npc))
 
-            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[I_PROPOSE_BATTLE]", npc, camp)
+            mymenu = game.content.ghcutscene.AlertMonologueMenu("[I_PROPOSE_BATTLE]", npc, camp)
 
             if npc.renown > camp.renown + 10:
-                game.content.ghcutscene.AddTagBasedLancemateMenuItem(
+                _=game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                     mymenu, "{} is out of our league, but just imagine the glory if we win!".format(npc),
-                    self._choose_glory, camp, (gears.personality.Glory,)
+                    self._choose_glory, camp, (gears.personality.Glory,), data=camp
                 )
             elif npc.renown < camp.renown - 20:
                 self.peace_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                     mymenu, "I don't like the idea of demolishing a lesser pilot like {npc}, but if that's what {npc.gender.subject_pronoun} wants...".format(npc=npc),
-                    self._choose_peace, camp, (gears.personality.Peace,)
+                    self._choose_peace, camp, (gears.personality.Peace,), data=camp
                 )
 
             if gears.tags.Criminal in npc.get_tags():
                 self.police_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                     mymenu,
                     "There's probably a bounty for {npc}; defeat {npc.gender.object_pronoun} and we might earn a big payday.".format(npc=npc),
-                    self._choose_bounty, camp, (gears.tags.Police,)
+                    self._choose_bounty, camp, (gears.tags.Police,), data=camp
                 )
 
-            mymenu.add_item("Accept the challenge", None)
-            mymenu.add_item("Reject the challenge", self.cancel_the_adventure)
+            _=mymenu.add_item("Accept the challenge", None)
+            _=mymenu.add_item("Reject the challenge", self.cancel_the_adventure, data=camp)
 
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
-
-    def _choose_bounty(self, camp):
+    def _choose_bounty(self, wid, _ev):
+        camp = wid.data
         self.police_npc.relationship.reaction_mod += random.randint(1,6)
         self.bounty_primed = True
 
-    def _choose_peace(self, camp: gears.GearHeadCampaign):
+    def _choose_peace(self, wid, _ev):
+        camp = wid.data
         self.peace_npc.relationship.reaction_mod += random.randint(1,10)
         npc = self.elements["_commander"]
         if camp.do_skill_test(gears.stats.Ego, gears.stats.Negotiation, npc.renown):
@@ -295,10 +292,11 @@ class RWMO_GenericChallenger(Plot):
 
             camp.check_trigger("ENDCOMBAT")
 
-    def _choose_glory(self, _camp):
+    def _choose_glory(self, _wid, _ev):
         self.chose_glory = True
 
-    def cancel_the_adventure(self,camp: gears.GearHeadCampaign):
+    def cancel_the_adventure(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ADVENTURE_GOAL"])
         self.adv.end_adventure(camp)
 
@@ -315,7 +313,7 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
         roomtype = self.elements["ARCHITECTURE"].get_a_room()
-        myroom = self.register_element("ROOM", roomtype(10, 10, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
+        _ = self.register_element("ROOM", roomtype(10, 10, anchor=pbge.randmaps.anchors.middle), dident="LOCALE")
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
         team3 = self.register_element("_ateam", teams.Team(enemies=(team2,), allies=(myscene.player_team,)),
                                       dident="ROOM")
@@ -327,7 +325,7 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
                                   must_find=False, lock=True)
         if mynpc:
             #self.register_element("PILOT", mynpc, lock=True)
-            plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
+            _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
             mek = mynpc.get_root()
             self.register_element("SURVIVOR", mek)
             self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
@@ -342,12 +340,13 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
         self.obj = adventureseed.MissionObjective("Rescue {}".format(self.elements["PILOT"]),
                                                   missionbuilder.MAIN_OBJECTIVE_VALUE, can_reset=False)
         self.adv.objectives.append(self.obj)
-        self.choice_ready = True
+        self.choice_ready = True  # pyright: ignore[reportUninitializedInstanceVariable]
         self.intro_ready = True
         self.eteam_activated = False
         self.eteam_defeated = False
         self.pilot_fled = False
-        self.intimidation_primed = False
+        self.intimidation_primed = False  # pyright: ignore[reportUninitializedInstanceVariable]
+        self.intimidating_npc = None  # pyright: ignore[reportUninitializedInstanceVariable]
 
         return True
 
@@ -365,31 +364,28 @@ class RWMO_RescueSomeone(missionbuilder.BAM_RescueSomeone):
             self.choice_ready = False
             # Allow the PC to decide whether or not to respond to the distress call.
             npc = self.elements["PILOT"]
-            pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
+            _=pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
 
-            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
+            mymenu = game.content.ghcutscene.AlertMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
 
             self.intimidating_npc = game.content.ghcutscene.AddSkillBasedLancemateMenuItem(
                 mymenu, "Those [enemy_meks] don't look so brave to me. Follow my lead and we can end this quickly.",
                 self.do_intimidation, camp,
-                gears.stats.Ego, gears.stats.MechaFighting, self.rank, gears.stats.DIFFICULTY_HARD
+                gears.stats.Ego, gears.stats.MechaFighting, self.rank, gears.stats.DIFFICULTY_HARD, data=camp
             )
 
-            mymenu.add_item("Go help {}".format(npc), None)
-            mymenu.add_item("Ignore distress call", self.abandon_distress_call)
+            _=mymenu.add_item("Go help {}".format(npc), None)
+            _=mymenu.add_item("Ignore distress call", self.abandon_distress_call, data=camp)
 
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
-
-    def do_intimidation(self, camp):
+    def do_intimidation(self, _wid, _ev):
         self.intimidation_primed = True
 
     def cancel_the_adventure(self,camp):
         camp.go(self.elements["ADVENTURE_GOAL"])
         self.adv.cancel_adventure(camp)
 
-    def abandon_distress_call(self, camp: gears.GearHeadCampaign):
+    def abandon_distress_call(self, wid, _ev):
+        camp = wid.data
         # Any lancemates with Fellowship won't like this decision.
         candidates = [npc for npc in camp.get_active_party() if isinstance(npc.get_pilot(), gears.base.Character) and
                       gears.personality.Fellowship in npc.get_pilot().personality and npc.get_pilot() is not camp.pc]
@@ -436,7 +432,7 @@ class FavorableDistressCall(missionbuilder.BAM_RescueSomeone):
         team2.contents += myunit.mecha_list
 
         mynpc = self.seek_element(nart, "PILOT", self._npc_is_good, lock=True)
-        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
+        _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team3)
         mek = mynpc.get_root()
         self.register_element("SURVIVOR", mek)
         self.add_sub_plot(nart,"MT_TEAMUP_DEVELOPMENT",ident="NPC_TALK",elements={"NPC":mynpc,})
@@ -474,41 +470,41 @@ class FavorableDistressCall(missionbuilder.BAM_RescueSomeone):
             self.choice_ready = False
             # Allow the PC to decide whether or not to respond to the distress call.
             npc = self.elements["PILOT"]
-            pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
+            _=pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
 
-            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
+            mymenu = game.content.ghcutscene.AlertMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
 
             if npc.faction and camp.is_unfavorable_to_pc(npc.faction):
-                game.content.ghcutscene.AddTagBasedLancemateMenuItem(
+                _=game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                     mymenu, "We have no duty to aid an enemy combatant.",
-                    self.cancel_the_adventure, camp, (gears.personality.Duty,)
+                    self.cancel_the_adventure_from_menu, camp, (gears.personality.Duty,),
+                    data=camp
                 )
 
             self.glory_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                 mymenu, "You realize there'll probably be a cash reward for helping out.",
-                self.go_for_glory, camp, (gears.personality.Glory,)
+                self.go_for_glory, camp, (gears.personality.Glory,), data=camp
             )
 
             self.fellowship_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                 mymenu, "Helping {} is the right thing to do.".format(npc),
-                self.go_for_fellowship, camp, (gears.personality.Fellowship,)
+                self.go_for_fellowship, camp, (gears.personality.Fellowship,), data=camp
             )
 
-            mymenu.add_item("Go help {}".format(npc), None)
-            mymenu.add_item("Ignore distress call", self.abandon_distress_call)
+            _=mymenu.add_item("Go help {}".format(npc), None)
+            _=mymenu.add_item("Ignore distress call", self.abandon_distress_call, data=camp)
 
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
-
-    def go_for_glory(self, camp):
+    def go_for_glory(self, wid, _ev):
+        camp = wid.data
         self.glory_npc.relationship.reaction_mod += random.randint(1,6)
 
-    def go_for_fellowship(self, camp):
+    def go_for_fellowship(self, wid, _ev):
+        camp = wid.data
         self.fellowship_npc.relationship.reaction_mod += random.randint(1,6)
 
-    def abandon_distress_call(self, camp: gears.GearHeadCampaign):
+    def abandon_distress_call(self, wid, _ev):
         # Any lancemates with Fellowship won't like this decision.
+        camp = wid.data
         candidates = [npc for npc in camp.get_active_party() if isinstance(npc.get_pilot(), gears.base.Character) and
                       gears.personality.Fellowship in npc.get_pilot().personality and npc.get_pilot() is not camp.pc]
         if candidates:
@@ -518,6 +514,9 @@ class FavorableDistressCall(missionbuilder.BAM_RescueSomeone):
                 "[WE_SHOULD_HAVE_HELPED_THEM]", npc, camp
             )
         self.cancel_the_adventure(camp)
+
+    def cancel_the_adventure_from_menu(self, wid, _ev):
+        self.cancel_the_adventure(wid.data)
 
     def cancel_the_adventure(self,camp):
         camp.go(self.elements["ADVENTURE_GOAL"])
@@ -540,43 +539,43 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
             self.choice_ready = False
             # Allow the PC to decide whether or not to respond to the distress call.
             npc = self.elements["PILOT"]
-            pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
+            _=pbge.alerts.TextAlert("While traveling, you receive a distress call from {}.".format(npc))
 
-            mymenu = game.content.ghcutscene.SimpleMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
+            mymenu = game.content.ghcutscene.AlertMonologueMenu("[DISTRESS_CALL]", self.elements["SURVIVOR"], camp)
 
             if npc.faction and camp.is_unfavorable_to_pc(npc.faction):
-                game.content.ghcutscene.AddTagBasedLancemateMenuItem(
+                _=game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                     mymenu, "This trucker works for {}; we're under no obligation to help.".format(npc.faction),
-                    self.cancel_the_adventure, camp, (gears.personality.Duty,)
+                    self.cancel_the_adventure_from_menu, camp, (gears.personality.Duty,), data=camp
                 )
             else:
                 self.duty_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                     mymenu, "As cavaliers, we are duty-bound to help {}.".format(npc),
-                    self.go_for_duty, camp, (gears.personality.Duty,)
+                    self.go_for_duty, camp, (gears.personality.Duty,), data=camp
                 )
 
             self.justice_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                 mymenu, "Those bandits need to be brought to justice.",
-                self.go_for_justice, camp, (gears.personality.Justice,)
+                self.go_for_justice, camp, (gears.personality.Justice,), data=camp
             )
 
             self.criminal_npc = game.content.ghcutscene.AddTagBasedLancemateMenuItem(
                 mymenu, "Meh, the bandits need to earn a living too. Let's just leave...",
-                self.go_for_criminal, camp, (gears.tags.Criminal,)
+                self.go_for_criminal, camp, (gears.tags.Criminal,), data=camp
             )
 
-            mymenu.add_item("Go help {}".format(npc), None)
-            mymenu.add_item("Ignore distress call", self.abandon_distress_call)
+            _=mymenu.add_item("Go help {}".format(npc), None)
+            _=mymenu.add_item("Ignore distress call", self.abandon_distress_call)
 
-            choice = mymenu.query()
-            if choice:
-                choice(camp)
+    def cancel_the_adventure_from_menu(self, wid, _ev):
+        self.cancel_the_adventure(wid.data)
 
     def cancel_the_adventure(self,camp):
         camp.go(self.elements["ADVENTURE_GOAL"])
         self.adv.cancel_adventure(camp)
 
-    def go_for_criminal(self, camp):
+    def go_for_criminal(self, wid, _ev):
+        camp = wid.data
         self.criminal_npc.relationship.reaction_mod += random.randint(6,10)
         # Any lancemates with Justice won't like this decision.
         candidates = [npc for npc in camp.get_active_party() if isinstance(npc.get_pilot(), gears.base.Character) and
@@ -590,10 +589,11 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
             )
         self.cancel_the_adventure(camp)
 
-    def go_for_duty(self, camp):
+    def go_for_duty(self, _wid, _ev):
         self.duty_npc.relationship.reaction_mod += random.randint(1,6)
 
-    def go_for_justice(self, camp):
+    def go_for_justice(self, wid, _ev):
+        camp = wid.data
         self.justice_npc.relationship.reaction_mod += random.randint(6,10)
         # Any criminal lancemates won't like this decision.
         candidates = [npc for npc in camp.get_active_party() if isinstance(npc.get_pilot(), gears.base.Character) and
@@ -607,7 +607,8 @@ class TruckerDistressCall(missionbuilder.BAM_ExtractTrucker):
                 npc, camp
             )
 
-    def abandon_distress_call(self, camp: gears.GearHeadCampaign):
+    def abandon_distress_call(self, wid, _ev):
+        camp = wid.data
         # Any non-criminal lancemates won't like this decision.
         candidates = [npc for npc in camp.get_active_party() if isinstance(npc.get_pilot(), gears.base.Character) and
                       gears.tags.Criminal not in npc.get_pilot().get_tags() and npc.get_pilot() is not camp.pc]
@@ -724,42 +725,37 @@ class RWMO_SkilledAvoidance( Plot ):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = pbge.rpgmenu.AlertMenu("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
+                mymenu = pbge.widgetmenu.AlertMenuWidget("You detect hostile mecha on the road ahead. They are still far enough away that you can avoid them if you want to.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
+            _=mymenu.add_item("Avoid them",self.cancel_the_adventure, data=camp)
+            _=mymenu.add_item("Engage them",None)
+            mymenu.push_and_deploy()
 
     def attempt_stealth(self,camp):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Stealth, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = pbge.rpgmenu.AlertMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
+                mymenu = pbge.widgetmenu.AlertMenuWidget("You encounter a group of hostile mecha, but manage to remain unseen.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
+            _=mymenu.add_item("Avoid them",self.cancel_the_adventure, data=camp)
+            _=mymenu.add_item("Engage them",None)
+            mymenu.push_and_deploy()
 
     def attempt_wildcraft(self,camp):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Wildcraft, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = pbge.rpgmenu.AlertMenu("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")
+                mymenu = pbge.widgetmenu.AlertMenuWidget("You find tracks belonging to enemy mecha. It would be a simple matter to find an alternate route around them.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[THERE_ARE_ENEMY_TRACKS] [WE_CAN_AVOID_COMBAT]",pc,camp)
-            mymenu.add_item("Avoid them",self.cancel_the_adventure)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
+            _=mymenu.add_item("Avoid them",self.cancel_the_adventure, data=camp)
+            _=mymenu.add_item("Engage them",None)
+            mymenu.push_and_deploy()
 
-    def cancel_the_adventure(self,camp):
+    def cancel_the_adventure(self,wid, _ev):
+        camp = wid.data
         self.adv.cancel_adventure(camp)
         camp.go(self.elements["ADVENTURE_GOAL"])
 

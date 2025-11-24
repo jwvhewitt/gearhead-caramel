@@ -1,14 +1,12 @@
 from pbge.plots import Plot, PlotState
-import game.content.ghwaypoints
-import game.content.ghterrain
 import gears
 import pbge
+from game import content
 from game.content import gharchitecture
 from game.ghdialogue import context
 import random
 from pbge.dialogue import ContextTag, Offer
 from game.content import plotutility, GHNarrativeRequest, PLOT_LIST, ghwaypoints
-import game.content.gharchitecture
 from . import missionbuilder
 from game.content.plotutility import LMSkillsSelfIntro
 import pygame
@@ -54,7 +52,7 @@ class StandardLancemateHandler(Plot):
                 elif npc.relationship.data.get("LANCEMATE_TIME_OFF", 0) <= camp.time:
                     mylist.append(Offer("[JOIN]", is_generic=True,
                                         context=ContextTag([context.JOIN]),
-                                        effect=game.content.plotutility.AutoJoiner(npc)))
+                                        effect=plotutility.AutoJoiner(npc)))
                 else:
                     # This NPC is taking some time off. Come back tomorrow.
                     mylist.append(Offer("[COMEBACKTOMORROW_JOIN]", is_generic=True,
@@ -62,7 +60,7 @@ class StandardLancemateHandler(Plot):
             elif npc in camp.party and gears.tags.SCENE_PUBLIC in camp.scene.attributes:
                 mylist.append(Offer("[LEAVEPARTY]", is_generic=True,
                                     context=ContextTag([context.LEAVEPARTY]),
-                                    effect=game.content.plotutility.AutoLeaver(npc)))
+                                    effect=plotutility.AutoLeaver(npc)))
             mylist.append(LMSkillsSelfIntro(npc))
         return mylist
 
@@ -131,7 +129,7 @@ class WorldMapEncounterHandler(Plot):
             myplotstate = PlotState(
                 rank=rank, elements={"METROSCENE": metroscene, "DEST_SCENE": dest_scene, "KWARGS": kwargs.copy()}
             )
-            myplot = game.content.load_dynamic_plot(camp, "RWMENCOUNTER", myplotstate)
+            myplot = content.load_dynamic_plot(camp, "RWMENCOUNTER", myplotstate)
             if myplot:
                 myseed = myplot.generate_world_map_encounter(
                     camp, metroscene, return_wp, dest_scene=dest_scene, dest_wp=dest_wp,
@@ -212,7 +210,7 @@ class MetrosceneRandomPlotHandler(Plot):
         # Attempt to load at least one challenge plot, then load some more plots.
         tries = random.randint(2, 5)
         while self.should_load_challenge(camp) and tries > 0:
-            myplot = game.content.load_dynamic_plot(
+            myplot = content.load_dynamic_plot(
                 camp, self.CHALLENGE_LABEL, pstate=PlotState(
                     rank=self.calc_rank(camp)
                 ).based_on(self)
@@ -222,7 +220,7 @@ class MetrosceneRandomPlotHandler(Plot):
                 break
         tries = 10
         while self.should_load_plot(camp) and tries > 0:
-            myplot = game.content.load_dynamic_plot(
+            myplot = content.load_dynamic_plot(
                 camp, self.SUBPLOT_LABEL, pstate=PlotState(
                     rank=self.calc_rank(camp)
                 ).based_on(self)
@@ -235,7 +233,7 @@ class MetrosceneRandomPlotHandler(Plot):
 
         # Attempt to load the test plot.
         if self.should_load_test(camp):
-            myplot = game.content.load_dynamic_plot(
+            myplot = content.load_dynamic_plot(
                 camp, "TEST_RANDOM_PLOT", pstate=PlotState(
                     rank=self.calc_rank(camp)
                 ).based_on(self)

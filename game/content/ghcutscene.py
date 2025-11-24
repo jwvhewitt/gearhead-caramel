@@ -138,7 +138,7 @@ class MonologueDisplay( object ):
             mygrammar = pbge.dialogue.grammar.Grammar()
             pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,npc,None)
             myviz.text = pbge.dialogue.grammar.convert_tokens(self.text,mygrammar)
-            pbge.alerts.FunAlert(myviz.render)
+            _=pbge.alerts.FunAlert(myviz.render)
 
 
 class ExplosionDisplay(object):
@@ -200,34 +200,48 @@ def alert_with_grammar(camp, text):
     mygrammar = pbge.dialogue.grammar.Grammar()
     pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,camp.pc,camp.pc)
     altered_text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)
-    pbge.alerts.TextAlert(altered_text)
+    _=pbge.alerts.TextAlert(altered_text)
 
 
-class SimpleMonologueMenu(pbge.rpgmenu.Menu):
+class SimpleMonologueMenu(pbge.widgetmenu.MenuWidget):
     # Useful for times when you don't want or need to invoke the full conversation thingamajig.
-    def __init__(self,text,npc,camp):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
+
+    def __init__(self,text,npc,camp, pop_when_clicked=True):
         super().__init__(
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.dx,
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.dy,
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.w,
             ghdialogue.ghdview.ConvoVisualizer.MENU_AREA.h,
-            font=pbge.my_state.medium_font, padding=5, no_escape=True
+            font=pbge.my_state.medium_font, padding=5, no_escape=True,
+            pop_when_clicked=pop_when_clicked
         )
         self.npc = npc
         self.myviz = ghdialogue.ghdview.ConvoVisualizer(self.npc,camp)
-        self.predraw = self.myviz.render
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,self.npc,camp.pc)
         self.myviz.text = pbge.dialogue.grammar.convert_tokens(text,mygrammar)
 
-    def add_dialogue_item(self, camp, pc, raw_msg, value, desc=None, ):
+    def _render(self, delta):
+        self.myviz.render(delta)
+        super()._render(delta)
+
+    def add_dialogue_item(self, camp, pc, raw_msg, on_click, data=None, desc=None, ):
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar,camp,pc,self.npc)
         msg = pbge.dialogue.grammar.convert_tokens(raw_msg,mygrammar)
-        self.add_item(msg, value, desc)
+        _=self.add_item(msg, on_click, data=data, desc=desc)
 
 
-def AddTagBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp, needed_tags):
+class AlertMonologueMenu(SimpleMonologueMenu):
+    # Functions as above, but is added to the alert queue.
+    def __init__(self,text,npc,camp, pop_when_clicked=True):
+        super().__init__(text, npc, camp, pop_when_clicked=pop_when_clicked)
+        self.tags.add(pbge.alerts.WTAG_ALERT)
+        pbge.my_state.alert_queue.append(self)
+
+
+def AddTagBasedLancemateMenuItem(mymenu: pbge.widgetmenu.MenuWidget, msg, on_click: pbge.widgets.On_Click, camp, needed_tags, data=None):
     # Add an item to this menu where a lancemate suggests something. Designed to be used with the above
     # SimpleMonologueMenu, but really it can be used with any menu.
     # Returns the lancemate who makes the suggestion, or None if there is no applicable lancemate.
@@ -238,11 +252,11 @@ def AddTagBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp, ne
         mygrammar = pbge.dialogue.grammar.Grammar()
         pbge.dialogue.GRAMMAR_BUILDER(mygrammar, camp, mylm, camp.pc)
         true_msg = pbge.dialogue.grammar.convert_tokens(msg, mygrammar)
-        mymenu.items.append(ghdialogue.ghdview.LancemateConvoItem(true_msg, value, desc=None, menu=mymenu, npc=mylm))
+        _=mymenu.add_custom(ghdialogue.ghdview.LancemateConvoItem(true_msg, data, desc=None, npc=mylm, on_click=on_click))
         return mylm
 
 
-def AddSkillBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp: gears.GearHeadCampaign, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE, pc_msg=None, no_random=False):
+def AddSkillBasedLancemateMenuItem(mymenu: pbge.widgetmenu.MenuWidget, msg, on_click: pbge.widgets.On_Click, camp: gears.GearHeadCampaign, stat_id, skill_id, rank, difficulty=gears.stats.DIFFICULTY_AVERAGE, pc_msg=None, no_random=False, data=None):
     # Add an item to this menu where a lancemate suggests something. Designed to be used with the above
     # SimpleMonologueMenu, but really it can be used with any menu.
     # Returns the lancemate who makes the suggestion, or None if there is no applicable lancemate.
@@ -250,10 +264,10 @@ def AddSkillBasedLancemateMenuItem(mymenu: pbge.rpgmenu.Menu, msg, value, camp: 
     if winner:
         mylm = winner.get_pilot()
         if mylm is camp.pc and pc_msg:
-            mymenu.add_item(pc_msg, value)
+            _=mymenu.add_item(pc_msg, on_click, data=data)
         else:
             mygrammar = pbge.dialogue.grammar.Grammar()
             pbge.dialogue.GRAMMAR_BUILDER(mygrammar, camp, mylm, camp.pc)
             true_msg = pbge.dialogue.grammar.convert_tokens(msg, mygrammar)
-            mymenu.items.append(ghdialogue.ghdview.LancemateConvoItem(true_msg, value, desc=None, menu=mymenu, npc=mylm))
+            _=mymenu.add_custom(ghdialogue.ghdview.LancemateConvoItem(true_msg, on_click, desc=None, npc=mylm))
         return mylm

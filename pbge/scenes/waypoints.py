@@ -1,9 +1,11 @@
 
-from .. import container,image,KeyObject,rpgmenu,frects,draw_text,default_border,my_state,alerts
+from .. import container,widgets,widgetmenu,frects,draw_text,default_border,my_state,alerts
 import pygame
 
 
-class PuzzleMenu( rpgmenu.Menu ):
+class PuzzleMenu( widgetmenu.MenuWidget ):
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
+    ACTIVATE_IMMEDIATELY = True
     WIDTH = 350
     HEIGHT = 250
     MENU_HEIGHT = 75
@@ -12,15 +14,15 @@ class PuzzleMenu( rpgmenu.Menu ):
     TEXT_RECT = frects.Frect(-175,-125,350,165)
 
     def __init__( self, camp, wp ):
-        super(PuzzleMenu, self).__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,border=None,predraw=self.pre)
+        super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,draw_border=False)
+        self.camp = camp
         self.desc = wp.desc
         self.waypoint = wp
 
-    def pre( self ):
-        if my_state.view:
-            my_state.view()
+    def _render(self, delta):
         default_border.render( self.FULL_RECT.get_rect() )
         draw_text( my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify = 0 )
+        super()._render(delta)
 
 
 class Waypoint( object ):

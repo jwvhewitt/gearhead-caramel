@@ -348,53 +348,54 @@ class SEBOSearchForBase( Plot ):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Scouting, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = pbge.rpgmenu.AlertMenu("As you approach {ENEMY_FACTION}, you realize you could probably follow them back to their base.".format(**self.elements))
+                mymenu = pbge.widgetmenu.AlertMenuWidget("As you approach {ENEMY_FACTION}, you realize you could probably follow them back to their base.".format(**self.elements))
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_DETECTED_ENEMIES] If we want to know where their base is, our best bet would be to stand back and follow them at a distance.",pc,camp)
-            mymenu.add_item("Follow them to their base",self.find_the_base)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
+            _=mymenu.add_item("Follow them to their base",self.find_the_base, data=(camp, False))
+            _=mymenu.add_item("Engage them",None)
+            mymenu.push_and_deploy()
 
     def attempt_stealth(self,camp):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Stealth, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                mymenu = pbge.rpgmenu.AlertMenu("You encounter a group of hostile mecha, but manage to remain unseen.")
+                mymenu = pbge.widgetmenu.AlertMenuWidget("You encounter a group of hostile mecha, but manage to remain unseen.")
             else:
                 mymenu = ghcutscene.SimpleMonologueMenu("[ENEMIES_HAVE_NOT_DETECTED_US] If you're interested in finding their base, we can tail them all the way back.",pc,camp)
-            mymenu.add_item("Follow them to their base",self.find_the_base)
-            mymenu.add_item("Engage them",None)
-            go = mymenu.query()
-            if go:
-                go(camp)
+            _=mymenu.add_item("Follow them to their base",self.find_the_base, data=(camp, False))
+            _=mymenu.add_item("Engage them",None)
+            mymenu.push_and_deploy()
 
     def attempt_wildcraft(self,camp):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Wildcraft, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                _=pbge.alerts.TextAlert("After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]))
+                _=pbge.alerts.TextAlert(
+                    "After the battle, you find tracks leading directly back to {}.".format(self.elements["ENEMY_BASE_NAME"]),
+                    data=(camp, True), on_close=self.find_the_base
+                )
             else:
                 _=ghcutscene.SimpleMonologueDisplay(
                     "Take a look at these tracks... I think we can trace them back to {}.".format(self.elements["ENEMY_BASE_NAME"]),
-                    pc, camp
+                    pc, camp, data=(camp, True), on_close=self.find_the_base
                 )
-            self.find_the_base(camp, True)
 
     def attempt_computers(self,camp):
         pc = camp.do_skill_test(gears.stats.Perception, gears.stats.Computers, self.rank)
         if pc:
             if pc.get_pilot() is camp.pc:
-                _=pbge.alerts.TextAlert("After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]))
+                _=pbge.alerts.TextAlert(
+                    "After the battle, you hack into one of the enemy's navcomps and learn the location of {}.".format(self.elements["ENEMY_BASE_NAME"]),
+                    data=(camp, True), on_close=self.find_the_base
+                )
             else:
                 _=ghcutscene.SimpleMonologueDisplay(
                     "[LOOK_AT_THIS] I managed to hack into their navcomp and found out where {} is.".format(self.elements["ENEMY_BASE_NAME"]),
-                    pc, camp
+                    pc, camp, data=(camp, True), on_close=self.find_the_base
                 )
-            self.find_the_base(camp, True)
 
-    def find_the_base(self,camp: gears.GearHeadCampaign, win_mission=False):
+    def find_the_base(self, wid, _ev):
+        camp, win_mission = wid.data
         self.elements["FIND_BASE_FUN"](camp)
         camp.go(self.elements["ADVENTURE_RETURN"])
         if win_mission:

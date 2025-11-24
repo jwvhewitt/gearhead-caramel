@@ -204,7 +204,7 @@ class PopupGameMenu(pbge.widgetmenu.MenuWidget):
         pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
         self.pop()
 
-    def do_config(self, wid, _ev):
+    def do_config(self, _wid, _ev):
         self.pop()
         ConfigEditor.push_state_and_instantiate()
 
