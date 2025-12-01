@@ -32,11 +32,20 @@ class AdventureSeed(Adventure):
         if include_health_objective:
             self.objectives.append(ComeBackInOnePieceObjective(camp))
 
-    def __call__(self, camp):
+    def __call__(self, *args):
         """
 
         :type camp: gears.GearHeadCampaign
         """
+        if not args:
+            raise TypeError("No parameters passed to AdventureSeed call")
+        if isinstance(args[0], gears.GearHeadCampaign):
+            camp = args[0]
+        elif hasattr(args[0], "data") and isinstance(args[0].data, gears.GearHeadCampaign):
+            camp = args[0].data
+        else:
+            raise TypeError("No campaign found in AdventureSeed call, args: {}".format(args))
+
         if not self.started:
             if self.auto_set_rank:
                 self.pstate.rank = camp.pc.renown
@@ -53,6 +62,9 @@ class AdventureSeed(Adventure):
             self.root_plot.start_mission(camp)
             return True
 
+    def call_from_widget(self, wid, _ev):
+        # Call from a widget which has the campaign stored as its data property.
+        return self(wid.data)
 
     def get_completion(self,include_optional=False):
         # Return the percent completion of this mission. Due to optional objectives and whatnot, this may fall

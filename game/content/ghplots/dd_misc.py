@@ -222,8 +222,8 @@ class OnawaSearchConclusion(Plot):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
     @staticmethod
-    def _is_not_in_metroscene(self, camp, npc):
-        return not (camp.scene.get_metro_scene() is self.elements["METROSCENE"] and npc is not self.elements["NPC"])
+    def _is_not_in_metroscene(myplot, camp, npc):
+        return not (camp.scene.get_metro_scene() is myplot.elements["METROSCENE"] and npc is not myplot.elements["NPC"])
 
     def NPC_offers(self, camp):
         mylist = list()
@@ -248,7 +248,7 @@ class OnawaSearchConclusion(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.got_mission and not self.finished_mission:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
     def ONAWA_offers(self, camp):
         mylist = list()
@@ -341,8 +341,8 @@ class OnawaSearchMission(Plot):
         return isinstance(candidate, gears.GearHeadScene) and gears.tags.SCENE_PUBLIC in candidate.attributes
 
     @staticmethod
-    def _is_not_in_metroscene(self, camp, npc):
-        return not (camp.scene.get_metro_scene() is self.elements["METROSCENE"])
+    def _is_not_in_metroscene(myplot, camp, npc):
+        return not (camp.scene.get_metro_scene() is myplot.elements["METROSCENE"])
 
     def NPC_offers(self, camp):
         mylist = list()

@@ -205,6 +205,14 @@ class Widget(frects.Frect):
                 for p in part.get_all_active_widgets():
                     yield p
 
+    def manual_click(self, ev):
+        # Click this widget.
+        if not my_state.widget_responded:
+            my_state.focused_widget = self
+        if self.on_click:
+            self.on_click(self, ev)
+        self.register_response()
+
     def respond_event(self, ev):
         if self.active and self.visible:
             for c in list(self.children):
@@ -212,11 +220,7 @@ class Widget(frects.Frect):
             if self.get_rect().collidepoint(my_state.mouse_pos):
                 if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
                         ev.button == 1) and not my_state.widget_responded:
-                    if not my_state.widget_responded:
-                        my_state.focused_widget = self
-                    if self.on_click:
-                        self.on_click(self, ev)
-                    self.register_response()
+                    self.manual_click(ev)
                 elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
                         ev.button == 3) and self.on_right_click and not my_state.widget_responded:
                     if not my_state.widget_responded:

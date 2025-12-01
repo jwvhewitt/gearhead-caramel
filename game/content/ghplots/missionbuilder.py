@@ -221,7 +221,16 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         else:
             return str(pc)
 
-    def __call__(self, camp: gears.GearHeadCampaign):
+    def __call__(self, *args):
+        if not args:
+            raise TypeError("No parameters passed to BuildAMissionSeed call")
+        if isinstance(args[0], gears.GearHeadCampaign):
+            camp = args[0]
+        elif hasattr(args[0], "data") and isinstance(args[0].data, gears.GearHeadCampaign):
+            camp = args[0].data
+        else:
+            raise TypeError("No campaign found in BuildAMissionSeed call, args: {}".format(args))
+
         # Start with the total party list for this map scale.
         total_party = camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=None)
         if total_party:
@@ -229,21 +238,24 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                                                  enviro=self.environment)
             benchwarmers = [pc for pc in total_party if pc not in usable_party]
             if benchwarmers:
-                mymenu = pbge.rpgmenu.AlertMenu(
+                mymenu = pbge.widgetmenu.AlertMenuWidget(
                     "{} will be left behind. The environment for this mission is {} so all combatants must be able to {}.".format(
                         pbge.dialogue.list_nouns([self._combatant_name(camp, bw) for bw in benchwarmers]), self.environment,
                         pbge.dialogue.list_nouns(self.environment.LEGAL_MOVEMODES, conjunction="or")))
-                mymenu.add_item("Do the mission without them.", True)
-                mymenu.add_item("Come back to the mission later", False)
-                if mymenu.query():
-                    return super().__call__(camp)
+                _=mymenu.add_item("Do the mission without them.", self._super_call, data=camp)
+                _=mymenu.add_item("Come back to the mission later", None)
+                mymenu.push_and_deploy()
             else:
                 return super().__call__(camp)
         else:
             if self.scale is gears.scale.MechaScale:
-                pbge.alerts.TextAlert("You cannot proceed on this mission without a mecha.")
+                _=pbge.alerts.TextAlert("You cannot proceed on this mission without a mecha.")
             else:
-                pbge.alerts.TextAlert("You cannot proceed on this mission.")
+                _=pbge.alerts.TextAlert("You cannot proceed on this mission.")
+
+    def _super_call(self, wid, _ev):
+        camp = wid.data
+        super().__call__(camp)
 
     def is_good_enemy_npc(self, nart, candidate):
         # Utility function for doing an enemy search. If the enemy_faction is a base faction, this function

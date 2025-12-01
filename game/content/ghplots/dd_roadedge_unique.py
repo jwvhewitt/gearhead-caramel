@@ -68,12 +68,13 @@ class RoadOfNoReturnPlot(DZDREBasicPlotWithEncounterStuff):
 
     def GATE_A_menu(self, camp, thingmenu):
         if self._got_rumor:
-            thingmenu.add_item('Search "The Road of No Return".', self.go_to_locale)
+            thingmenu.add_item('Search "The Road of No Return".', self.go_to_locale, data=camp)
 
     def GATE_B_menu(self, camp, thingmenu):
         self.GATE_A_menu(camp, thingmenu)
 
-    def go_to_locale(self, camp: gears.GearHeadCampaign):
+    def go_to_locale(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["DUNGEON_ENTRANCE"])
 
     def _get_dialogue_grammar(self, npc, camp):
@@ -489,7 +490,7 @@ class KerberosAttacks(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if camp.campdata["KERBEROS_DUNGEON_OPEN"]:
-            thingmenu.add_item("Go to the Kerberos Facility.", self.go_to_locale)
+            thingmenu.add_item("Go to the Kerberos Facility.", self.go_to_locale, data=camp)
 
     def BIOMACHINE_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if camp.party_has_skill(gears.stats.Biotechnology) or camp.party_has_skill(gears.stats.Science):
@@ -500,7 +501,8 @@ class KerberosAttacks(Plot):
     def BOSSFIGHT_WIN(self, camp: gears.GearHeadCampaign):
         camp.check_trigger("WIN", self)
 
-    def go_to_locale(self, camp):
+    def go_to_locale(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 
     def t_START(self, camp):
@@ -569,9 +571,10 @@ class KerberosBossFight(Plot):
     def HOLO_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if self.holo_unlocked:
             thingmenu.add_item("Do nothing.", None)
-            thingmenu.add_item("Redirect Kerberos.", self.redirect_monster)
+            thingmenu.add_item("Redirect Kerberos.", self.redirect_monster, data=camp)
 
-    def redirect_monster(self, camp):
+    def redirect_monster(self, wid, _ev):
+        camp = wid.data
         camp.check_trigger("WIN", self)
         _=BiotechDiscovery(
             camp, "There is a huge subterranean biotech complex near {}.".format(self.elements["METROSCENE"]),

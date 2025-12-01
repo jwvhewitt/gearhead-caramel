@@ -1,16 +1,13 @@
-from pbge.plots import Plot, PlotState, Rumor, TimeExpiration
-import game
+from pbge.plots import Plot, PlotState, Rumor
 import gears
 import pbge
-import pygame
 import random
-from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints,plotutility,ghcutscene, ghchallenges
-from pbge.dialogue import Offer, ContextTag, Reply
+from game import ghdialogue
+from game.content import gharchitecture,plotutility,ghcutscene, ghchallenges
+from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
-from game.content.ghcutscene import SimpleMonologueDisplay
-from game.content import adventureseed, GHNarrativeRequest
-from . import missionbuilder, rwme_objectives, campfeatures, randomplots
+from game.content import GHNarrativeRequest
+from . import missionbuilder, randomplots
 import collections
 
 
@@ -220,7 +217,7 @@ class DethroneByDuelingSupporter(ChallengePlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 
@@ -546,7 +543,7 @@ class BasicFightChallenge(ChallengePlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 #   ********************************
@@ -940,7 +937,7 @@ class ReconMissionToFindBase(ChallengePlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 #   ************************
@@ -1059,7 +1056,7 @@ class RecoverTheSupplies(ChallengePlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 #   ***************************
@@ -1165,7 +1162,7 @@ class BasicMissionChallenge(ChallengePlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 #   **********************
@@ -1455,7 +1452,7 @@ class YouCanDoSomethingForMePRChallenge(ChallengePlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 #   ******************************

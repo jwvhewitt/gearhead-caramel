@@ -949,7 +949,7 @@ class SynthCave(Plot):
     def GOAL_BUMP(self, camp):
         if not self.tech_found:
             self.tech_found = True
-            dd_homebase.BiotechDiscovery(
+            _=dd_homebase.BiotechDiscovery(
                 camp, "I found the remains of an old biotech lab in {METROSCENE}.".format(**self.elements),
                 "[THATS_INTERESTING] That was a major industrial area during the Age of Superpowers. Here's {cash} for your discovery.",
                 self.rank
@@ -960,14 +960,15 @@ class SynthCave(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.dungeon_unlocked:
-            thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale)
+            thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale, data=camp)
 
-    def go_to_locale(self, camp):
+    def go_to_locale(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 
     def get_rumor(self, camp):
         self.dungeon_unlocked = True
-        missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
+        _=missionbuilder.NewLocationNotification(self.area_name, self.elements["MISSION_GATE"])
 
 
 class TreasureCave(Plot):
@@ -1049,16 +1050,17 @@ class TreasureCave(Plot):
                 else:
                     thingmenu.add_item("Ask {} to disable the security protocols.".format(mypc), self._hack_compy)
 
-    def _hack_compy(self, camp):
+    def _hack_compy(self, _wid, _ev):
         self.compy_hacked = True
         self.elements["_eteam"].make_allies(self.elements["DGOAL"].player_team)
-        pbge.alerts.TextAlert("The security protocols have been disabled.")
+        _=pbge.alerts.TextAlert("The security protocols have been disabled.")
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.dungeon_unlocked:
-            thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale)
+            thingmenu.add_item("Go to {}.".format(self.area_name), self.go_to_locale, data=camp)
 
-    def go_to_locale(self, camp):
+    def go_to_locale(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 
     def get_rumor(self, camp):
@@ -1150,9 +1152,10 @@ class DZRS_LostForager(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.dungeon_unlocked:
-            thingmenu.add_item("Go to {} on foot.".format(self.area_name), self.go_to_locale)
+            thingmenu.add_item("Go to {} on foot.".format(self.area_name), self.go_to_locale, data=camp)
 
-    def go_to_locale(self, camp):
+    def go_to_locale(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 
     def MISSION_GIVER_offers(self, camp):

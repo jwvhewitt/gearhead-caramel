@@ -709,7 +709,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
         elif hasattr(item, "container"):
             item.container.remove(item)
 
-    def give_item(self, item):
+    def give_item(self, item) -> None:
         # Give an item to the PC if possible, otherwise stick in general stuff.
         if hasattr(item, "container") and item.container:
             item.container.remove(item)

@@ -690,7 +690,7 @@ class CetusFight(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission:
-            thingmenu.add_item("Go intercept Cetus.", self.mission)
+            thingmenu.add_item("Go intercept Cetus.", self.mission, data=camp)
 
     def _is_best_scene(self,nart,candidate):
         return isinstance(candidate,pbge.scenes.Scene) and gears.tags.SCENE_PUBLIC in candidate.attributes and gears.tags.SCENE_GOVERNMENT in candidate.attributes
@@ -914,11 +914,12 @@ class BadEnding(Plot):
             self.town_narration = True
 
     def ENTRANCE_menu(self, camp, thingmenu):
-        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("End this adventure", self._end_adventure, data=camp)
         thingmenu.add_item("Stay here a while longer", None)
 
-    def _end_adventure(self, camp):
-        pbge.alerts.TextAlert("The actions of the Terran Defense Force have strained relations between the people of the green zone and the people of the dead zone. For better or worse, your role in these events is mostly forgotten.")
+    def _end_adventure(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("The actions of the Terran Defense Force have strained relations between the people of the green zone and the people of the dead zone. For better or worse, your role in these events is mostly forgotten.")
         camp.eject()
 
     def t_START(self, camp: gears.GearHeadCampaign):
@@ -1082,11 +1083,12 @@ class DZAllianceEnding(Plot):
             self.town_narration = True
 
     def ENTRANCE_menu(self, camp, thingmenu):
-        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("End this adventure", self._end_adventure, data=camp)
         thingmenu.add_item("Stay here a while longer", None)
 
-    def _end_adventure(self, camp):
-        pbge.alerts.TextAlert("Cetus does not return to trouble this part of the world again. Your reputation as a hero spreads throughout the dead zone.")
+    def _end_adventure(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("Cetus does not return to trouble this part of the world again. Your reputation as a hero spreads throughout the dead zone.")
         camp.eject()
 
     def TDF_CONTACT_offers(self, camp):
@@ -1255,10 +1257,11 @@ class TDFMissilesEnding(Plot):
             self.town_narration = True
 
     def ENTRANCE_menu(self, camp, thingmenu):
-        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("End this adventure", self._end_adventure, data=camp)
         thingmenu.add_item("Stay here a while longer", None)
 
-    def _end_adventure(self, camp):
+    def _end_adventure(self, wid, _ev):
+        camp = wid.data
         _=pbge.alerts.TextAlert("Cetus has been defeated. You are welcomed as a hero in the green zone... though a part of you wonders if this is really over.")
         camp.eject()
 

@@ -3,8 +3,8 @@ import game
 import gears
 import pbge
 import random
-from game import teams,ghdialogue
-from game.content import gharchitecture,ghterrain,ghwaypoints, plotutility, dungeonmaker
+from game import teams
+from game.content import plotutility, dungeonmaker
 
 
 
@@ -56,9 +56,10 @@ class STC_FenixCastle( Plot ):
         return True
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item("Go to {}".format(self.elements["CASTLE_NAME"]), self.go_to_castle)
+        thingmenu.add_item("Go to {}".format(self.elements["CASTLE_NAME"]), self.go_to_castle, data=camp)
 
-    def go_to_castle(self, camp):
+    def go_to_castle(self, wid, _ev):
+        camp = wid.data
         camp.go(self.mission_entrance)
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):

@@ -121,17 +121,18 @@ class Graduation(Plot):
             )
             self.gave_speech = True
 
-    def ENTRANCE_menu(self, _camp, thingmenu):
+    def ENTRANCE_menu(self, camp, thingmenu):
         thingmenu.desc = "Are you ready to leave the camp?"
-        thingmenu.add_item("It's time to go.", self._end_adventure)
+        thingmenu.add_item("It's time to go.", self._end_adventure, data=camp)
         thingmenu.add_item("Stay here for a bit longer.", None)
 
-    def _end_adventure(self, camp: gears.GearHeadCampaign):
+    def _end_adventure(self, wid, _ev):
+        camp = wid.data
         _=pbge.alerts.TextAlert(
             "You're still not sure that you got your money's worth, but one thing is certain: you'll never forget Bear Bastard's Mecha Camp.")
         camp.eject()
 
-    def BEARBASTARD_offers(self, camp: gears.GearHeadCampaign):
+    def BEARBASTARD_offers(self, _camp: gears.GearHeadCampaign):
         mylist = list()
         mylist.append(Offer(
             "Sorry about trying to turn everyone against you in that final battle, but what that really means is you're my best student. I'm sure I'll be seeing you around... unless you see me first.",
@@ -216,21 +217,21 @@ class FinalBattle(Plot):
 
         a1, a2 = random.choice(pbge.randmaps.anchors.OPPOSING_CARDINALS)
 
-        self.register_element("ROOM1", pbge.randmaps.rooms.OpenRoom(anchor=a1), dident="LOCALE")
-        self.register_element("ROOM3", ghrooms.MSRuinsRoom(15, 15, anchor=a2), dident="LOCALE")
+        _=self.register_element("ROOM1", pbge.randmaps.rooms.OpenRoom(anchor=a1), dident="LOCALE")
+        _=self.register_element("ROOM3", ghrooms.MSRuinsRoom(15, 15, anchor=a2), dident="LOCALE")
 
-        team2 = self.register_element("TEAM2", teams.Team(name="Enemy Team", enemies=[team1]), dident="ROOM3")
+        _=self.register_element("TEAM2", teams.Team(name="Enemy Team", enemies=[team1]), dident="ROOM3")
 
-        self.register_element("ENTRANCE1", pbge.scenes.waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle),
+        _=self.register_element("ENTRANCE1", pbge.scenes.waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle),
                               dident="ROOM1")
 
-        self.movers = list()
-        self.temp_mecha = list()
+        self.movers = list()  # pyright: ignore[reportUninitializedInstanceVariable]
+        self.temp_mecha = list()  # pyright: ignore[reportUninitializedInstanceVariable]
 
-        self.intro_ready = True
-        self.step_counter = 0
-        self.combat_intro_ready = True
-        self.end_combat_ready = True
+        self.intro_ready = True  # pyright: ignore[reportUninitializedInstanceVariable]
+        self.step_counter = 0  # pyright: ignore[reportUninitializedInstanceVariable]
+        self.combat_intro_ready = True  # pyright: ignore[reportUninitializedInstanceVariable]
+        self.end_combat_ready = True  # pyright: ignore[reportUninitializedInstanceVariable]
 
         return True
 
@@ -258,7 +259,7 @@ class FinalBattle(Plot):
 
     def LOCALE_ENTER(self, camp):
         if self.intro_ready:
-            pbge.alerts.TextAlert("In the morning, everyone heads back to Last Hope Quarry for one final combat practice.")
+            _=pbge.alerts.TextAlert("In the morning, everyone heads back to Last Hope Quarry for one final combat practice.")
             self.intro_ready = False
 
     def _switch_teams(self, camp, npc):
@@ -350,7 +351,7 @@ class FinalBattle(Plot):
             for mek in self.temp_mecha:
                 if mek in camp.party:
                     camp.party.remove(mek)
-            camp.pc.restore_all()
+            _=camp.pc.restore_all()
             camp.dole_xp(300)
 
             camp.check_trigger("WIN", self)
@@ -486,19 +487,22 @@ class TheCabinInTheDeadzone(Plot):
         if self.inv_tutorial_ready:
             thingmenu.desc += " You should choose and equip some gear before going to bed. Tomorrow is the final exam, whatever that means."
         else:
-            thingmenu.add_item("Go to sleep.", self._go_to_final_scene)
+            thingmenu.add_item("Go to sleep.", self._go_to_final_scene, data=camp)
             thingmenu.add_item("Stay up for a bit longer.", None)
 
-    def _go_to_final_scene(self, camp):
+    def _go_to_final_scene(self, wid, _ev):
+        self._go_to_final_scene_direct(wid.data)
+
+    def _go_to_final_scene_direct(self, camp):
         camp.check_trigger("WIN", self)
 
     def BPLOT_LOSE(self, camp):
         # PC must've gotten taken down in the combat. But since this is the tutorial, we don't want them to die...
         # restore the PC and jump straight to the final combat.
-        pbge.alerts.TextAlert("Everything goes dark...")
-        pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert("Everything goes dark...")
+        _=pbge.alerts.TextAlert(
             "You wake up the next morning in your camp bed, a bit sore but still alive. It's time for the final exam.")
-        self._go_to_final_scene(camp)
+        self._go_to_final_scene_direct(camp)
 
 
 class CCamAirCon(Plot):
@@ -560,7 +564,7 @@ class CCamAirCon(Plot):
         if self.learned_of_problem and not self.solved_problem:
             thingmenu.add_item("Turn the air conditioner down to a reasonable temperature.", self._turn_off_aircon)
 
-    def _turn_off_aircon(self, camp):
+    def _turn_off_aircon(self, _wid, _ev):
         self.solved_problem = True
 
 
@@ -1397,18 +1401,20 @@ class SceneOne(Plot):
     def ENTRANCE_menu(self, camp, thingmenu):
         if self.opened_mecha_arena:
             thingmenu.desc = "Having finished training at the park, it's time to go to the mecha arena and learn how to fight."
-            thingmenu.add_item("Go to the arena.", self._win_scene_one)
+            thingmenu.add_item("Go to the arena.", self._win_scene_one, data=camp)
             thingmenu.add_item("Stay here a bit longer.", None)
         elif pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            thingmenu.add_item("Skip straight to the arena.", self._win_scene_one)
-            thingmenu.add_item("Skip straight to the cabin.", self._go_to_cabin)
+            thingmenu.add_item("Skip straight to the arena.", self._win_scene_one, data=camp)
+            thingmenu.add_item("Skip straight to the cabin.", self._go_to_cabin, data=camp)
             thingmenu.add_item("Why be in such a hurry?", None)
 
-    def _win_scene_one(self, camp: gears.GearHeadCampaign):
+    def _win_scene_one(self, wid, _ev):
+        camp = wid.data
         self.end_plot(camp)
         camp.check_trigger("WIN", self)
 
-    def _go_to_cabin(self, camp: gears.GearHeadCampaign):
+    def _go_to_cabin(self, wid, _ev):
+        camp = wid.data
         self.end_plot(camp)
         camp.check_trigger("GOTOCABIN")
 

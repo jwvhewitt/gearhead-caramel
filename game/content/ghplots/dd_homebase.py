@@ -576,7 +576,7 @@ class TestCharMover(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.
@@ -818,7 +818,7 @@ class DZD_BronzeHorseInn(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.gave_mission:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
     def _win_mine_mission(self, camp: gears.GearHeadCampaign):
         camp.campdata["MINE_MISSION_WON"] = True
@@ -979,7 +979,7 @@ class DZD_BlueFortressHQ(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.adventure_seed and self.mission_active:
-            thingmenu.add_item(self.adventure_seed.name, self.adventure_seed)
+            thingmenu.add_item(self.adventure_seed.name, self.adventure_seed, data=camp)
 
     ENEMY_FACTIONS = (factions.AegisOverlord, factions.AegisOverlord, factions.ClanIronwind, factions.ClanIronwind,
                       factions.BoneDevils, factions.BoneDevils, factions.BoneDevils, factions.BladesOfCrihna)
@@ -1245,30 +1245,37 @@ class DZD_AlliedArmor(Plot):
         thingmenu.add_item("Read green book", self._read_green_book)
         thingmenu.add_item("Read purple book", self._read_purple_book)
         thingmenu.add_item("Read red book", self._read_red_book)
-        thingmenu.add_item("Read white book", self._use_bookshelf)
+        thingmenu.add_item("Read yellow book", self._use_bookshelf, data=camp)
 
-    def _read_black_book(self, camp):
-        pbge.alerts.TextAlert(
+    def _read_black_book(self, _wid, _ev):
+        _=pbge.alerts.TextAlert(
             """The black battlemech looked utterly invincible. It stood twenty three meters high, with five gauss cannons and a mighty sword the length of a cargo train. As it strode across the battlefield, mowing down all opposition with ease, one cavalier steeled her resolve and prepared to charge.\n\n Deftly evading multiple blasts from the gauss cannons, she came within range and plunged her plasma lance deep into the heart of the black mecha. For a moment there was only silence.\n\n Then the black mecha's powerplant blew up in a spectacular fusion explosion, taking out both armies in a gigantic fireball.""")
 
-    def _read_blue_book(self, camp):
-        pbge.alerts.TextAlert(
+    def _read_blue_book(self, _wid, _ev):
+        _=pbge.alerts.TextAlert(
             """All that stood between the space pirates and the treasure was a lone blue mecha. Hadron recognized the blue- this was an agent of L5Law, presumably the same agent who had been trailing them since the Mukluk Incident.\n\n "Follow my lead", he said to his teammates.\n\n As one the team turned and fled. The blue mecha gave chase. No doubt there would be more police waiting outside the derelict.\n\n When the pirates emerged into open space, they found themselves surrounded. "What do we do now?!" yelled Iolo. Hadron pushed the detonator for the bombs they had planted in the aft end of the wreck.\n\n In a flash, half of the L5Law patrol was vaporized and the derelict ship was moving on a course to the intercept point. The detective in the blue mecha could do nothing but look on in horror.\n\n "We fight or we die", said Hadron. "Same as always." """)
 
-    def _read_green_book(self, camp):
-        pbge.alerts.TextAlert(
+    def _read_green_book(self, _wid, _ev):
+        _=pbge.alerts.TextAlert(
             """A green mecha rolled into the small dead zone community of Trouser Falls. The pilot descended from the cockpit, spit on the ground, and walked into the nearest bar.\n\n "My name is Verdan Hooks and I'm the toughest, meanest bandit in the wastes!" he shouted. "If any of you wangtta have a problem with that, we can take it outside!"\n\n His body was never found. """)
 
-    def _read_purple_book(self, camp):
-        pbge.alerts.TextAlert(
+    def _read_purple_book(self, _wid, _ev):
+        _=pbge.alerts.TextAlert(
             """Carolyn stepped out from the cockpit of her purple mecha. She brushed her mauve hair out of her eyes and called to her mechanic Violet, asking "Do you have any idea how long I've been marooned out there?!"\n\n "No, but I bet you're going to tell me", Violet responded. """)
 
-    def _read_red_book(self, camp):
-        pbge.alerts.TextAlert(
+    def _read_red_book(self, _wid, _ev):
+        _=pbge.alerts.TextAlert(
             """The battle was going poorly for the defenders, when out of nowhere a red mecha appeared. Neither side knew the identity of this mystery pilot, and combat halted momentarily as intel officers on both sides consulted CavNet on their phones to try and identify the interloper's heraldry.\n\n The attacking commander made a rash move. Deciding that this red mecha must be working for the defenders, he ordered his troops to attack. As quickly as the attackers moved to intercept, they were cut down by the red mecha's nova scythe.\n\n After that things got a bit chaotic. Neither side knew who the red mecha was working for, nor where it was going. The attackers sent wave after wave to avenge their fallen commander. The defenders fired wildly, trying to maintain their battle lines. Soon the conflict descended into utter anarchy.\n\n And still the red mecha drew closer to its target. """)
 
-    def _use_bookshelf(self, camp):
-        pbge.alerts.TextAlert("Moving the white book activates a hidden staircase!")
+    def _use_bookshelf(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert(
+            "Moving the white book activates a hidden staircase!",
+            on_close=self._go_downstairs, data=camp
+        )
+
+    def _go_downstairs(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["STAIRSUP"])
 
     def _ask_about_terminal(self, camp):
@@ -1667,8 +1674,8 @@ class DZD_WujungHospital(Plot):
         thingmenu.add_item("Pet the hamsters.", self._pet_hamster)
         thingmenu.add_item("Leave the hamsters alone.", None)
 
-    def _pet_hamster(self, camp):
-        pbge.alerts.TextAlert("You play with the hamsters for a little while and make some new friends.")
+    def _pet_hamster(self, _wid, _ev):
+        _=pbge.alerts.TextAlert("You play with the hamsters for a little while and make some new friends.")
 
     def DOCTOR_offers(self, camp):
         mylist = list()

@@ -1,6 +1,5 @@
 
 from .. import container,widgets,widgetmenu,frects,draw_text,default_border,my_state,alerts
-import pygame
 
 
 class PuzzleMenu( widgetmenu.MenuWidget ):
@@ -50,7 +49,7 @@ class Waypoint( object ):
             self.container.remove( self )
         scene.contents.append( self )
         if pos and scene.on_the_map( *pos ):
-            self.pos = pos
+            self.pos = pos  # pyright: ignore[reportUninitializedInstanceVariable]
             if self.TILE:
                 if self.TILE.floor:
                     scene._map[pos[0]][pos[1]].floor = self.TILE.floor
@@ -75,7 +74,7 @@ class Waypoint( object ):
     def unlocked_use( self, camp ):
         # Perform this waypoint's special action.
         if self.desc:
-            alerts.TextAlert( self.desc )
+            _=alerts.TextAlert( self.desc )
 
     def bump( self, camp, pc ):
         # Send a BUMP trigger.
@@ -85,9 +84,7 @@ class Waypoint( object ):
         if self.plot_locked:
             rpm = self.MENU_CLASS( camp, self )
             camp.expand_puzzle_menu( self, rpm )
-            fx = rpm.query()
-            if fx:
-                fx( camp )
+            rpm.push_and_deploy()
         else:
             self.unlocked_use( camp )
 

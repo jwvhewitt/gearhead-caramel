@@ -66,6 +66,7 @@ class MenuWidget(widgets.ColumnWidget):
         self.on_escape = on_escape
         self._on_click_child = on_click_child
         self.pop_when_clicked = pop_when_clicked
+        self.quick_keys = dict()
 
     def _click_child_wrapper(self, item_wid, ev):
         if self.pop_when_clicked:
@@ -167,6 +168,21 @@ class MenuWidget(widgets.ColumnWidget):
             if my_state.is_key_for_action(ev, "exit") and self.on_escape:
                 self.on_escape(self, ev)
                 self.register_response()
+            elif ev.unicode in self.quick_keys:
+                self.quick_keys[ev.unicode].manual_click(ev)
+
+    ALPHA_KEY_SEQUENCE = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+    def add_alpha_keys(self):
+        # Adds a quick key for every item currently in the menu.
+        key_num = 0
+        for item in self.get_items():
+            if hasattr(item, "text"):
+                item.text = self.ALPHA_KEY_SEQUENCE[ key_num ] + ') ' + item.text
+                self.quick_keys[ self.ALPHA_KEY_SEQUENCE[ key_num ] ] = item
+            key_num += 1
+            if key_num >= len( self.ALPHA_KEY_SEQUENCE ):
+                break
 
 
 class DropdownWidget(widgets.Widget):

@@ -278,7 +278,7 @@ class DefendNewFortification(quests.QuestPlot):
         self.quest_record.lose_task(self, camp)
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item(self.mission_name, self._get_mission(camp))
+        thingmenu.add_item(self.mission_name, self._get_mission(camp), data=camp)
 
 
 class StrikeTheLeader(quests.QuestPlot):
@@ -358,7 +358,7 @@ class StrikeTheLeader(quests.QuestPlot):
         self.quest_record.lose_task(self, camp)
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item(self.mission_name, self._get_mission(camp))
+        thingmenu.add_item(self.mission_name, self._get_mission(camp), data=camp)
 
 
 class TheyHaveAFortress(quests.QuestPlot):
@@ -435,7 +435,7 @@ class TheyHaveAFortress(quests.QuestPlot):
         self.quest_record.lose_task(self, camp)
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item(self.mission_name, self._get_mission(camp))
+        thingmenu.add_item(self.mission_name, self._get_mission(camp), data=camp)
 
 
 #  ***********************
@@ -1666,7 +1666,7 @@ class ProtectedByArtillery(quests.QuestPlot):
         self.quest_record.win_task(self, camp)
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item(self.mission_name, self._get_mission(camp))
+        thingmenu.add_item(self.mission_name, self._get_mission(camp), data=camp)
 
 
 class UnknownMechaNearTown(quests.QuestPlot):
@@ -1777,7 +1777,7 @@ class UnknownMechaNearTown(quests.QuestPlot):
         self.quest_record.lose_task(self, camp)
 
     def MISSION_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item(self.mission_name, self._get_mission(camp))
+        thingmenu.add_item(self.mission_name, self._get_mission(camp), data=camp)
 
 
 class WhoIsHiddenIdentity(quests.QuestPlot):

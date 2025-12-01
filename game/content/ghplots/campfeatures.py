@@ -340,7 +340,8 @@ class EdgeTravel:
         self.edge = edge
         self.start_point = start_point
 
-    def __call__(self, camp: gears.GearHeadCampaign):
+    def __call__(self, wid, _ev):
+        camp: gears.GearHeadCampaign = wid.data
         dest_node = self.edge.get_link(self.start_point)
         if self.edge.architecture and camp.has_mecha_party(enviro=self.edge.architecture.ENV):
             wmehandler = camp.campdata.get(WORLD_MAP_ENCOUNTERS)
@@ -529,4 +530,4 @@ class WorldMapHandler(Plot):
                     mydest = e.get_link(node)
                     e.visible = True
                     mydest.visible = True
-                    thingmenu.add_item("Go to {}".format(mydest), EdgeTravel(e, node), e)
+                    thingmenu.add_item("Go to {}".format(mydest), EdgeTravel(e, node), desc=e, data=camp)

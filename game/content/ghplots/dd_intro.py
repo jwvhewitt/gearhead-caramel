@@ -216,7 +216,8 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
         return mylist
 
-    def _start_mission(self, camp):
+    def _start_mission(self, wid, _ev):
+        camp = wid.data
         game.content.plotutility.AutoJoiner(self.elements["SHERIFF"])(camp)
         self.subplots["MISSION"].start_mission(camp,self._tutorial_on)
 
@@ -226,16 +227,17 @@ class DZDIntro_GetInTheMekShimli(Plot):
 
     def CHUTE_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
-        thingmenu.add_item("Board mecha",self._start_mission)
+        thingmenu.add_item("Board mecha",self._start_mission, data=camp)
         if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
-            thingmenu.add_item("Don't panic and go to Wujung",self._skip_first_mission)
+            thingmenu.add_item("Don't panic and go to Wujung",self._skip_first_mission, data=camp)
         if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
-            thingmenu.add_item("Test mission",self._test_mission(camp))
+            thingmenu.add_item("Test mission",self._test_mission(camp), data=camp)
 
-    def _skip_first_mission(self,camp):
+    def _skip_first_mission(self,wid, _ev):
+        camp = wid.data
         self.adv.end_adventure(camp)
 
-    def _test_mission(self,camp):
+    def _test_mission(self, camp):
         return missionbuilder.BuildAMissionSeed(
             camp, "Test Mission",
             self.elements["LOCALE"], self.elements["ENTRANCE"],
@@ -725,9 +727,10 @@ class DZDPostMissionScene(Plot):
 
     def CHUTE_menu(self, camp, thingmenu):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
-        thingmenu.add_item("Board mecha and go to Wujung", self._finish_mission)
+        thingmenu.add_item("Board mecha and go to Wujung", self._finish_mission, data=camp)
 
-    def _finish_mission(self, camp: gears.GearHeadCampaign):
+    def _finish_mission(self, wid, _ev):
+        camp = wid.data
         camp.check_trigger("INTRO_END")
         camp.campdata["next_adv_memo"] = 1
         self.adv.end_adventure(camp)

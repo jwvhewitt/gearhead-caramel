@@ -170,7 +170,7 @@ class DZREPR_BaseMission(Plot):
     OBJECTIVES = (missionbuilder.BAMO_DEFEAT_THE_BANDITS,)
     WIN_MESSAGE = ""
     LOSS_MESSAGE = ""
-    MISSION_GRAMMAR = None
+    MISSION_GRAMMAR: missionbuilder.MissionGrammar = None
     NO_WITHDRAW = False
     NO_RETREAT = False
 
@@ -228,7 +228,7 @@ class DZREPR_BaseMission(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed)
+            thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed, data=camp)
 
 
 class DZREPR_NPCMission(DZREPR_BaseMission):
@@ -308,7 +308,7 @@ class DZREPRC_ConclusionTemplate(Plot):
     REQUIRES = {}
     REQUIRED_FACTAGS = set()
     SOLO_MISSION = False
-    MISSION_GRAMMAR = None
+    MISSION_GRAMMAR: missionbuilder.MissionGrammar = None
     NO_WITHDRAW = False
     NO_RETREAT = False
 
@@ -365,7 +365,7 @@ class DZREPRC_ConclusionTemplate(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed)
+            thingmenu.add_item(self.MISSION_PROMPT.format(**self.elements), self.mission_seed, data=camp)
 
 
 #   *****************************************

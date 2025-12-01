@@ -163,7 +163,7 @@ class Campaign(object):
             for p in self.active_plots():
                 p.handle_trigger(self, trigger, thing)
 
-    def expand_puzzle_menu(self, thing, thingmenu):
+    def expand_puzzle_menu(self, thing, thingmenu: scenes.waypoints.PuzzleMenu):
         # Something is happened that plots may need to react to.
         for p in self.active_plots():
             p.modify_puzzle_menu(self, thing, thingmenu)
@@ -176,7 +176,7 @@ class Campaign(object):
             r.modify_puzzle_menu(self, thing, thingmenu, my_challenges)
 
         if not thingmenu.items:
-            thingmenu.add_item("[Continue]", None)
+            _=thingmenu.add_item("[Continue]", None)
         else:
             thingmenu.sort()
             thingmenu.add_alpha_keys()
@@ -198,7 +198,7 @@ class Campaign(object):
             if pc in self.scene.contents:
                 self.scene.contents.remove(pc)
 
-    def go(self, dest_wp: scenes.waypoints.Waypoint):
+    def go(self, dest_wp: scenes.waypoints.Waypoint) -> None:
         # When the scene changes, the following things need to be done:
         # - Close any widgets relating to the previous scene.
         # - Update plots. This will happen between scenes.

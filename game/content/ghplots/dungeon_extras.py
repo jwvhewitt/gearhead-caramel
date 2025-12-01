@@ -134,10 +134,11 @@ class DeadAdventurer(Plot):
 
     def GOAL_menu(self, camp, thingmenu):
         if self.elements["GOAL"].plot_locked and not self.paid_respects:
-            thingmenu.add_item("Pay your respects.", self._pay_respects)
-            thingmenu.add_item("See if they were carrying anything useful.", self._loot_corpse)
+            thingmenu.add_item("Pay your respects.", self._pay_respects, data=camp)
+            thingmenu.add_item("See if they were carrying anything useful.", self._loot_corpse, data=camp)
 
-    def _pay_respects(self, camp: gears.GearHeadCampaign):
+    def _pay_respects(self, wid, _ev):
+        camp = wid.data
         self.paid_respects = True
         candidates = list()
         for pc in camp.get_active_party():
@@ -152,7 +153,8 @@ class DeadAdventurer(Plot):
         _=ghcutscene.SimpleMonologueDisplay("[EULOGY]", speaker, camp)
         camp.dole_xp(100)
 
-    def _loot_corpse(self, camp):
+    def _loot_corpse(self, wid, _ev):
+        camp = wid.data
         self.elements["GOAL"].plot_locked = False
         self.elements["GOAL"].unlocked_use(camp)
 
@@ -410,7 +412,7 @@ class LevelGuide(Plot):
                                                            ("ROBOT", "SYNTH"), myscene.scale).contents
         self.last_update = 0
 
-        self.register_element("GOAL", ghwaypoints.OldTerminal(name="Ancient Computer",
+        _=self.register_element("GOAL", ghwaypoints.OldTerminal(name="Ancient Computer",
                                                               desc="You stand before an ancient but still functioning computer terminal. They really used to build these things to last.",
                                                               anchor=pbge.randmaps.anchors.middle, plot_locked=True),
                               dident="ROOM")
@@ -419,10 +421,11 @@ class LevelGuide(Plot):
 
     def GOAL_menu(self, camp, thingmenu):
         if not self.viewed_map:
-            thingmenu.add_item("Search for useful information.", self._view_map)
+            thingmenu.add_item("Search for useful information.", self._view_map, data=camp)
 
-    def _view_map(self, camp):
-        pbge.alerts.TextAlert("You find a map giving the rough layout of this level.")
+    def _view_map(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You find a map giving the rough layout of this level.")
         for x in range(camp.scene.width):
             for y in range(camp.scene.height):
                 camp.scene.set_visible(x, y, True)
