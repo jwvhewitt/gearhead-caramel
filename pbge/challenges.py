@@ -124,7 +124,8 @@ class AutoUsage(object):
         self.access_fun = access_fun
         self.once_per_item = once_per_item
 
-    def invoke_effect(self, camp, item):
+    def invoke_effect(self, wid, _ev):
+        camp, item = wid.data
         self.effect(camp)
         self.used = True
         self.uses -= 1
@@ -133,19 +134,19 @@ class AutoUsage(object):
         if self.once_per_item:
             self.used_on.add(item)
 
-    def _modify_menu(self, my_challenge, thing, thingmenu):
-        thingmenu.add_item(self.menu_text.format(challenge=my_challenge), AutoOfferInvoker(self, thing))
+    def _modify_menu(self, camp, my_challenge, thing, thingmenu):
+        thingmenu.add_item(self.menu_text.format(challenge=my_challenge), self.invoke_effect, data=(camp, thing))
 
     def __call__(self, my_challenge, camp, thing, thingmenu):
         if self.active and (not self.access_fun or self.access_fun(camp, thing)) and thing not in self.used_on:
             if self.involvement:
                 if self.involvement(camp, thing):
-                    self._modify_menu(my_challenge, thing, thingmenu)
+                    self._modify_menu(camp, my_challenge, thing, thingmenu)
             elif my_challenge.involvement:
                 if my_challenge.involvement(camp, thing):
-                    self._modify_menu(my_challenge, thing, thingmenu)
+                    self._modify_menu(camp, my_challenge, thing, thingmenu)
             else:
-                self._modify_menu(my_challenge, thing, thingmenu)
+                self._modify_menu(camp, my_challenge, thing, thingmenu)
 
 
 class Challenge(object):
@@ -278,6 +279,10 @@ class ResourceSpender(object):
         self.my_challenge = my_challenge
         self.call_dialogue_effect = call_dialogue_effect
 
+    def call_from_widget(self, wid, _ev):
+        camp = wid.data
+        self(camp)
+
     def __call__(self, camp):
         self.my_resource.spend_resource(camp, self.my_challenge, self.call_dialogue_effect)
 
@@ -352,7 +357,7 @@ class Resource(object):
             for c in clist:
                 if c.can_spend_resource(self) and c.is_involved(camp, thing):
                     thingmenu.add_item(self.menu_item_text.format(resource=self, challenge=c),
-                                       ResourceSpender(self, c, False))
+                                       ResourceSpender(self, c, False).call_from_widget, data=camp)
 
     def __str__(self):
         return self.name
