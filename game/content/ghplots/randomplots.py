@@ -143,7 +143,7 @@ class CollectMedicinalHerbs(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 class Cookies(Plot):
@@ -290,7 +290,7 @@ class CorpMissionRandom(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 class Entropy(Plot):
@@ -415,7 +415,7 @@ class MechaMissionForCity(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
 
 class MercenaryPassingThrough(Plot):

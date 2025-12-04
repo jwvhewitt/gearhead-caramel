@@ -172,18 +172,19 @@ class LMBAM_DiscoverBiotechnology(Plot):
         npc: gears.base.Character = self.elements[BAME_LANCEMATE]
         if npc and npc.is_not_destroyed() and not self.got_skill:
             thingmenu.desc += " Who knows what secrets it might contain?"
-            thingmenu.add_item("[Continue]", self._get_skill)
+            thingmenu.add_item("[Continue]", self._get_skill, data=camp)
 
     WORD_A = ("medical", "fabrication", "computational", "therapeutic", "scientific")
     WORD_B = ("device", "machine", "apparatus", "engine", "unit", "mechanism", "tool", "rig")
 
-    def _get_skill(self, camp: gears.GearHeadCampaign):
+    def _get_skill(self, wid, _ev):
+        camp = wid.data
         npc: gears.base.Character = self.elements[BAME_LANCEMATE]
         _=ghcutscene.SimpleMonologueDisplay(
             "This is a biotechnological {} {}; give me some time to examine it.".format(random.choice(self.WORD_A),random.choice(self.WORD_B)),
             npc, camp
         )
-        pbge.BasicNotification("{} gains biotechnology skill.".format(npc))
+        _=pbge.BasicNotification("{} gains biotechnology skill.".format(npc))
         npc.statline[gears.stats.Biotechnology] += 1
         self.obj.win(camp, 100)
         camp.dole_xp(100, gears.stats.Biotechnology)

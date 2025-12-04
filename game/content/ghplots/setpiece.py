@@ -363,30 +363,31 @@ class MWP_ComputerProblem(Plot):
                                      untrained_ok=False, no_random=True)
             if pc1:
                 if pc1 is camp.pc:
-                    thingmenu.add_item("Reset the terminal.", self._fix_generator)
+                    thingmenu.add_item("Reset the terminal.", self._fix_generator, data=camp)
                 else:
-                    thingmenu.add_item("Ask {} to fix the problem.".format(pc1), self._fix_generator)
+                    thingmenu.add_item("Ask {} to fix the problem.".format(pc1), self._fix_generator, data=camp)
 
             pc2 = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Repair, self.rank, gears.stats.DIFFICULTY_HARD,
                                      untrained_ok=True, no_random=True)
             if pc2 and pc2 is not pc1:
                 if pc2 is camp.pc:
-                    thingmenu.add_item("Activate the autodiagnostic.", self._fix_generator)
+                    thingmenu.add_item("Activate the autodiagnostic.", self._fix_generator, data=camp)
                 else:
-                    thingmenu.add_item("Ask {} to fix the problem.".format(pc2), self._fix_generator)
+                    thingmenu.add_item("Ask {} to fix the problem.".format(pc2), self._fix_generator, data=camp)
 
             if not (pc1 or pc2):
-                thingmenu.add_item("Try to fix it.", self._fix_failed)
+                thingmenu.add_item("Try to fix it.", self._fix_failed, data=camp)
             thingmenu.add_item("Leave it alone.", None)
 
-    def _fix_generator(self, camp: gears.GearHeadCampaign):
-        pbge.alerts.TextAlert("You identify and solve the system error. The computer reboots without a hitch.")
+    def _fix_generator(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You identify and solve the system error. The computer reboots without a hitch.")
         self.fixed_computer = True
         camp.dole_xp(100, gears.stats.Repair)
         camp.dole_xp(100, gears.stats.Computers)
 
-    def _fix_failed(self, camp):
-        pbge.alerts.TextAlert("You attempt to fix things but can't even get the terminal to respond.")
+    def _fix_failed(self, _wid, _ev):
+        _=pbge.alerts.TextAlert("You attempt to fix things but can't even get the terminal to respond.")
 
     def ENGINEER_offers(self, camp):
         mylist = list()
@@ -467,29 +468,30 @@ class MWP_OfflineGenerator(Plot):
                                      untrained_ok=False, no_random=True)
             if pc1:
                 if pc1 is camp.pc:
-                    thingmenu.add_item("Repair the terminal.", self._fix_generator)
+                    thingmenu.add_item("Repair the terminal.", self._fix_generator, data=camp)
                 else:
-                    thingmenu.add_item("Ask {} to repair the terminal.".format(pc1), self._fix_generator)
+                    thingmenu.add_item("Ask {} to repair the terminal.".format(pc1), self._fix_generator, data=camp)
 
             pc2 = camp.do_skill_test(gears.stats.Craft, gears.stats.Science, self.rank, gears.stats.DIFFICULTY_HARD,
                                      untrained_ok=True, no_random=True)
             if pc2 and pc2 is not pc1:
                 if pc2 is camp.pc:
-                    thingmenu.add_item("Jury rig a solution.", self._fix_generator)
+                    thingmenu.add_item("Jury rig a solution.", self._fix_generator, data=camp)
                 else:
-                    thingmenu.add_item("Ask {} to jury rig a solution.".format(pc2), self._fix_generator)
+                    thingmenu.add_item("Ask {} to jury rig a solution.".format(pc2), self._fix_generator, data=camp)
 
             if not (pc1 or pc2):
                 thingmenu.add_item("Repair the terminal.", self._fix_failed)
 
-    def _fix_generator(self, camp: gears.GearHeadCampaign):
-        pbge.alerts.TextAlert("You repair the terminal. Soon the generator coils beneath your feet begin to hum with energy once more.")
+    def _fix_generator(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You repair the terminal. Soon the generator coils beneath your feet begin to hum with energy once more.")
         self.fixed_generator = True
         camp.dole_xp(100, gears.stats.Repair)
         camp.dole_xp(100, gears.stats.Science)
 
-    def _fix_failed(self, camp):
-        pbge.alerts.TextAlert("You attempt to repair the terminal but quickly discover that the damage is beyond your current skill level.")
+    def _fix_failed(self, _wid, _ev):
+        _=pbge.alerts.TextAlert("You attempt to repair the terminal but quickly discover that the damage is beyond your current skill level.")
 
     def ENGINEER_offers(self, camp):
         mylist = list()

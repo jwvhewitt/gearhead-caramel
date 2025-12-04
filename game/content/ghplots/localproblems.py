@@ -356,21 +356,22 @@ class TheCursedSoil(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.found_mine:
-            thingmenu.add_item("Go to {OUTSIDE}.".format(**self.elements), self._go_to_mine)
+            thingmenu.add_item("Go to {OUTSIDE}.".format(**self.elements), self._go_to_mine, data=camp)
 
-    def FINAL_LEVEL_ENTER(self, camp):
+    def FINAL_LEVEL_ENTER(self, _camp):
         if not self.got_final_level_message:
-            pbge.alerts.TextAlert(
+            _=pbge.alerts.TextAlert(
                 "You have discovered a PreZero ruin. The miners must have tunneled into here before the mine shut down.")
             self.got_final_level_message = True
 
-    def METROSCENE_ENTER(self, camp):
+    def METROSCENE_ENTER(self, _camp):
         if self.defeated_smogspewer and not self.got_ending_message:
-            pbge.alerts.TextAlert("As you enter {METROSCENE}, the air seems fresher than before. Maybe the curse has finally been broken.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, the air seems fresher than before. Maybe the curse has finally been broken.".format(**self.elements))
             self.elements["METRO"].local_reputation += 10
             self.got_ending_message = True
 
-    def _go_to_mine(self, camp):
+    def _go_to_mine(self, wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 
     def SMOGSPEWER_FAINT(self, camp):
@@ -704,25 +705,26 @@ class SregorThrunet(Plot):
             thingmenu.desc += " From the blinking lights on the panel, you can tell that it is not working properly."
 
             if camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.rank, no_random=True):
-                thingmenu.add_item("Reboot the server.", self._repair_server)
+                thingmenu.add_item("Reboot the server.", self._repair_server, data=camp)
 
             if camp.do_skill_test(gears.stats.Craft, gears.stats.Science, self.rank, no_random=True,
                                   difficulty=gears.stats.DIFFICULTY_HARD):
-                thingmenu.add_item("Attempt to update the code.", self._repair_server)
+                thingmenu.add_item("Attempt to update the code.", self._repair_server, data=camp)
 
             if camp.do_skill_test(gears.stats.Knowledge, gears.stats.Repair, self.rank, no_random=True,
                                   difficulty=gears.stats.DIFFICULTY_HARD):
-                thingmenu.add_item("Try unplugging it and plugging it back in again.", self._repair_server)
+                thingmenu.add_item("Try unplugging it and plugging it back in again.", self._repair_server, data=camp)
 
         thingmenu.add_item("Leave it alone.", None)
 
-    def _repair_server(self, camp: gears.GearHeadCampaign):
+    def _repair_server(self, wid, _ev):
+        camp = wid.data
         pbge.my_state.view.play_anims(gears.geffects.OverloadAnim(pos=self.elements["SERVER"].pos))
         self.thrunet_broken = False
         self.QOL = gears.QualityOfLife(prosperity=3)
         self.RUMOR = None
         self.memo = Memo("You fixed {NPC}'s Thrunet server.".format(**self.elements), self.elements["NPC_SCENE"])
-        pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert(
             "With a loud beep and a few more sparks than you're comfortable with, the Thrunet server roars back into action. It seems you have successfully repaired it.")
         camp.dole_xp(100)
         camp.check_trigger("WIN", self)

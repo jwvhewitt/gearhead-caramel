@@ -35,7 +35,7 @@ class TestRandomWorldMapEncounterObjective(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.myadv:
-            thingmenu.add_item("Do the RWME Objective test.", self.myadv)
+            thingmenu.add_item("Do the RWME Objective test.", self.myadv, data=camp)
 
 
 

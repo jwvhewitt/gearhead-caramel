@@ -108,22 +108,25 @@ class HospitalHopelessCase(Plot):
         self.got_reward = False
         return True
 
-    def PATIENT_BED_menu(self, camp: gears.GearHeadCampaign, thingmenu):
+    def PATIENT_BED_menu(self, camp: gears.GearHeadCampaign, thingmenu: pbge.widgetmenu.MenuWidget):
         if not self.cured_patient:
             thingmenu.desc = "{PATIENT} lies unconscious in this bed, a victim of {DISEASE}. It is unknown how much time {PATIENT.gender.subject_pronoun} has left.".format(**self.elements)
             lm = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Medicine, gears.stats.DIFFICULTY_LEGENDARY, no_random=True)
             if lm:
                 self.party_doctor = lm
                 if lm is camp.pc:
-                    thingmenu.add_item("You believe {PATIENT} can be saved. Offer the doctors a second opinion.".format(**self.elements), self._cure_disease)
+                    _=thingmenu.add_item("You believe {PATIENT} can be saved. Offer the doctors a second opinion.".format(**self.elements), self._cure_disease, data=camp)
                 else:
-                    thingmenu.items.append(
-                        ghdialogue.ghdview.LancemateConvoItem("This is the wrong treatment for {DISEASE}... Let's talk to the doctors, I can save {PATIENT.gender.object_pronoun}.".format(**self.elements), self._cure_disease, desc=None, menu=thingmenu, npc=lm))
-            thingmenu.add_item("Leave {PATIENT} in peace.".format(**self.elements), None)
+                    _=thingmenu.add_custom(ghdialogue.ghdview.LancemateConvoItem(
+                        "This is the wrong treatment for {DISEASE}... Let's talk to the doctors, I can save {PATIENT.gender.object_pronoun}.".format(**self.elements), 
+                        on_click=self._cure_disease, desc=None, npc=lm, data=camp)
+                    )
+            _=thingmenu.add_item("Leave {PATIENT} in peace.".format(**self.elements), None)
         else:
             thingmenu.desc = "The bed is empty now. Maybe someone else will need it later."
 
-    def _cure_disease(self, camp: gears.GearHeadCampaign):
+    def _cure_disease(self, wid, _ev):
+        camp = wid.data
         nurse = self.elements["NURSE"]
         if nurse in camp.scene.contents:
             _=ghcutscene.SimpleMonologueDisplay(

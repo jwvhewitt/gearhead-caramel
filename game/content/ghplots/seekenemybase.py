@@ -171,7 +171,7 @@ class BasicCombatBaseSearch(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
     def t_UPDATE(self, camp):
         # If the adventure has ended, get rid of it.

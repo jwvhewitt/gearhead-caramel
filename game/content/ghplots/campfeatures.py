@@ -293,7 +293,7 @@ class WorldMapEdge:
     STYLE_YELLOW = 4
     STYLE_BLOCKED = 5
 
-    def __init__(self, start_node=None, end_node=None, visible=False, discoverable=True,
+    def __init__(self, start_node: WorldMapNode|None=None, end_node: WorldMapNode|None=None, visible=False, discoverable=True,
                  scenegen=gharchitecture.DeadZoneHighwaySceneGen,
                  architecture=gharchitecture.MechaScaleSemiDeadzone, style=1, encounter_chance=50):
         self.start_node = start_node
@@ -305,7 +305,7 @@ class WorldMapEdge:
         self.style = style
         self.encounter_chance = encounter_chance
 
-    def get_link(self, node_a):
+    def get_link(self, node_a) -> WorldMapNode|None:
         # If node_a is one of the nodes for this edge, return the other node.
         if node_a is self.start_node:
             return self.end_node

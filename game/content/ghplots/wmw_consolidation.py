@@ -172,7 +172,7 @@ class SleeperCellConsolidation(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.finished_challenge:
-            thingmenu.add_item(self.mission_name, self.get_mission(camp))
+            thingmenu.add_item(self.mission_name, self.get_mission(camp), data=camp)
 
     def METROSCENE_ENTER(self, camp):
         #mychallenge = self.elements["CHALLENGE"]

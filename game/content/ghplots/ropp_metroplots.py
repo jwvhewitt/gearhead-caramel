@@ -2,23 +2,17 @@
 
 import random
 from typing import override
-from game import content, services, teams, ghdialogue
+from game import content, services, teams
 from game.content.ghplots import worldmapwar
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
-    ghchallenges, ghrooms
+from game.content import gharchitecture, plotutility, ghwaypoints, ghterrain, ghrooms
 from game.ghdialogue import context
 from pbge.dialogue import Offer, ContextTag
 from pbge.plots import Plot, Rumor, PlotState
 from pbge.memos import Memo
-from pbge.scenes import waypoints
-from . import missionbuilder, mission_bigobs, worldmapwar, relayplots
-from pbge.challenges import Challenge, AutoOffer
-from .shops_plus import get_building
-import collections
-from .ropp_utils import ROPPCD_AEGIS_INFILTRATOR, ROPPCD_FOUND_CARGO, ROPPCD_SPENT_CARGO, ROPPCD_HERO_POINTS, \
-    ROPPCD_AIDED_DISSIDENTS
+from . import missionbuilder, mission_bigobs, relayplots
+from .ropp_utils import ROPPCD_AEGIS_INFILTRATOR, ROPPCD_FOUND_CARGO, ROPPCD_SPENT_CARGO, ROPPCD_HERO_POINTS
 
 
 # ***************************
@@ -332,7 +326,7 @@ class RefugeeShip(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
     def _win_mission(self, camp: gears.GearHeadCampaign):
         if not self.won_mission:
@@ -514,30 +508,33 @@ class PowerOutage(Plot):
             thingmenu.desc += " It is still working, but just barely."
             thingmenu.add_item("Leave it alone.", None)
             if camp.party_has_item(self.elements["MACGUFFIN"]):
-                thingmenu.add_item("Replace {}.".format(self.elements["MACGUFFIN"]), self._use_macguffin)
+                thingmenu.add_item("Replace {}.".format(self.elements["MACGUFFIN"]), self._use_macguffin, data=camp)
             if camp.party_has_skill(gears.stats.Repair):
-                thingmenu.add_item("Attempt to repair fusion core.", self._use_repair)
+                thingmenu.add_item("Attempt to repair fusion core.", self._use_repair, data=camp)
             if camp.party_has_skill(gears.stats.Science):
-                thingmenu.add_item("Attempt to stabilize plasma field.", self._use_science)
+                thingmenu.add_item("Attempt to stabilize plasma field.", self._use_science, data=camp)
 
-    def _use_repair(self, camp: gears.GearHeadCampaign):
+    def _use_repair(self, wid, _ev):
+        camp = wid.data
         if camp.do_skill_test(gears.stats.Knowledge, gears.stats.Repair, self.rank+10, difficulty=gears.stats.DIFFICULTY_HARD):
             self._activate_power_plant(camp)
         else:
             pbge.alerts.TextAlert("You can't even figure out what's wrong with the power plant. This device is beyond your current ability to repair.")
 
-    def _use_science(self, camp: gears.GearHeadCampaign):
+    def _use_science(self, wid, _ev):
+        camp = wid.data
         if camp.do_skill_test(gears.stats.Knowledge, gears.stats.Science, self.rank+10, difficulty=gears.stats.DIFFICULTY_AVERAGE):
             self._activate_power_plant(camp)
         else:
             pbge.alerts.TextAlert("As near as you can tell, there is a mechanical issue with the power plant. Stabilizing the plasma field would require more scientific knowledge than you currently possess.")
 
-    def _use_macguffin(self, camp):
+    def _use_macguffin(self, wid, _ev):
+        camp = wid.data
         camp.take_item(self.elements["MACGUFFIN"])
         self._activate_power_plant(camp)
 
     def _activate_power_plant(self, camp):
-        pbge.alerts.TextAlert("You succeed. The power plant hums back into normal operation.")
+        _=pbge.alerts.TextAlert("You succeed. The power plant hums back into normal operation.")
         self.elements["POWERPLANT"].activate_core()
         self.repaired_generator = True
         camp.dole_xp(200)
@@ -651,10 +648,11 @@ class SpaceportScramble(Plot):
 
     def COMPY_menu(self, camp, thingmenu):
         thingmenu.desc += " Currently the entire spaceport and its surrounding district are highlighted in red."
-        thingmenu.add_item("Deactivate the security system.", self._deactivate_security)
+        thingmenu.add_item("Deactivate the security system.", self._deactivate_security, data=camp)
         thingmenu.add_item("Leave it alone.", None)
 
-    def _deactivate_security(self, camp):
+    def _deactivate_security(self, wid, _ev):
+        camp = wid.data
         _ = pbge.alerts.TextAlert("You shut down the security alert for the spaceport district. The spaceport buildings themselves remain highlighted in red.")
         self.elements["SHOPKEEPER"].place(self.elements["BLACKMARKET"])
         camp.campdata[ROPPCD_HERO_POINTS] += 1
@@ -910,15 +908,15 @@ class WarehousePasswordsPlot(Plot):
 
         self.elements["WH2"] = nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['000000AC']
         self.register_element("_room2", self._get_warehouse_room(), dident="WH2")
-        self.register_element("FIFTH_NOTE", ghwaypoints.KnifeNote(
+        _=self.register_element("FIFTH_NOTE", ghwaypoints.KnifeNote(
             desc="Nancy-\n \n Thank you for being my manager at Bowser Security, but I'm afraid it's time for me to pursue new challenges elsewhere. I got a generous offer for that ruby everyone was so enamoured with. The cash will more than cover my medical bills and relocation to someplace decent.\n\n *Love, Dagmar*".format(self.door_codes[3])
         ), dident="_room2")
-        self.register_element("RUBY_CHEST", ghwaypoints.SteelBox(
+        _=self.register_element("RUBY_CHEST", ghwaypoints.SteelBox(
             desc="This steel case contains a foam insert for a large hexagonal prism. The prism itself is long gone.", plot_locked=True
         ), dident="_room2")
 
         cargo_room = self.register_element("_room2b", pbge.randmaps.rooms.ClosedRoom(8,12, decorate=gharchitecture.WarehouseDecor()), dident="WH2")
-        mydoor = self.register_element("CARGO", ghwaypoints.Waypoint(
+        mydoor = self.register_element("CARGO", pbge.scenes.waypoints.Waypoint(
             name="Cargo Container", plot_locked=True,
             desc="This cargo container is loaded with packaged food, medicine, and consumer goods."
             ))
@@ -943,11 +941,12 @@ class WarehousePasswordsPlot(Plot):
         
         elif not camp.campdata.get(ROPPCD_FOUND_CARGO, False):
             thingmenu.desc += " These items could be a great boon to the war effort."
-            thingmenu.add_item("[Continue]", self._get_cargo)
+            thingmenu.add_item("[Continue]", self._get_cargo, data=camp)
 
-    def _get_cargo(self, camp: gears.GearHeadCampaign):
+    def _get_cargo(self, wid, _ev):
+        camp = wid.data
         camp.campdata[ROPPCD_FOUND_CARGO] = True
-        pbge.alerts.TextAlert("You gain 100XP.")
+        _=pbge.alerts.TextAlert("You gain 100XP.")
         camp.dole_xp(100)
         #self.memo = "You have discovered a shipment of food and medicine that might be useful to somebody in Pirate's Point."
         camp.check_trigger("UPDATE")
@@ -959,80 +958,80 @@ class WarehousePasswordsPlot(Plot):
     def FIRST_NOTE_BUMP(self, camp):
         if self.wh45_locked:
             self.wh45_locked = False
-            pbge.BasicNotification("You have discovered the keycode for Warehouse 45.", count=150)
+            _=pbge.BasicNotification("You have discovered the keycode for Warehouse 45.", count=150)
             self.known_warehouse_codes.append("Warehouse 45")
             self.update_memo(camp)
 
     def SECOND_NOTE_BUMP(self, camp):
         if self.wh9_locked:
             self.wh9_locked = False
-            pbge.BasicNotification("You have discovered the keycode for Warehouse 9.", count=150)
+            _=pbge.BasicNotification("You have discovered the keycode for Warehouse 9.", count=150)
             self.known_warehouse_codes.append("Warehouse 9")
             self.update_memo(camp)
 
     def THIRD_NOTE_BUMP(self, camp):
         if self.wh24_locked:
             self.wh24_locked = False
-            pbge.BasicNotification("You have discovered the keycode for Warehouse 24.", count=150)
+            _=pbge.BasicNotification("You have discovered the keycode for Warehouse 24.", count=150)
             self.known_warehouse_codes.append("Warehouse 24")
             self.update_memo(camp)
 
     def FOURTH_NOTE_BUMP(self, camp):
         if self.wh2_locked:
             self.wh2_locked = False
-            pbge.BasicNotification("You have discovered the keycode for Warehouse 2.", count=150)
+            _=pbge.BasicNotification("You have discovered the keycode for Warehouse 2.", count=150)
             self.known_warehouse_codes.append("Warehouse 2")
             self.update_memo(camp)
 
     def WH45_DOOR_menu(self, camp, thingmenu):
         thingmenu.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
-        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH45_DOOR"))
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", self._attempt_hack_door, data=(camp, "WH45_DOOR"))
         if not self.wh45_locked:
-            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[0]), lambda c: self._unlock_door(c, "WH45_DOOR"))
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[0]), self._unlock_door, data=(camp, "WH45_DOOR"))
 
         thingmenu.add_item("Leave it alone.", None)
 
     def WH9_DOOR_menu(self, camp, thingmenu):
         thingmenu.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
-        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH9_DOOR"))
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", self._attempt_hack_door, data=(camp, "WH9_DOOR"))
         if not self.wh9_locked:
-            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[1]), lambda c: self._unlock_door(c, "WH9_DOOR"))
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[1]), self._unlock_door, data=(camp, "WH9_DOOR"))
 
         thingmenu.add_item("Leave it alone.", None)
 
     def WH24_DOOR_menu(self, camp, thingmenu):
         thingmenu.desc = "This door is locked, and it is too strong to break down. There are signs that someone tried to break it down before you arrived. What do you want to do?"
-        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH24_DOOR"))
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", self._attempt_hack_door, data=(camp, "WH24_DOOR"))
         if not self.wh24_locked:
-            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[2]), lambda c: self._unlock_door(c, "WH24_DOOR"))
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[2]), self._unlock_door, data=(camp, "WH24_DOOR"))
 
         thingmenu.add_item("Leave it alone.", None)
 
     def WH2_DOOR_menu(self, camp, thingmenu):
         thingmenu.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
-        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", lambda c: self._attempt_hack_door(c, "WH2_DOOR"))
+        thingmenu.add_item("Attempt to hack the lock. [Computers + Craft]", self._attempt_hack_door, data=(camp, "WH2_DOOR"))
         if not self.wh2_locked:
-            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[3]), lambda c: self._unlock_door(c, "WH2_DOOR"))
+            thingmenu.add_item("Enter keycode {}.".format(self.door_codes[3]), self._unlock_door, data=(camp, "WH2_DOOR"))
 
         thingmenu.add_item("Leave it alone.", None)
 
-    def _attempt_hack_door(self, camp: gears.GearHeadCampaign, door_ident):
-        # Lambda this method for all the different doors.
+    def _attempt_hack_door(self, wid, _ev):
+        camp, door_ident = wid.data
         pc = camp.do_skill_test(
-            gears.stats.Craft, gears.stats.Knowledge, gears.stats.get_skill_target(self.rank, difficulty=gears.stats.DIFFICULTY_LEGENDARY),
+            gears.stats.Computers, gears.stats.Craft, gears.stats.get_skill_target(self.rank, difficulty=gears.stats.DIFFICULTY_LEGENDARY),
             no_random=True
         )
         if pc:
             if pc is camp.pc:
-                pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
+                _=pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
             else:
-                pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
+                _=pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
             self.elements[door_ident].plot_locked = False
         else:
-            pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
+            _=pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
 
-    def _unlock_door(self, camp: gears.GearHeadCampaign, door_ident):
-        # Lambda this method for all the different doors too.
-        pbge.alerts.TextAlert("The code unlocks the door.")
+    def _unlock_door(self, wid, _ev):
+        _camp, door_ident = wid.data
+        _=pbge.alerts.TextAlert("The code unlocks the door.")
         self.elements[door_ident].plot_locked = False
 

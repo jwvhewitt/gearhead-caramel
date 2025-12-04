@@ -76,7 +76,7 @@ class LMMissionPlot(LMPlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_active and self.mission_seed:
-            thingmenu.add_item(self.mission_seed.name, self.mission_seed)
+            thingmenu.add_item(self.mission_seed.name, self.mission_seed, data=camp)
 
     def win_mission(self, camp):
         self.proper_end_plot(camp)
@@ -370,7 +370,7 @@ class ProfessionalColleagueBecomesRival(LMPlot):
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.accepted_duel:
             thingmenu.add_item("Go have a practice duel with {}".format(self.elements["NPC"]),
-                               self._start_the_duel)
+                               self._start_the_duel, data=camp)
 
     def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
@@ -402,7 +402,8 @@ class ProfessionalColleagueBecomesRival(LMPlot):
             mymenu.add_dialogue_item(camp, camp.pc, "Alright, let's go do that!", self._accept_offer, data=camp)
             mymenu.add_dialogue_item(camp, camp.pc, "What do you mean \"free time\"?! We're kind of in the middle of something now.", self._reject_offer, data=camp)
 
-    def _start_the_duel(self, camp: gears.GearHeadCampaign):
+    def _start_the_duel(self, wid, _ev):
+        camp = wid.data
         npc = self.elements["NPC"]
         npc_mecha: gears.base.Mecha = camp.get_pc_mecha(npc)
         if npc_mecha:
@@ -1822,9 +1823,10 @@ class PrezeroMacguffin(LMPlot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.got_info:
-            thingmenu.add_item("Go to {}".format(self.dungeon_name), self.go_to_dungeon)
+            thingmenu.add_item("Go to {}".format(self.dungeon_name), self.go_to_dungeon, data=camp)
 
-    def go_to_dungeon(self, camp):
+    def go_to_dungeon(self, wid, _ev):
+        camp = wid.data
         camp.go(self.dungeon_entrance)
 
     def t_START(self, camp):
@@ -1942,7 +1944,7 @@ class DeadZoneSortingDuel(LMPlot):
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.accepted_duel:
             thingmenu.add_item("Travel into the deadzone to have a practice match with {}".format(self.elements["NPC"]),
-                               self.duel)
+                               self.duel, data=camp)
 
     def t_START(self, camp):
         npc = self.elements["NPC"]
@@ -2378,7 +2380,7 @@ class WangttaScent(LMPlot):
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.accepted_duel:
             thingmenu.add_item("Travel outside of town to have a practice match with {}".format(self.elements["NPC"]),
-                               self.duel)
+                               self.duel, data=camp)
 
     def t_START(self, camp):
         npc: gears.base.Character = self.elements["NPC"]

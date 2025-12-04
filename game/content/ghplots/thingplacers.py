@@ -199,9 +199,10 @@ class CombatSceneToTargetScene(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.location_unlocked:
-            thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale)
+            thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale, data=camp)
 
-    def go_to_locale(self,camp):
+    def go_to_locale(self,wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 
 
@@ -271,8 +272,9 @@ class ThingInBunker(Plot):
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.location_unlocked:
-            thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale)
+            thingmenu.add_item("Go to {}".format(self.elements["LOCALE"]), self.go_to_locale, data=camp)
 
-    def go_to_locale(self,camp):
+    def go_to_locale(self,wid, _ev):
+        camp = wid.data
         camp.go(self.elements["ENTRANCE"])
 

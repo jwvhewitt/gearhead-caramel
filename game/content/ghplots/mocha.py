@@ -360,15 +360,16 @@ class FrozenHotSpringCity(Plot):
         scene._map[drift.pos[0] + 1][drift.pos[1]].wall = None
 
     def FENCE_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item('Board a mecha and start mission', self._give_bad_mecha)
+        thingmenu.add_item('Board a mecha and start mission', self._give_bad_mecha, data=camp)
         thingmenu.add_item("Don't start mission yet", None)
 
     def HANGAR_GATE_menu(self, camp, thingmenu):
-        thingmenu.add_item('Board a mecha and start mission', self._give_good_mecha)
+        thingmenu.add_item('Board a mecha and start mission', self._give_good_mecha, data=camp)
         thingmenu.add_item("Don't start mission yet", None)
 
-    def _give_bad_mecha(self, camp: gears.GearHeadCampaign):
+    def _give_bad_mecha(self, wid, _ev):
         # Give the PC some cheapass mecha.
+        camp = wid.data
         mygearlist = [
             gears.selector.get_design_by_full_name("SAN-X9 Buru Buru"),
             gears.selector.get_design_by_full_name("SAN-X9c Urban Buru Buru"),
@@ -389,7 +390,8 @@ class FrozenHotSpringCity(Plot):
 
         self._go_to_mission(camp)
 
-    def _give_good_mecha(self, camp: gears.GearHeadCampaign):
+    def _give_good_mecha(self, wid, _ev):
+        camp = wid.data
         mek1 = gears.selector.get_design_by_full_name("Z45-60 Zerosaiko")
         mek2 = gears.selector.get_design_by_full_name("THD-35 Thorshammer")
         mek1.colors = gears.color.random_mecha_colors()
@@ -605,10 +607,11 @@ class WinterMochaChaletForEnding(Plot):
 
     def EXIT_menu(self, camp, thingmenu):
         thingmenu.desc = "Do you want to end the game or keep playing for a while more?"
-        thingmenu.add_item('End the game', self._end_the_game)
+        thingmenu.add_item('End the game', self._end_the_game, data=camp)
         thingmenu.add_item('Stay here for a bit longer', None)
 
-    def _end_the_game(self, camp: gears.GearHeadCampaign):
+    def _end_the_game(self, wid, _ev):
+        camp = wid.data
         for pc in camp.party:
             pc.restore_all()
         camp.eject()
@@ -1970,13 +1973,14 @@ class Choice_BringJusticeToScumHive(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "Pirates don't normally operate in this area; they must have established a smuggling camp to expand their territory. This appears to be the direction they came from." + ONE_WAY_WARNING
-        thingmenu.add_item('Bring them to justice', self.start_mission)
+        thingmenu.add_item('Bring them to justice', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2008,14 +2012,15 @@ class Choice_PeaceAgainstSynths(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_SYNTHBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "It seems that the hunter synths came from this direction. Left unchecked, they could be a much bigger threat to Mauna than {}.".format(
             ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
-        thingmenu.add_item('Protect Mauna by exterminating the synths', self.start_mission)
+        thingmenu.add_item('Protect Mauna by exterminating the synths', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
     def t_MOCHAVICTORY(self, camp):
@@ -2051,14 +2056,15 @@ class Choice_FellowshipToDefendAgainstSynths(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_SYNTHBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "From the marks in the snow, you see that the hunter synths pursued {} in this direction.".format(
             ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
-        thingmenu.add_item('Show fellowship and rescue them', self.start_mission)
+        thingmenu.add_item('Show fellowship and rescue them', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
     def t_MOCHAVICTORY(self, camp):
@@ -2094,14 +2100,15 @@ class Choice_BringJusticeToMercenaries(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "You still don't know who hired the mercenaries you fought earlier. This could be an opportunity to trail them to their leader and find out who they work for." + ONE_WAY_WARNING
-        thingmenu.add_item('For great justice', self.start_mission)
+        thingmenu.add_item('For great justice', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2133,14 +2140,15 @@ class Choice_DutyToFightPirates(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "The pirates seem to be having trouble navigating on Earth. They've left the road and headed into the forest. It should be no problem to catch up with them there." + ONE_WAY_WARNING
-        thingmenu.add_item('Do your duty', self.start_mission)
+        thingmenu.add_item('Do your duty', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2172,7 +2180,8 @@ class Choice_FellowshipWithSmugglers(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_TRUCKBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
@@ -2180,7 +2189,7 @@ class Choice_FellowshipWithSmugglers(Plot):
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "Marks in the snow indicate that the smugglers are still being pursued by {}. It seems cruel to leave them to their fate... You can defend the convoy and let the Guardians figure out what to do about the contraband later.".format(
             ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
-        thingmenu.add_item('Show your fellowship', self.start_mission)
+        thingmenu.add_item('Show your fellowship', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2216,14 +2225,15 @@ class Choice_BringJusticeToSmugglers(Plot):
                       "ENEMY_FACTION": ConvoyFaction, }).based_on(self), ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "The smugglers who got away from {} seem to have gone in this direction. Their actions tonight have endangered a great number of lives, and they shouldn't get away with it.".format(
             ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
-        thingmenu.add_item('For great justice', self.start_mission)
+        thingmenu.add_item('For great justice', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2255,14 +2265,15 @@ class Choice_JusticeForWujungOrphans(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_TRUCKBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'From the tracks in the snow, you think this is the way the thieves brought the stolen toys. If you hurry you may still be able to catch them and return the toys to the children of Wujung.' + ONE_WAY_WARNING
-        thingmenu.add_item('For great justice', self.start_mission)
+        thingmenu.add_item('For great justice', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2294,14 +2305,15 @@ class Choice_GloryByDestroyingBigBase(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "In order to pull off an operation like this, {} must have a base nearby. This seems to be the direction from which they came.".format(
             ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
-        thingmenu.add_item('Go for glory', self.start_mission)
+        thingmenu.add_item('Go for glory', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2333,13 +2345,14 @@ class Choice_GloryByDestroyingBanditBase(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_BASEBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'The tracks in the snow indicate that the bandits came from this direction. If you follow the tracks back to their base, you may be able to put an end to their crime spree once and for all.' + ONE_WAY_WARNING
-        thingmenu.add_item('Go for glory', self.start_mission)
+        thingmenu.add_item('Go for glory', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2373,14 +2386,15 @@ class Choice_PeaceByDefeatingAegis(Plot):
                           ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'The tracks in the snow indicate that this is the direction the Aegis scouts came from. Stopping them may be far more important than {} you were sent to fight.'.format(
             ENEMY_NOUN[self.elements.get(ENEMY, 0)]) + ONE_WAY_WARNING
-        thingmenu.add_item('Protect the Earth', self.start_mission)
+        thingmenu.add_item('Protect the Earth', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
     def t_MOCHAVICTORY(self, camp):
@@ -2416,14 +2430,15 @@ class Choice_GloryByFightingTheLeader(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = "This seems to be the way that the raider leader went. It's time to finish this." + ONE_WAY_WARNING
-        thingmenu.add_item('Go for glory', self.start_mission)
+        thingmenu.add_item('Go for glory', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2455,14 +2470,15 @@ class Choice_DutyToCatchTheLeader(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_BOSSBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to capture them?' + ONE_WAY_WARNING
-        thingmenu.add_item('Do your duty', self.start_mission)
+        thingmenu.add_item('Do your duty', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2494,14 +2510,15 @@ class Choice_PeaceToDisableThePrototype(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_WILDBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the direction that the prototype mecha was taken. A weapon that powerful should not fall into the wrong hands.' + ONE_WAY_WARNING
-        thingmenu.add_item('Fight for peace', self.start_mission)
+        thingmenu.add_item('Fight for peace', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
     def t_MOCHAVICTORY(self, camp):
@@ -2537,7 +2554,8 @@ class Choice_DutyToStopThePrototype(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_BOSSBATTLE", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
         camp.campdata[MOVAR_FOUGHTBLITZEN] = True
         self.chose_this_route = True
@@ -2548,7 +2566,7 @@ class Choice_DutyToStopThePrototype(Plot):
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be the way that the raider leader went. Do you want to try to recover the stolen prototype?' + ONE_WAY_WARNING
-        thingmenu.add_item('Do your duty', self.start_mission)
+        thingmenu.add_item('Do your duty', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -2577,12 +2595,13 @@ class FinalBattleDebug(Plot):
         self.add_sub_plot(nart, "MOCHA_FB_DEBUG", ident="FINAL_ENCOUNTER")
         return True
 
-    def start_mission(self, camp):
+    def start_mission(self, wid, _ev):
+        camp = wid.data
         self.subplots["FINAL_ENCOUNTER"].start_battle(camp)
 
     def _waypoint_menu(self, camp, thingmenu):
         thingmenu.desc = 'This seems to be a final battle in need of debugging.'
-        thingmenu.add_item('Do your duty', self.start_mission)
+        thingmenu.add_item('Do your duty', self.start_mission, data=camp)
         thingmenu.add_item('Examine the other options first', None)
 
 
@@ -3008,9 +3027,10 @@ class LazyassOpener(Plot):
     scope = True
 
     def TARGET_menu(self, camp, thingmenu):
-        thingmenu.add_item('Try to open it', self._try_open)
+        thingmenu.add_item('Try to open it', self._try_open, data=camp)
 
-    def _try_open(self, camp):
+    def _try_open(self, wid, _ev):
+        camp = wid.data
         pbge.alerts.TextAlert("You open it easily. Who leaves stuff like this unlocked?!")
         camp.check_trigger("OPEN", self.elements["TARGET"])
         self.active = False
@@ -3031,20 +3051,22 @@ class UniversalLockpick(Plot):
 
     def TARGET_menu(self, camp, thingmenu):
         if self.found_item:
-            thingmenu.add_item('Open it with the crowbar', self._open_thing)
+            thingmenu.add_item('Open it with the crowbar', self._open_thing, data=camp)
         else:
-            thingmenu.add_item('Try to open it', self._try_open)
+            thingmenu.add_item('Try to open it', self._try_open, data=camp)
 
-    def _open_thing(self, camp):
-        pbge.alerts.TextAlert("The crowbar makes short work of the lock.")
+    def _open_thing(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("The crowbar makes short work of the lock.")
         camp.check_trigger("OPEN", self.elements["TARGET"])
         self.active = False
 
-    def _try_open(self, camp):
-        pbge.alerts.TextAlert("It's locked.")
+    def _try_open(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("It's locked.")
         self.subplots["FINDER"].activate(camp)
 
-    def PUZZITEM_FIND(self, camp):
+    def PUZZITEM_FIND(self, _camp):
         self.found_item = True
 
 
@@ -3062,14 +3084,15 @@ class FindAbandonedToolbox(Plot):
         myroom.contents.append(puzzle_item)
         return True
 
-    def get_crowbar(self, camp):
+    def get_crowbar(self, wid, _ev):
+        camp = wid.data
         pbge.alerts.TextAlert("You take the {}. It might be useful for something.".format(self.elements["TARGET"]))
         camp.check_trigger("FIND", self.elements["TARGET"])
         self.active = False
 
     def PUZZITEM_menu(self, camp, thingmenu):
         thingmenu.desc = '{} There is a {} inside.'.format(thingmenu.desc, self.elements["TARGET"])
-        thingmenu.add_item('Borrow the {}'.format(self.elements["TARGET"]), self.get_crowbar)
+        thingmenu.add_item('Borrow the {}'.format(self.elements["TARGET"]), self.get_crowbar, data=camp)
 
 
 class BorrowAnItem(Plot):
@@ -3116,20 +3139,22 @@ class ExtensionCord(Plot):
 
     def TARGET_menu(self, camp, thingmenu):
         if self.found_item:
-            thingmenu.add_item('Plug it in and turn it on', self._open_thing)
+            thingmenu.add_item('Plug it in and turn it on', self._open_thing, data=camp)
         else:
-            thingmenu.add_item('Try to turn it on', self._try_activate)
+            thingmenu.add_item('Try to turn it on', self._try_activate, data=camp)
 
-    def _open_thing(self, camp):
-        pbge.alerts.TextAlert("You connect it to the electrical outlet and press the power button...")
+    def _open_thing(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You connect it to the electrical outlet and press the power button...")
         camp.check_trigger("ENERGIZE", self.elements["TARGET"])
         self.active = False
 
-    def _try_activate(self, camp):
-        pbge.alerts.TextAlert("Nothing happens. It doesn't have any power. You notice that it isn't plugged in.")
+    def _try_activate(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("Nothing happens. It doesn't have any power. You notice that it isn't plugged in.")
         self.subplots["FINDER"].activate(camp)
 
-    def PUZZITEM_FIND(self, camp):
+    def PUZZITEM_FIND(self, _camp):
         self.found_item = True
 
 
@@ -3148,19 +3173,20 @@ class CircuitBroken(Plot):
         return True
 
     def TARGET_menu(self, camp, thingmenu):
-        thingmenu.add_item('Try to turn it on', self._try_activate)
+        thingmenu.add_item('Try to turn it on', self._try_activate, data=camp)
 
-    def _try_activate(self, camp):
-        pbge.alerts.TextAlert("Nothing happens. Everything seems to be connected properly, but it isn't getting any power.")
+    def _try_activate(self, _wid, _ev):
+        _=pbge.alerts.TextAlert("Nothing happens. Everything seems to be connected properly, but it isn't getting any power.")
 
     def PUZZITEM_menu(self, camp, thingmenu):
         thingmenu.desc = '{} The generator is currently off; the circuit breaker must have blown during the storm.'.format(
             thingmenu.desc)
-        thingmenu.add_item("Turn it back on again", self._fix_generator)
+        thingmenu.add_item("Turn it back on again", self._fix_generator, data=camp)
         thingmenu.add_item("Leave it alone", None)
 
-    def _fix_generator(self, camp):
-        pbge.alerts.TextAlert("You reset the controls, and the generator flickers back to life.")
+    def _fix_generator(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You reset the controls, and the generator flickers back to life.")
         camp.check_trigger("ENERGIZE", self.elements["TARGET"])
         self.active = False
 
@@ -3177,16 +3203,17 @@ class OpenContainer(Plot):
 
     def TARGET_menu(self, camp, thingmenu):
         thingmenu.desc = '{} There is a large red warning label pasted to the front.'.format(thingmenu.desc)
-        thingmenu.add_item('Read the warning label', self._try_activate)
+        thingmenu.add_item('Read the warning label', self._try_activate, data=camp)
         thingmenu.add_item('Leave it alone', None)
 
-    def _try_activate(self, camp):
-        pbge.alerts.TextAlert(
+    def _try_activate(self, wid, _ev):
+        camp=wid.data
+        _=pbge.alerts.TextAlert(
             "Warning: Contents will react violently when exposed to oxygen. Extreme caution should be used when handling.")
         self.subplots["OPENER"].activate(camp)
 
     def TARGET_OPEN(self, camp):
-        pbge.alerts.TextAlert("You open it up and retreat to a safe distance as the fireworks begin.")
+        _=pbge.alerts.TextAlert("You open it up and retreat to a safe distance as the fireworks begin.")
         camp.check_trigger("IGNITE", self.elements["TARGET"])
         self.active = False
 
@@ -3206,18 +3233,20 @@ class UseFlares(Plot):
     def TARGET_menu(self, camp, thingmenu):
         thingmenu.desc = '{} There is a large yellow warning label pasted to the front.'.format(thingmenu.desc)
         if self.found_item:
-            thingmenu.add_item('Place a lit flare in the barrel', self._open_thing)
+            thingmenu.add_item('Place a lit flare in the barrel', self._open_thing, data=camp)
             thingmenu.add_item('Leave it alone', None)
         else:
-            thingmenu.add_item('Read the warning label', self._try_activate)
+            thingmenu.add_item('Read the warning label', self._try_activate, data=camp)
 
-    def _open_thing(self, camp):
-        pbge.alerts.TextAlert("You stick the lit flare in the barrel's spigot and retreat to a safe distance...")
+    def _open_thing(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You stick the lit flare in the barrel's spigot and retreat to a safe distance...")
         camp.check_trigger("IGNITE", self.elements["TARGET"])
         self.active = False
 
-    def _try_activate(self, camp):
-        pbge.alerts.TextAlert("Warning: Highly flammable. Keep away from sparks and open flame.")
+    def _try_activate(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("Warning: Highly flammable. Keep away from sparks and open flame.")
         self.subplots["FINDER"].activate(camp)
 
     def PUZZITEM_FIND(self, camp):

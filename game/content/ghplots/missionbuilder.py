@@ -368,11 +368,11 @@ class BuildAMissionPlot(Plot):
             if not self.gave_ending_message:
                 if self.adv.is_won():
                     if "WIN_MESSAGE" in self.elements:
-                        pbge.alerts.TextAlert(self.elements["WIN_MESSAGE"])
-                    pbge.BasicNotification("Mission Complete", count=160)
+                        _=pbge.alerts.TextAlert(self.elements["WIN_MESSAGE"])
+                    _=pbge.BasicNotification("Mission Complete", count=160)
                 elif "LOSS_MESSAGE" in self.elements:
-                    pbge.alerts.TextAlert(self.elements["LOSS_MESSAGE"])
-                    pbge.BasicNotification("Mission Failed", count=160)
+                    _=pbge.alerts.TextAlert(self.elements["LOSS_MESSAGE"])
+                    _=pbge.BasicNotification("Mission Failed", count=160)
                 self.gave_ending_message = True
             if self.elements.get("AUTO_EXIT", False) and not self.exited_mission:
                 self.exit_the_mission(camp)
@@ -381,13 +381,16 @@ class BuildAMissionPlot(Plot):
         if self.adv.is_completed():
             thingmenu.desc = "Your mission is finished. Are you ready to return to {}?".format(
                 self.elements["METROSCENE"])
-            thingmenu.add_item("End Mission", self.exit_the_mission)
+            thingmenu.add_item("End Mission", self.exit_the_mission_from_menu, data=camp)
             thingmenu.add_item("Stay Here Longer", None)
         else:
             thingmenu.desc = "Do you want to abort this mission and return to {}?".format(
                 self.elements["METROSCENE"])
-            thingmenu.add_item("Cancel Mission", self.exit_the_mission)
+            thingmenu.add_item("Cancel Mission", self.exit_the_mission_from_menu, data=camp)
             thingmenu.add_item("Continue Mission", None)
+
+    def exit_the_mission_from_menu(self, wid, _ev):
+        self.exit_the_mission(wid.data)
 
     def exit_the_mission(self, camp: gears.GearHeadCampaign):
         camp.go(self.elements["ADVENTURE_RETURN"])
@@ -436,8 +439,11 @@ class RoadMissionPlot(BuildAMissionPlot):
     def _ENTRANCE_menu(self, camp, thingmenu):
         thingmenu.desc = "Do you want to end this journey and return to {}?".format(self.elements["METROSCENE"])
 
-        thingmenu.add_item("Return to {}".format(self.elements["METROSCENE"]), self.exit_the_mission)
+        thingmenu.add_item("Return to {}".format(self.elements["METROSCENE"]), self.exit_the_mission_from_menu, data=camp)
         thingmenu.add_item("Journey Onward", None)
+
+    def exit_the_mission_from_menu(self, wid, _ev):
+        self.exit_the_mission(wid.data)
 
     def exit_the_mission(self, camp):
         if self.adv.is_won():
@@ -1928,9 +1934,10 @@ class BAM_FindHerbs(Plot):
 
     def HERBS_menu(self, camp, thingmenu):
         if not self.collected_herbs:
-            thingmenu.add_item("Collect some herbs.", self._collect_herbs)
+            thingmenu.add_item("Collect some herbs.", self._collect_herbs, data=camp)
 
-    def _collect_herbs(self, camp):
+    def _collect_herbs(self, wid, _ev):
+        camp = wid.data
         pbge.alerts.TextAlert("You collect the herbs that you need.")
         self.obj.win(camp, 100)
         self.collected_herbs = True
@@ -2033,9 +2040,10 @@ class BAM_RepairMachine(Plot):
 
     def MACHINE_menu(self, camp, thingmenu):
         if not self.repaired_machine and not camp.fight:
-            thingmenu.add_item("Repair machine", self._repair_machine)
+            thingmenu.add_item("Repair machine", self._repair_machine, data=camp)
 
-    def _repair_machine(self, camp: gears.GearHeadCampaign):
+    def _repair_machine(self, wid, _ev):
+        camp = wid.data
         if camp.do_skill_test(
             gears.stats.Craft, gears.stats.Repair, self.rank, difficulty=gears.stats.DIFFICULTY_HARD
         ):
@@ -2095,10 +2103,11 @@ class BAM_RescueVictim(Plot):
 
     def VICTIM_menu(self, camp, thingmenu):
         if not self.rescued_npc:
-            thingmenu.add_item("Rescue {VICTIM}".format(**self.elements), self._rescue_victim)
+            thingmenu.add_item("Rescue {VICTIM}".format(**self.elements), self._rescue_victim, data=camp)
 
-    def _rescue_victim(self, camp: gears.GearHeadCampaign):
-        pbge.alerts.TextAlert("You have rescued {VICTIM}.".format(**self.elements))
+    def _rescue_victim(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("You have rescued {VICTIM}.".format(**self.elements))
         self.obj.win(camp, 100)
         camp.dole_xp(100, gears.stats.Medicine)
         self.rescued_npc = True

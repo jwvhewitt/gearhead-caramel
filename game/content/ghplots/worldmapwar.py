@@ -1,18 +1,12 @@
 import random
 
 import game.content
-from game import content, services, teams, ghdialogue
+from game import content
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
-    ghchallenges, ghrooms
-from game.ghdialogue import context
-from pbge.dialogue import Offer, ContextTag
-from pbge.plots import Plot, Rumor, PlotState
-from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures, wmw_occupation
-from pbge.challenges import Challenge, AutoOffer
-from .shops_plus import get_building
+from game.content import gharchitecture
+from pbge.plots import Plot, PlotState
+from . import missionbuilder, campfeatures, wmw_occupation
 import collections
 
 # Elements passed to the world map handler plot.
@@ -646,23 +640,25 @@ class EdgeAttack:
         self.edge = edge
         self.start_point = start_point
         self.war = war
+        self.adv: missionbuilder.BuildAMissionSeed = None
 
-    def __call__(self, camp: gears.GearHeadCampaign):
+    def __call__(self, wid, _ev):
+        camp = wid.data
         self.adv = self.war.get_attack_missionseed(camp, self.war.player_team, self.start_point,
                                               self.edge.get_link(self.start_point))
 
         dest_node = self.edge.get_link(self.start_point)
         if self.adv.can_do_mission(camp):
             if dest_node.destination.faction:
-                self.adv(camp)
+                _=self.adv(camp)
             else:
-                pbge.alerts.TextAlert("You move into {} unopposed.".format(dest_node))
+                _=pbge.alerts.TextAlert("You move into {} unopposed.".format(dest_node))
                 self.war.capture(camp, self.war.player_team, dest_node)
                 camp.go(dest_node.entrance)
                 self.adv.end_plot(camp, True)
             self.war.ready_for_next_round = True
         else:
-            pbge.alerts.TextAlert("You are not equipped with mecha that can attack {}.".format(dest_node))
+            _=pbge.alerts.TextAlert("You are not equipped with mecha that can attack {}.".format(dest_node))
             self.adv.end_plot(camp, True)
 
 
@@ -745,11 +741,11 @@ class WorldMapWarHandler(Plot):
                         if not mydest.destination.faction:
                             thingmenu.add_item(
                                 "Capture {} for {}".format(mydest, self.world_map_war.player_team),
-                                EdgeAttack(camp, e, node, self.world_map_war), e
+                                EdgeAttack(camp, e, node, self.world_map_war), desc=e, data=camp
                             )
                         elif camp.are_faction_enemies(mydest.destination, self.world_map_war.player_team):
                             thingmenu.add_item(
                                 "Invade {} for {}".format(mydest, self.world_map_war.player_team),
-                                EdgeAttack(camp, e, node, self.world_map_war), e
+                                EdgeAttack(camp, e, node, self.world_map_war), desc=e, data=camp
                             )
                     break

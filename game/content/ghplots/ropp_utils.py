@@ -60,14 +60,6 @@ class ROPP_WarStarter(Plot):
         nart.camp.campdata["WORLD_MAP_WAR"] = self.world_map_war
         nart.camp.campdata[ROPPCD_DEFECTION] = 0
 
-        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            _=self.register_element("LOCALE", nart.camp.campdata["SCENARIO_ELEMENT_UIDS"]['00000001'])
-            _=self.register_element("_ROOM", pbge.randmaps.rooms.FuzzyRoom(5,5), dident="LOCALE")
-            _=self.register_element("COMPY", ghwaypoints.OldTerminal(
-                plot_locked=True, anchor=pbge.randmaps.anchors.middle, name="War Simulator",
-                desc="This is a computer terminal to test the world map war system. Yay!"
-            ), dident="_ROOM")
-
         # Locate the major NPCs.
         _=self.seek_element(nart, "NPC_CHARLA", self._seek_charla, lock=True)
         _=self.seek_element(nart, "NPC_BRITAINE", self._seek_britaine, lock=True)
@@ -120,15 +112,6 @@ class ROPP_WarStarter(Plot):
     def _seek_aegis(self, _nart, candidate):
         return (isinstance(candidate, gears.base.Character) and candidate.job and candidate.job.name == "Diplomat" and
                 candidate.faction is gears.factions.AegisOverlord)
-
-    def COMPY_menu(self, camp, thingmenu):
-        thingmenu.add_item("Start the next round", self.start_war_round)
-        thingmenu.add_item("ZZWin the war", self.ROPPWAR_WIN)
-        thingmenu.add_item("ZZAegis Win", self._compy_aegis_win)
-        thingmenu.add_item("ZZNavy Win", self._compy_navy_win)
-        thingmenu.add_item("ZZGuild Win", self._compy_guild_win)
-        thingmenu.add_item("Aegis/Guild Allies: {}".format(camp.are_faction_allies(gears.factions.AegisOverlord, gears.factions.TreasureHunters)), self._toggle_aegis_guild)
-        thingmenu.add_item("Solar/Guild Allies: {}".format(camp.are_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters)), self._toggle_solar_guild)
 
     def _compy_aegis_win(self, camp):
         self.world_map_war.set_player_team(camp, gears.factions.AegisOverlord)
@@ -945,11 +928,12 @@ class RoppResolutionExtravaganza(Plot):
             self.started_resolution = True
 
     def ENTRANCE_menu(self, camp, thingmenu):
-        thingmenu.add_item("End this adventure", self._end_adventure)
+        thingmenu.add_item("End this adventure", self._end_adventure, data=camp)
         thingmenu.add_item("Stay here a while longer", None)
 
-    def _end_adventure(self, camp):
-        pbge.alerts.TextAlert("The fate of Pirate's Point has been settled for now, but new conflicts loom on the horizon. When the time comes you must be ready to fight again.")
+    def _end_adventure(self, wid, _ev):
+        camp = wid.data
+        _=pbge.alerts.TextAlert("The fate of Pirate's Point has been settled for now, but new conflicts loom on the horizon. When the time comes you must be ready to fight again.")
         camp.eject()
 
 
