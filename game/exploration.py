@@ -260,7 +260,7 @@ class InvoMenuCall(object):
         self.pc = pc
         self.source = source
 
-    def __call__(self):
+    def __call__(self, *args):
         self.explo.order = invoker.InvocationUI.explo_invoke(self.explo, self.pc, self.pc.get_skill_library,
                                                              self.source)
 
@@ -273,7 +273,7 @@ class UsableMenuCall(object):
         self.pc = pc
         self.source = source
 
-    def __call__(self):
+    def __call__(self, *args):
         self.explo.order = invoker.InvocationUI.explo_invoke(self.explo, self.pc, self.pc.get_usable_library,
                                                              self.source)
 
@@ -284,8 +284,8 @@ class FieldHQCall(object):
         # its effects.
         self.camp = camp
 
-    def __call__(self):
-        fieldhq.FieldHQ.create_and_invoke(self.camp)
+    def __call__(self, *args):
+        fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
 
 
 class BumpToCall(object):
@@ -293,48 +293,42 @@ class BumpToCall(object):
         self.explo = explo
         self.wayp = wayp
 
-    def __call__(self):
+    def __call__(self, *args):
         self.explo.order = BumpTo(self.explo, self.wayp)
 
 
-class ExploMenu(object):
+class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
     def __init__(self, explo, pc=None):
+        super().__init__()
         self.explo = explo
         self.pc = pc
-        self.query()
-
-    def query(self):
-        mymenu = pbge.rpgmenu.PopUpMenu()
 
         if self.pc and self.pc in self.explo.camp.party:
             my_invos = self.pc.get_skill_library()
             for i in my_invos:
                 if i.has_at_least_one_working_invo(self.pc, False):
-                    mymenu.add_item(str(i), InvoMenuCall(self.explo, self.pc, i.source))
+                    _=self.add_item(str(i), InvoMenuCall(self.explo, self.pc, i.source))
             my_invos = self.pc.get_usable_library()
             for i in my_invos:
                 if i.has_at_least_one_working_invo(self.pc, False):
-                    mymenu.add_item(str(i), UsableMenuCall(self.explo, self.pc, i.source))
+                    _=self.add_item(str(i), UsableMenuCall(self.explo, self.pc, i.source))
         else:
             for pc in self.explo.camp.get_active_party():
                 if pc.get_skill_library():
-                    mymenu.add_item('{} Use Skill'.format(str(pc)), InvoMenuCall(self.explo, pc, None))
-        mymenu.add_item('-----', None)
+                    _=self.add_item('{} Use Skill'.format(str(pc)), InvoMenuCall(self.explo, pc, None))
+        _=self.add_item('-----', None)
         # Check for waypoints.
         wayp_list = self.explo.camp.scene.get_bumpables(pbge.my_state.view.mouse_tile)
         for wayp in wayp_list:
             if wayp.name:
-                mymenu.add_item('Use {}'.format(str(wayp)), BumpToCall(self.explo, wayp))
+                _=self.add_item('Use {}'.format(str(wayp)), BumpToCall(self.explo, wayp))
         # Add the standard options.
-        mymenu.add_item('Inventory', self.call_inventory)
-        mymenu.add_item('Field HQ', FieldHQCall(self.explo.camp))
-        mymenu.add_item('View Memos', memos.MemoBrowser(self.explo.camp))
+        _=self.add_item('Inventory', self.call_inventory)
+        _=self.add_item('Field HQ', FieldHQCall(self.explo.camp))
+        _=self.add_item('View Memos', memos.MemoBrowser(self.explo.camp))
         pc = self.explo.camp.first_active_pc()
         if pc:
-            mymenu.add_item('Center on {}'.format(pc.get_pilot()), self.center)
-        mi = mymenu.query()
-        if mi:
-            mi()
+            _=self.add_item('Center on {}'.format(pc.get_pilot()), self.center)
 
     def call_inventory(self):
         fieldhq.backpack.BackpackWidget.create_and_invoke(self.explo.camp, self.pc or self.explo.camp.pc.get_root())
@@ -395,6 +389,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
                 if ev.button == 1:
                     self.click_left()
                     self.register_response()
+                else:
+                    pc = self.scene.get_main_actor(self.view.mouse_tile)
+                    ExploMenu.push_state_and_instantiate(explo=self, pc=pc)
+
             elif ev.type == pygame.KEYDOWN:
                 if pbge.my_state.is_key_for_action(ev, "quit_game"):
                     # self.camp.save(self.screen)
@@ -402,6 +400,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
                     self.register_response()
                 elif ev.key == pygame.K_ESCAPE:
                     configedit.PopupGameMenu.push_state_and_instantiate()
+                    self.register_response()
 
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])

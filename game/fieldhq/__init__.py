@@ -110,7 +110,7 @@ class CharacterCenterColumnWidget(widgets.RowWidget):
         if pc.bio:
             self.bio_panel = widgets.LabelWidget(
                 fhqinfo.CENTER_COLUMN.dx, fhqinfo.CENTER_COLUMN.dy, fhqinfo.CENTER_COLUMN.w, 0,
-                pc.bio, font=pbge.MEDIUMFONT, draw_border=True, border=pbge.default_border, active=False
+                pc.bio, font=pbge.MEDIUMFONT, draw_border=True, border=pbge.default_border, visible=False
             )
             self.children.append(self.bio_panel)
             self.panels.append(self.bio_panel)
@@ -121,7 +121,7 @@ class CharacterCenterColumnWidget(widgets.RowWidget):
             ))
 
         if pc.badges:
-            self.badges_panel = MeritBadgeDisplayWidget(pc, active=False)
+            self.badges_panel = MeritBadgeDisplayWidget(pc, visible=False)
             self.children.append(self.badges_panel)
             self.panels.append(self.badges_panel)
 
@@ -133,9 +133,9 @@ class CharacterCenterColumnWidget(widgets.RowWidget):
     def _switch_panel(self, wid, ev):
         for ccc in self.panels:
             if ccc is wid.data:
-                ccc.active = True
+                ccc.visible = True
             else:
-                ccc.active = False
+                ccc.visible = False
         for butt in self._center_widgets:
             if butt is wid:
                 butt.border = widgets.widget_border_on
@@ -572,6 +572,8 @@ class FieldHQ(widgets.Widget):
     # To the left: the character portrait (if available)
     # In the center: the character info/action widgets
     # To the right: The list of characters/mecha in the party
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
+
     def __init__(self, camp):
         self._active_info = None
         super(FieldHQ, self).__init__(0, 0, 0, 0)
@@ -600,13 +602,18 @@ class FieldHQ(widgets.Widget):
 
         self.active_info = camp.pc
 
+        self.children.append(pbge.widgets.LabelWidget(
+            fhqinfo.RIGHT_COLUMN.dx + 64, fhqinfo.RIGHT_COLUMN.dy + fhqinfo.RIGHT_COLUMN.h + 20, 80, 0,
+            text="Done", justify=0, on_click=self.done_button, draw_border=True
+        ))
+
     def _set_active_info(self, pc):
         if self._active_info:
-            self._active_info.active = False
+            self._active_info.visible = False
         self.active_pc = pc
         self._active_info = self.member_widgets.get(pc, None)
         if self._active_info:
-            self._active_info.active = True
+            self._active_info.visible = True
         else:
             self._active_info = self.member_widgets.get(self.camp.pc, None)
             self.active_pc = self.camp.pc
@@ -625,16 +632,16 @@ class FieldHQ(widgets.Widget):
         for pc in self.camp.party:
             self.member_selector.add_interior(PartyMemberButton(self.camp, pc, fhq=self, on_click=self.click_member))
             if isinstance(pc, gears.base.Character):
-                self.member_widgets[pc] = CharacterInfoWidget(self.camp, pc, self, active=False)
+                self.member_widgets[pc] = CharacterInfoWidget(self.camp, pc, self, visible=False)
                 self.children.append(self.member_widgets[pc])
             elif isinstance(pc, gears.base.Mecha):
-                self.member_widgets[pc] = MechaInfoWidget(self.camp, pc, self, active=False)
+                self.member_widgets[pc] = MechaInfoWidget(self.camp, pc, self, visible=False)
                 self.children.append(self.member_widgets[pc])
             elif isinstance(pc, gears.base.Monster):
-                self.member_widgets[pc] = PetInfoWidget(self.camp, pc, self, active=False)
+                self.member_widgets[pc] = PetInfoWidget(self.camp, pc, self, visible=False)
                 self.children.append(self.member_widgets[pc])
             else:
-                self.member_widgets[pc] = ItemInfoWidget(self.camp, pc, self, active=False)
+                self.member_widgets[pc] = ItemInfoWidget(self.camp, pc, self, visible=False)
                 self.children.append(self.member_widgets[pc])
         self.member_selector.sort(key=self._get_sort_order)
         self.active_info = return_to
@@ -655,13 +662,18 @@ class FieldHQ(widgets.Widget):
         else:
             return (500,  str(pc))
 
-    def click_member(self, wid, ev):
+    def click_member(self, wid, _ev):
         # self.active_pc = wid.pc
         self.active_info = wid.pc
 
-    def done_button(self, wid, ev):
-        if not pbge.my_state.widget_responded:
-            self.finished = True
+    def done_button(self, _wid, _ev):
+        self.pop()
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()
 
     @classmethod
     def create_and_invoke(cls, camp):

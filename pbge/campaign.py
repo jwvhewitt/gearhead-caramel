@@ -175,7 +175,7 @@ class Campaign(object):
         for r in self.get_active_resources():
             r.modify_puzzle_menu(self, thing, thingmenu, my_challenges)
 
-        if not thingmenu.items:
+        if thingmenu.is_empty():
             _=thingmenu.add_item("[Continue]", None)
         else:
             thingmenu.sort()

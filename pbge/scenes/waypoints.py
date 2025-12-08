@@ -13,7 +13,7 @@ class PuzzleMenu( widgetmenu.MenuWidget ):
     TEXT_RECT = frects.Frect(-175,-125,350,165)
 
     def __init__( self, camp, wp ):
-        super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,draw_border=False)
+        super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,draw_border=False, pop_when_clicked=True)
         self.camp = camp
         self.desc = wp.desc
         self.waypoint = wp
