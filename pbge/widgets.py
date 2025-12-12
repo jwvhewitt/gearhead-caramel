@@ -77,28 +77,37 @@ class FrozenUIState:
                 widget_to_push.on_freeze()
 
     def unfreeze(self):
+        done = set()
         for widg in self.pushed_widgets:
             my_state.widgets.append(widg)
             # Set this widget's active property to whatever it already is...
             # Weird, but we want to call the private update method.
             widg.active = widg.active
-            if hasattr(widg, "on_activate"):
-                widg.on_activate()
+            for wchild in widg.get_all_active_widgets():
+                if hasattr(wchild, "on_activate") and wchild not in done:
+                    wchild.on_activate()
+                    done.add(wchild)
 
         for widg in self.deactivated_widgets:
             widg.active = True
-            if hasattr(widg, "on_activate"):
-                widg.on_activate()
+            for wchild in widg.get_all_active_widgets():
+                if hasattr(wchild, "on_activate") and wchild not in done:
+                    wchild.on_activate()
+                    done.add(wchild)
 
         for widg in self.hidden_widgets:
             widg.visible = True
-            if hasattr(widg, "on_activate"):
-                widg.on_activate()
+            for wchild in widg.get_all_active_widgets():
+                if hasattr(wchild, "on_activate") and wchild not in done:
+                    wchild.on_activate()
+                    done.add(wchild)
 
         if self.focused_widget_wr:
             reactivate_this = self.focused_widget_wr()
             if reactivate_this in list(my_state.all_widgets()):
                 my_state.focused_widget = reactivate_this
+                # The following line looks stupid but "active" is a property
+                # and we want update_after_status_change to get called.
                 reactivate_this.active = reactivate_this.active
 
     @staticmethod
@@ -181,7 +190,6 @@ class Widget(frects.Frect):
 
     def _update_widget_after_status_change(self):
         """ The unisghtly name of this method is a reminder not to use it.
-            It would be a private method if not for the fact that FrozenState needs to call it.
             But do you need to call it? No, probably not. 
         """
         self._mouse_is_over = False

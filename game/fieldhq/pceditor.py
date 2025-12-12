@@ -39,22 +39,22 @@ class PCEditorWidget(widgets.Widget):
         self.finished = False
 
     def _edit_gender(self, *args):
-        self.active = False
-        chargen.GenderCustomizationWidget.create_and_invoke(self.pc)
-        self.active = True
+        chargen.GenderCustomizationWidget.push_state_and_instantiate(self, pc=self.pc)
 
     def _gender_fun(self, *args):
         return "Edit Gender: {}".format(self.pc.gender.adjective.capitalize())
 
     def _edit_portrait(self, *args):
         chargen.PortraitEditorW.push_state_and_instantiate_with_pc(self, pc=self.pc)
+
+    def on_activate(self):
         self.portrait_view.portrait = self.pc.get_portrait(force_rebuild=True)
         if pbge.my_state.view and hasattr(pbge.my_state.view, "regenerate_avatars"):
             pbge.my_state.view.regenerate_avatars([self.pc])
 
     def _done(self, wid, ev):
         self._apply_changes()
-        self.finished = True
+        self.pop()
 
     def _apply_changes(self):
         nuname = self.name_widget.text
@@ -74,23 +74,12 @@ class PCEditorWidget(widgets.Widget):
         #    pbge.my_state.view()
         self.portrait_view.render()
 
-    @classmethod
-    def create_and_invoke(cls, camp, pc):
-        # Run the UI.
-        myui = cls(camp, pc)
-        pbge.my_state.widgets.append(myui)
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self._apply_changes()
+                self.register_response()
+                self.pop()
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    myui._apply_changes()
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)
 
 

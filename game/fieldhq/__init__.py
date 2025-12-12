@@ -53,6 +53,9 @@ class InfoDisplayWidget(widgets.Widget):
         myrect = self.get_rect()
         self.info_display.render(myrect.x, myrect.y)
 
+    def on_activate(self):
+        self.info_display.update()
+
 
 class MeritBadgeDisplayWidget(widgets.ColumnWidget):
     def __init__(self, pc: gears.base.Character, **kwargs):
@@ -177,22 +180,16 @@ class CharacterInfoWidget(widgets.Widget):
 
         self.sl = pbge.StretchyLayer()
 
-    def edit_pc(self, wid, ev):
-        self.fhq.active = False
-        pceditor.PCEditorWidget.create_and_invoke(self.camp, self.pc)
-        self.fhq.active = True
+    def edit_pc(self, _wid, _ev):
+        pceditor.PCEditorWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
 
-    def jump_plot(self, wid, ev):
+    def jump_plot(self, _wid, _ev):
         while not self.pc.relationship.can_do_development():
             self.pc.relationship.missions_together += 10
 
-    def open_training(self, wid, ev):
-        self.fhq.active = False
-        my_trainer = training.TrainingMenu(self.camp, self.pc)
-        my_trainer()
-        self.fhq.update_party()
-        self.fhq.active = True
-
+    def open_training(self, _wid, _ev):
+        training.TrainingMenu.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
+ 
     def open_backpack(self, wid, ev):
         self.fhq.active = False
         myui = backpack.BackpackWidget(self.camp, self.pc)
@@ -241,48 +238,27 @@ class CharacterInfoWidget(widgets.Widget):
         self.fhq.active = True
 
     def change_colors(self, wid, ev):
-        self.fhq.active = False
         if self.pc.portrait_gen:
             cchan = self.pc.portrait_gen.color_channels
         else:
             cchan = gears.color.CHARACTER_COLOR_CHANNELS
-        myui = cosplay.ColorEditor(self.pc.get_portrait(add_color=False), 0,
-                                   channel_filters=cchan, colors=self.pc.colors)
-        pbge.my_state.widgets.append(myui)
-        myui.finished = False
-        myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.color_done,
-                                     draw_border=True, data=myui))
+        cosplay.ColorEditor.push_state_and_instantiate(
+            self.fhq,
+            proto_sprite=self.pc.get_portrait(add_color=False), sprite_frame=0,
+            channel_filters=cchan, colors=self.pc.colors, on_done=self._color_done
+        )
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        self.pc.colors = myui.colors
-        self.portrait_view.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
+    def on_activate(self):
         self.fhq.update_party()
-        self.fhq.active = True
+
+    def _color_done(self, new_colors):
+        self.pc.colors = new_colors
+        self.portrait_view.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
         pbge.my_state.view.regenerate_avatars([self.pc, ])
-
-    def color_done(self, wid, ev):
-        wid.data.finished = True
-
-    def draw_portrait(self, include_background=True):
-        if include_background:
-            pbge.my_state.view()
-        self.portrait_view.render()
+        self.fhq.update_party()
 
     def _render(self, delta):
-        self.draw_portrait(False)
+        self.portrait_view.render()
 
 
 class MechaInfoWidget(widgets.Widget):
@@ -366,39 +342,24 @@ class MechaInfoWidget(widgets.Widget):
         wid.data.finished = True
 
     def change_colors(self, wid, ev):
-        self.fhq.active = False
-        myui = cosplay.ColorEditor(self.pc.get_portrait(add_color=False), 0,
-                                   channel_filters=gears.color.MECHA_COLOR_CHANNELS, colors=self.pc.colors)
-        pbge.my_state.widgets.append(myui)
-        myui.finished = False
-        myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.color_done,
-                                     draw_border=True, data=myui))
+        if self.pc.portrait_gen:
+            cchan = self.pc.portrait_gen.color_channels
+        else:
+            cchan = gears.color.CHARACTER_COLOR_CHANNELS
+        cosplay.ColorEditor.push_state_and_instantiate(
+            self.fhq,
+            proto_sprite=self.pc.get_portrait(add_color=False), sprite_frame=0,
+            channel_filters=cchan, colors=self.pc.colors, on_done=self._color_done
+        )
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        self.pc.colors = myui.colors
-        self.portrait_view.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
+    def on_activate(self):
         self.fhq.update_party()
-        self.fhq.active = True
+
+    def _color_done(self, new_colors):
+        self.pc.colors = new_colors
+        self.portrait_view.portrait = self.pc.get_portrait(self.pc, force_rebuild=True)
         pbge.my_state.view.regenerate_avatars([self.pc, ])
-
-        if isinstance(self.pc, gears.base.Mecha) and self.pc.pilot:
-            self.pc.pilot.mecha_colors = self.pc.colors
-
-    def color_done(self, wid, ev):
-        wid.data.finished = True
+        self.fhq.update_party()
 
 
 class PetInfoWidget(widgets.Widget):
@@ -674,6 +635,9 @@ class FieldHQ(widgets.Widget):
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.pop()
                 self.register_response()
+
+    def on_activate(self):
+        self.update_party()
 
     @classmethod
     def create_and_invoke(cls, camp):

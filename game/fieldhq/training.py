@@ -3,8 +3,12 @@ import pbge
 import gears
 
 
-class TrainingMenu(object):
+class TrainingMenu(pbge.widgetmenu.MenuWidget):
     def __init__(self,camp,pc):
+        super().__init__(
+            fhqinfo.RIGHT_MENU.dx,fhqinfo.RIGHT_MENU.dy,fhqinfo.RIGHT_MENU.w,fhqinfo.RIGHT_MENU.h,
+            on_escape=self._close_menu
+        )
         self.camp = camp
         self.active_pc = pc
         # The "z" instead of "s" below implies two things.
@@ -14,8 +18,39 @@ class TrainingMenu(object):
         self.portraitz = dict()
         self.portrait_view = gears.portraits.PortraitView(None)
 
-    def _predraw(self):
-        pbge.my_state.view()
+        self.children.append(pbge.widgetmenu.DescBoxWidget(
+            fhqinfo.RIGHT_INFO.dx,fhqinfo.RIGHT_INFO.dy,fhqinfo.RIGHT_INFO.w,fhqinfo.RIGHT_INFO.h,
+            font=pbge.BIGFONT, menu=self
+        ))
+
+        self._refresh_menu()
+
+    def _refresh_menu(self):
+        for skill in self.active_pc.statline.keys():
+            if issubclass(skill,gears.stats.Skill):
+                _=self.add_custom(pbge.widgets.LabelWidget(
+                    0, 0, self.scroll_column.w, 0, text_fun=self._menu_text_fun, 
+                    data=skill, on_click=self._improve_skill, desc=skill.desc
+                ))
+        self.sort()
+        _=self.add_item('[exit]', self._close_menu)
+
+    def _close_menu(self, _wid, _ev):
+        self.pop()
+
+    def _menu_text_fun(self, wid):
+        skill = wid.data
+        value = self.active_pc.statline.get(skill)
+        return '{} {:+} ({}XP)'.format(skill.name,value,skill.improvement_cost(self.active_pc,value))
+
+    def _improve_skill(self, wid, _ev):
+        choice = wid.data
+        if choice.improvement_cost(self.active_pc,self.active_pc.statline[choice]) <= self._get_free_xp():
+            self._spend_xp(choice.improvement_cost(self.active_pc,self.active_pc.statline[choice]))
+            self.active_pc.statline[choice] += 1
+            self.infoz[self.active_pc].update()
+
+    def _render(self, delta):
         if self.active_pc not in self.infoz:
             self.infoz[self.active_pc] = fhqinfo.CharaFHQIP(model=self.active_pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=self.camp)
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
@@ -26,12 +61,7 @@ class TrainingMenu(object):
         self.portrait_view.portrait = self.portraitz[self.active_pc]
         self.portrait_view.render()
 
-    def _get_standard_desc_box(self,mymenu):
-        return pbge.rpgmenu.DescBox(mymenu,fhqinfo.RIGHT_INFO.dx,fhqinfo.RIGHT_INFO.dy,fhqinfo.RIGHT_INFO.w,fhqinfo.RIGHT_INFO.h,font=pbge.BIGFONT)
-
-    def _get_menu(self):
-        mymenu = pbge.rpgmenu.Menu(fhqinfo.RIGHT_MENU.dx,fhqinfo.RIGHT_MENU.dy,fhqinfo.RIGHT_MENU.w,fhqinfo.RIGHT_MENU.h,predraw=self._predraw)
-        return mymenu
+        super()._render(delta)
 
     def _get_free_xp(self):
         return self.active_pc.experience[self.active_pc.TOTAL_XP] - self.active_pc.experience[self.active_pc.SPENT_XP]
@@ -39,21 +69,3 @@ class TrainingMenu(object):
     def _spend_xp(self,amount):
         self.active_pc.experience[self.active_pc.SPENT_XP] += amount
 
-    def __call__(self):
-        choice = True
-        while choice:
-            mymenu = self._get_menu()
-            mymenu.descobj = self._get_standard_desc_box(mymenu)
-            for skill,value in self.active_pc.statline.items():
-                if issubclass(skill,gears.stats.Skill):
-                    mymenu.add_item('{} {:+} ({}XP)'.format(skill.name,value,skill.improvement_cost(self.active_pc,value)),skill,skill.desc)
-            mymenu.sort()
-            mymenu.add_item('[exit]',False,"")
-            mymenu.set_item_by_value(choice)
-
-            choice = mymenu.query()
-            if choice:
-                if choice.improvement_cost(self.active_pc,self.active_pc.statline[choice]) <= self._get_free_xp():
-                    self._spend_xp(choice.improvement_cost(self.active_pc,self.active_pc.statline[choice]))
-                    self.active_pc.statline[choice] += 1
-                    self.infoz[self.active_pc].update()
