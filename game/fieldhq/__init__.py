@@ -9,36 +9,70 @@ from . import training
 from . import fhqinfo
 from . import pceditor
 
+WTAG_FIELDHQ = "WTAG_FIELDHQ"
 
-class AssignMechaDescObject(object):
-    def __init__(self, camp):
+class AssignMechaDescWidget(pbge.widgets.Widget):
+    def __init__(self, camp, menu: pbge.widgetmenu.MenuWidget):
+        super().__init__(0,0,0,0)
         self.camp = camp
+        self.menu = menu
         self.infoz = dict()
 
-    def __call__(self, menu_item):
+    def _render(self, _delta):
+        mymek = self.menu.current_data
         mydest = fhqinfo.UTIL_INFO.get_rect()
-        if menu_item.value:
-            if menu_item.value not in self.infoz:
-                self.infoz[menu_item.value] = AssignMechaIP(model=menu_item.value, width=fhqinfo.UTIL_INFO.w,
+        if mymek:
+            if mymek not in self.infoz:
+                self.infoz[mymek] = AssignMechaIP(model=mymek, width=fhqinfo.UTIL_INFO.w,
                                                             camp=self.camp,
                                                             additional_info='\n Pilot: {} \n Damage: {}%'.format(
-                                                                str(menu_item.value.pilot),
-                                                                menu_item.value.get_total_damage_status()))
-            self.infoz[menu_item.value].render(mydest.x, mydest.y)
+                                                                str(mymek.pilot),
+                                                                mymek.get_total_damage_status()))
+            self.infoz[mymek].render(mydest.x, mydest.y)
+        super()._render(_delta)
 
 
-class AssignPilotDescObject(object):
-    def __init__(self, camp):
+class AssignPilotDescWidget(pbge.widgets.Widget):
+    def __init__(self, camp, menu: pbge.widgetmenu.MenuWidget):
+        super().__init__(0,0,0,0)
         self.camp = camp
+        self.menu = menu
         self.infoz = dict()
 
-    def __call__(self, menu_item):
+    def _render(self, _delta):
+        mymek = self.menu.current_data
         mydest = fhqinfo.UTIL_INFO.get_rect()
-        if menu_item.value:
-            if menu_item.value not in self.infoz:
-                self.infoz[menu_item.value] = AssignPilotIP(model=menu_item.value, width=fhqinfo.UTIL_INFO.w,
+        if mymek:
+            if mymek not in self.infoz:
+                self.infoz[mymek] = AssignPilotIP(model=mymek, width=fhqinfo.UTIL_INFO.w,
                                                             camp=self.camp)
-            self.infoz[menu_item.value].render(mydest.x, mydest.y)
+            self.infoz[mymek].render(mydest.x, mydest.y)
+
+
+class NameChangeWidget(widgets.ColumnWidget):
+    TAGS_TO_DEACTIVATE = {WTAG_FIELDHQ, }
+    def __init__(self, set_name: pbge.widgets.On_Click):
+        super().__init__(-100, -70, 200, 0, draw_border=True, center_interior=True, padding=16)
+        self.set_name = set_name
+        self.add_interior(pbge.widgets.LabelWidget(0, 0, 0, 0, "Change Name", font=pbge.BIGFONT))
+        self.add_interior(pbge.widgets.TextEntryWidget(
+            0, 0, 180, 24, text=self.pc.name, on_change=self.set_name
+        ))
+        self.add_interior(pbge.widgets.LabelWidget(
+            0, 0, 0, 0, "Done", justify=0, on_click=self._rename_done, draw_border=True
+        ))
+
+    def _rename_done(self, wid, ev):
+        self.pop()
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()
+            elif ev.unicode == "\n":
+                self.pop()
+                self.register_response()
 
 
 class InfoDisplayWidget(widgets.Widget):
@@ -146,6 +180,19 @@ class CharacterCenterColumnWidget(widgets.RowWidget):
                 butt.border = widgets.widget_border_off
 
 
+class FHQPortraitMenu(pbge.widgetmenu.MenuWidget):
+    def __init__(self, portrait_view: gears.portraits.PortraitView):
+        super().__init__(
+            fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h,
+            font=pbge.MEDIUMFONT, pop_when_clicked=True
+        )
+        self.portrait_view = portrait_view
+
+    def _render(self, delta):
+        self.portrait_view.render()
+        super()._render(delta)
+
+
 class CharacterInfoWidget(widgets.Widget):
     def __init__(self, camp, pc, fhq, **kwargs):
         super().__init__(0, 0, 0, 0, **kwargs)
@@ -190,52 +237,26 @@ class CharacterInfoWidget(widgets.Widget):
     def open_training(self, _wid, _ev):
         training.TrainingMenu.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
  
-    def open_backpack(self, wid, ev):
-        self.fhq.active = False
-        myui = backpack.BackpackWidget(self.camp, self.pc)
-        pbge.my_state.widgets.append(myui)
-        myui.finished = False
-        myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.bp_done,
-                                     draw_border=True, data=myui))
+    def open_backpack(self, _wid, _ev):
+        backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
-        self.fhq.update_party()
-        self.fhq.active = True
-
-    def bp_done(self, wid, ev):
-        wid.data.finished = True
-
-    def assign_mecha(self, wid, ev):
-        self.fhq.active = False
-
-        mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h,
-                                   font=pbge.MEDIUMFONT, predraw=self.draw_portrait)
+    def assign_mecha(self, _wid, _ev):
+        mymenu = FHQPortraitMenu(self.portrait_view)
         for mek in self.camp.party:
             if isinstance(mek, gears.base.Mecha) and mek.is_not_destroyed() and (
                     not hasattr(mek, "owner") or mek.owner is self.pc):
-                mymenu.add_item(mek.get_full_name(), mek)
-        mymenu.descobj = AssignMechaDescObject(self.camp)
-        mek = mymenu.query()
+                _=mymenu.add_item(mek.get_full_name(), self._actually_assign_the_mecha, data=mek)
+        mymenu.children.append(AssignMechaDescWidget(self.camp, mymenu))
+        mymenu.push_and_deploy(self.fhq)
 
+    def _actually_assign_the_mecha(self, wid, _ev):
+        # Callback for the assign mecha menu widget
+        mek = wid.data
         self.camp.assign_pilot_to_mecha(self.pc, mek)
 
         if mek:
             self.fhq.update_party()
             pbge.my_state.view.regenerate_avatars([mek, ])
-
-        self.fhq.active = True
 
     def change_colors(self, wid, ev):
         if self.pc.portrait_gen:
@@ -293,18 +314,17 @@ class MechaInfoWidget(widgets.Widget):
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x, mydest.y)
 
-    def assign_pilot(self, wid, ev):
-        self.fhq.active = False
-
-        mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h,
-                                   font=pbge.MEDIUMFONT, predraw=self.draw_portrait)
+    def assign_pilot(self, _wid, _ev):
+        mymenu = FHQPortraitMenu(self.portrait_view)
         for plr in self.camp.party:
             if isinstance(plr, gears.base.Character) and plr.is_not_destroyed() and (
                     not hasattr(self.pc, "owner") or self.pc.owner is plr):
-                mymenu.add_item(plr.get_full_name(), plr)
-        mymenu.descobj = AssignPilotDescObject(self.camp)
-        pilot = mymenu.query()
+                _=mymenu.add_item(plr.get_full_name(), self._actually_assign_pilot, data=plr)
+        mymenu.children.append(AssignPilotDescWidget(self.camp, mymenu))
+        mymenu.push_and_deploy(self.fhq)
 
+    def _actually_assign_pilot(self, wid, _ev):
+        pilot = wid.data
         self.camp.assign_pilot_to_mecha(pilot, self.pc)
         self.info.update()
 
@@ -313,35 +333,10 @@ class MechaInfoWidget(widgets.Widget):
 
         self.fhq.active = True
 
-    def open_backpack(self, wid, ev):
-        self.fhq.active = False
-        myui = backpack.BackpackWidget(self.camp, self.pc)
-        pbge.my_state.widgets.append(myui)
-        myui.finished = False
-        myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=self.bp_done,
-                                     draw_border=True, data=myui))
+    def open_backpack(self, _wid, _ev):
+        backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
-        self.info.update()
-        self.fhq.update_party()
-        self.fhq.active = True
-
-    def bp_done(self, wid, ev):
-        wid.data.finished = True
-
-    def change_colors(self, wid, ev):
+    def change_colors(self, _wid, _ev):
         if self.pc.portrait_gen:
             cchan = self.pc.portrait_gen.color_channels
         else:
@@ -399,64 +394,37 @@ class PetInfoWidget(widgets.Widget):
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x, mydest.y)
 
-    def _dismiss(self, wid, ev):
-        self.fhq.active = False
+    def _dismiss(self, _wid, _ev):
+        mymenu = pbge.widgetmenu.AlertMenuWidget(
+            "Are you sure you want to dismiss {} permanently?".format(self.pc),
+            pop_when_clicked=True, auto_escape=True
+        )
+        _=mymenu.add_item("Yes, dismiss {}.".format(self.pc), self._actually_dismiss)
+        _=mymenu.add_item("No, I don't.".format(self.pc), None)
+        mymenu.push_and_deploy(self.fhq)
 
-        mymenu = pbge.rpgmenu.AlertMenu("Are you sure you want to dismiss {} permanently?".format(self.pc))
-        mymenu.add_item("Yes, dismiss {}.".format(self.pc), True)
-        mymenu.add_item("No, I don't.".format(self.pc), False)
+    def _actually_dismiss(self, _wid, _ev):
+        self.camp.deactivate_pet(self.pc)
+        self.camp.party.remove(self.pc)
+        self.fhq.update_party()
 
-        if mymenu.query():
-            self.camp.deactivate_pet(self.pc)
-            self.camp.party.remove(self.pc)
-            self.fhq.update_party()
-
-        self.fhq.active = True
-
-    def leave_behind(self, wid, ev):
+    def leave_behind(self, _wid, _ev):
         self.camp.deactivate_pet(self.pc)
         self.fhq.update_party()
 
-    def bring_along(self, wid, ev):
+    def bring_along(self, _wid, _ev):
         self.camp.activate_pet(self.pc)
         self.fhq.update_party()
 
-    def _change_name(self, wid, ev):
-        self.fhq.active = False
-        myui = widgets.ColumnWidget(-100, -70, 200, 0, draw_border=True, center_interior=True, padding=16)
-        myui.add_interior(pbge.widgets.LabelWidget(0, 0, 0, 0, "Change Name", font=pbge.BIGFONT))
-        myui.add_interior(pbge.widgets.TextEntryWidget(
-            0, 0, 180, 24, text=self.pc.name, on_change=self._set_name
-        ))
-        myui.add_interior(pbge.widgets.LabelWidget(
-            0, 0, 0, 0, "Done", justify=0, on_click=self._rename_done, draw_border=True
-        ))
+    def _change_name(self, _wid, _ev):
+        NameChangeWidget.push_state_and_instantiate(set_name=self._set_name)
 
-        pbge.my_state.widgets.append(myui)
-        self.rename_finished = False
-
-        while not self.rename_finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self.rename_finished = True
-                elif ev.key == pygame.K_RETURN or ev.key == pygame.K_KP_ENTER:
-                    self.rename_finished = True
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
+    def on_activate(self):
         self.info.update()
         self.fhq.update_party()
-        self.fhq.active = True
 
-    def _set_name(self, wid, ev):
+    def _set_name(self, wid, _ev):
         self.pc.name = wid.text
-
-    def _rename_done(self, wid, ev):
-        self.rename_finished = True
 
 
 class ItemInfoWidget(widgets.Widget):
@@ -477,23 +445,24 @@ class ItemInfoWidget(widgets.Widget):
         mydest = fhqinfo.CENTER_COLUMN.get_rect()
         self.info.render(mydest.x, mydest.y)
 
-    def give_item(self, wid, ev):
-        self.fhq.active = False
-
-        mymenu = pbge.rpgmenu.Menu(fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h,
-                                   font=pbge.MEDIUMFONT)
+    def give_item(self, _wid, _ev):
+        mymenu = pbge.widgetmenu.MenuWidget(
+            fhqinfo.UTIL_MENU.dx, fhqinfo.UTIL_MENU.dy, fhqinfo.UTIL_MENU.w, fhqinfo.UTIL_MENU.h,
+            font=pbge.MEDIUMFONT, pop_when_clicked=True, auto_escape=True
+        )
         for plr in self.camp.party:
             if plr.can_equip(self.pc) and not (hasattr(plr, "owner") and plr.owner):
-                mymenu.add_item(plr.get_full_name(), plr)
-        pilot = mymenu.query()
+                _=mymenu.add_item(plr.get_full_name(), self._actually_give_item, data=plr)
+        mymenu.push_and_deploy(self.fhq)
 
+    def _actually_give_item(self, wid, _ev):
+        pilot = wid.data
         if pilot:
             self.camp.party.remove(self.pc)
             pilot.inv_com.append(self.pc)
 
         self.info.update()
         self.fhq.update_party()
-        self.fhq.active = True
 
 
 class PartyMemberButton(widgets.Widget):
@@ -506,7 +475,8 @@ class PartyMemberButton(widgets.Widget):
         self.avatar_frame = pc.frame
         label = widgets.LabelWidget(
             64, 4, fhqinfo.RIGHT_COLUMN.w-72, 64, text_fun=self._name_fun, color=pbge.WHITE, parent=self,
-            border=None, font=pbge.MEDIUMFONT, alt_smaller_fonts=(pbge.SMALLFONT, pbge.TINYFONT), anchor=pbge.frects.ANCHOR_UPPERLEFT,
+            draw_border=False, font=pbge.MEDIUMFONT, alt_smaller_fonts=(pbge.SMALLFONT, pbge.TINYFONT), 
+            anchor=pbge.frects.ANCHOR_UPPERLEFT,
             on_click=self._click_name
         )
         self.children.append(label)
@@ -537,7 +507,7 @@ class FieldHQ(widgets.Widget):
 
     def __init__(self, camp):
         self._active_info = None
-        super(FieldHQ, self).__init__(0, 0, 0, 0)
+        super(FieldHQ, self).__init__(0, 0, 0, 0, tags={WTAG_FIELDHQ})
 
         self.up_button = widgets.ButtonWidget(0, 0, fhqinfo.RIGHT_COLUMN.w, 16,
                                               sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
@@ -639,25 +609,3 @@ class FieldHQ(widgets.Widget):
     def on_activate(self):
         self.update_party()
 
-    @classmethod
-    def create_and_invoke(cls, camp):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
-        myui = cls(camp)
-        pbge.my_state.widgets.append(myui)
-        myui.children.append(pbge.widgets.LabelWidget(fhqinfo.RIGHT_COLUMN.dx + 64,
-                                                      fhqinfo.RIGHT_COLUMN.dy + fhqinfo.RIGHT_COLUMN.h + 20, 80, 0,
-                                                      text="Done", justify=0, on_click=myui.done_button,
-                                                      draw_border=True))
-
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)

@@ -75,7 +75,9 @@ class Crate( Waypoint ):
 
     def unlocked_use( self, camp: gears.GearHeadCampaign ):
         # Perform this waypoint's special action.
-        fieldhq.backpack.ItemExchangeWidget.create_and_invoke(camp, camp.first_active_pc(), self.contents)
+        fieldhq.backpack.ItemExchangeWidget.push_state_and_instantiate(
+            camp=camp, pc=camp.first_active_pc(), conlist=self.contents
+        )
         if self.OPEN_TERRAIN:
             scene = self.scene
             if scene and scene.on_the_map(*self.pos):

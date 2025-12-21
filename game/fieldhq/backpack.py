@@ -9,8 +9,6 @@ INVENTORY_COLUMN = pbge.frects.Frect(-50, 0, 350, 200)
 PC_SWITCH_AREA = pbge.frects.Frect(-300, 100, 220, 100)
 
 
-
-
 class SwitchNameBlock(object):
     def __init__(self, switch, width=220, font=None, **kwargs):
         self.switch = switch
@@ -95,13 +93,17 @@ class InvItemWidget(widgets.Widget):
         if (ev.type == pygame.MOUSEMOTION) and self.get_rect().collidepoint(pbge.my_state.mouse_pos):
             self.bp.active_item = self
 
-    def get_menu(self):
+    def get_menu(self, *widgets_to_push) -> pbge.widgetmenu.MenuWidget:
         # Return a popup menu for this widget.
         mydest = self.get_rect()
         mydest.h = 150
         mydest.clamp_ip(pbge.my_state.screen.get_rect())
-        return pbge.rpgmenu.Menu(mydest.x, mydest.y, self.w, 150, font=pbge.MEDIUMFONT,
-                                 border=widgets.popup_menu_border, anchor=pbge.frects.ANCHOR_UPPERLEFT)
+        mymenu = pbge.widgetmenu.PopupMenuWidget(
+            w=mydest.w, h=mydest.h, topleft=mydest.topleft, font=pbge.MEDIUMFONT,
+            border=widgets.popup_menu_border, anchor=pbge.frects.ANCHOR_UPPERLEFT
+        )
+        mymenu.push_and_deploy(*widgets_to_push)
+        return mymenu
 
     def __str__(self):
         return self.text
@@ -128,23 +130,23 @@ class PlayerCharacterSwitch(widgets.RowWidget):
         self.add_center(self.portrait_button)
         self.add_center(widgets.ButtonWidget(0, 0, 16, 100, sprite=arrow_sprite, on_click=self.click_right, frame=1))
 
-        self.update()
+        self.update_pc()
 
-    def click_left(self, wid, ev):
+    def click_left(self, _wid, _ev):
         party = [pc for pc in self.camp.get_active_party() if isinstance(pc, (gears.base.Character, gears.base.Mecha))]
         if self.pc in party:
             new_i = party.index(self.pc) - 1
             self.pc = party[new_i]
-            self.update()
+            self.update_pc()
 
-    def click_right(self, wid, ev):
+    def click_right(self, _wid, _ev):
         party = [pc for pc in self.camp.get_active_party() if isinstance(pc, (gears.base.Character, gears.base.Mecha))]
         if self.pc in party:
             new_i = party.index(self.pc) + 1
             if new_i >= len(party):
                 new_i = 0
             self.pc = party[new_i]
-            self.update()
+            self.update_pc()
 
     def _builtin_responder(self, ev):
         if (ev.type == pygame.KEYDOWN):
@@ -153,7 +155,7 @@ class PlayerCharacterSwitch(widgets.RowWidget):
             elif pbge.my_state.is_key_for_action(ev, "right"):
                 self.click_right(self, ev)
 
-    def update(self):
+    def update_pc(self):
         if self.pc not in self.portraits:
             self.portraits[self.pc] = self.pc.get_portrait()
         self.portrait_button.sprite = self.portraits[self.pc]
@@ -180,7 +182,8 @@ class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
 
 
 class BackpackWidget(widgets.Widget):
-    active_item = None  # type: InvItemWidget
+    active_item: InvItemWidget = None
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
     def __init__(self, camp, pc, **kwargs):
         """
@@ -234,6 +237,11 @@ class BackpackWidget(widgets.Widget):
 
         self.update_selectors()
 
+        self.children.append( pbge.widgets.LabelWidget(
+            150, 220, 80, 0, text="Done", justify=0, on_click=self.finish,
+            draw_border=True
+        ))
+
     def set_pc(self, pc):
         self.pc = pc
         self.update_selectors()
@@ -272,7 +280,8 @@ class BackpackWidget(widgets.Widget):
         self.pc.inv_com.append(wid.item)
         self.update_selectors()
 
-    def _equip_item(self, wid):
+    def _equip_item(self, menu_item, _ev):
+        wid = menu_item.data
         mymenu = wid.get_menu()
         for part in self.pc.descendants():
             if part.can_equip(wid.item, check_slots=False):
@@ -288,7 +297,8 @@ class BackpackWidget(widgets.Widget):
             dest.inv_com.append(wid.item)
             self.update_selectors()
 
-    def _load_ammo(self, wid):
+    def _load_ammo(self, menu_item, _ev):
+        wid = menu_item.data
         mymenu = wid.get_menu()
         for part in self.pc.descendants():
             if isinstance(part, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and part.is_good_ammo(wid.item):
@@ -301,10 +311,11 @@ class BackpackWidget(widgets.Widget):
         dest = mymenu.query()
         if dest:
             dest.reload(wid.item)
-            pbge.my_state.start_sound_effect("reload.ogg")
+            _=pbge.my_state.start_sound_effect("reload.ogg")
             self.update_selectors()
 
-    def _reload_gun(self, wid):
+    def _reload_gun(self, menu_item, _ev):
+        wid = menu_item.data
         mymenu = wid.get_menu()
         for part in self.pc.inv_com:
             if isinstance(part, (gears.base.Ammo, gears.base.Chem)) and wid.item.is_good_ammo(part):
@@ -314,16 +325,18 @@ class BackpackWidget(widgets.Widget):
         dest = mymenu.query()
         if dest:
             wid.item.reload(dest)
-            pbge.my_state.start_sound_effect("reload.ogg")
+            _=pbge.my_state.start_sound_effect("reload.ogg")
             self.update_selectors()
 
-    def _drop_item(self, wid):
+    def _drop_item(self, menu_item, _ev):
+        wid = menu_item.data
         wid.item.parent.inv_com.remove(wid.item)
         self.camp.scene.contents.append(wid.item)
         wid.item.pos = self.pc.get_root().pos
         self.update_selectors()
 
-    def _trade_item(self, wid):
+    def _trade_item(self, menu_item, _ev):
+        wid = menu_item.data
         mymenu = wid.get_menu()
         mypc = self.pc.get_root()
         for pc in self.camp.get_active_party():
@@ -338,42 +351,36 @@ class BackpackWidget(widgets.Widget):
             nupc.inv_com.append(wid.item)
             self.update_selectors()
 
-    def _stash_item(self, wid):
+    def _stash_item(self, menu_item, _ev):
+        wid = menu_item.data
         wid.item.parent.inv_com.remove(wid.item)
         self.camp.party.append(wid.item)
         self.update_selectors()
 
-    def this_item_was_selected(self, wid, ev):
+    def this_item_was_selected(self, wid: InvItemWidget, _ev):
         """
 
         :type wid: InvItemWidget
         """
-        # I know I'm breaking the Python naming convention, but this is what this function has been called
-        # since the 20th century, and I'm not changing it now just because I'm using a modern high-falutin'
-        # language.
         mymenu = wid.get_menu()
         # Basic options: Equip, Unequip, Transfer, Drop, Apply Skill
         # Let's let items set their own special menu options, like eat, use, engage safety, etc.
         if wid.item.parent is self.pc:
-            mymenu.add_item("Equip {}".format(wid.item), self._equip_item)
+            _=mymenu.add_item("Equip {}".format(wid.item), self._equip_item, data=wid)
         else:
-            mymenu.add_item("Unequip {}".format(wid.item), self._unequip_item)
+            _=mymenu.add_item("Unequip {}".format(wid.item), self._unequip_item, data=wid)
 
         if isinstance(wid.item, (gears.base.Ammo, gears.base.Chem)):
-            mymenu.add_item("Load {}".format(wid.item), self._load_ammo)
+            _=mymenu.add_item("Load {}".format(wid.item), self._load_ammo, data=wid)
         elif isinstance(wid.item, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and any([wid.item.is_good_ammo(a) for a in self.pc.inv_com]):
-            mymenu.add_item("Reload {}".format(wid.item), self._reload_gun)
+            _=mymenu.add_item("Reload {}".format(wid.item), self._reload_gu, data=wid)
 
         if self.pc.get_root() in self.camp.scene.contents:
-            mymenu.add_item("Drop {}".format(wid.item), self._drop_item)
+            _=mymenu.add_item("Drop {}".format(wid.item), self._drop_item, data=wid)
             if isinstance(self.pc.get_root(), gears.base.Character):
-                mymenu.add_item("Trade {}".format(wid.item), self._trade_item)
+                _=mymenu.add_item("Trade {}".format(wid.item), self._trade_item, data=wid)
         else:
-            mymenu.add_item("Stash {}".format(wid.item), self._stash_item)
-
-        cmd = mymenu.query()
-        if cmd:
-            cmd(wid)
+            _=mymenu.add_item("Stash {}".format(wid.item), self._stash_item, data=wid)
 
     def _render(self, delta):
         if self.active_item:
@@ -384,34 +391,19 @@ class BackpackWidget(widgets.Widget):
             mydest = INFO_COLUMN.get_rect()
             self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
 
-    def finish(self, wid, ev):
-        self.finished = True
+    def finish(self, _wid, _ev):
+        self.pop()
 
-    @classmethod
-    def create_and_invoke(cls, camp, pc):
-        myui = cls(camp, pc)
-        pbge.my_state.widgets.append(myui)
-        myui.finished = False
-        myui.children.append(
-            pbge.widgets.LabelWidget(150, 220, 80, 0, text="Done", justify=0, on_click=myui.finish,
-                                     draw_border=True, data=myui))
-
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)
-        pygame.event.clear()
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()
 
 
 class ItemExchangeWidget(widgets.Widget):
-    active_item = None  # type: InvItemWidget
+    active_item: InvItemWidget = None
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
     def __init__(self, camp, pc: gears.base.Character, conlist: pbge.container.ContainerList, **kwargs):
         """
@@ -487,15 +479,15 @@ class ItemExchangeWidget(widgets.Widget):
         self.conlist.append(wid.item)
         self.update_selectors()
 
-    def trade_to_pc(self, wid, ev):
+    def trade_to_pc(self, wid, _ev):
         if self.pc.can_equip(wid.item):
             self.conlist.remove(wid.item)
             self.pc.inv_com.append(wid.item)
             self.update_selectors()
             self.camp.check_trigger("GET", wid.item)
 
-    def done_button(self, wid, ev):
-        self.finished = True
+    def done_button(self, _wid, _ev):
+        self.pop()
 
     def _render(self, delta):
         if self.active_item:
@@ -505,24 +497,9 @@ class ItemExchangeWidget(widgets.Widget):
             mydest = INFO_COLUMN.get_rect()
             self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
 
-    @classmethod
-    def create_and_invoke(cls, camp, pc, conlist):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
-        myui = cls(camp, pc, conlist)
-        pbge.my_state.widgets.append(myui)
-        myui.children.append(
-            pbge.widgets.LabelWidget(230, 230, 80, 0, text="Done", justify=0, on_click=myui.done_button,
-                                     draw_border=True))
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()
 
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    keepgoing = False
-
-        pbge.my_state.widgets.remove(myui)

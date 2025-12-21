@@ -26,6 +26,7 @@ class MenuWidget(widgets.ColumnWidget):
         font=None, item_class=widgets.LabelWidget, item_data=None, 
         on_click_child: widgets.On_Click=None, pop_when_clicked=False,
         on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
+        auto_escape=False,
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
@@ -35,6 +36,7 @@ class MenuWidget(widgets.ColumnWidget):
         #  if truthy, the menu will pop before calling the child effects
         # on_escape: callable with signature (widget, event) called when escape key pressed
         #   Does not actually close menu; exact workings are up to whoever created this menu.
+        # auto_escape allows this menu to pop without an on_escape function; can ***ONLY BE SET FOR A TOP LEVEL WIDGET!!!***
         super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
                          **kwargs)
         self.off_border = off_border
@@ -64,9 +66,15 @@ class MenuWidget(widgets.ColumnWidget):
             self.item_data.update(item_data)
         self.item_class = item_class
         self.on_escape = on_escape
+        if auto_escape and not on_escape:
+            self.on_escape = self._auto_escape_fun
+
         self._on_click_child = on_click_child
         self.pop_when_clicked = pop_when_clicked
         self.quick_keys = dict()
+
+    def _auto_escape_fun(self, _wid, _ev):
+        self.pop()
 
     def _click_child_wrapper(self, item_wid, ev):
         if self.pop_when_clicked:
@@ -272,9 +280,15 @@ class PopupMenuWidget(MenuWidget):
     TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
     ACTIVATE_IMMEDIATELY = True
 
-    def __init__(self, w=200, h=250, pop_when_clicked=True, auto_escape=True, on_escape=None, **kwargs):
-        # auto_escape allows this menu to pop without an on_escape function.
-        x,y = my_state.mouse_pos
+    def __init__(
+        self, w=200, h=250, pop_when_clicked=True, 
+        topleft: tuple[int,int]|None=None,
+        **kwargs
+    ):
+        if topleft:
+            x,y = topleft
+        else:
+            x,y = my_state.mouse_pos
         x += 8
         y += 8
         sw,sh = my_state.screen.get_size()
@@ -283,16 +297,10 @@ class PopupMenuWidget(MenuWidget):
         if y + h + 32 > sh:
             y += -h - 32
 
-        if auto_escape and not on_escape:
-            on_escape = self._auto_escape_fun
-
         super().__init__(
             x,y,w,h, anchor=frects.ANCHOR_UPPERLEFT,
-            pop_when_clicked=pop_when_clicked, on_escape=on_escape, **kwargs
+            pop_when_clicked=pop_when_clicked, **kwargs
         )
-
-    def _auto_escape_fun(self, _wid, _ev):
-        self.pop()
 
 
 class ColDropdownWidget(widgets.RowWidget):
@@ -314,7 +322,7 @@ class ColDropdownWidget(widgets.RowWidget):
         return self.menu_widget.active_item
 
     def add_item(self,msg,on_click: widgets.On_Click=None,data=None, desc=None):
-        self.menu_widget.add_item(msg, on_click, data, desc)
+        return self.menu_widget.add_item(msg, on_click, data, desc)
 
     def set_item_by_data( self , dat ):
         self.menu_widget.set_item_by_data(dat)

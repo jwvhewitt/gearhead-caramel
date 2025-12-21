@@ -275,10 +275,10 @@ class ShopUI(pbge.widgets.Widget):
     def _open_backpack(self, *args, **kwargs):
         pc = self.customer_manager.get_customer()
         if pc:
-            my_state.widgets.remove(self)
-            fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, pc)
-            my_state.widgets.append(self)
-            self._refresh_ware_lists()
+            fieldhq.backpack.BackpackWidget.push_state_and_instantiate(self, camp=self.camp, pc=pc)
+
+    def on_activate(self):
+        self._refresh_ware_lists()
 
     def _refresh_ware_lists(self):
         # Figure out which of the buy menu or the sell menu is being used right now, because probably one of those has

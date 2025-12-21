@@ -330,8 +330,8 @@ class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
         if pc:
             _=self.add_item('Center on {}'.format(pc.get_pilot()), self.center)
 
-    def call_inventory(self):
-        fieldhq.backpack.BackpackWidget.create_and_invoke(self.explo.camp, self.pc or self.explo.camp.pc.get_root())
+    def call_inventory(self, _wid, _ev):
+        fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.explo.camp, pc=self.pc or self.explo.camp.pc.get_root())
 
     def center(self):
         # Center on the PC.
@@ -356,8 +356,12 @@ class ExploCommandWidget(pbge.widgets.Widget):
         if candidates:
             i = candidates.pop()
             pc.inv_com.append(i)
-            pbge.alerts.TextAlert("{} picks up {}.".format(pc, i))
+            _=pbge.alerts.TextAlert("{} picks up {}.".format(pc, i))
             self.camp.check_trigger("GET", i)
+
+    def open_inventory(self):
+        pc = self.camp.pc.get_root()
+        fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.camp, pc=pc)
 
     def click_left(self):
         # Left mouse button.
@@ -398,6 +402,13 @@ class ExploCommandWidget(pbge.widgets.Widget):
                     # self.camp.save(self.screen)
                     pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
                     self.register_response()
+                elif pbge.my_state.is_key_for_action(ev, "inventory"):
+                    self.open_inventory()
+                    self.register_response()
+                elif pbge.my_state.is_key_for_action(ev, "field_hq"):
+                    fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
+                    self.register_response()
+
                 elif ev.key == pygame.K_ESCAPE:
                     configedit.PopupGameMenu.push_state_and_instantiate()
                     self.register_response()
@@ -675,8 +686,6 @@ class Explorer(pbge.campaign.ExploPrototype):
                     elif pbge.my_state.is_key_for_action(gdi, "memo_browser"):
                         memos.MemoBrowser(self.camp)()
 
-                    elif pbge.my_state.is_key_for_action(gdi, "field_hq"):
-                        fieldhq.FieldHQ.create_and_invoke(self.camp)
 
                     elif pbge.my_state.is_key_for_action(gdi, "inventory"):
                         fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, self.camp.pc.get_root())

@@ -965,11 +965,15 @@ class Combat(object):
                             self._abandon_mkill(myparty, pc)
 
             if myparty and treasure:
-                pbge.alerts.TextAlert("You acquired some valuables from the battle.")
-                fieldhq.backpack.ItemExchangeWidget.create_and_invoke(self.camp, self.camp.first_active_pc(), treasure)
+                _=pbge.alerts.TextAlert("You acquired some valuables from the battle.", data=treasure, on_close=self._open_item_exchanger)
 
             PostCombatCleanup(self.camp)
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
+
+    def _open_item_exchanger(self, wid, _ev):
+        fieldhq.backpack.ItemExchangeWidget.push_state_and_instantiate(
+            camp=self.camp, pc=self.camp.first_active_pc(), conlist=wid.data
+        )
 
     def __setstate__(self, state):
         # For saves from V0.905 or earlier, make sure the CombatDict is used.

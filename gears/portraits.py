@@ -291,6 +291,21 @@ class PortraitView:
             self.sl.render()
 
 
+class PortraitViewWidget(pbge.widgets.Widget):
+    # Added this, then remembered that child widgets get drawn after parent widgets, so if you want a
+    # portrait in behind your menu this isn't going to work. Leaving it here because YAGNI but it's
+    # already done.
+    def __init__(self, portrait=None, portrait_view=None, **kwargs):
+        super().__init__(0,0,0,0,**kwargs)
+        if portrait_view:
+            self.portrait_view = portrait_view
+        else:
+            self.portrait_view = PortraitView(portrait)
+
+    def _render(self, _delta):
+        if self.portrait_view:
+            self.portrait_view.render
+
 
 def init_portraits():
     # Load all the json portrait descriptions.
