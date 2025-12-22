@@ -133,7 +133,7 @@ class MoveTo(object):
                     elif not isinstance(pc, gears.base.Monster):
                         path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm, blocked_tiles=exp.scene.get_immovable_positions())
                         for t in range(min(3, len(path.results) - 1)):
-                            self.move_pc(exp, pc, path.results[t + 1])
+                            _=self.move_pc(exp, pc, path.results[t + 1])
 
             for pc in self.party:
                 if isinstance(pc, gears.base.Monster) and pc.pet_data and pc.pet_data.trainer in self.party:
@@ -141,7 +141,7 @@ class MoveTo(object):
                                                         self.pmm,
                                                         blocked_tiles=exp.scene.get_blocked_tiles())
                     for t in range(min(3, len(path.results) - 1)):
-                        self.move_pc(exp, pc, path.results[t + 1])
+                        _=self.move_pc(exp, pc, path.results[t + 1])
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
@@ -180,7 +180,7 @@ class TalkTo(MoveTo):
                 if pc.is_operational() and exp.scene.on_the_map(*pc.pos):
                     path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self.pmm, blocked_tiles=exp.scene.get_immovable_positions())
                     if len(path.results) > 1:
-                        self.move_pc(exp, pc, path.results[1])
+                        _=self.move_pc(exp, pc, path.results[1])
                         f_pos = pc.pos
                     else:
                         return False
@@ -243,7 +243,7 @@ class DoInvocation(MoveTo):
                     else:
                         path = scenes.pathfinding.AStarPath(exp.scene, pc.pos, f_pos, self._get_party_mmode(exp), blocked_tiles=exp.scene.get_immovable_positions())  # pyright: ignore[reportPossiblyUnboundVariable]
                         for t in range(min(3, len(path.results) - 1)):
-                            self.move_pc(exp, pc, path.results[t + 1])
+                            _=self.move_pc(exp, pc, path.results[t + 1])
 
             # Now that all of the pcs have moved, check the tiles_in_sight for
             # hidden models.
@@ -299,7 +299,7 @@ class BumpToCall(object):
 
 class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
     def __init__(self, explo, pc=None):
-        super().__init__()
+        super().__init__(auto_escape=True)
         self.explo = explo
         self.pc = pc
 
@@ -325,15 +325,18 @@ class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
         # Add the standard options.
         _=self.add_item('Inventory', self.call_inventory)
         _=self.add_item('Field HQ', FieldHQCall(self.explo.camp))
-        _=self.add_item('View Memos', memos.MemoBrowser(self.explo.camp))
+        _=self.add_item('View Memos',self._open_memo_browser)
         pc = self.explo.camp.first_active_pc()
         if pc:
             _=self.add_item('Center on {}'.format(pc.get_pilot()), self.center)
 
+    def _open_memo_browser(self, _wid, _ev):
+        memos.MemoBrowser.push_state_and_instantiate(camp=self.explo.camp)
+
     def call_inventory(self, _wid, _ev):
         fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.explo.camp, pc=self.pc or self.explo.camp.pc.get_root())
 
-    def center(self):
+    def center(self, _wid, _ev):
         # Center on the PC.
         pc = self.explo.camp.first_active_pc()
         pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
@@ -362,6 +365,61 @@ class ExploCommandWidget(pbge.widgets.Widget):
     def open_inventory(self):
         pc = self.camp.pc.get_root()
         fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.camp, pc=pc)
+
+    def npc_inactive(self, mon):
+        return mon not in self.camp.party and ((not self.camp.fight) or mon not in self.camp.fight.active)
+
+    CASUAL_SEARCH_CHECK = geffects.OpposedSkillRoll(stats.Perception, stats.Scouting, stats.Speed, stats.Stealth,
+                                                    on_success=[True], on_failure=[], min_chance=10, max_chance=90)
+
+    def update_npcs(self):
+        my_actors = self.scene.get_operational_actors()
+        self.threat_tiles.clear()
+        for npc in my_actors:
+            npc.renew_power()
+            if self.npc_inactive(npc) and npc.pos and self.scene.on_the_map(*npc.pos):
+                # Find the NPC's team- important for all kinds of things.
+                npteam = self.scene.local_teams.get(npc)
+
+                # First handle movement.
+                if hasattr(npc, "get_max_speed") and random.randint(1, 100) < npc.get_max_speed():
+                    dir = random.choice(self.scene.ANGDIR)
+                    dest = (npc.pos[0] + dir[0], npc.pos[1] + dir[1])
+                    if self.scene.on_the_map(*dest) and not self.scene.tile_blocks_movement(dest[0], dest[1],
+                                                                                            npc.mmode) and (
+                            not npteam or not npteam.home or npteam.home.collidepoint(
+                            dest)) and not self.scene.get_operational_actors(dest):
+                        npc.pos = dest
+
+                # Next, check visibility to PC.
+                if npteam and self.scene.player_team.is_enemy(npteam):
+                    pov = scenes.pfov.PointOfView(self.scene, npc.pos[0], npc.pos[1],
+                                                  npc.get_sensor_range(self.scene.scale) // 2 + 1)
+                    in_sight = False
+                    for pc in self.camp.party:
+                        if pc.pos in pov.tiles and pc in my_actors:
+                            if not pc.hidden:
+                                in_sight = True
+                                break
+                            elif self.time % 75 == 0 and self.CASUAL_SEARCH_CHECK.handle_effect(self.camp, {}, npc,
+                                                                                                pc.pos, list()):
+                                pc.hidden = False
+                                pbge.my_state.view.anim_list.append(geffects.SmokePoof(pos=pc.pos))
+                                pbge.my_state.view.anim_list.append(
+                                    pbge.scenes.animobs.Caption(txt='Spotted!', pos=pc.pos))
+                                pbge.my_state.view.handle_anim_sequence()
+                                in_sight = True
+                                break
+                    if in_sight:
+                        combat.enter_combat(self.camp, npc)
+                    else:
+                        self.threat_tiles.update(pov.tiles)
+
+    def update_enchantments(self):
+        for thing in self.scene.contents:
+            if hasattr(thing, 'ench_list') and hasattr(thing, "is_operational") and thing.is_operational():
+                thing.ench_list.update(self.camp, thing)
+        self.camp.update_area_enchantments()
 
     def click_left(self):
         # Left mouse button.
@@ -408,6 +466,8 @@ class ExploCommandWidget(pbge.widgets.Widget):
                 elif pbge.my_state.is_key_for_action(ev, "field_hq"):
                     fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
                     self.register_response()
+                elif pbge.my_state.is_key_for_action(ev, "memo_browser"):
+                    memos.MemoBrowser.push_state_and_instantiate(camp=self.camp)
 
                 elif ev.key == pygame.K_ESCAPE:
                     configedit.PopupGameMenu.push_state_and_instantiate()
@@ -477,7 +537,7 @@ class Explorer(pbge.campaign.ExploPrototype):
         for pc in camp.get_active_party():
             if pc.pos and pc.is_operational():
                 x, y = pc.pos
-                scenes.pfov.PCPointOfView(camp.scene, x, y, pc.get_sensor_range(self.scene.scale))
+                _=scenes.pfov.PCPointOfView(camp.scene, x, y, pc.get_sensor_range(self.scene.scale))
                 if not first_pc:
                     first_pc = pc
 
@@ -684,7 +744,7 @@ class Explorer(pbge.campaign.ExploPrototype):
                         pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
 
                     elif pbge.my_state.is_key_for_action(gdi, "memo_browser"):
-                        memos.MemoBrowser(self.camp)()
+                        memos.MemoBrowser.push_state_and_instantiate(camp=self.camp)
 
 
                     elif pbge.my_state.is_key_for_action(gdi, "inventory"):

@@ -1,4 +1,4 @@
-from pbge import widgets, image, my_state, default_border, TIMEREVENT, wait_event
+from pbge import widgets, image, my_state, default_border
 import pygame
 
 
@@ -37,7 +37,6 @@ class MemoBrowser(widgets.Widget):
         self._memo_n = 0
         self.memo_widget = None
         self.memo_n = 0
-        self.keep_browsing = True
         bfbuttonsprite = image.Image('sys_bfarrows.png', 80, 32)
         self.prev_button = widgets.ButtonWidget(-200, 116, 80, 32, bfbuttonsprite, 0, on_click=self.prev_memo, parent=self)
         self.next_button = widgets.ButtonWidget(120, 116, 80, 32, bfbuttonsprite, 1, on_click=self.next_memo, parent=self)
@@ -74,14 +73,13 @@ class MemoBrowser(widgets.Widget):
         myrect = self.get_rect()
         default_border.render(myrect)
 
-    def close_browser(self, button=None, ev=None):
-        self.keep_browsing = False
-        my_state.widgets.remove(self)
+    def close_browser(self, _wid, _ev):
+        self.pop()
 
-    def prev_memo(self, button=None, ev=None):
+    def prev_memo(self,  _wid=None, _ev=None):
         self.memo_n -= 1
 
-    def next_memo(self, button=None, ev=None):
+    def next_memo(self,  _wid=None, _ev=None):
         self.memo_n += 1
 
     def _builtin_responder(self, ev):
@@ -92,20 +90,7 @@ class MemoBrowser(widgets.Widget):
             elif my_state.is_key_for_action(ev, "right"):
                 self.next_memo()
             elif my_state.is_key_for_action(ev, "exit"):
-                self.keep_browsing = False
+                self.pop()
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 3:
-            self.keep_browsing = False
+            self.pop()
 
-    def activate(self):
-        my_state.widgets.append(self)
-
-    def __call__(self):
-        # Run the UI. Clean up after you leave.
-        self.activate()
-        while self.keep_browsing and not my_state.got_quit:
-            ev = wait_event()
-            if ev.type == TIMEREVENT:
-                my_state.render_and_flip()
-
-        if self in my_state.widgets:
-            my_state.widgets.remove(self)

@@ -51,26 +51,36 @@ class AssignPilotDescWidget(pbge.widgets.Widget):
 
 class NameChangeWidget(widgets.ColumnWidget):
     TAGS_TO_DEACTIVATE = {WTAG_FIELDHQ, }
-    def __init__(self, set_name: pbge.widgets.On_Click):
+    def __init__(self, mygear: gears.base.BaseGear):
         super().__init__(-100, -70, 200, 0, draw_border=True, center_interior=True, padding=16)
-        self.set_name = set_name
+        self.mygear = mygear
         self.add_interior(pbge.widgets.LabelWidget(0, 0, 0, 0, "Change Name", font=pbge.BIGFONT))
         self.add_interior(pbge.widgets.TextEntryWidget(
-            0, 0, 180, 24, text=self.pc.name, on_change=self.set_name
+            0, 0, 180, 24, text=str(mygear), on_change=self._set_name
         ))
         self.add_interior(pbge.widgets.LabelWidget(
             0, 0, 0, 0, "Done", justify=0, on_click=self._rename_done, draw_border=True
         ))
 
-    def _rename_done(self, wid, ev):
+    def _set_name(self, wid, _ev):
+        self.mygear.name = wid.text
+
+    def _check_name(self):
+        if not self.mygear.name:
+            self.mygear.name = gears.selector.GENERIC_NAMES.gen_word()
+
+    def _rename_done(self, _wid, _ev):
+        self._check_name()
         self.pop()
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
+                self._check_name()
                 self.pop()
                 self.register_response()
-            elif ev.unicode == "\n":
+            elif ev.unicode in "\n\r":
+                self._check_name()
                 self.pop()
                 self.register_response()
 
@@ -167,7 +177,7 @@ class CharacterCenterColumnWidget(widgets.RowWidget):
                 on_click=self._switch_panel, justify=0
             ))
 
-    def _switch_panel(self, wid, ev):
+    def _switch_panel(self, wid, _ev):
         for ccc in self.panels:
             if ccc is wid.data:
                 ccc.visible = True
@@ -218,6 +228,12 @@ class CharacterInfoWidget(widgets.Widget):
             self.column.add_interior(
                 widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 16, text="Jump to Next Dev", justify=0,
                                     draw_border=True, on_click=self.jump_plot))
+
+        # self.column.add_interior(widgets.LabelWidget(
+        #    0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Change Name", justify=0, draw_border=True,
+        #    on_click=self._change_name
+        # ))
+
         if pc is camp.pc:
             self.column.add_interior(
                 widgets.LabelWidget(0, 0, fhqinfo.LEFT_COLUMN.w, 0, text="Edit Character", justify=0, draw_border=True,
@@ -226,6 +242,9 @@ class CharacterInfoWidget(widgets.Widget):
         self.children.append(CharacterCenterColumnWidget(camp, pc))
 
         self.sl = pbge.StretchyLayer()
+
+    def _change_name(self, _wid, _ev):
+        NameChangeWidget.push_state_and_instantiate(mygear=self.pc)
 
     def edit_pc(self, _wid, _ev):
         pceditor.PCEditorWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
@@ -258,7 +277,7 @@ class CharacterInfoWidget(widgets.Widget):
             self.fhq.update_party()
             pbge.my_state.view.regenerate_avatars([mek, ])
 
-    def change_colors(self, wid, ev):
+    def change_colors(self, _wid, _ev):
         if self.pc.portrait_gen:
             cchan = self.pc.portrait_gen.color_channels
         else:
@@ -417,14 +436,11 @@ class PetInfoWidget(widgets.Widget):
         self.fhq.update_party()
 
     def _change_name(self, _wid, _ev):
-        NameChangeWidget.push_state_and_instantiate(set_name=self._set_name)
+        NameChangeWidget.push_state_and_instantiate(mygear=self.pc)
 
     def on_activate(self):
         self.info.update()
         self.fhq.update_party()
-
-    def _set_name(self, wid, _ev):
-        self.pc.name = wid.text
 
 
 class ItemInfoWidget(widgets.Widget):
@@ -489,10 +505,10 @@ class PartyMemberButton(widgets.Widget):
             widgets.widget_border_off.render(mydest)
         self.avatar_pic.render(mydest, self.avatar_frame)
 
-    def _name_fun(self, *args):
+    def _name_fun(self, *_args):
         return self.pc.get_full_name()
 
-    def _click_name(self, wid, ev):
+    def _click_name(self, _wid, ev):
         if self.on_click:
             self.on_click(self, ev)
 
