@@ -284,8 +284,8 @@ class Campaign(object):
             invo = ae.get_invocation(self.scene)
             if invo:
                 invo.invoke(self, None, [ae.pos], my_state.view.anim_list)
-        if my_state.view.anim_list:
-            my_state.view.handle_anim_sequence()
+        #if my_state.view.anim_list:
+        #    my_state.view.handle_anim_sequence()
         for ae in area_enchantments:
             if ae.update(self.scene):
                 self.scene.contents.remove(ae)

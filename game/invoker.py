@@ -4,7 +4,7 @@ import pbge
 from game import traildrawer
 from gears import info
 import pygame
-from . import exploration
+from collections.abc import Callable
 
 
 # Shelf needs name, desc properties & __str__ method.
@@ -19,17 +19,21 @@ class DataGatherer:
         raise(NotImplementedError("This data gatherer does nothing!"))
 
 
-class InvoMenuDesc(pbge.frects.Frect):
-    def __call__(self, menu_item):
-        # Just print this weapon's stats in the provided window.
-        myrect = self.get_rect()
-        pbge.default_border.render(myrect)
-        if hasattr(menu_item.value, 'desc'):
-            pbge.draw_text(pbge.SMALLFONT, menu_item.value.desc, self.get_rect(), justify=-1, color=pbge.WHITE)
-        else:
-            pbge.draw_text(pbge.SMALLFONT, '???', self.get_rect(), justify=-1, color=pbge.WHITE)
+# The On_Invoke callable accepts the invocation being invoked, the "firing position",
+# the list of target points, and the invocation data.
+type On_Invoke = Callable[[pbge.effects.Invocation, tuple[int, int], list, dict], None]
 
-class InvocationsWidget(pbge.widgets.Widget):
+
+class InvoMenuDesc(pbge.widgetmenu.DescBoxWidget):
+    def _desc_text_fun(self, _widg):
+        my_invo = self.menu.current_data
+        if my_invo and hasattr(my_invo, 'desc'):
+            return my_invo.desc
+        else:
+            return "???"
+
+
+class InvocationLibraryWidget(pbge.widgets.Widget):
     # This widget stores the invocation library and allows the player
     # to select which invocation to invoke.
     DESC_CLASS = InvoMenuDesc
@@ -50,7 +54,7 @@ class InvocationsWidget(pbge.widgets.Widget):
         # top_shelf_fun and bottom_shelf_fun are functions called when the user
         #   tries to scroll above the top item or below the bottom item. If None,
         #   this widget will just loop around to the other end of the list.
-        super(InvocationsWidget, self).__init__(-383, -5, 383, 65, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
+        super(InvocationLibraryWidget, self).__init__(-383, -5, 383, 65, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
         self.camp = camp
         self.pc = pc
         self.build_library = build_library_function
@@ -164,7 +168,7 @@ class InvocationsWidget(pbge.widgets.Widget):
             nu_shelf = usable_shelves[-1]
             self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
 
-    def click_button(self, button, ev):
+    def click_button(self, button, _ev):
         target_invo = button.data + self.shelf_offset
         if self.shelf and target_invo < len(self.shelf.invo_list) and self.shelf.invo_list[target_invo].can_be_invoked(
                 self.pc, self.camp.fight):
@@ -174,13 +178,18 @@ class InvocationsWidget(pbge.widgets.Widget):
             else:
                 self.set_shelf_invo(self.shelf, self.shelf.invo_list[target_invo])
 
-    def pop_invo_menu(self, button=None, ev=None):
-        mymenu = pbge.rpgmenu.Menu(*self.MENU_POS, anchor=pbge.frects.ANCHOR_UPPERRIGHT, font=pbge.BIGFONT)
-        mymenu.descobj = self.DESC_CLASS(*self.DESC_POS, anchor=pbge.frects.ANCHOR_UPPERRIGHT)
+    def pop_invo_menu(self, _button=None, _ev=None):
+        mymenu = pbge.widgetmenu.MenuWidget(
+            *self.MENU_POS, anchor=pbge.frects.ANCHOR_UPPERRIGHT, font=pbge.BIGFONT,
+            pop_when_clicked=True, auto_escape=True
+        )
+        mymenu.children.append(self.DESC_CLASS(*self.DESC_POS, anchor=pbge.frects.ANCHOR_UPPERRIGHT, menu=mymenu))
         for shelf in self.library:
             if shelf.has_at_least_one_working_invo(self.pc, self.camp.fight):
-                mymenu.add_item(str(shelf), shelf)
-        nu_shelf = mymenu.query()
+                _=mymenu.add_item(str(shelf), self._click_invo_menu, data=shelf)
+
+    def _click_invo_menu(self, wid, _ev):
+        nu_shelf = wid.data
         if nu_shelf in self.library and nu_shelf != self.shelf:
             self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
 
@@ -292,7 +301,7 @@ class InvocationsWidget(pbge.widgets.Widget):
             self.set_shelf_invo(self.shelf, self.shelf.invo_list[self.invo])
 
 
-class InvocationUI(object):
+class InvocationUI(pbge.widgets.Widget):
     SC_ORIGIN = 4
     SC_AOE = 2
     SC_CURSOR = 3
@@ -304,9 +313,16 @@ class InvocationUI(object):
     SC_GOODTARGET = 13
     SC_VOIDENEMYCURSOR = 14
     SC_VOIDGOODTARGET = 15
-    LIBRARY_WIDGET = InvocationsWidget
+    LIBRARY_WIDGET = InvocationLibraryWidget
 
-    def __init__(self, camp: gears.GearHeadCampaign, pc, build_library_function, source=None, top_shelf_fun=None, bottom_shelf_fun=None, name="invocations", clock=None ):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_EXPLORATIONMODE,}
+
+    def __init__(
+        self, camp: gears.GearHeadCampaign, pc, build_library_function, on_invoke: On_Invoke,
+        source=None, top_shelf_fun=None, auto_escape=False,
+        bottom_shelf_fun=None, name="invocations", clock=None 
+    ):
+        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_HIDE_DURING_ANIMATION,})
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
@@ -314,26 +330,36 @@ class InvocationUI(object):
         self.invo: pbge.effects.Invocation = None
         self.data = dict()
 
+        self.legal_tiles = set()
+        self.num_targets = 0
+        self.targets = list()
+
+
         self.my_widget = self.LIBRARY_WIDGET(
-            camp, pc, build_library_function, self.change_invo, source,
+            camp, pc, build_library_function, self.change_invo, start_source=source,
             top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun,
             auto_launch_fun=self.auto_launch
         )
         self.name = name
-        self.my_widget.active = False
 
         self.targets_widget = pbge.widgets.LabelWidget(-300,68,200,0,font=pbge.MEDIUMFONT, justify=0, draw_border=True,
                                                        border=pbge.default_border, text_fun=self._get_target_count,
-                                                       active=False, anchor=pbge.frects.ANCHOR_UPPERRIGHT)
+                                                       visible=False, anchor=pbge.frects.ANCHOR_UPPERRIGHT)
         self.my_widget.children.append(self.targets_widget)
 
-        pbge.my_state.widgets.append(self.my_widget)
+        self.children.append(self.my_widget)
         self.record = False
         self.keep_exploring = True
         self.clock = clock
         self.ready_to_invoke = False
 
-    def _get_target_count(self, *args):
+        self.firing_points = set()
+        self.mypath = list()
+        self.on_invoke = on_invoke
+        self.auto_escape = auto_escape
+        self.nav = None
+
+    def _get_target_count(self, *_args):
         return "{}/{} Targets".format(len(self.targets), self.num_targets)
 
     def change_invo(self, new_invo):
@@ -373,9 +399,9 @@ class InvocationUI(object):
 
     def _render(self, delta):
         if self.num_targets > 1:
-            self.targets_widget.active = True
+            self.targets_widget.visible = True
         else:
-            self.targets_widget.active = False
+            self.targets_widget.visible = False
         pbge.my_state.view.overlays.clear()
 
         # Find out what mecha are in the targeted tile.
@@ -431,8 +457,6 @@ class InvocationUI(object):
             if self.clock:
                 self.clock.set_ap_mp_costs()
 
-        pbge.my_state.view()
-
         # Display info for this tile.
         my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
         if my_info:
@@ -453,21 +477,25 @@ class InvocationUI(object):
                 self.ready_to_invoke = False
                 break
         pbge.my_state.view.overlays.clear()
-        if self.camp.fight and self.ready_to_invoke:
-            # Launch the effect.
-            self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list, data=self.data)
-            pbge.my_state.view.handle_anim_sequence(self.record)
-            self.camp.fight.cstat[self.pc].spend_ap(1)
-            self.targets = list()
-            self.my_widget.update_buttons()
-            self.record = False
+        # if self.camp.fight and self.ready_to_invoke:
+        #     # Launch the effect.
+        #     self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list, data=self.data)
+        #     pbge.my_state.view.handle_anim_sequence(self.record)
+        #     self.camp.fight.cstat[self.pc].spend_ap(1)
+        #     self.targets = list()
+        #     self.my_widget.update_buttons()
+        #     self.record = False
 
-            # Recalculate the combat info.
-            self.activate()
-            self.camp.scene.update_party_position(self.camp)
-            self.ready_to_invoke = False
+        #     # Recalculate the combat info.
+        #     self.activate()
+        #     self.camp.scene.update_party_position(self.camp)
+        #     self.ready_to_invoke = False
+        if self.auto_escape:
+            self.pop()
+        self.tidy()
+        self.on_invoke(self.invo, self.get_firing_pos(), self.targets, self.data)
 
-    def click_left(self, player_turn):
+    def click_left(self):
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             self.targets.append(pbge.my_state.view.mouse_tile)
         elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(
@@ -488,62 +516,50 @@ class InvocationUI(object):
             else:
                 self.targets.append(pbge.my_state.view.mouse_tile)
 
-        if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, True):
+        if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):
             self.launch()
 
     def auto_launch(self):
         # Auto-launch will automatically launch an automatically targeted invocation.
         # Otherwise, it does nothing.
-        if self.invo and self.invo.area.AUTOMATIC and self.invo.can_be_invoked(self.pc, self.camp.fight):
+        if self.invo and self.invo.area.AUTOMATIC and self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):
             while len(self.targets) < self.num_targets:
                 self.targets.append(self.pc.pos)
             self.launch()
 
-    def update(self, ev, player_turn):
-        # We just got an event. Deal with it.
-
-        if player_turn and not self.my_widget.library:
-            if ev.type == pbge.TIMEREVENT:
-                self.render()
-                pbge.my_state.do_flip()
-            player_turn.switch_movement()
-        elif ev.type == pbge.TIMEREVENT:
-            self.render()
-            pbge.my_state.do_flip()
-
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
-            self.click_left(player_turn)
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
+            self.click_left()
 
         elif ev.type == pygame.KEYDOWN:
             if ev.unicode == "r":
                 # self.camp.save(self.screen)
                 self.record = True
                 print("Recording")
+                self.register_response()
 
-            elif pbge.my_state.is_key_for_action(ev, "select") and not pbge.my_state.widget_responded:
+            elif pbge.my_state.is_key_for_action(ev, "select"):
                 self.auto_launch()
+                self.register_response()
 
-            elif pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_responded:
-                self.click_left(player_turn)
+            elif pbge.my_state.is_key_for_action(ev, "cursor_click"):
+                self.click_left()
+                self.register_response()
 
-            elif ev.key == pygame.K_ESCAPE:
-                self.keep_exploring = False
-
-    def dispose(self):
-        # Get rid of the widgets and shut down.
-        pbge.my_state.widgets.remove(self.my_widget)
-        pbge.my_state.view.cursor.frame = self.SC_CURSOR
-        pbge.my_state.view.overlays.clear()
+            elif pbge.my_state.is_key_for_action(ev, "exit") and self.auto_escape:
+                self.pop()
+                self.tidy()
+                self.register_response()
 
     def activate(self):
-        self.my_widget.active = True
+        self.visible = True
         self.legal_tiles = self.invo.area.get_targets(self.camp, self.pc.pos)
         if self.camp.fight:
             self.nav = self.camp.fight.get_action_nav(self.pc)
 
     def deactivate(self):
         # Used during combat only!
-        self.my_widget.active = False
+        self.visible = False
         self.my_widget.help_on = False
         pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
 
@@ -551,7 +567,7 @@ class InvocationUI(object):
         if self.camp.fight:
             self.nav = self.camp.fight.get_action_nav(self.pc)
 
-    def get_firing_pos(self):
+    def get_firing_pos(self) -> tuple[int, int]:
         if self.targets[0] in self.legal_tiles:
             return self.pc.pos
         else:
@@ -576,6 +592,10 @@ class InvocationUI(object):
         if my_invo:
             op_list.append(self.name_current_invo())
         return op_list
+
+    def tidy(self):
+        pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
+        pbge.my_state.view.overlays.clear()
 
     def find_shelf_invo(self, op_list):
         # Attempt to find the requested shelf and invocation.
@@ -604,18 +624,3 @@ class InvocationUI(object):
 
             self.my_widget.set_shelf_invo(shelf, invo)
 
-    @classmethod
-    def explo_invoke(cls, explo, pc, build_library_function, source=None):
-        # Run the UI. Return a DoInvocation action if an invocation
-        # was chosen, or None if the invocation was cancelled.
-        myui = cls(explo.camp, pc, build_library_function, source)
-        myui.activate()
-        while myui.keep_exploring and len(myui.targets) < myui.num_targets:
-            gdi = pbge.wait_event()
-            myui.update(gdi, None)
-
-        myui.dispose()
-
-        if myui.invo and myui.ready_to_invoke:
-            return exploration.DoInvocation(explo, pc, myui.get_firing_pos(), myui.invo, myui.targets, myui.record,
-                                            data=myui.data)

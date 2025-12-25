@@ -52,7 +52,8 @@ class MenuWidget(widgets.ColumnWidget):
         self.scroll_column = widgets.ScrollColumnWidget(
             0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = padding,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
-            on_activate_child=on_activate_item, on_click_child=self._click_child_wrapper
+            on_activate_child=on_activate_item, on_click_child=self._click_child_wrapper,
+            immediately_on_click=self._immediately_on_click
         )
         super().add_interior(self.up_arrow)
         super().add_interior(self.scroll_column)
@@ -76,9 +77,11 @@ class MenuWidget(widgets.ColumnWidget):
     def _auto_escape_fun(self, _wid, _ev):
         self.pop()
 
-    def _click_child_wrapper(self, item_wid, ev):
+    def _immediately_on_click(self, _wid, _ev):
         if self.pop_when_clicked:
             self.pop()
+
+    def _click_child_wrapper(self, item_wid, ev):
         if self._on_click_child:
             self._on_click_child(item_wid, ev)
 

@@ -17,7 +17,7 @@ class WeaponMenuDesc( pbge.frects.Frect ):
         self.library[menu_item.value.source].render(myrect.x,myrect.y)
 
 
-class AttackWidget(invoker.InvocationsWidget):
+class AttackWidget(invoker.InvocationLibraryWidget):
     DESC_CLASS = WeaponMenuDesc
     IMAGE_NAME = 'sys_tacticsinterface_attackwidget.png'
     MENU_POS = (-420,15,200,180)

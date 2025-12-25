@@ -29,6 +29,7 @@ popup_menu_border = Border(border_width=8, tex_width=16, border_name="sys_widbor
 WTAG_WIDGET = "WTAG_WIDGET"
 WTAG_TITLESCREEN = "WTAG_TITLESCREEN"
 WTAG_TITLEMENU = "WTAG_TITLEMENU"
+WTAG_EXPLORATIONMODE = "WTAG_EXPLORATIONMODE"
 
 
 class WidgetException(Exception):
@@ -38,7 +39,7 @@ class WidgetException(Exception):
 class FrozenUIState:
     # Widgets may have "on_activate" and "on_freeze" methods that get called when the widget is either popped or
     # pushed.
-    def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=(), tags_to_push=()):
+    def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=(), tags_to_push=(), pushing_widget=None):
         self.pushed_widgets = list()
         for wtp in widgets_to_push:
             self.push_widget(wtp)
@@ -53,6 +54,7 @@ class FrozenUIState:
         self.hidden_widgets = list()
         tags_to_deactivate = set(tags_to_deactivate)
         tags_to_hide = set(tags_to_hide)
+        self.pushing_widget=pushing_widget
 
         for widg in my_state.all_widgets():
             if widg.active and widg.tags.intersection(tags_to_deactivate):
@@ -75,6 +77,8 @@ class FrozenUIState:
             my_state.widgets.remove(widget_to_push)
             if hasattr(widget_to_push, "on_freeze"):
                 widget_to_push.on_freeze()
+        else:
+            raise WidgetException("{} cannot be pushed".format(widget_to_push))
 
     def unfreeze(self):
         done = set()
@@ -111,9 +115,11 @@ class FrozenUIState:
                 reactivate_this.active = reactivate_this.active
 
     @staticmethod
-    def pop():
+    def pop(popping_widget=None):
         if my_state.ui_stack:
             froz = my_state.ui_stack.pop(-1)
+            if popping_widget and froz.pushing_widget and popping_widget is not froz.pushing_widget:
+                print("WARNING: Widget {} popping state pushed by {}".format(popping_widget, froz.pushing_widget))
             froz.unfreeze()
 
 
@@ -296,7 +302,7 @@ class Widget(frects.Frect):
     def pop(self):
         #print("Popping {}".format(self))
         self.close()
-        FrozenUIState.pop()
+        FrozenUIState.pop(self)
 
     TAGS_TO_DEACTIVATE = set()
     TAGS_TO_HIDE = ()
@@ -305,11 +311,12 @@ class Widget(frects.Frect):
 
     @classmethod
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
+        my_widget = cls(**kwargs)
         _=FrozenUIState(
             *widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, 
-            tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH
+            tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH,
+            pushing_widget=my_widget
         )
-        my_widget = cls(**kwargs)
         my_state.widgets.append(my_widget)
         if my_widget.ACTIVATE_IMMEDIATELY:
             my_widget.activate()
@@ -321,7 +328,11 @@ class Widget(frects.Frect):
                 my_state.widgets.remove(w)
 
     def push_and_deploy(self, *widgets_to_push):
-        _=FrozenUIState(*widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH)
+        _=FrozenUIState(
+            *widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
+            tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH,
+            pushing_widget=self
+        )
         my_state.widgets.append(self)
         if self.ACTIVATE_IMMEDIATELY:
             self.activate()
@@ -557,7 +568,8 @@ class ColumnWidget(Widget):
 class ScrollColumnWidget(Widget):
     def __init__(self, dx, dy, w, h, up_button, down_button, draw_border=False, border=default_border, padding=5,
                  autoclick=False, focus_locked=False, activate_child_on_enter=False, on_activate_child=None, 
-                 can_take_focus=True, on_click_child=None, focus_border=widget_border_on,
+                 can_take_focus=True, on_click_child=None, focus_border=widget_border_on, 
+                 immediately_on_click: On_Click=None,
                  **kwargs):
         # if activate_child_on_enter is True, the contents of this widget will activate on mouseover.
         # on_activate_child is a callable with signature (column_widget, child_widget) that gets called when the
@@ -590,6 +602,7 @@ class ScrollColumnWidget(Widget):
         self.on_click_child = on_click_child
 
         self.focus_border = focus_border
+        self.immediately_on_click = immediately_on_click
 
     def _set_selected_widget_id(self, widindex):
         if 0 <= widindex < len(self._interior_widgets):
@@ -618,6 +631,8 @@ class ScrollColumnWidget(Widget):
 
     def _decorate_click(self, other_on_click):
         def nuclick(wid, ev):
+            if self.immediately_on_click:
+                self.immediately_on_click(wid, ev)
             if wid.visible and wid in self._interior_widgets and self._selected_widget_id != self._interior_widgets.index(wid):
                 self.selected_widget_id = self._interior_widgets.index(wid)
             if other_on_click:

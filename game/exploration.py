@@ -3,7 +3,7 @@ import pbge
 import pygame
 import gears
 from gears import stats, geffects
-from . import combat, content
+from . import combat
 from . import ghdialogue
 from . import configedit
 from . import invoker
@@ -227,7 +227,7 @@ class DoInvocation(MoveTo):
         if self.pos == pc.pos:
             # Invoke the invocation from here.
             self.invo.invoke(exp.camp, pc, self.target_list, pbge.my_state.view.anim_list, data=self.data)
-            pbge.my_state.view.handle_anim_sequence(self.record)
+            #pbge.my_state.view.handle_anim_sequence(self.record)
             return False
         elif (not pc.is_operational()) or (self.step > len(self.path.results)) or not exp.scene.on_the_map(*self.pos):
             return False
@@ -260,22 +260,33 @@ class InvoMenuCall(object):
         self.pc = pc
         self.source = source
 
+    def _on_invoke(self, invo, firing_pos, targets, data):
+        if invo:
+            self.explo.order = DoInvocation(self.explo, self.pc, firing_pos, invo, target_list=targets, data=data)
+
     def __call__(self, *args):
-        self.explo.order = invoker.InvocationUI.explo_invoke(self.explo, self.pc, self.pc.get_skill_library,
-                                                             self.source)
+        invoker.InvocationUI.push_state_and_instantiate(
+            camp=self.explo.camp, pc=self.pc, build_library_function=self.pc.get_skill_library,
+            source=self.source, on_invoke=self._on_invoke, auto_escape=True
+        )
 
 
 class UsableMenuCall(object):
-    def __init__(self, explo, pc, source=None):
+    def __init__(self, explo: "ExploCommandWidget", pc, source=None):
         # Creates a callable that opens the invocation UI and handles
         # its effects.
         self.explo = explo
         self.pc = pc
         self.source = source
 
+    def _on_invoke(self, invo, firing_pos, targets, data):
+        pass
+
     def __call__(self, *args):
-        self.explo.order = invoker.InvocationUI.explo_invoke(self.explo, self.pc, self.pc.get_usable_library,
-                                                             self.source)
+        invoker.InvocationUI.push_state_and_instantiate(
+            camp=self.explo.camp, pc=self.pc, build_library_function=self.pc.get_usable_library,
+            source=self.source, on_invoke=self._on_invoke, auto_escape=True
+        )
 
 
 class FieldHQCall(object):
@@ -343,14 +354,22 @@ class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
 
 
 class ExploCommandWidget(pbge.widgets.Widget):
+    NPC_UPDATE_TIME = 3000
+    ENCHANTMENT_TIME = 6000
     def __init__(self, camp: gears.GearHeadCampaign, view):
         super().__init__(
-            0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
+            0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION, pbge.widgets.WTAG_EXPLORATIONMODE}
         )
         self.camp = camp
         self.scene = camp.scene
         self.view = view
         self.order = None
+
+        self.npc_update_timer = 0
+        self.enchantment_timer = 0
+
+        self.threat_tiles = set()
+        self.threat_viewer = pbge.scenes.areaindicator.AreaIndicator("sys_threatarea.png")
 
     def pick_up_item(self):
         pc = self.camp.pc.get_root()
@@ -358,7 +377,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
                       isinstance(i, gears.base.BaseGear) and i.pos == pc.pos and pc.can_equip(i)]
         if candidates:
             i = candidates.pop()
-            pc.inv_com.append(i)
+            _=pc.inv_com.append(i)
             _=pbge.alerts.TextAlert("{} picks up {}.".format(pc, i))
             self.camp.check_trigger("GET", i)
 
@@ -444,6 +463,14 @@ class ExploCommandWidget(pbge.widgets.Widget):
         if self.order:
             if not self.order(self):
                 self.order = None
+        self.enchantment_timer += delta
+        if self.enchantment_timer >= self.ENCHANTMENT_TIME:
+            self.update_enchantments()
+            self.enchantment_timer = 0
+        self.npc_update_timer += delta
+        if self.npc_update_timer >= self.NPC_UPDATE_TIME:
+            self.update_npcs()
+            self.npc_update_timer = 0
 
     def _builtin_responder(self, ev):
         if not self.order:
@@ -565,344 +592,6 @@ class Explorer(pbge.campaign.ExploPrototype):
         if not self.camp.fight:
             self.camp.check_trigger("START")
             self.camp.check_trigger("ENTER", self.scene)
-
-    def keep_exploring(self):
-        # TODO: Delete this bit.
-        return self.camp.first_active_pc() and self.no_quit and not pbge.my_state.got_quit and self.camp.keep_playing_scene() and self.camp.egg
-
-    def npc_inactive(self, mon):
-        return mon not in self.camp.party and ((not self.camp.fight) or mon not in self.camp.fight.active)
-
-    CASUAL_SEARCH_CHECK = geffects.OpposedSkillRoll(stats.Perception, stats.Scouting, stats.Speed, stats.Stealth,
-                                                    on_success=[True], on_failure=[], min_chance=10, max_chance=90)
-
-    def update_npcs(self):
-        my_actors = self.scene.get_operational_actors()
-        self.threat_tiles.clear()
-        for npc in my_actors:
-            npc.renew_power()
-            if self.npc_inactive(npc) and npc.pos and self.scene.on_the_map(*npc.pos):
-                # Find the NPC's team- important for all kinds of things.
-                npteam = self.scene.local_teams.get(npc)
-
-                # First handle movement.
-                if hasattr(npc, "get_max_speed") and random.randint(1, 100) < npc.get_max_speed():
-                    dir = random.choice(self.scene.ANGDIR)
-                    dest = (npc.pos[0] + dir[0], npc.pos[1] + dir[1])
-                    if self.scene.on_the_map(*dest) and not self.scene.tile_blocks_movement(dest[0], dest[1],
-                                                                                            npc.mmode) and (
-                            not npteam or not npteam.home or npteam.home.collidepoint(
-                            dest)) and not self.scene.get_operational_actors(dest):
-                        npc.pos = dest
-
-                # Next, check visibility to PC.
-                if npteam and self.scene.player_team.is_enemy(npteam):
-                    pov = scenes.pfov.PointOfView(self.scene, npc.pos[0], npc.pos[1],
-                                                  npc.get_sensor_range(self.scene.scale) // 2 + 1)
-                    in_sight = False
-                    for pc in self.camp.party:
-                        if pc.pos in pov.tiles and pc in my_actors:
-                            if not pc.hidden:
-                                in_sight = True
-                                break
-                            elif self.time % 75 == 0 and self.CASUAL_SEARCH_CHECK.handle_effect(self.camp, {}, npc,
-                                                                                                pc.pos, list()):
-                                pc.hidden = False
-                                pbge.my_state.view.anim_list.append(geffects.SmokePoof(pos=pc.pos))
-                                pbge.my_state.view.anim_list.append(
-                                    pbge.scenes.animobs.Caption(txt='Spotted!', pos=pc.pos))
-                                pbge.my_state.view.handle_anim_sequence()
-                                in_sight = True
-                                break
-                    if in_sight:
-                        combat.enter_combat(self.camp, npc)
-                    else:
-                        self.threat_tiles.update(pov.tiles)
-
-    def update_enchantments(self):
-        for thing in self.scene.contents:
-            if hasattr(thing, 'ench_list') and hasattr(thing, "is_operational") and thing.is_operational():
-                thing.ench_list.update(self.camp, thing)
-        self.camp.update_area_enchantments()
-
-    def click_left(self):
-        # Left mouse button.
-        if (self.view.mouse_tile != self.camp.pc.get_root().pos) and self.scene.on_the_map(*self.view.mouse_tile):
-            npc = self.view.modelmap.get(self.view.mouse_tile)
-            if npc and npc[0].is_operational() and self.scene.is_an_actor(npc[0]):
-                npteam = self.scene.local_teams.get(npc[0])
-                if npteam and self.scene.player_team.is_enemy(npteam):
-                    combat.enter_combat(self.camp, npc[0])
-                elif not isinstance(npc[0], (gears.base.Prop, gears.base.Monster)):
-                    self.order = TalkTo(self, npc[0])
-                    self.view.overlays.clear()
-            else:
-                self.order = MoveTo(self, self.view.mouse_tile)
-                self.view.overlays.clear()
-        elif self.scene.on_the_map(*self.view.mouse_tile):
-            # Clicking the same tile where the PC is standing; get an item.
-            self.get_item()
-
-    def go(self):
-        self.no_quit = True
-        self.order = None
-        #pbge.image.flush_images()
-        #gc.collect(2)
-
-        global current_explo
-        current_explo = self
-
-        # Remove any NPCs that are not part of the lance from the player team.
-
-        # Clear the event queue, in case switching scenes took a long time.
-        pygame.event.clear([pbge.TIMEREVENT, pygame.KEYDOWN])
-
-        # Do one view first, just to prep the model map and mouse tile.
-        self.view()
-        pbge.my_state.do_flip()
-        # self.record_count = 120
-
-        del pbge.my_state.notifications[:]
-        pbge.BasicNotification(str(self.scene))
-
-        # Do a start trigger, unless we're in combat.
-        # if not self.camp.fight:
-        #     if hasattr(self.scene, "exploration_music"):
-        #         pbge.my_state.start_music(self.scene.exploration_music)
-        #     self.camp.check_trigger("START")
-        #     self.camp.check_trigger("ENTER", self.scene)
-        # self.camp.check_trigger("UPDATE")
-        # self.update_npcs()
-
-        while self.keep_exploring():
-            first_pc_pos = self.camp.first_active_pc().pos
-            if self.camp.fight:
-                self.camp.check_trigger("STARTCOMBAT")
-                self.order = None
-                self.camp.fight.go(self)
-                if pbge.my_state.got_quit or not self.camp.fight.no_quit:
-                    self.no_quit = False
-                    self.camp.fight.no_quit = True
-                    break
-                else:
-                    self.camp.fight = None
-                    self.camp.check_trigger("ENDCOMBAT")
-
-            # Get input and process it.
-            gdi = pbge.wait_event()
-
-            if not self.keep_exploring():
-                pass
-            elif gdi.type == pbge.TIMEREVENT:
-                self.view.overlays.clear()
-                self.threat_viewer.update(self.view, self.threat_tiles)
-                pbge.my_state.view.cursor.frame = 0
-                self.view()
-
-                # Display info for this tile.
-                my_info = self.scene.get_tile_info(self.view)
-                if my_info:
-                    my_info.view_display(self.camp)
-
-                pbge.my_state.do_flip()
-
-                if self.record_count > 0:
-                    pygame.image.save(pbge.my_state.screen,
-                                      pbge.util.user_dir("exanim_{}.png".format(100000 - self.record_count)))
-                    self.record_count -= 1
-
-                self.time += 1
-                if hasattr(self.scene, "exploration_music"):
-                    pbge.my_state.start_music(self.scene.exploration_music)
-
-                if self.order:
-                    if not self.order(self):
-                        self.order = None
-                    pcpos = {pc.pos for pc in self.camp.get_active_party()}
-                    if pcpos.intersection(self.threat_tiles):
-                        self.update_npcs()
-
-                if self.time % 80 == 0:
-                    self.update_npcs()
-
-                if self.time % 150 == 0:
-                    self.update_enchantments()
-
-                if self.time > 0 and self.time % (pbge.util.config.getint("GENERAL", "frames_per_second") * 30) == 0:
-                    self.camp.check_trigger("HALFMINUTE")
-
-            elif not self.order:
-                # Set the mouse cursor on the map.
-                # self.view.overlays[ self.view.mouse_tile ] = maps.OVERLAY_CURSOR
-
-                if gdi.type == pygame.KEYDOWN:
-                    if pbge.my_state.is_key_for_action(gdi, "quit_game"):
-                        # self.camp.save(self.screen)
-                        self.no_quit = False
-                    elif pbge.my_state.is_key_for_action(gdi, "center_on_pc"):
-                        pc = self.camp.first_active_pc()
-                        pbge.my_state.view.focus(pc.pos[0], pc.pos[1])
-
-                    elif pbge.my_state.is_key_for_action(gdi, "memo_browser"):
-                        memos.MemoBrowser.push_state_and_instantiate(camp=self.camp)
-
-
-                    elif pbge.my_state.is_key_for_action(gdi, "inventory"):
-                        fieldhq.backpack.BackpackWidget.create_and_invoke(self.camp, self.camp.pc.get_root())
-
-                    elif gdi.unicode == "M":
-                        gears.ghuiutil.TextDisplayWidget.create_and_invoke()
-
-                    elif gdi.key == pygame.K_ESCAPE:
-                        configedit.PopupGameMenu.push_state_and_instantiate()
-                        
-                    elif pbge.my_state.is_key_for_action(gdi, "cursor_click"):
-                        if gdi.mod & pygame.KMOD_SHIFT:
-                            pc = self.scene.get_main_actor(self.view.mouse_tile)
-                            ExploMenu(self, pc)
-                        else:
-                            self.click_left()
-
-
-
-                    elif gdi.unicode == "R" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        print(self.camp.renown)
-                    elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        content.missiontext.test_mission_text(self.camp)
-                    elif gdi.unicode == "A" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.record_count = 30
-                    elif gdi.unicode == "S" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        myimage = self.camp.pc.get_portrait()
-                        pygame.image.save(myimage.bitmap, pbge.util.user_dir("selfie_{}.png".format(self.camp.pc)))
-
-                    elif gdi.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        self.camp.check_trigger("CHEATINGFUCKINGBASTARD")
-
-                    elif gdi.unicode == "K" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for lm in self.camp.get_active_party():
-                            pc: gears.base.Being = lm.get_pilot()
-                            pc.hp_damage += 99999999999999
-
-                    elif gdi.unicode == "&" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for x in range(self.scene.width):
-                            for y in range(self.scene.height):
-                                self.scene.set_visible(x, y, True)
-
-                    elif gdi.unicode == "!" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        #self.camp.egg.credits += 1000000
-                        for mpc in self.camp.get_active_party():
-                            pc = mpc.get_pilot()
-                        #    if pc:
-                        #        for skill in pc.statline:
-                        #            if skill in gears.stats.ALL_SKILLS and pc.statline[skill] > 10:
-                        #                pc.statline[skill] -= 10
-
-                    elif gdi.key == pygame.K_F1 and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        pygame.image.save(pbge.my_state.screen, pbge.util.user_dir("screenshot.png"))
-
-                    elif gdi.unicode == "@" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for thing in self.scene.contents:
-                            if hasattr(thing, "pos"):
-                                print("{}: {} {}".format(thing, thing.pos, getattr(thing, "mmode", "Undefined")))
-
-                    elif gdi.unicode == "*" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for thing in self.camp.all_contents(self.camp):
-                            if isinstance(thing, gears.base.Character) and thing.relationship and gears.relationships.RT_LANCEMATE in thing.relationship.tags:
-                                print("{}: {}/{}".format(thing, thing.scene, thing.scene.get_root_scene()))
-
-                    elif gdi.unicode == "P" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for thing in self.camp.active_plots():
-                            print("{}".format(thing.__class__.__name__))
-                    elif gdi.unicode == "t" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        print(self.camp.time)
-                    elif gdi.unicode == "O" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for thing in self.camp.all_plots():
-                            print("{}".format(thing.__class__.__name__))
-                    elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for pc in self.camp.get_active_party():
-                            if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):
-                                print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
-                                                              pc.relationship.can_do_development()))
-                    elif gdi.unicode == "N" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        print("Checking Enemies")
-                        enemies = [candidate for candidate in self.camp.all_contents(self.camp) if (
-                            isinstance(candidate, gears.base.Character) and candidate.combatant and
-                            candidate.relationship and candidate.relationship.is_unfavorable()
-                        )]
-                        for pc in enemies:
-                            if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):
-                                print("{} ({}): {}\n --{}\n --Renown {}, {}\n --Memories: {}".format(pc, pc.faction, pc.get_text_desc(self.camp), pc.get_tags(False), pc.renown, pc.relationship.hilights(), len(pc.relationship.history)))
-                                for mem in pc.relationship.history:
-                                    print(mem)
-                    elif gdi.unicode == "J" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        print("Checking Dramatis Persona")
-                        npcs = list(self.camp.egg.available_dramatis_personae(self.camp))
-                        for pc in npcs:
-                            if hasattr(pc, "relationship") and pc.relationship:
-                                print("{} ({}): {}\n --{}\n --Renown {}, {}\n --Memories: {}".format(pc, pc.faction, pc.get_text_desc(self.camp), [str(t) for t in pc.get_tags(False)], pc.renown, pc.relationship.hilights(), len(pc.relationship.history)))
-                    elif gdi.unicode == "V" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for pc in list(self.camp.party):
-                            if pc in self.scene.contents and isinstance(pc,
-                                                                        gears.base.Mecha) and not pc.is_operational():
-                                pc.free_pilots()
-                                print(pc)
-                                self.camp.party.remove(pc)
-                    elif gdi.unicode == "F" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for k in self.camp.faction_relations.keys():
-                            if self.camp.is_unfavorable_to_pc(k):
-                                print("{}: Enemy".format(k))
-                            elif self.camp.is_favorable_to_pc(k):
-                                print("{}: Ally".format(k))
-
-                    elif gdi.unicode == "E" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        mymenu = pbge.rpgmenu.AlertMenu("Do you want to end this campaign?")
-                        mymenu.add_item("Yes, time to quit.", True)
-                        mymenu.add_item("No, I pressed the wrong key.", False)
-                        if mymenu.query():
-                            self.camp.eject()
-                            self.no_quit = False
-
-                    elif gdi.unicode == "T" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        print(self.scene.attributes)
-
-                    elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        #import cProfile
-                        #cProfile.run("pbge.my_state.view()", sort="tottime")
-                        import timeit
-                        print(timeit.timeit('pbge.my_state.view()', setup="from __main__ import pbge", number=30, globals=globals()))
-
-                    elif gdi.unicode == "]" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        for t in range(5):
-                            rat: gears.base.Monster = gears.selector.get_design_by_full_name("Giant Rat")
-                            self.camp.scene.deploy_actor(rat)
-
-                    elif gdi.unicode == "[" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                        t = 5
-                        for r in list(self.camp.scene.contents):
-                            if str(r) == "Giant Rat":
-                                self.camp.scene.contents.remove(r)
-                                t -= 1
-                                if t < 1:
-                                    break
-
-                elif gdi.type == pygame.QUIT:
-                    # self.camp.save(self.screen)
-                    self.no_quit = False
-
-                elif gdi.type == pygame.MOUSEBUTTONUP:
-                    if gdi.button == 1:
-                        self.click_left()
-                    else:
-                        pc = self.scene.get_main_actor(self.view.mouse_tile)
-                        ExploMenu(self, pc)
-
-        if pbge.my_state.got_quit or not self.no_quit:
-            if self.camp.egg:
-                self.camp.save()
-        else:
-            self.camp.check_trigger("EXIT")
-
-        current_explo = None
 
     def should_stop_exploring(self):
         if self.camp.has_a_destination():

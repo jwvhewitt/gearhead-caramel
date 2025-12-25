@@ -63,6 +63,22 @@ class Perception(Stat):
         )
         invodict[Scouting].append(ba)
 
+        # ba = pbge.effects.Invocation(
+        #     name='Kick',
+        #     fx=pbge.effects.NoEffect(anim=geffects.BigBoom),
+        #     area=pbge.scenes.targetarea.SingleTarget(reach=2, delay_from=-1),
+        #     used_in_combat=False, used_in_exploration=True,
+        #     ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),
+        #                                        conditions=[aitargeters.TargetIsOperational(),
+        #                                                    aitargeters.TargetIsEnemy(), aitargeters.TargetIsHidden()]),
+        #     shot_anim=geffects.ChainClawShot,
+        #     data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 6),
+        #     price=[],
+        #     targets=1,
+        #     help_text="Testing the invocations system."
+        # )
+        # invodict[Scouting].append(ba)
+
 
 class Craft(Stat):
     name = 'Craft'

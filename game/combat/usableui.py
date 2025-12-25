@@ -4,7 +4,7 @@ import pygame
 from .. import invoker
 
 
-class UsableWidget(invoker.InvocationsWidget):
+class UsableWidget(invoker.InvocationLibraryWidget):
     IMAGE_NAME = 'sys_invokerinterface_usables.png'
 
 

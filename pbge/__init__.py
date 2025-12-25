@@ -488,7 +488,8 @@ class GameState(object):
                     elif self.is_key_for_action(ev, "next_widget"):
                         self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
                     elif ev.key == pygame.K_F10:
-                        print(self.widgets)
+                        print("Top Level Widgets")
+                        print("\n".join(["{}: {}".format(w, w.active) for w in self.widgets]))
                 elif ev.type == pygame.VIDEORESIZE:
                     self.set_size(max(ev.w, 800), max(ev.h, 600))
 
@@ -720,11 +721,6 @@ def wait_event():
         my_state.view.check_event(ev)
 
     return ev
-
-
-def anim_delay():
-    while wait_event().type != TIMEREVENT:
-        pass
 
 
 def please_stand_by(caption=None):

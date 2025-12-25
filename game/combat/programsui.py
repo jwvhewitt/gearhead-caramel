@@ -5,7 +5,7 @@ from .. import invoker
 
 
 
-class ProgramWidget(invoker.InvocationsWidget):
+class ProgramWidget(invoker.InvocationLibraryWidget):
     IMAGE_NAME = 'sys_invokerinterface_programs.png'
 
 class ProgramsUI(invoker.InvocationUI):

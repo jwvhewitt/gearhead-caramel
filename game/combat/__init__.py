@@ -291,12 +291,104 @@ class WaypointBumper:
             self.wp.combat_bump(self.camp, self.pc)
 
 
-class PlayerTurn(object):
+class PlayerTurn(pbge.widgets.Widget):
     # It's the player's turn. Allow the player to control this PC.
     def __init__(self, pc, camp):
+        super().__init__(0,0,0,0)
         self.pc = pc
         self.camp = camp
         self.active_ui = None
+
+        myclock = ActionClockWidget(self.pc, self.camp)
+        self.children.append(myclock)
+        my_bonus_action_button = BonusActionWidget(self.pc, self.camp, self._update_current_nav)
+        myclock.children.append(my_bonus_action_button)
+
+        # How this is gonna work: There are several modes that can be switched
+        #  between: movement, attack, use skill, etc. Each mode is gonna get
+        #  a handler. The radio buttons widget determines what mode is current.
+        #  Then, this routine routes the input to the correct UI handler.
+        # Create all the UIs first. Then create the top_shelf and bottom_shelf switch lists based
+        # on which UIs this character needs.
+        self.all_funs = dict()
+        self.all_uis = list()
+
+        buttons_to_add = [
+            dict(on_frame=6, off_frame=7, on_click=self.switch_movement, tooltip='Movement'),
+            dict(on_frame=2, off_frame=3, on_click=self.switch_attack, tooltip='Attack',
+                 on_right_click=self._use_attack_menu),
+        ]
+
+        self.movement_ui = movementui.MovementUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+                                                 bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
+        self.all_uis.append(self.movement_ui)
+        self.all_funs[self.movement_ui] = self.switch_movement
+
+        self.attack_ui = targetingui.TargetingUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="attacks", clock=myclock)
+        self.all_uis.append(self.attack_ui)
+        self.all_funs[self.attack_ui] = self.switch_attack
+
+        has_skills = self.pc.get_skill_library(True)
+        self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
+                                             top_shelf_fun=self.switch_top_shelf, name="skills",
+                                             bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
+        if has_skills:
+            buttons_to_add.append(
+                dict(on_frame=8, off_frame=9, on_click=self.switch_skill, tooltip='Skills',
+                     on_right_click=self._use_skills_menu)
+            )
+            self.all_uis.append(self.skill_ui)
+            self.all_funs[self.skill_ui] = self.switch_skill
+
+        has_programs = self.pc.get_program_library()
+        self.program_ui = programsui.ProgramsUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+                                                bottom_shelf_fun=self.switch_bottom_shelf, name="programs", clock=myclock)
+        if has_programs:
+            buttons_to_add.append(
+                dict(on_frame=10, off_frame=11, on_click=self.switch_programs, tooltip='Programs',
+                     on_right_click=self._use_programs_menu)
+            )
+            self.all_uis.append(self.program_ui)
+            self.all_funs[self.program_ui] = self.switch_programs
+
+        has_usables = self.pc.get_usable_library()
+        self.usable_ui = usableui.UsablesUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+                                            bottom_shelf_fun=self.switch_bottom_shelf, name="usables", clock=myclock)
+        if has_usables:
+            buttons_to_add.append(
+                dict(on_frame=12, off_frame=13, on_click=self.switch_usables, tooltip='Usables',
+                     on_right_click=self._use_usables_menu)
+            )
+            self.all_uis.append(self.usable_ui)
+            self.all_funs[self.usable_ui] = self.switch_usables
+
+        buttons_to_add.append(
+            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')
+        )
+        self.my_radio_buttons = pbge.widgets.RadioButtonWidget(8, 8, 220, 40,
+                                                               sprite=pbge.image.Image('sys_combat_mode_buttons.png',
+                                                                                       40, 40),
+                                                               buttons=buttons_to_add,
+                                                               anchor=pbge.frects.ANCHOR_UPPERLEFT)
+        self.children.append(self.my_radio_buttons)
+        for ui in self.all_uis:
+            self.children.append(ui)
+
+        # Add the top_shelf and bottom_shelf functions
+        self.top_shelf_funs = dict()
+        self.bottom_shelf_funs = dict()
+        for t in range(len(self.all_uis)):
+            if t > 0:
+                self.top_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t - 1]]
+            if t < (len(self.all_uis) - 1):
+                self.bottom_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t + 1]]
+
+        self.active_ui = self.movement_ui
+
+        # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
+        if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
+            _=pbge.alerts.TextAlert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
 
     def end_turn(self, _button, _ev):
         self.camp.fight.cstat[self.pc].end_turn()
@@ -484,99 +576,12 @@ class PlayerTurn(object):
         else:
             self.active_ui.update_nav()
 
+    def _builtin_responder(self, ev):
+        pass
+
     def go(self):
         # Perform this character's turn.
         # Start by creating the movement clock, since we're gonna be passing this widget to a bunch of our UIs.
-
-        myclock = ActionClockWidget(self.pc, self.camp)
-        pbge.my_state.widgets.append(myclock)
-        my_bonus_action_button = BonusActionWidget(self.pc, self.camp, self._update_current_nav)
-        myclock.children.append(my_bonus_action_button)
-
-
-        # How this is gonna work: There are several modes that can be switched
-        #  between: movement, attack, use skill, etc. Each mode is gonna get
-        #  a handler. The radio buttons widget determines what mode is current.
-        #  Then, this routine routes the input to the correct UI handler.
-        # Create all the UIs first. Then create the top_shelf and bottom_shelf switch lists based
-        # on which UIs this character needs.
-        self.all_funs = dict()
-        self.all_uis = list()
-
-        buttons_to_add = [
-            dict(on_frame=6, off_frame=7, on_click=self.switch_movement, tooltip='Movement'),
-            dict(on_frame=2, off_frame=3, on_click=self.switch_attack, tooltip='Attack',
-                 on_right_click=self._use_attack_menu),
-        ]
-
-        self.movement_ui = movementui.MovementUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                 bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
-        self.all_uis.append(self.movement_ui)
-        self.all_funs[self.movement_ui] = self.switch_movement
-
-        self.attack_ui = targetingui.TargetingUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="attacks", clock=myclock)
-        self.all_uis.append(self.attack_ui)
-        self.all_funs[self.attack_ui] = self.switch_attack
-
-        has_skills = self.pc.get_skill_library(True)
-        self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
-                                             top_shelf_fun=self.switch_top_shelf, name="skills",
-                                             bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
-        if has_skills:
-            buttons_to_add.append(
-                dict(on_frame=8, off_frame=9, on_click=self.switch_skill, tooltip='Skills',
-                     on_right_click=self._use_skills_menu)
-            )
-            self.all_uis.append(self.skill_ui)
-            self.all_funs[self.skill_ui] = self.switch_skill
-
-        has_programs = self.pc.get_program_library()
-        self.program_ui = programsui.ProgramsUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                bottom_shelf_fun=self.switch_bottom_shelf, name="programs", clock=myclock)
-        if has_programs:
-            buttons_to_add.append(
-                dict(on_frame=10, off_frame=11, on_click=self.switch_programs, tooltip='Programs',
-                     on_right_click=self._use_programs_menu)
-            )
-            self.all_uis.append(self.program_ui)
-            self.all_funs[self.program_ui] = self.switch_programs
-
-        has_usables = self.pc.get_usable_library()
-        self.usable_ui = usableui.UsablesUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                            bottom_shelf_fun=self.switch_bottom_shelf, name="usables", clock=myclock)
-        if has_usables:
-            buttons_to_add.append(
-                dict(on_frame=12, off_frame=13, on_click=self.switch_usables, tooltip='Usables',
-                     on_right_click=self._use_usables_menu)
-            )
-            self.all_uis.append(self.usable_ui)
-            self.all_funs[self.usable_ui] = self.switch_usables
-
-        buttons_to_add.append(
-            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')
-        )
-        self.my_radio_buttons = pbge.widgets.RadioButtonWidget(8, 8, 220, 40,
-                                                               sprite=pbge.image.Image('sys_combat_mode_buttons.png',
-                                                                                       40, 40),
-                                                               buttons=buttons_to_add,
-                                                               anchor=pbge.frects.ANCHOR_UPPERLEFT)
-        pbge.my_state.widgets.append(self.my_radio_buttons)
-
-        # Add the top_shelf and bottom_shelf functions
-        self.top_shelf_funs = dict()
-        self.bottom_shelf_funs = dict()
-        for t in range(len(self.all_uis)):
-            if t > 0:
-                self.top_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t - 1]]
-            if t < (len(self.all_uis) - 1):
-                self.bottom_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t + 1]]
-
-        self.active_ui = self.movement_ui
-
-        # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
-        if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
-            pbge.alerts.TextAlert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
 
         keep_going = True
         while self.camp.fight.still_fighting() and (self.pc in self.camp.scene.contents) and self.camp.fight.cstat[
@@ -629,15 +634,10 @@ class PlayerTurn(object):
                 if gdi.button == 3 and not pbge.my_state.widget_responded:
                     self.pop_menu()
 
-        pbge.my_state.widgets.remove(self.my_radio_buttons)
-        pbge.my_state.view.overlays.clear()
-        pbge.my_state.widgets.remove(myclock)
-
-        for ui in self.all_uis:
-            ui.dispose()
 
     def _get_skill_library(self):
         return self.pc.get_skill_library(True)
+
 
 class PostCombatCleanup:
     def __init__(self, camp: gears.GearHeadCampaign):
