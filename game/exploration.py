@@ -280,7 +280,8 @@ class UsableMenuCall(object):
         self.source = source
 
     def _on_invoke(self, invo, firing_pos, targets, data):
-        pass
+        if invo:
+            self.explo.order = DoInvocation(self.explo, self.pc, firing_pos, invo, target_list=targets, data=data)
 
     def __call__(self, *args):
         invoker.InvocationUI.push_state_and_instantiate(
@@ -530,13 +531,7 @@ class Explorer(pbge.campaign.ExploPrototype):
             mycursor = pbge.scenes.mapcursor.MapCursor(0, 0, pbge.image.Image('sys_mapcursor.png', 64, 64))
         self.view = scenes.viewer.SceneView(camp.scene, cursor=mycursor)
         self.children.append(pbge.scenes.viewer.SceneViewWidget(self.view))
-        self.time = 0
         self.thirty_second_timer = 0
-
-        self.threat_tiles = set()
-        self.threat_viewer = pbge.scenes.areaindicator.AreaIndicator("sys_threatarea.png")
-
-        self.record_count = 0
 
         # Preload some portraits and sprites.
         self.preloads = list()
@@ -570,8 +565,7 @@ class Explorer(pbge.campaign.ExploPrototype):
 
         # Focus on the first PC.
         if first_pc:
-            x, y = first_pc.pos
-            self.view.focus(x, y)
+            self.view.focus(*first_pc.pos)
 
         # Make sure all graphics are updated.
         for thing in self.scene.contents:

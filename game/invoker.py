@@ -476,7 +476,6 @@ class InvocationUI(pbge.widgets.Widget):
             if not data_g(self.data):
                 self.ready_to_invoke = False
                 break
-        pbge.my_state.view.overlays.clear()
         # if self.camp.fight and self.ready_to_invoke:
         #     # Launch the effect.
         #     self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list, data=self.data)

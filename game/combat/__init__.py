@@ -324,14 +324,18 @@ class PlayerTurn(pbge.widgets.Widget):
         self.all_uis.append(self.movement_ui)
         self.all_funs[self.movement_ui] = self.switch_movement
 
-        self.attack_ui = targetingui.TargetingUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                 bottom_shelf_fun=self.switch_bottom_shelf, name="attacks", clock=myclock)
+        self.attack_ui = targetingui.TargetingUI(
+            self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+            on_invoke=self._on_invoke,
+            bottom_shelf_fun=self.switch_bottom_shelf, name="attacks", clock=myclock
+        )
         self.all_uis.append(self.attack_ui)
         self.all_funs[self.attack_ui] = self.switch_attack
 
         has_skills = self.pc.get_skill_library(True)
         self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
                                              top_shelf_fun=self.switch_top_shelf, name="skills",
+                                             on_invoke=self._on_invoke,
                                              bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
         if has_skills:
             buttons_to_add.append(
@@ -342,8 +346,11 @@ class PlayerTurn(pbge.widgets.Widget):
             self.all_funs[self.skill_ui] = self.switch_skill
 
         has_programs = self.pc.get_program_library()
-        self.program_ui = programsui.ProgramsUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                bottom_shelf_fun=self.switch_bottom_shelf, name="programs", clock=myclock)
+        self.program_ui = programsui.ProgramsUI(
+            self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+            on_invoke=self._on_invoke,
+            bottom_shelf_fun=self.switch_bottom_shelf, name="programs", clock=myclock
+        )
         if has_programs:
             buttons_to_add.append(
                 dict(on_frame=10, off_frame=11, on_click=self.switch_programs, tooltip='Programs',
@@ -353,8 +360,11 @@ class PlayerTurn(pbge.widgets.Widget):
             self.all_funs[self.program_ui] = self.switch_programs
 
         has_usables = self.pc.get_usable_library()
-        self.usable_ui = usableui.UsablesUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                            bottom_shelf_fun=self.switch_bottom_shelf, name="usables", clock=myclock)
+        self.usable_ui = usableui.UsablesUI(
+            self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
+            on_invoke=self._on_invoke,
+            bottom_shelf_fun=self.switch_bottom_shelf, name="usables", clock=myclock
+        )
         if has_usables:
             buttons_to_add.append(
                 dict(on_frame=12, off_frame=13, on_click=self.switch_usables, tooltip='Usables',
@@ -364,7 +374,7 @@ class PlayerTurn(pbge.widgets.Widget):
             self.all_funs[self.usable_ui] = self.switch_usables
 
         buttons_to_add.append(
-            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')
+            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')  # pyright: ignore[reportArgumentType]
         )
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget(8, 8, 220, 40,
                                                                sprite=pbge.image.Image('sys_combat_mode_buttons.png',
@@ -487,6 +497,9 @@ class PlayerTurn(pbge.widgets.Widget):
         if choice:
             choice()
 
+    def _on_invoke(self, invo, firing_pos, targets, data):
+        pass
+
     def find_this_option(self, op_string):
         op_list = op_string.split('/')
         ui_name = op_list.pop(0)
@@ -589,7 +602,7 @@ class PlayerTurn(pbge.widgets.Widget):
             # Get input and process it.
             gdi = pbge.wait_event()
 
-            self.active_ui.update(gdi, self)
+            #self.active_ui.update(gdi, self)
 
             if gdi.type == pygame.KEYDOWN:
                 if gdi.unicode and gdi.unicode in self.ACCEPTABLE_HOTKEYS and gdi.mod & pygame.KMOD_ALT:
@@ -750,11 +763,7 @@ class Combat(object):
         )
 
     def step(self, chara, dest):
-        """Move chara according to hmap, return True if movement ended."""
-        # See if the movement starts in a threatened area- may be attacked if it ends
-        # in a threatened area as well.
-        # threat_area = self.get_threatened_area( chara )
-        # started_in_threat = chara.pos in threat_area
+        """Move chara to dest directly."""
         chara.move(dest, pbge.my_state.view, 0.4)
         pbge.my_state.view.handle_anim_sequence()
         self.cstat[chara].moves_this_round += 1
