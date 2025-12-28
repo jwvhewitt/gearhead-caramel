@@ -320,9 +320,9 @@ class InvocationUI(pbge.widgets.Widget):
     def __init__(
         self, camp: gears.GearHeadCampaign, pc, build_library_function, on_invoke: On_Invoke,
         source=None, top_shelf_fun=None, auto_escape=False,
-        bottom_shelf_fun=None, name="invocations", clock=None 
+        bottom_shelf_fun=None, name="invocations", clock=None , **kwargs
     ):
-        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_HIDE_DURING_ANIMATION,})
+        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}, **kwargs)
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)

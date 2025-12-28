@@ -4,7 +4,7 @@ import gears
 from gears import info
 from game import traildrawer
 import pygame
-from . import jumping
+from . import jumping, actions
 
 
 class MovementWidget(pbge.widgets.Widget):
@@ -173,17 +173,19 @@ class MovementWidget(pbge.widgets.Widget):
             return self.mmodes[self.selection]
 
 
-class JumpNav(object):
-    def __init__(self, camp, pc):
-        self.camp = camp
-        self.pc = pc
-        self.cost_to_tile = dict()
+# class JumpNav(object):
+#     def __init__(self, camp, pc):
+#         self.camp = camp
+#         self.pc = pc
+#         self.cost_to_tile = dict()
 
-    def get_path(self, dest_pos):
-        pass
+#     def get_path(self, dest_pos):
+#         pass
 
 
-class MovementUI(object):
+class MovementUI(pbge.widgets.Widget):
+    # This UI more or less follows the same patterns as the invoker since it's used alongside a bunch of
+    # invokers in the player turn UI.
     SC_ORIGIN = 4
     SC_GOCURSOR = 1
     SC_AOE = 2
@@ -194,11 +196,13 @@ class MovementUI(object):
     SC_ZEROCURSOR = 7
     SC_ENEMYCURSOR = 12
 
-    def __init__(self, camp, mover, top_shelf_fun=None, bottom_shelf_fun=None, name="movement", clock=None):
+    def __init__(self, camp, mover, on_move, on_switch_to_attack, top_shelf_fun=None, bottom_shelf_fun=None, name="movement", clock=None, **kwargs):
+        # on_move is a callable which accepts a list of actions
+        # on_switch_to_attck is a callable which takes no parameters
+        super().__init__(0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}, **kwargs)
         self.camp = camp
         self.mover = mover
         self.origin = mover.pos
-        self.needs_tile_update = True
         self.name = name
 
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
@@ -209,7 +213,12 @@ class MovementUI(object):
         self.reachable_waypoints = dict()
         self.jumpable_points = set()
         self.clock = clock
-        pbge.my_state.widgets.append(self.my_widget)
+        self.children.append(self.my_widget)
+
+        self.on_move = on_move
+        self.on_switch_to_attack = on_switch_to_attack
+        self.needs_tile_update = True
+        self.update_tiles()
 
     def _render_normal_movemode(self):
         if self.mover.get_current_speed() <= 1:
@@ -262,25 +271,6 @@ class MovementUI(object):
         else:
             return self.SC_VOIDCURSOR
 
-    def render(self):
-        pbge.my_state.view.overlays.clear()
-        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
-
-        # Drawing the path is different for jumping and everything else.
-        if self.selected_mmode is gears.tags.Jumping:
-            self._render_jumping_movemode()
-        else:
-            self._render_normal_movemode()
-
-        pbge.my_state.view()
-
-        # Display info for this tile.
-        my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
-        if my_info:
-            my_info.view_display(self.camp)
-
-        pbge.my_state.do_flip()
-
     def change_movemode(self, new_mm):
         self.selected_mmode = new_mm
         if new_mm is not gears.tags.Jumping:
@@ -311,11 +301,12 @@ class MovementUI(object):
                     if len(path.results) > 1 and path.results[-2] in self.nav.cost_to_tile:
                         self.reachable_waypoints[wp.pos] = (wp, path.results[-2])
 
-    def _do_regular_movement(self, player_turn):
+    def _do_regular_movement(self):
+        my_actions = list()
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             # Move!
-            dest = self.camp.fight.move_model_to(self.mover, self.nav, pbge.my_state.view.mouse_tile)
             self.needs_tile_update = True
+            self.on_move(actions.MoveModelToPos(self.camp, self.mover, self.nav, pbge.my_state.view.mouse_tile))
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
             # Bump!
             wp, target_tile = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
@@ -326,9 +317,9 @@ class MovementUI(object):
         else:
             mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
             if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
-                player_turn.switch_attack()
+                self.on_switch_to_attack()
 
-    def _do_jump_movement(self, player_turn):
+    def _do_jump_movement(self):
         if pbge.my_state.view.mouse_tile in self.jumpable_points:
             # Jump!
             jumping.jump(self.camp, self.mover, pbge.my_state.view.mouse_tile)
@@ -336,15 +327,30 @@ class MovementUI(object):
         else:
             mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
             if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):
-                player_turn.switch_attack()
+                self.on_switch_to_attack()
 
-    def click_left(self, player_turn):
+    def click_left(self):
         if self.selected_mmode is gears.tags.Jumping:
-            self._do_jump_movement(player_turn)
+            self._do_jump_movement()
         else:
-            self._do_regular_movement(player_turn)
+            self._do_regular_movement()
 
-    def update(self, ev, player_turn):
+    def _render(self, _delta):
+        pbge.my_state.view.overlays.clear()
+        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
+
+        # Drawing the path is different for jumping and everything else.
+        if self.selected_mmode is gears.tags.Jumping:
+            self._render_jumping_movemode()
+        else:
+            self._render_normal_movemode()
+
+        # Display info for this tile.
+        my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
+        if my_info:
+            my_info.view_display(self.camp)
+
+    def _builtin_responder(self, ev):
         # We just got an event. Deal with it.
         if self.needs_tile_update:
             self.update_tiles()
@@ -356,13 +362,15 @@ class MovementUI(object):
             self.camp.fight.cstat[self.mover].mp_remaining < self.nav.cheapest_move
         ):
             self.camp.fight.cstat[self.mover].end_turn()
-        elif ev.type == pbge.TIMEREVENT:
-            self.render()
+
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
-            self.click_left(player_turn)
+            self.click_left()
+            self.register_response()
+
         elif ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_responded:
-                self.click_left(player_turn)
+                self.click_left()
+                self.register_response()
 
             elif ev.unicode == "t":
                 mypos = pbge.my_state.view.mouse_tile
@@ -370,15 +378,11 @@ class MovementUI(object):
                 print("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos), myscene.get_wall(*mypos),
                                                                  myscene.get_decor(*mypos)))
 
-    def dispose(self):
-        # Get rid of the widgets and shut down.
-        pbge.my_state.widgets.remove(self.my_widget)
-
     def activate(self):
-        self.my_widget.active = True
+        self.visible = True
         self.needs_tile_update = True
 
     def deactivate(self):
-        self.my_widget.active = False
+        self.visible = False
         pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
 

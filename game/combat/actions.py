@@ -1,4 +1,4 @@
-
+import pbge
 
 class MoveModelToPos:
     def __init__(self, camp, chara, nav, dest):
@@ -22,3 +22,17 @@ class MoveModelToPos:
             else:
                 return True
 
+class InvokeInvocation:
+    def __init__(self, camp, invo: pbge.effects.Invocation, firing_pos, chara, targets, data):
+        self.camp = camp
+        self.invo = invo
+        self.firing_pos = firing_pos
+        self.chara = chara
+        self.targets = targets
+        self.data = data
+
+    def __call__(self):
+        if self.chara.pos == self.firing_pos:
+            # Spend the movement points.
+            _=self.invo.invoke(self.camp, self.chara, self.targets, pbge.my_state.view.anim_list, data=self.data)
+            self.camp.fight.cstat[self.chara].spend_ap(1)

@@ -10,21 +10,20 @@
 import pbge
 from pbge import scenes
 import collections
-import pygame
-from . import movementui, usableui
-from . import targetingui
-from . import programsui
-from . import aibrain
+from . import pcaction
 from . import aihaywire
 from game import fieldhq
 import random
 import gears
-from .. import configedit, invoker
 from game.content import ghcutscene
+from . import aibrain
+
 
 ALT_AIS = {
     "HaywireAI": aihaywire.HaywireTurn
 }
+
+WTAG_COMBATHANDLER = "WTAG_COMBATHANDLER"
 
 
 def enter_combat(camp, npc):
@@ -179,7 +178,7 @@ class CombatDict:
     def __init__(self):
         self._entries = dict()
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> CombatStat:
         if key in self._entries:
             return self._entries[key]
         else:
@@ -196,460 +195,6 @@ class CombatDict:
         return nu_dict
 
 
-class BonusActionWidget(pbge.widgets.ButtonWidget):
-    def __init__(self, pc, camp, on_buy_action):
-        self.pc = pc
-        self.camp = camp
-        self.comrec = camp.fight.cstat[pc]
-        self.on_buy_action = on_buy_action
-        super().__init__(
-            -64, 13, 32, 32,
-            sprite=pbge.image.Image("sys_bonusaction_widget.png", 32, 32),
-            frame=0, on_frame=0, off_frame=1,
-            anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining",
-            on_click=self.buy_action
-        )
-        self.last_update = None
-
-    def buy_action(self, *_args):
-        if self.comrec.can_buy_bonus_action():
-            self.comrec.buy_bonus_action()
-            self.on_buy_action()
-
-    def _render(self, delta):
-        if self.frame == self.on_frame and not self.comrec.can_buy_bonus_action():
-            self.frame = self.off_frame
-        if self.last_update != self.comrec.extra_actions_taken:
-            self.last_update = self.comrec.extra_actions_taken
-            self.tooltip = "Spend {} SP for +1 Action".format(self.comrec.bonus_action_cost())
-
-        super()._render(delta)
-
-
-class ActionClockWidget(pbge.widgets.Widget):
-    ACTION_QUARTER_ANCHORS = (
-        (27, 2), (27, 27), (2, 27), (2, 2)
-    )
-    def __init__(self, pc, camp):
-        self.pc = pc
-        self.camp = camp
-        self.bg_image = pbge.image.Image("sys_actionclock_bg.png")
-        self.quarters = pbge.image.Image("sys_actionclock_quarters.png", 23, 23)
-        self.ap_to_spend = 0
-        self.mp_to_spend = 0
-
-        super().__init__(-26, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining")
-
-    def set_ap_mp_costs(self, ap_to_spend=0, mp_to_spend=0):
-        self.ap_to_spend = ap_to_spend
-        self.mp_to_spend = mp_to_spend
-
-    def _draw_clock(self, actions, leftover, frame_offset=0):
-        if actions > 4:
-            actions = 4
-            leftover = 0
-        if actions > 0:
-            for t in range(actions):
-                adest = self.get_rect()
-                adest.x += self.ACTION_QUARTER_ANCHORS[t][0]
-                adest.y += self.ACTION_QUARTER_ANCHORS[t][1]
-                self.quarters.render(adest, t*32 + frame_offset)
-        if leftover > 0:
-            adest = self.get_rect()
-            adest.x += self.ACTION_QUARTER_ANCHORS[actions][0]
-            adest.y += self.ACTION_QUARTER_ANCHORS[actions][1]
-            frame = actions * 32 + min(max((16 * (100-leftover))//100, 0), 15) + frame_offset
-            if leftover < 50:
-                frame = max(frame, actions * 32 + 9 + frame_offset)
-            else:
-                frame = min(frame, actions * 32 + 8 + frame_offset)
-            self.quarters.render(adest, frame)
-
-    def _render(self, delta):
-        mydest = self.get_rect()
-        self.bg_image.render(mydest)
-        actions, leftover = self.camp.fight.cstat[self.pc].get_actions_and_move_percent()
-        self._draw_clock(actions, leftover, frame_offset=16)
-        actions, leftover = self.camp.fight.cstat[self.pc].get_modified_actions_and_move_percent(self.ap_to_spend, self.mp_to_spend)
-        self._draw_clock(actions, leftover)
-
-
-class WaypointBumper:
-    # A special action so the player can go bump a waypoint.
-    def __init__(self, pc, camp, turn, nav, wp, dest):
-        self.pc = pc
-        self.camp = camp
-        self.turn = turn
-        self.nav = nav
-        self.wp = wp
-        self.dest = dest
-
-    def __call__(self):
-        dest = self.camp.fight.move_model_to(self.pc, self.nav, self.dest)
-        self.turn.movement_ui.needs_tile_update = True
-        if dest == self.dest:
-            self.wp.combat_bump(self.camp, self.pc)
-
-
-class PlayerTurn(pbge.widgets.Widget):
-    # It's the player's turn. Allow the player to control this PC.
-    def __init__(self, pc, camp):
-        super().__init__(0,0,0,0)
-        self.pc = pc
-        self.camp = camp
-        self.active_ui = None
-
-        myclock = ActionClockWidget(self.pc, self.camp)
-        self.children.append(myclock)
-        my_bonus_action_button = BonusActionWidget(self.pc, self.camp, self._update_current_nav)
-        myclock.children.append(my_bonus_action_button)
-
-        # How this is gonna work: There are several modes that can be switched
-        #  between: movement, attack, use skill, etc. Each mode is gonna get
-        #  a handler. The radio buttons widget determines what mode is current.
-        #  Then, this routine routes the input to the correct UI handler.
-        # Create all the UIs first. Then create the top_shelf and bottom_shelf switch lists based
-        # on which UIs this character needs.
-        self.all_funs = dict()
-        self.all_uis = list()
-
-        buttons_to_add = [
-            dict(on_frame=6, off_frame=7, on_click=self.switch_movement, tooltip='Movement'),
-            dict(on_frame=2, off_frame=3, on_click=self.switch_attack, tooltip='Attack',
-                 on_right_click=self._use_attack_menu),
-        ]
-
-        self.movement_ui = movementui.MovementUI(self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-                                                 bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
-        self.all_uis.append(self.movement_ui)
-        self.all_funs[self.movement_ui] = self.switch_movement
-
-        self.attack_ui = targetingui.TargetingUI(
-            self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-            on_invoke=self._on_invoke,
-            bottom_shelf_fun=self.switch_bottom_shelf, name="attacks", clock=myclock
-        )
-        self.all_uis.append(self.attack_ui)
-        self.all_funs[self.attack_ui] = self.switch_attack
-
-        has_skills = self.pc.get_skill_library(True)
-        self.skill_ui = invoker.InvocationUI(self.camp, self.pc, self._get_skill_library,
-                                             top_shelf_fun=self.switch_top_shelf, name="skills",
-                                             on_invoke=self._on_invoke,
-                                             bottom_shelf_fun=self.switch_bottom_shelf, clock=myclock)
-        if has_skills:
-            buttons_to_add.append(
-                dict(on_frame=8, off_frame=9, on_click=self.switch_skill, tooltip='Skills',
-                     on_right_click=self._use_skills_menu)
-            )
-            self.all_uis.append(self.skill_ui)
-            self.all_funs[self.skill_ui] = self.switch_skill
-
-        has_programs = self.pc.get_program_library()
-        self.program_ui = programsui.ProgramsUI(
-            self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-            on_invoke=self._on_invoke,
-            bottom_shelf_fun=self.switch_bottom_shelf, name="programs", clock=myclock
-        )
-        if has_programs:
-            buttons_to_add.append(
-                dict(on_frame=10, off_frame=11, on_click=self.switch_programs, tooltip='Programs',
-                     on_right_click=self._use_programs_menu)
-            )
-            self.all_uis.append(self.program_ui)
-            self.all_funs[self.program_ui] = self.switch_programs
-
-        has_usables = self.pc.get_usable_library()
-        self.usable_ui = usableui.UsablesUI(
-            self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
-            on_invoke=self._on_invoke,
-            bottom_shelf_fun=self.switch_bottom_shelf, name="usables", clock=myclock
-        )
-        if has_usables:
-            buttons_to_add.append(
-                dict(on_frame=12, off_frame=13, on_click=self.switch_usables, tooltip='Usables',
-                     on_right_click=self._use_usables_menu)
-            )
-            self.all_uis.append(self.usable_ui)
-            self.all_funs[self.usable_ui] = self.switch_usables
-
-        buttons_to_add.append(
-            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')  # pyright: ignore[reportArgumentType]
-        )
-        self.my_radio_buttons = pbge.widgets.RadioButtonWidget(8, 8, 220, 40,
-                                                               sprite=pbge.image.Image('sys_combat_mode_buttons.png',
-                                                                                       40, 40),
-                                                               buttons=buttons_to_add,
-                                                               anchor=pbge.frects.ANCHOR_UPPERLEFT)
-        self.children.append(self.my_radio_buttons)
-        for ui in self.all_uis:
-            self.children.append(ui)
-
-        # Add the top_shelf and bottom_shelf functions
-        self.top_shelf_funs = dict()
-        self.bottom_shelf_funs = dict()
-        for t in range(len(self.all_uis)):
-            if t > 0:
-                self.top_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t - 1]]
-            if t < (len(self.all_uis) - 1):
-                self.bottom_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t + 1]]
-
-        self.active_ui = self.movement_ui
-
-        # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
-        if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
-            _=pbge.alerts.TextAlert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
-
-    def end_turn(self, _button, _ev):
-        self.camp.fight.cstat[self.pc].end_turn()
-
-    def switch_movement(self, _button=None, _ev=None):
-        if self.active_ui != self.movement_ui:
-            self.active_ui.deactivate()
-            self.movement_ui.activate()
-            self.active_ui = self.movement_ui
-            self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
-
-    def switch_attack(self, _button=None, _ev=None):
-        if self.active_ui != self.attack_ui:
-            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_attack_library():
-                self.active_ui.deactivate()
-                self.attack_ui.activate()
-                self.active_ui = self.attack_ui
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[1])
-            else:
-                # If the attack UI can't be activated, switch back to movement UI.
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
-
-    def switch_skill(self, _button=None, _ev=None):
-        if self.active_ui != self.skill_ui:
-            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_skill_library(True):
-                self.active_ui.deactivate()
-                self.skill_ui.activate()
-                self.active_ui = self.skill_ui
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_skill))
-            else:
-                # If the attack UI can't be activated, switch back to movement UI.
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
-
-    def switch_programs(self, _button=None, _ev=None):
-        if self.active_ui != self.program_ui:
-            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library():
-                self.active_ui.deactivate()
-                self.program_ui.activate()
-                self.active_ui = self.program_ui
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_programs))
-            else:
-                # If the attack UI can't be activated, switch back to movement UI.
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
-
-    def switch_usables(self, _button=None, _ev=None):
-        if self.active_ui != self.usable_ui:
-            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library():
-                self.active_ui.deactivate()
-                self.usable_ui.activate()
-                self.active_ui = self.usable_ui
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.get_button(self.switch_usables))
-            else:
-                # If the attack UI can't be activated, switch back to movement UI.
-                self.my_radio_buttons.activate_button(self.my_radio_buttons.buttons[0])
-
-    def switch_top_shelf(self):
-        if self.active_ui in self.top_shelf_funs:
-            self.top_shelf_funs[self.active_ui]()
-            if pbge.util.config.getboolean("GENERAL", "scroll_to_start_of_action_library") and hasattr(self.active_ui, "set_top_shelf"):
-                _=self.active_ui.set_top_shelf()
-            elif hasattr(self.active_ui, "set_bottom_shelf"):
-                _=self.active_ui.set_bottom_shelf()
-
-    def switch_bottom_shelf(self):
-        if self.active_ui in self.bottom_shelf_funs:
-            self.bottom_shelf_funs[self.active_ui]()
-            if hasattr(self.active_ui, "set_top_shelf"):
-                _=self.active_ui.set_top_shelf()
-
-    def focus_on_pc(self):
-        pbge.my_state.view.focus(self.pc.pos[0], self.pc.pos[1])
-
-    def quit_the_game(self):
-        self.camp.fight.no_quit = False
-
-    ACCEPTABLE_HOTKEYS = "abcdefghijklmnopqrstuvwxyz1234567890"
-
-    def pop_menu(self):
-        # Pop Pop PopMenu Pop Pop PopMenu
-        mymenu = pbge.rpgmenu.PopUpMenu()
-        mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.camp.fight.cstat[
-                self.pc].total_mp_remaining, self.pc.mmode, self.camp.scene.get_blocked_tiles())
-        path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, pbge.my_state.view.mouse_tile,
-                                                 self.pc.mmode)
-        if len(path.results) > 1 and path.results[-2] in mynav.cost_to_tile:
-            for wp in self.camp.scene.get_waypoints(pbge.my_state.view.mouse_tile):
-                if hasattr(wp, "combat_bump"):
-                    mymenu.add_item("Use {}".format(wp.name), WaypointBumper(self.pc, self.camp, self, mynav, wp, path.results[-2]))
-
-        mymenu.add_item("Center on {}".format(self.pc.get_pilot()), self.focus_on_pc)
-        mymenu.add_item("Record hotkey for current action", self.gui_record_hotkey)
-        mymenu.add_item("View hotkeys", self.gui_view_hotkeys)
-        mymenu.add_item("Quit Game", self.quit_the_game)
-
-        choice = mymenu.query()
-        if choice:
-            choice()
-
-    def _on_invoke(self, invo, firing_pos, targets, data):
-        pass
-
-    def find_this_option(self, op_string):
-        op_list = op_string.split('/')
-        ui_name = op_list.pop(0)
-        myui = None
-        for ui in self.all_uis:
-            if ui.name == ui_name and ui in self.all_funs:
-                self.all_funs[ui]()
-                myui = ui
-                break
-        if op_list and myui and hasattr(myui, "find_shelf_invo"):
-            myui.find_shelf_invo(op_list)
-
-    def name_current_option(self):
-        op_list = list()
-        op_list.append(self.active_ui.name)
-        if hasattr(self.active_ui, "name_current_option"):
-            op_list += self.active_ui.name_current_option()
-        return '/'.join(op_list)
-
-    def record_hotkey(self, mykey):
-        if not mykey:
-            return
-
-        option_string = self.name_current_option()
-
-        pbge.util.config.set("HOTKEYS", mykey, option_string)
-        pbge.BasicNotification("New hotkey set: {} = {}".format(mykey, option_string), count=200)
-        # Export the new config options.
-        current_use = pbge.my_state.key_is_in_use(mykey)
-        if current_use:
-            pbge.alerts.TextAlert("Warning: Key {} is currently in use by \"{}\". It can't be used as a hotkey unless you change your key configuration.".format(mykey, current_use))
-
-        with open(pbge.util.user_dir("config.cfg"), "wt") as f:
-            pbge.util.config.write(f)
-
-    def gui_record_hotkey(self):
-        # TODO: replace this alert with a custom widget
-        myevent = pbge.alerts.TextAlert(
-            "Press a letter or number key to record a new macro for {}. You could also do this by holding Alt + key.".format(
-                self.name_current_option()))
-
-        if myevent.type == pygame.KEYDOWN and myevent.unicode in self.ACCEPTABLE_HOTKEYS:
-            self.record_hotkey(myevent.unicode)
-
-    def gui_view_hotkeys(self):
-        mymenu = pbge.rpgmenu.Menu(-250, -100, 500, 200, font=pbge.my_state.big_font)
-        for op in pbge.util.config.options("HOTKEYS"):
-            mymenu.add_item("{}: {}".format(op, pbge.util.config.get("HOTKEYS", op)), None)
-        mymenu.add_item("[Exit]", None)
-        mymenu.query()
-
-    def _use_attack_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
-        for shelf in self.attack_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.attack_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
-
-    def _use_skills_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
-        for shelf in self.skill_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.skill_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
-
-    def _use_programs_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
-        for shelf in self.program_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.program_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
-
-    def _use_usables_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
-        for shelf in self.usable_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.usable_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
-
-    def _update_current_nav(self):
-        if isinstance(self.active_ui, movementui.MovementUI):
-            self.active_ui.needs_tile_update = True
-        else:
-            self.active_ui.update_nav()
-
-    def _builtin_responder(self, ev):
-        pass
-
-    def go(self):
-        # Perform this character's turn.
-        # Start by creating the movement clock, since we're gonna be passing this widget to a bunch of our UIs.
-
-        keep_going = True
-        while self.camp.fight.still_fighting() and (self.pc in self.camp.scene.contents) and self.camp.fight.cstat[
-            self.pc].can_act():
-            # Get input and process it.
-            gdi = pbge.wait_event()
-
-            #self.active_ui.update(gdi, self)
-
-            if gdi.type == pygame.KEYDOWN:
-                if gdi.unicode and gdi.unicode in self.ACCEPTABLE_HOTKEYS and gdi.mod & pygame.KMOD_ALT:
-                    # Record a hotkey.
-                    self.record_hotkey(gdi.unicode)
-                elif gdi.unicode in self.ACCEPTABLE_HOTKEYS and pbge.util.config.has_option("HOTKEYS", gdi.unicode) and not pbge.my_state.key_is_in_use(gdi.unicode):
-                    self.find_this_option(pbge.util.config.get("HOTKEYS", gdi.unicode))
-                elif pbge.my_state.is_key_for_action(gdi, "quit_game"):
-                    keep_going = False
-                    self.camp.fight.no_quit = False
-                elif pbge.my_state.is_key_for_action(gdi, "center_on_pc"):
-                    self.focus_on_pc()
-                elif gdi.key == pygame.K_ESCAPE:
-                    configedit.PopupGameMenu().push_state_and_instantiate()
-                elif gdi.unicode == "," and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    print("Checking...")
-                    print(self.camp.fight.cstat[self.pc]._ap_remaining,self.camp.fight.cstat[self.pc].action_points, -self.camp.fight.cstat[self.pc]._mp_spent, self.camp.fight.cstat[self.pc].mp_remaining, self.camp.fight.cstat[self.pc].total_mp_remaining)
-                elif gdi.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    self.camp.check_trigger("CHEATINGFUCKINGBASTARD")
-                elif gdi.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    for pc in self.camp.get_active_party():
-                        self.camp.scene.contents.remove(pc.get_root())
-                elif gdi.unicode == "+" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    import cProfile
-                    cProfile.run("pbge.my_state.view()", sort="tottime")
-                    #import timeit
-                    #print(timeit.timeit('pbge.my_state.view()', setup="from __main__ import pbge", number=30, globals=globals()))
-
-                elif gdi.unicode == "!" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    myparty = self.camp.get_active_party()
-                    myparty.remove(self.pc)
-                    if myparty:
-                        victim = random.choice(myparty)
-                        pbge.alerts.TextAlert("{} is immobilized!".format(victim))
-                        for part in victim.get_all_parts():
-                            if isinstance(part, gears.base.MovementSystem):
-                                part.hp_damage += part.max_health
-                            elif isinstance(part, gears.base.Module) and part.form is gears.base.MF_Leg:  # pyright: ignore[reportUnnecessaryComparison]
-                                part.hp_damage += part.max_health
-
-            elif gdi.type == pygame.MOUSEBUTTONUP:
-                if gdi.button == 3 and not pbge.my_state.widget_responded:
-                    self.pop_menu()
-
-
-    def _get_skill_library(self):
-        return self.pc.get_skill_library(True)
 
 
 class PostCombatCleanup:
@@ -681,6 +226,72 @@ class PostCombatCleanup:
         for m in camp.scene.contents:
             if hasattr(m, "hidden") and m.hidden:
                 m.hidden = False
+
+
+class CombatControlWidget(pbge.widgets.Widget):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_EXPLORATIONMODE,}
+
+    def __init__(self, camp):
+        super().__init__(0,0,0,0,tags={WTAG_COMBATHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION})
+        self.camp = camp
+        self._current_combatant = None
+
+    def get_next_combatant(self):
+        for chara in self.camp.fight.active:
+            cdata = self.camp.fight.cstat[chara]
+            if not cdata.has_started_turn:
+                return chara
+            elif cdata.can_act():
+                return chara
+
+    def on_activate(self):
+        # When control returns to the combat controller, do the end-of-turn upkeep for
+        # the most recent combatant.
+        if self._current_combatant:
+            self.camp.fight.cstat[self._current_combatant].aoo_readied = True
+            self.camp.fight.cstat[self._current_combatant].attacks_this_round = 0
+            self._current_combatant.renew_power()
+
+    def do_combat_turn(self, chara):
+        if not self.camp.fight.cstat[chara].has_started_turn:
+            self.camp.fight.cstat[chara].start_turn(chara)
+            # if hasattr(chara, 'ench_list'):
+            #     chara.ench_list.update(self.camp, chara)
+            #     alt_ais = chara.ench_list.get_tags('ALT_AI')
+            #     if alt_ais:
+            #         current_ai = random.choice(alt_ais)
+            #         if current_ai in ALT_AIS:
+            #             ALT_AIS[current_ai](chara, self.camp)
+        if chara.is_operational():
+            self._current_combatant = chara
+            if chara in self.camp.party and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
+                # Outsource the turn-taking.
+                pcaction.PlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
+            else:
+                self.camp.fight.cstat[chara].end_turn()
+                # if chara not in self.camp.fight.ai_brains:
+                #     chara_ai = aibrain.BasicAI(chara)
+                #     self.camp.fight.ai_brains[chara] = chara_ai
+                # else:
+                #     chara_ai = self.camp.fight.ai_brains[chara]
+                # chara_ai.act(self.camp)
+
+    def update(self, delta):
+        super().update(delta)
+        if self.camp.fight and self.camp.fight.still_fighting():
+            # Find the next active combatant and deploy their turn widget.
+            chara = self.get_next_combatant()
+
+            if chara:
+                self.do_combat_turn(chara)
+            else:
+                # No combatants to act? Start the next round.
+                self.camp.fight.end_round()
+                self._current_combatant = None
+        else:
+            # Combat is over, for now. If the player quit just pop this widget. If not,
+            # resolve the after-combat effects.
+            self.pop()
 
 
 class Combat(object):
@@ -733,7 +344,6 @@ class Combat(object):
                     if ateam and ateam not in team_frontier:
                         team_frontier.append(ateam)
 
-        pbge.my_state.view.handle_anim_sequence()
         self.roll_initiative()
 
     def check_party_activation(self):
@@ -758,14 +368,14 @@ class Combat(object):
         """Keep playing as long as there are enemies, players, and no quit."""
         return (
             (self.num_enemies() or self.keep_going_without_enemies) and
-            self.camp.first_active_pc() and self.no_quit and self.camp.scene is self.scene
-            and not pbge.my_state.got_quit and self.camp.keep_playing_scene() and self.camp.egg
+            self.camp.first_active_pc() and not pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT)
+            and self.camp.scene is self.scene
+            and not pbge.my_state.got_quit and self.camp.egg
         )
 
     def step(self, chara, dest):
         """Move chara to dest directly."""
         chara.move(dest, pbge.my_state.view, 0.4)
-        pbge.my_state.view.handle_anim_sequence()
         self.cstat[chara].moves_this_round += 1
         self.camp.invoke_area_effects(dest)
 
@@ -837,28 +447,6 @@ class Combat(object):
         else:
             self.cstat[pc].spend_ap(1)
 
-    def do_combat_turn(self, chara):
-        if not self.cstat[chara].has_started_turn:
-            self.cstat[chara].start_turn(chara)
-            if hasattr(chara, 'ench_list'):
-                chara.ench_list.update(self.camp, chara)
-                alt_ais = chara.ench_list.get_tags('ALT_AI')
-                if alt_ais:
-                    current_ai = random.choice(alt_ais)
-                    if current_ai in ALT_AIS:
-                        ALT_AIS[current_ai](chara, self.camp)
-        if chara in self.camp.party and chara.is_operational() and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
-            # Outsource the turn-taking.
-            my_turn = PlayerTurn(chara, self.camp)
-            my_turn.go()
-        elif chara.is_operational():
-            if chara not in self.ai_brains:
-                chara_ai = aibrain.BasicAI(chara)
-                self.ai_brains[chara] = chara_ai
-            else:
-                chara_ai = self.ai_brains[chara]
-            chara_ai.act(self.camp)
-
     def end_round(self):
         for chara in self.active:
             self.cstat[chara].end_turn()
@@ -885,14 +473,14 @@ class Combat(object):
                 ),
             area=pbge.scenes.targetarea.SingleTarget(),
             targets=1)
-        my_invo.invoke(self.camp, None, [mkpc.pos], pbge.my_state.view.anim_list)
+        _=my_invo.invoke(self.camp, None, [mkpc.pos], pbge.my_state.view.anim_list)
         pbge.my_state.view.handle_anim_sequence()
 
         mkpc.gear_up(self.scene)
         if mkpc.get_current_speed() > 0:
-            pbge.alerts.TextAlert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
+            _=pbge.alerts.TextAlert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
         else:
-            pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
+            _=pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
             self.scene.contents.remove(mkpc)
 
     def _abandon_mkill(self, wid, _ev):
@@ -976,7 +564,7 @@ class Combat(object):
             if myparty and treasure:
                 _=pbge.alerts.TextAlert("You acquired some valuables from the battle.", data=treasure, on_close=self._open_item_exchanger)
 
-            PostCombatCleanup(self.camp)
+            _=PostCombatCleanup(self.camp)
             self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
 
     def _open_item_exchanger(self, wid, _ev):

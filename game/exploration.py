@@ -359,7 +359,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
     ENCHANTMENT_TIME = 6000
     def __init__(self, camp: gears.GearHeadCampaign, view):
         super().__init__(
-            0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION, pbge.widgets.WTAG_EXPLORATIONMODE}
+            0,0,0,0,tags={pbge.scenes.viewer.WTAG_HIDE_DURING_ANIMATION, pbge.widgets.WTAG_EXPLORATIONMODE}
         )
         self.camp = camp
         self.scene = camp.scene
@@ -371,6 +371,8 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
         self.threat_tiles = set()
         self.threat_viewer = pbge.scenes.areaindicator.AreaIndicator("sys_threatarea.png")
+
+        self.update_npcs()
 
     def pick_up_item(self):
         pc = self.camp.pc.get_root()
@@ -461,17 +463,38 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.order:
-            if not self.order(self):
-                self.order = None
-        self.enchantment_timer += delta
-        if self.enchantment_timer >= self.ENCHANTMENT_TIME:
-            self.update_enchantments()
-            self.enchantment_timer = 0
-        self.npc_update_timer += delta
-        if self.npc_update_timer >= self.NPC_UPDATE_TIME:
-            self.update_npcs()
-            self.npc_update_timer = 0
+        if self.active and self.visible:
+            if self.camp.fight:
+                # If there's a combat going on, switch this widget out for the combat
+                # control widget.
+                combat.CombatControlWidget.push_state_and_instantiate(camp=self.camp)
+            else:
+                if self.order:
+                    if not self.order(self):
+                        self.order = None
+
+                    pcpos = {pc.pos for pc in self.camp.get_active_party()}
+                    if pcpos.intersection(self.threat_tiles):
+                        self.update_npcs()
+
+                self.enchantment_timer += delta
+                if self.enchantment_timer >= self.ENCHANTMENT_TIME:
+                    self.update_enchantments()
+                    self.enchantment_timer = 0
+                self.npc_update_timer += delta
+                if self.npc_update_timer >= self.NPC_UPDATE_TIME:
+                    self.update_npcs()
+                    self.npc_update_timer = 0
+
+    def _render(self, _delta):
+        super()._render(_delta)
+        self.view.overlays.clear()
+        self.threat_viewer.update(self.view, self.threat_tiles)
+
+        # Display info for this tile.
+        my_info = self.scene.get_tile_info(self.view)
+        if my_info:
+            my_info.view_display(self.camp)
 
     def _builtin_responder(self, ev):
         if not self.order:
@@ -604,6 +627,13 @@ class Explorer(pbge.campaign.ExploPrototype):
         if pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT):
             self.pop()
         elif self.should_stop_exploring():
+            # Remember that update gets called whether or not the widget is active.
+            # So, after the conditions are met to stop exploring, this widget deactivates
+            # itself and then waits for the widgets to be empty before popping.
+            # Note that it is possible - though highly ill-advised - for the "EXIT" trigger
+            # to change things such that should_stop_exploring stops being True. Please don't
+            # delete the destination after exiting the scene or resurrect the party outside of
+            # a recovery event.
             if self.active:
                 self.camp.check_trigger("EXIT")
                 self.active = False
