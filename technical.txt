@@ -11,6 +11,7 @@ Non-Element Triggers:
 "EXIT"          When the PC is about to leave a scene
 "PCMOVE"        When the party position is updated
 "FORCE_EXIT"    End a combat mission immediately*
+"INITIALIZE"    When a new SceneHandler widget starts up
 
 With-Element Triggers:
 "ACTIVATE"      When a combatant is activated

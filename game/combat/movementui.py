@@ -302,7 +302,6 @@ class MovementUI(pbge.widgets.Widget):
                         self.reachable_waypoints[wp.pos] = (wp, path.results[-2])
 
     def _do_regular_movement(self):
-        my_actions = list()
         if pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             # Move!
             self.needs_tile_update = True
@@ -322,7 +321,7 @@ class MovementUI(pbge.widgets.Widget):
     def _do_jump_movement(self):
         if pbge.my_state.view.mouse_tile in self.jumpable_points:
             # Jump!
-            jumping.jump(self.camp, self.mover, pbge.my_state.view.mouse_tile)
+            self.on_move(actions.JumpModelToPos(self.camp, self.mover, pbge.my_state.view.mouse_tile))
             self.needs_tile_update = True
         else:
             mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
@@ -377,6 +376,9 @@ class MovementUI(pbge.widgets.Widget):
                 myscene = self.camp.scene
                 print("Ground: {}\n Wall: {}\n Decor: {}".format(myscene.get_floor(*mypos), myscene.get_wall(*mypos),
                                                                  myscene.get_decor(*mypos)))
+
+    def on_activate(self):
+        self.needs_tile_update = True
 
     def activate(self):
         self.visible = True

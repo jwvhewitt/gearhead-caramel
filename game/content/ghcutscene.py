@@ -148,7 +148,6 @@ class ExplosionDisplay(object):
         if target:
             target = target.get_root()
             self.fx.invoke(camp,None,[target.pos,],pbge.my_state.view.anim_list)
-            pbge.my_state.view.handle_anim_sequence()
 
 
 class SkillRollCutscene(cutscene.Cutscene):

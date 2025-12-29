@@ -536,7 +536,6 @@ class Explorer(pbge.campaign.ExploPrototype):
     # The object which is exploration of a scene. OO just got existential.
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
-    TAGS_TO_PUSH = {pbge.widgets.WTAG_TITLESCREEN,}
     def __init__(self, camp: gears.GearHeadCampaign):
         super().__init__(
             0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
@@ -606,6 +605,7 @@ class Explorer(pbge.campaign.ExploPrototype):
         del pbge.my_state.notifications[:]
         _=pbge.BasicNotification(str(self.scene))
 
+        self.camp.check_trigger("INITIALIZE")
         if not self.camp.fight:
             self.camp.check_trigger("START")
             self.camp.check_trigger("ENTER", self.scene)
@@ -625,7 +625,7 @@ class Explorer(pbge.campaign.ExploPrototype):
             self.thirty_second_timer = 0
 
         if pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT):
-            self.pop()
+            self.super_pop()
         elif self.should_stop_exploring():
             # Remember that update gets called whether or not the widget is active.
             # So, after the conditions are met to stop exploring, this widget deactivates

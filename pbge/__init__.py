@@ -488,8 +488,7 @@ class GameState(object):
                     elif self.is_key_for_action(ev, "next_widget"):
                         self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
                     elif ev.key == pygame.K_F10:
-                        print("Top Level Widgets")
-                        print("\n".join(["{}: {}".format(w, w.active) for w in self.widgets]))
+                        self.print_widgets()
                 elif ev.type == pygame.VIDEORESIZE:
                     self.set_size(max(ev.w, 800), max(ev.h, 600))
 
@@ -524,6 +523,10 @@ class GameState(object):
 
             delta = myclock.tick(FPS)
             self.standing_by = False
+
+    def print_widgets(self):
+        print("Top Level Widgets")
+        print("\n".join(["{}: {}".format(w, w.active) for w in self.widgets]))
 
 
 class StretchyLayer():

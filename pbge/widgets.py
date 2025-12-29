@@ -120,8 +120,16 @@ class FrozenUIState:
             froz = my_state.ui_stack.pop(-1)
             if popping_widget and froz.pushing_widget and popping_widget is not froz.pushing_widget:
                 print("WARNING: Widget {} popping state pushed by {}".format(popping_widget, froz.pushing_widget))
+            # else:
+            #     print("--> Frozen Widget: {}".format(froz.pushing_widget))
             froz.unfreeze()
+            # my_state.print_widgets()
 
+    @staticmethod
+    def super_pop(popping_widget):
+        while my_state.ui_stack and my_state.ui_stack[-1].pushing_widget is not popping_widget:
+            my_state.ui_stack.pop(-1)
+        FrozenUIState.pop(popping_widget)
 
 type On_Click = Callable[[Widget, pygame.event.Event], None]|None
 
@@ -299,8 +307,15 @@ class Widget(frects.Frect):
         else:
             raise WidgetException("{} attempted to close but not currently active".format(self))
 
+    def super_pop(self):
+        # Close all open widgets. Revert to state before this widget.
+        self.register_response()
+        for w in list(my_state.widgets):
+            w.close()
+        FrozenUIState.super_pop(self)
+
     def pop(self):
-        #print("Popping {}".format(self))
+        print("Popping {}".format(self))
         self.close()
         FrozenUIState.pop(self)
 

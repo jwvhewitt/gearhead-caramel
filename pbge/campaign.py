@@ -29,6 +29,8 @@ class ExploPrototype(widgets.Widget):
 
 
 class SessionMonitor(widgets.Widget):
+    TAGS_TO_PUSH = {widgets.WTAG_TITLESCREEN,}
+
     def __init__(self, camp: "Campaign"):
         super().__init__(0,0,0,0,tags={WTAG_SESSIONMONITOR,})
         self.camp = camp
@@ -226,7 +228,7 @@ class Campaign(object):
             self.go(dest_wp)
             self.arrive_at_destination()
         camp_handler = SessionMonitor(self)
-        my_state.widgets.append(camp_handler)
+        camp_handler.push_and_deploy()
         camp_handler.play_campaign()
 
     def update_plots(self):

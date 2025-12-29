@@ -1,4 +1,5 @@
 import pbge
+import gears
 
 class MoveModelToPos:
     def __init__(self, camp, chara, nav, dest):
@@ -21,6 +22,30 @@ class MoveModelToPos:
                 return False
             else:
                 return True
+
+
+class JumpModelToPos:
+    def __init__(self, camp, chara, dest):
+        self.camp = camp
+        self.chara = chara
+        self.dest = dest
+        self.is_player_model = chara in self.camp.party
+
+    def __call__(self):
+        distance = self.camp.scene.distance(self.chara.pos, self.dest)
+
+        pbge.my_state.view.play_anims(
+            gears.geffects.JumpModel(
+                self.camp.scene, self.chara, dest=self.dest
+            )
+        )
+
+        if self.camp.fight:
+            self.camp.fight.cstat[self.chara].moves_this_round += distance
+            self.camp.fight.cstat[self.chara].spend_ap(1)
+        if self.is_player_model:
+            self.camp.scene.update_party_position(self.camp)
+
 
 class InvokeInvocation:
     def __init__(self, camp, invo: pbge.effects.Invocation, firing_pos, chara, targets, data):

@@ -354,11 +354,11 @@ class PlayerTurn(pbge.widgets.Widget):
         option_string = self.name_current_option()
 
         pbge.util.config.set("HOTKEYS", mykey, option_string)
-        pbge.BasicNotification("New hotkey set: {} = {}".format(mykey, option_string), count=200)
+        _=pbge.BasicNotification("New hotkey set: {} = {}".format(mykey, option_string), count=200)
         # Export the new config options.
         current_use = pbge.my_state.key_is_in_use(mykey)
         if current_use:
-            pbge.alerts.TextAlert("Warning: Key {} is currently in use by \"{}\". It can't be used as a hotkey unless you change your key configuration.".format(mykey, current_use))
+            _=pbge.alerts.TextAlert("Warning: Key {} is currently in use by \"{}\". It can't be used as a hotkey unless you change your key configuration.".format(mykey, current_use))
 
         with open(pbge.util.user_dir("config.cfg"), "wt") as f:
             pbge.util.config.write(f)
@@ -434,9 +434,6 @@ class PlayerTurn(pbge.widgets.Widget):
                     elif pbge.my_state.is_key_for_action(ev, "quit_game"):
                         pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
                         self.register_response()
-                    elif pbge.my_state.is_key_for_action(ev, "center_on_pc"):
-                        self.focus_on_pc()
-                        self.register_response()
                     elif ev.key == pygame.K_ESCAPE:
                         configedit.PopupGameMenu().push_state_and_instantiate()
                         self.register_response()
@@ -452,5 +449,8 @@ class PlayerTurn(pbge.widgets.Widget):
                 act = self.actions[0]
                 if not act():
                     self.actions.pop(0)
+            elif self.camp.fight.cstat[self.pc].action_points < 1:
+                self.pop()
+
             
 

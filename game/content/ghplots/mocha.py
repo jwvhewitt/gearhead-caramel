@@ -528,7 +528,7 @@ class FrozenHotSpringCity(Plot):
                         mek.pilot = None
             self.did_opening_sequence = True
 
-    def t_START(self, camp: gears.GearHeadCampaign):
+    def t_INITIALIZE(self, camp: gears.GearHeadCampaign):
         if gears.tags.SCENE_BUILDING not in camp.scene.attributes:
             pbge.my_state.view.postfx = SnowField()
 

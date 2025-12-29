@@ -18,22 +18,4 @@ def get_jump_points(camp: gears.GearHeadCampaign, mover: gears.base.Mover):
 
     return mypoints
 
-def jump(camp: gears.GearHeadCampaign, chara, dest):
-    is_player_model = chara in camp.party
-    distance = camp.scene.distance(chara.pos, dest)
-
-    pbge.my_state.view.play_anims(
-        gears.geffects.JumpModel(
-            camp.scene, chara, dest=dest
-        )
-    )
-
-    if camp.fight:
-        camp.fight.cstat[chara].moves_this_round += distance
-        camp.fight.cstat[chara].spend_ap(1)
-    if is_player_model:
-        camp.scene.update_party_position(camp)
-
-
-
 
