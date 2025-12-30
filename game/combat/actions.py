@@ -61,3 +61,20 @@ class InvokeInvocation:
             # Spend the movement points.
             _=self.invo.invoke(self.camp, self.chara, self.targets, pbge.my_state.view.anim_list, data=self.data)
             self.camp.fight.cstat[self.chara].spend_ap(1)
+
+
+class BumpWaypoint:
+    # This should only get called for PCs, right now.
+    def __init__(self, camp, chara, wpoint):
+        self.camp = camp
+        self.chara = chara
+        self.wpoint = wpoint
+
+    @staticmethod
+    def _are_adjacent(pos1, pos2):
+        return abs(pos1[0]-pos2[0]) <= 1 and abs(pos1[1]-pos2[1]) <= 1
+
+    def __call__(self):
+        if self._are_adjacent(self.chara.pos, self.wpoint.pos):
+            self.wpoint.combat_bump(self.camp, self.mover)
+            self.camp.fight.cstat[self.chara].spend_ap(1)

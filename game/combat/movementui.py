@@ -1,7 +1,6 @@
 import gears.tags
 import pbge
 import gears
-from gears import info
 from game import traildrawer
 import pygame
 from . import jumping, actions
@@ -58,7 +57,7 @@ class MovementWidget(pbge.widgets.Widget):
         self.sprite = pbge.image.Image(self.IMAGE_NAME, 383, 65)
         self._update_move_modes()
         if start_source:
-            self.select_requested_movemode(start_source)
+            self.update_buttons()
         else:
             self.select_current_movemode()
 
@@ -110,7 +109,7 @@ class MovementWidget(pbge.widgets.Widget):
         if self.bottom_shelf_fun:
             self.bottom_shelf_fun()
 
-    def click_button(self, button, ev):
+    def click_button(self, button, _ev):
         target_mm = button.data + self.shelf_offset
         if target_mm < len(self.mmodes):
             self.set_selection(target_mm)
@@ -128,9 +127,6 @@ class MovementWidget(pbge.widgets.Widget):
             self.selection = self.mmodes.index(self.pc.mmode)
         except ValueError:
             self.selection = 0
-        self.update_buttons()
-
-    def select_requested_movemode(self, mmode):
         self.update_buttons()
 
     def _generate_tooltip(self, mmode):
@@ -237,7 +233,7 @@ class MovementUI(pbge.widgets.Widget):
             self.clock.set_ap_mp_costs(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
             pbge.my_state.view.cursor.frame = self.SC_GOCURSOR
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
-            wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
+            _wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
             mypath = self.nav.get_path(pos)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
@@ -309,10 +305,12 @@ class MovementUI(pbge.widgets.Widget):
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
             # Bump!
             wp, target_tile = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
-            dest = self.camp.fight.move_model_to(self.mover, self.nav, target_tile)
             self.needs_tile_update = True
-            if dest == target_tile:
-                wp.combat_bump(self.camp, self.mover)
+            self.on_move(
+                actions.MoveModelToPos(self.camp, self.mover, self.nav, target_tile),
+                actions.BumpWaypoint(self.camp, self.mover, wp)
+            )
+
         else:
             mmecha = pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile)
             if mmecha and self.camp.scene.player_team.is_enemy(self.camp.scene.local_teams.get(mmecha[0])):

@@ -68,13 +68,13 @@ class MenuWidget(widgets.ColumnWidget):
         self.item_class = item_class
         self.on_escape = on_escape
         if auto_escape and not on_escape:
-            self.on_escape = self._auto_escape_fun
+            self.on_escape = self.auto_escape_fun
 
         self._on_click_child = on_click_child
         self.pop_when_clicked = pop_when_clicked
         self.quick_keys = dict()
 
-    def _auto_escape_fun(self, _wid, _ev):
+    def auto_escape_fun(self, _wid, _ev):
         self.pop()
 
     def _immediately_on_click(self, _wid, _ev):

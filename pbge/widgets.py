@@ -315,7 +315,6 @@ class Widget(frects.Frect):
         FrozenUIState.super_pop(self)
 
     def pop(self):
-        print("Popping {}".format(self))
         self.close()
         FrozenUIState.pop(self)
 

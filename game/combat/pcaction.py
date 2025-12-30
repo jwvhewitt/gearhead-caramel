@@ -21,7 +21,7 @@ class BonusActionWidget(pbge.widgets.ButtonWidget):
         self.comrec = camp.fight.cstat[pc]
         self.on_buy_action = on_buy_action
         super().__init__(
-            -64, 13, 32, 32,
+            -80, 13, 32, 32,
             sprite=pbge.image.Image("sys_bonusaction_widget.png", 32, 32),
             frame=0, on_frame=0, off_frame=1,
             anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining",
@@ -56,7 +56,7 @@ class ActionClockWidget(pbge.widgets.Widget):
         self.ap_to_spend = 0
         self.mp_to_spend = 0
 
-        super().__init__(-26, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining")
+        super().__init__(-42, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining")
 
     def set_ap_mp_costs(self, ap_to_spend=0, mp_to_spend=0):
         self.ap_to_spend = ap_to_spend
@@ -195,7 +195,7 @@ class PlayerTurn(pbge.widgets.Widget):
             self.all_funs[self.usable_ui] = self.switch_usables
 
         buttons_to_add.append(
-            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')  # pyright: ignore[reportArgumentType]
+            dict(on_frame=4, off_frame=5, on_click=self.end_turn, tooltip='End Turn')
         )
         self.my_radio_buttons = pbge.widgets.RadioButtonWidget(8, 8, 220, 40,
                                                                sprite=pbge.image.Image('sys_combat_mode_buttons.png',
@@ -215,7 +215,7 @@ class PlayerTurn(pbge.widgets.Widget):
             if t < (len(self.all_uis) - 1):
                 self.bottom_shelf_funs[self.all_uis[t]] = self.all_funs[self.all_uis[t + 1]]
 
-        self.active_ui = self.movement_ui
+        self.active_ui: invoker.InvocationUI|movementui.MovementUI = self.movement_ui
 
         # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
         if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
@@ -299,17 +299,19 @@ class PlayerTurn(pbge.widgets.Widget):
             if hasattr(self.active_ui, "set_top_shelf"):
                 _=self.active_ui.set_top_shelf()
 
-    def focus_on_pc(self):
+    def _focus_on_pc_from_menu(self, _wid, _ev):
+        # Focus on the PC from the popup menu.
         pbge.my_state.view.focus(self.pc.pos[0], self.pc.pos[1])
 
-    def quit_the_game(self):
+    def _quit_the_game_from_menu(self, _wid, _ev):
+        # Quit the game from the popup menu.
         self.camp.fight.no_quit = False
 
     ACCEPTABLE_HOTKEYS = "abcdefghijklmnopqrstuvwxyz1234567890"
 
     def pop_menu(self):
         # Pop Pop PopMenu Pop Pop PopMenu
-        mymenu = pbge.rpgmenu.PopUpMenu()
+        mymenu = pbge.widgetmenu.PopupMenuWidget(auto_escape=True)
         mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.camp.fight.cstat[
                 self.pc].total_mp_remaining, self.pc.mmode, self.camp.scene.get_blocked_tiles())
         path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, pbge.my_state.view.mouse_tile,
@@ -317,16 +319,20 @@ class PlayerTurn(pbge.widgets.Widget):
         if len(path.results) > 1 and path.results[-2] in mynav.cost_to_tile:
             for wp in self.camp.scene.get_waypoints(pbge.my_state.view.mouse_tile):
                 if hasattr(wp, "combat_bump"):
-                    mymenu.add_item("Use {}".format(wp.name), WaypointBumper(self.pc, self.camp, self, mynav, wp, path.results[-2]))
+                    _=mymenu.add_item("Use {}".format(wp.name), self._bump_waypoint_from_popup_menu, data=(wp, mynav, path.results[-2]))
 
-        mymenu.add_item("Center on {}".format(self.pc.get_pilot()), self.focus_on_pc)
-        mymenu.add_item("Record hotkey for current action", self.gui_record_hotkey)
-        mymenu.add_item("View hotkeys", self.gui_view_hotkeys)
-        mymenu.add_item("Quit Game", self.quit_the_game)
+        _=mymenu.add_item("Center on {}".format(self.pc.get_pilot()), self._focus_on_pc_from_menu)
+        _=mymenu.add_item("Record hotkey for current action", self._record_hotkey_from_menu)
+        _=mymenu.add_item("View hotkeys", self._view_hotkeys_from_menu)
+        _=mymenu.add_item("Quit Game", self._quit_the_game_from_menu)
 
-        choice = mymenu.query()
-        if choice:
-            choice()
+        mymenu.push_and_deploy()
+
+    def _bump_waypoint_from_popup_menu(self, wid, _ev):
+        wp, mynav, dest = wid.data
+        if dest != self.pc.pos:
+            self.actions.append(actions.MoveModelToPos(self.camp, self.pc, mynav, dest))
+        self.actions.append(actions.BumpWaypoint(self.camp, self.pc, wp))
 
     def find_this_option(self, op_string):
         op_list = op_string.split('/')
@@ -363,53 +369,56 @@ class PlayerTurn(pbge.widgets.Widget):
         with open(pbge.util.user_dir("config.cfg"), "wt") as f:
             pbge.util.config.write(f)
 
-    def gui_record_hotkey(self):
+    def _record_hotkey_from_menu(self, _wid, _ev):
         # TODO: replace this alert with a custom widget
-        myevent = pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert(
             "Press a letter or number key to record a new macro for {}. You could also do this by holding Alt + key.".format(
-                self.name_current_option()))
+                self.name_current_option()),
+            on_close=self._receive_hotkey
+        )
 
-        if myevent.type == pygame.KEYDOWN and myevent.unicode in self.ACCEPTABLE_HOTKEYS:
-            self.record_hotkey(myevent.unicode)
+    def _receive_hotkey(self, _wid, ev):
+        if ev.type == pygame.KEYDOWN and ev.unicode in self.ACCEPTABLE_HOTKEYS:
+            self.record_hotkey(ev.unicode)
 
-    def gui_view_hotkeys(self):
-        mymenu = pbge.rpgmenu.Menu(-250, -100, 500, 200, font=pbge.my_state.big_font)
+    def _view_hotkeys_from_menu(self, _wid, _ev):
+        mymenu = pbge.widgetmenu.MenuWidget(
+            -250, -100, 500, 200, font=pbge.my_state.big_font,
+            auto_escape=True,
+        )
         for op in pbge.util.config.options("HOTKEYS"):
-            mymenu.add_item("{}: {}".format(op, pbge.util.config.get("HOTKEYS", op)), None)
-        mymenu.add_item("[Exit]", None)
-        mymenu.query()
+            _=mymenu.add_item("{}: {}".format(op, pbge.util.config.get("HOTKEYS", op)), mymenu.auto_escape_fun)
+        _=mymenu.add_item("[Exit]", mymenu.auto_escape_fun)
+        mymenu.push_and_deploy(self)
 
-    def _use_attack_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
+    def _use_attack_menu(self, _button, _ev):
+        mymenu = pbge.widgetmenu.PopupMenuWidget(auto_escape=True)
         for shelf in self.attack_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.attack_ui.name, shelf.name, '0']))
-        op = mymenu.query()
+            _=mymenu.add_item(shelf.name, self._find_option_from_menu, data='/'.join([self.attack_ui.name, shelf.name, '0']))
+        mymenu.push_and_deploy()
+
+    def _find_option_from_menu(self, wid, _ev):
+        op = wid.data
         if op:
             self.find_this_option(op)
 
-    def _use_skills_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
+    def _use_skills_menu(self, _button, _ev):
+        mymenu = pbge.widgetmenu.PopupMenuWidget(auto_escape=True)
         for shelf in self.skill_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.skill_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
+            _=mymenu.add_item(shelf.name, self._find_option_from_menu, data='/'.join([self.skill_ui.name, shelf.name, '0']))
+        mymenu.push_and_deploy()
 
-    def _use_programs_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
+    def _use_programs_menu(self, _button, _ev):
+        mymenu = pbge.widgetmenu.PopupMenuWidget(auto_escape=True)
         for shelf in self.program_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.program_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
+            _=mymenu.add_item(shelf.name, self._find_option_from_menu, data='/'.join([self.program_ui.name, shelf.name, '0']))
+        mymenu.push_and_deploy()
 
-    def _use_usables_menu(self, button, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
+    def _use_usables_menu(self, _button, _ev):
+        mymenu = pbge.widgetmenu.PopupMenuWidget(auto_escape=True)
         for shelf in self.usable_ui.my_widget.library:
-            mymenu.add_item(shelf.name, '/'.join([self.usable_ui.name, shelf.name, '0']))
-        op = mymenu.query()
-        if op:
-            self.find_this_option(op)
+            _=mymenu.add_item(shelf.name, self._find_option_from_menu, data='/'.join([self.usable_ui.name, shelf.name, '0']))
+        mymenu.push_and_deploy()
 
     def _update_current_nav(self):
         if isinstance(self.active_ui, movementui.MovementUI):
@@ -444,13 +453,20 @@ class PlayerTurn(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.active and self.visible:
+        if self.active:
             if self.actions:
-                act = self.actions[0]
-                if not act():
-                    self.actions.pop(0)
-            elif self.camp.fight.cstat[self.pc].action_points < 1:
-                self.pop()
+                self.visible = False
+                if not pbge.my_state.view.has_animations():
+                    # It shouldn't be necessary to check this, since this
+                    # widget deactivates during animations. But, this is me
+                    # future-proofing stuff in case that changes.
+                    act = self.actions[0]
+                    if not act():
+                        self.actions.pop(0)
+            else:
+                self.visible = True
+                if not self.camp.fight.cstat[self.pc].can_act():
+                    self.pop()
 
             
 
