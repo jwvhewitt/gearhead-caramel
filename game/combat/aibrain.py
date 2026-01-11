@@ -1,7 +1,7 @@
 import random
 import pbge
 import gears
-from . import jumping
+from . import actions
 from game.content import ghcutscene
 
 
@@ -234,7 +234,7 @@ class BasicAI(object):
 
     def attempt_jump_to_better_position(self, camp):
         # Check for a better tile.
-        jump_points = list(jumping.get_jump_points(camp, self.npc))
+        jump_points = list(actions.get_jump_points(camp, self.npc))
         sample = random.sample(jump_points, max(len(jump_points) // 3, min(10, len(jump_points))))
         self.camp = camp
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
@@ -242,7 +242,7 @@ class BasicAI(object):
             self.enemies = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar)]
             best = max(sample, key=self._desirability)
             if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
-                jumping.jump(camp, self.npc, best)
+                return actions.JumpModelToPos(self.camp, self.npc, best)
 
     def attempt_attack(self, camp):
         # 1. Do I want to move?
@@ -252,14 +252,19 @@ class BasicAI(object):
         #    - Preferred target is usually closest enemy within LOS
         #    - If can't hit preferred target, see if anyone else is in range
         #    - If no attacks possible, move closer
+        actions = list()
         if (
                 hasattr(self.npc, "get_speed") and self.npc.get_speed(gears.tags.Jumping) > 10 and
-                camp.fight.cstat[self.npc].action_points > 1 and random.randint(1, 3) != 2 and
+                camp.fight.cstat[self.npc].action_points > random.randint(1, 3) and
                 camp.scene.can_use_movemode(gears.tags.Jumping)
         ):
-            self.attempt_jump_to_better_position(camp)
+            move = self.attempt_jump_to_better_position(camp)
+            if move:
+                return (move,)
         else:
-            self.attempt_move_to_better_position(camp)
+            move = self.attempt_move_to_better_position(camp)
+            if move:
+                actions.append(move)
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
         if camp.fight.cstat[self.npc].can_act():
@@ -296,8 +301,11 @@ class BasicAI(object):
                 # Can't move, can't attack. Might as well do nothing.
                 camp.fight.cstat[self.npc].spend_ap(1)
 
+        return actions
+
     def try_to_use_a_skill(self, camp):
         # Check to see if any skills are usable.
+        # Return the actions to perform if appropriate.
         my_skills = list()
         my_targets = dict()
         my_nav = camp.fight.get_action_nav(self.npc)
@@ -315,61 +323,108 @@ class BasicAI(object):
                         my_skills += [invo, ] * invo.ai_tar.get_impulse(invo, camp, self.npc)
                         my_targets[invo] = potar
         if my_skills:
+            actions = list()
             invo = random.choice(my_skills)
             tar = random.choice(my_targets[invo])
-            camp.fight.move_and_invoke(self.npc, my_nav, invo, [tar.pos],
-                                       camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos))
+            firing_pos = random.choice(camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos))
+            if firing_pos != self.npc.pos:
+                actions.append(actions.MoveModelToPos(self.camp, self.npc, self.camp.fight.get_action_nav(), firing_pos))
+            self.actions.append(actions.InvokeInvocation(self.camp, invo, firing_pos, self.npc, tar))
+            return actions
+
+    def fail_ejection_check(self, camp):
+        # Return True if this mecha has ejected.
+        # Might be time to eject.
+        perseverence = self.npc.get_skill_score(gears.stats.Ego, gears.stats.MechaPiloting)
+        base_mod = 125
+        if self.npc.get_current_speed() < 10:
+            base_mod = 50
+        intimidating_pc = camp.do_skill_test(
+            gears.stats.Ego, gears.stats.Negotiation, self.npc.get_pilot().renown,
+            modifier=perseverence - self.npc.get_percent_damage_over_health() + base_mod,
+            synergy_skill=gears.stats.MechaPiloting, difficulty=gears.stats.DIFFICULTY_HARD
+        )
+        ejected = False
+        if intimidating_pc:
+            _=ghcutscene.SimpleMonologueDisplay("[INTIMIDATION_MECHA_COMBAT]", intimidating_pc, camp)
+            _=ghcutscene.SimpleMonologueDisplay("[EJECT_AFTER_INTIMIDATION]", self.npc, camp, False)
+            ejected = True
+        elif self.npc.get_current_speed() < 10 and perseverence + random.randint(-25,50) < self.npc.get_percent_damage_over_health():
+            _=ghcutscene.SimpleMonologueDisplay("[EJECT]", self.npc, camp)
+            ejected = True
+
+        if ejected:
+            # TODO: Turn the ejection into an Alert widget too
+            _=pbge.alerts.AnimAlert(gears.geffects.AnnounceEjectAnim(pos=self.npc.pos), gears.geffects.CrashAnim(self.npc))
+            _=self.npc.free_pilots()
             return True
 
     def act(self, camp: gears.GearHeadCampaign):
+        # New rules in effect. The "act" method takes the camp and returns a list of actions to the
+        # npc handler. If no actions are returned, this NPC's turn is over.
         if hasattr(self.npc, "gear_up"):
             self.npc.gear_up(camp.scene)
 
         if isinstance(self.npc, gears.base.Mecha) and camp.scene.is_hostile_to_player(self.npc) and (self.npc.get_percent_damage_over_health() > 40 or self.npc.get_current_speed() < 10):
-            # Might be time to eject.
-            perseverence = self.npc.get_skill_score(gears.stats.Ego, gears.stats.MechaPiloting)
-            base_mod = 125
-            if self.npc.get_current_speed() < 10:
-                base_mod = 50
-            intimidating_pc = camp.do_skill_test(
-                gears.stats.Ego, gears.stats.Negotiation, self.npc.get_pilot().renown,
-                modifier=perseverence - self.npc.get_percent_damage_over_health() + base_mod,
-                synergy_skill=gears.stats.MechaPiloting, difficulty=gears.stats.DIFFICULTY_HARD
-            )
-            ejected = False
-            if intimidating_pc:
-                _=ghcutscene.SimpleMonologueDisplay("[INTIMIDATION_MECHA_COMBAT]", intimidating_pc, camp)
-                _=ghcutscene.SimpleMonologueDisplay("[EJECT_AFTER_INTIMIDATION]", self.npc, camp, False)
-                ejected = True
-            elif self.npc.get_current_speed() < 10 and perseverence + random.randint(-25,50) < self.npc.get_percent_damage_over_health():
-                _=ghcutscene.SimpleMonologueDisplay("[EJECT]", self.npc, camp)
-                ejected = True
-
-            if ejected:
-                # TODO: Turn the ejection into an Alert widget too
-                pbge.my_state.view.play_anims(gears.geffects.AnnounceEjectAnim(pos=self.npc.pos), gears.geffects.CrashAnim(self.npc))
-                _=self.npc.free_pilots()
-                return
+            if self.fail_ejection_check(camp):
+                return ()
 
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
+
+        # Attempt to use a skill.
+        if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1, 2) == 1:
+            actions = self.try_to_use_a_skill(camp)
+            if actions:
+                return actions
+
+        if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):
+            self.target = self.targeter.get_target(camp, self.midr)
+        elif random.randint(1, 3) != 1:
+            self.target = self.targeter.get_target(camp, self.midr)
+
+        if self.target:
+            return self.attempt_attack(camp)
+
+
+
+class NonPlayerTurn(pbge.widgets.Widget):
+    # It's the non player character's turn.
+    def __init__(self, pc, camp):
+        super().__init__(0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,})
+        self.pc = pc
+        self.camp = camp
+        self.actions = list()
+
+        if pc not in camp.fight.ai_brains:
+            self.brain = BasicAI(pc)
+            camp.fight.ai_brains[pc] = self.brain
+        else:
+            self.brain = camp.fight.ai_brains[pc]
 
         # Maybe buy an extra action or two?
         if camp.fight.cstat[self.npc].can_buy_bonus_action():
             while random.randint(1,10) == 5 and (self.npc.get_current_stamina() - camp.fight.cstat[self.npc].bonus_action_cost()) > random.randint(10,20):
-                camp.fight.cstat[self.npc].buy_bonus_action()
+                self.actions.append(actions.BuyBonusActions(camp, pc))
 
-        # Attempt to use a skill first.
-        if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1, 2) == 1:
-            self.try_to_use_a_skill(camp)
-        while camp.fight.still_fighting() and camp.fight.cstat[self.npc].can_act():
-            # If targets exist, call attack.
-            # Otherwise attempt skill use again.
-            if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):
-                self.target = self.targeter.get_target(camp, self.midr)
-            elif random.randint(1, 3) != 1:
-                self.target = self.targeter.get_target(camp, self.midr)
-            if self.target:
-                self.attempt_attack(camp)
+    def update(self, delta):
+        super().update(delta)
+        if self.active:
+            if self.actions:
+                if not pbge.my_state.view.has_animations():
+                    # It shouldn't be necessary to check this, since this
+                    # widget deactivates during animations. But, this is me
+                    # future-proofing stuff in case that changes.
+                    act = self.actions[0]
+                    if not act():
+                        self.actions.pop(0)
+            elif not self.camp.fight.still_fighting():
+                self.pop()
+            elif not self.camp.fight.cstat[self.pc].can_act():
+                self.pop()
             else:
-                if not self.try_to_use_a_skill(camp):
-                    camp.fight.cstat[self.npc].spend_ap(1)
+                actions = self.brain.act(self.camp)
+                if actions:
+                    self.actions += actions
+                else:
+                    self.camp.fight.cstat[self.pc].end_turn()
+                    self.pop()

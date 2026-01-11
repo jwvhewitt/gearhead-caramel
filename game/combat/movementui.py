@@ -3,7 +3,7 @@ import pbge
 import gears
 from game import traildrawer
 import pygame
-from . import jumping, actions
+from . import actions
 
 
 class MovementWidget(pbge.widgets.Widget):
@@ -279,7 +279,7 @@ class MovementUI(pbge.widgets.Widget):
         if self.selected_mmode is gears.tags.Jumping:
             self.origin = self.mover.pos
             self.reachable_waypoints.clear()
-            self.jumpable_points = jumping.get_jump_points(self.camp, self.mover)
+            self.jumpable_points = actions.get_jump_points(self.camp, self.mover)
 
         else:
             # Step one: figure out which tiles can be reached from here.

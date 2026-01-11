@@ -12,11 +12,10 @@ from pbge import scenes
 import collections
 from . import pcaction
 from . import aihaywire
-from game import fieldhq
 import random
 import gears
-from game.content import ghcutscene
 from . import aibrain
+from . import finisher
 
 
 ALT_AIS = {
@@ -197,35 +196,6 @@ class CombatDict:
 
 
 
-class PostCombatCleanup:
-    def __init__(self, camp: gears.GearHeadCampaign):
-        # Make sure everyone in the party is standing somewhere appropriate.
-        party = list(camp.get_active_party())
-        if camp.entered_via and party:
-            strays = list()
-
-            self.guide = scenes.pathfinding.NavigationGuide(camp.scene, camp.entered_via.pos, 100000, camp.scene.environment.LEGAL_MOVEMODES[0])
-            cx = 0
-            cy = 0
-            for pc in party:
-                if pc.pos not in self.guide.cost_to_tile:
-                    strays.append(pc)
-                cx += pc.pos[0]
-                cy += pc.pos[1]
-            cx = cx/len(party)
-            cy = cy/len(party)
-
-            if strays:
-                candidates = list(set(self.guide.cost_to_tile.keys()).difference(camp.scene.get_blocked_tiles()))
-                candidates.sort(key=lambda pos: camp.scene.distance((cx,cy), pos))
-                for pc in strays:
-                    dest = candidates.pop(0)
-                    pbge.my_state.view.anim_list.append(pbge.scenes.animobs.MoveModel(pc, pc.pos, dest, speed=0.5))
-                pbge.my_state.view.handle_anim_sequence()
-
-        for m in camp.scene.contents:
-            if hasattr(m, "hidden") and m.hidden:
-                m.hidden = False
 
 
 class CombatControlWidget(pbge.widgets.Widget):
@@ -235,6 +205,8 @@ class CombatControlWidget(pbge.widgets.Widget):
         super().__init__(0,0,0,0,tags={WTAG_COMBATHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION})
         self.camp = camp
         self._current_combatant = None
+        if self.camp.scene.combat_music:
+            pbge.my_state.start_music(self.camp.scene.combat_music)
 
     def get_next_combatant(self):
         for chara in self.camp.fight.active:
@@ -247,7 +219,7 @@ class CombatControlWidget(pbge.widgets.Widget):
     def on_activate(self):
         # When control returns to the combat controller, do the end-of-turn upkeep for
         # the most recent combatant.
-        if self._current_combatant:
+        if self._current_combatant and self.camp.fight:
             self.camp.fight.cstat[self._current_combatant].aoo_readied = True
             self.camp.fight.cstat[self._current_combatant].attacks_this_round = 0
             self._current_combatant.renew_power()
@@ -278,19 +250,26 @@ class CombatControlWidget(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.camp.fight and self.camp.fight.still_fighting():
-            # Find the next active combatant and deploy their turn widget.
-            chara = self.get_next_combatant()
+        if self.camp.fight:
+            if self.camp.fight.still_fighting():
+                # Find the next active combatant and deploy their turn widget.
+                chara = self.get_next_combatant()
 
-            if chara:
-                self.do_combat_turn(chara)
+                if chara:
+                    self.do_combat_turn(chara)
+                else:
+                    # No combatants to act? Start the next round.
+                    self.camp.fight.end_round()
+                    self._current_combatant = None
+                    self.camp.check_trigger("COMBATLOOP")
+
             else:
-                # No combatants to act? Start the next round.
-                self.camp.fight.end_round()
-                self._current_combatant = None
+                if self.camp.fight.is_concluded():
+                    self.camp.check_trigger("COMBATLOOP")
+                    finisher.Finisher.push_state_and_instantiate(self, camp=self.camp)
+                else:
+                    self.pop()
         else:
-            # Combat is over, for now. If the player quit just pop this widget. If not,
-            # resolve the after-combat effects.
             self.pop()
 
 
@@ -364,12 +343,22 @@ class Combat(object):
                 n += 1
         return n
 
+    def is_not_concluded(self):
+        # Return True if this combat has not ended. Note that the combat may get suspended
+        # temporarily- say, if the player quits and later reloads.
+        return (
+            (self.num_enemies() or self.keep_going_without_enemies) and
+            self.camp.first_active_pc() and self.camp.scene is self.scene
+        )
+
+    def is_concluded(self):
+        # Return True if this combat is over and should be removed from the campaign.
+        return not self.is_not_concluded()
+
     def still_fighting(self):
         """Keep playing as long as there are enemies, players, and no quit."""
         return (
-            (self.num_enemies() or self.keep_going_without_enemies) and
-            self.camp.first_active_pc() and not pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT)
-            and self.camp.scene is self.scene
+            self.is_not_concluded() and not pbge.my_state.session_data.get(pbge.campaign.SDAT_GOT_QUIT)
             and not pbge.my_state.got_quit and self.camp.egg
         )
 
@@ -421,6 +410,8 @@ class Combat(object):
             )
 
     def can_move_and_invoke(self, chara, nav, invo, target_pos):
+        # If this invocation can be used on this target pos this round, return a set of firing
+        # positions.
         if hasattr(invo.area, 'MOVE_AND_FIRE') and not invo.area.MOVE_AND_FIRE:
             return False
         else:
@@ -452,125 +443,7 @@ class Combat(object):
             self.cstat[chara].end_turn()
             self.cstat[chara].has_started_turn = False
         self.camp.update_area_enchantments()
-
-    def _try_to_fix_mkill(self, wid, _ev):
-        party, mkpc = wid.data
-        
-        total = 0
-        if mkpc.material is gears.materials.Biotech:
-            used_skill = gears.stats.Biotechnology
-        else:
-            used_skill = gears.stats.Repair
-        for pc in party:
-            if pc.get_current_mental() > 0:
-                pc.spend_mental(random.randint(1,4)+random.randint(1,4))
-                total += max(pc.get_skill_score(gears.stats.Craft, used_skill), random.randint(1, 5))
-        my_invo = pbge.effects.Invocation(
-            name = 'Repair',
-            fx=gears.geffects.DoHealing(
-                1, max(total,5), repair_type=mkpc.material.repair_type,
-                anim = gears.geffects.RepairAnim,
-                ),
-            area=pbge.scenes.targetarea.SingleTarget(),
-            targets=1)
-        _=my_invo.invoke(self.camp, None, [mkpc.pos], pbge.my_state.view.anim_list)
-        pbge.my_state.view.handle_anim_sequence()
-
-        mkpc.gear_up(self.scene)
-        if mkpc.get_current_speed() > 0:
-            _=pbge.alerts.TextAlert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
-        else:
-            _=pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
-            self.scene.contents.remove(mkpc)
-
-    def _abandon_mkill(self, wid, _ev):
-        party, mkpc = wid.data
-        _=pbge.alerts.TextAlert("You leave {} behind.".format(mkpc.get_pilot()))
-        self.scene.contents.remove(mkpc)
-
-    def go(self, explo):
-        """Perform this combat."""
-        pbge.my_state.view.overlays.clear()
-        if self.scene.combat_music:
-            pbge.my_state.start_music(self.scene.combat_music)
-
-        while self.still_fighting():
-            if self.n >= len(self.active):
-                # It's the end of the round.
-                self.n = 0
-                explo.update_npcs()
-                self.end_round()
-                self.camp.check_trigger("COMBATROUND")
-            if self.active[self.n] in self.camp.scene.contents and self.active[self.n].is_operational():
-                chara = self.active[self.n]
-                self.do_combat_turn(chara)
-                # After action, renew attacks of opportunity
-                self.cstat[chara].aoo_readied = True
-                self.cstat[chara].attacks_this_round = 0
-                chara.renew_power()
-            if self.no_quit and not pbge.my_state.got_quit:
-                # Only advance to the next character if we are not quitting. If we are quitting,
-                # the game will be saved and the player will probably want any APs they have left.
-                self.n += 1
-            self.camp.check_trigger("COMBATLOOP")
-
-        if self.no_quit and not pbge.my_state.got_quit:
-            # Combat is over. Deal with things.
-            # explo.check_trigger( "COMBATOVER" )
-            # if self.camp.num_pcs() > 0:
-            #    # Combat has ended because we ran out of enemies. Dole experience.
-            #    self.give_xp_and_treasure( explo )
-            #    # Provide some end-of-combat first aid.
-            #    #self.do_first_aid(explo)
-            #    self.recover_fainted(explo)
-            treasure = pbge.container.ContainerList()
-            for m in self.active:
-                if m in self.scene.contents and self.scene.is_an_actor(m):
-                    if not m.is_operational():
-                        self.camp.check_trigger("FAINT", m)
-                        n = m.get_pilot()
-                        if n and m is not n and not n.is_operational():
-                            self.camp.check_trigger("FAINT", n)
-                        mteam = self.scene.local_teams.get(m)
-                        if mteam and self.scene.player_team.is_enemy(mteam) and hasattr(m, "treasure_type") and m.treasure_type:
-                            maybe_treasure = m.treasure_type.generate_treasure(self.camp, m, gears.selector.get_design_by_full_name)
-                            if maybe_treasure:
-                                treasure.append(maybe_treasure)
-
-            # Deal with m-kills now; if someone is immobilized and can't be repaired, they get left behind.
-            # I am well aware this might mean the entire party gets taken out of combat.
-            myparty = self.camp.get_active_party()
-            for pc in myparty:
-                pc.hidden = False
-                if isinstance(pc, gears.base.Mecha) and pc.pos and (pc.get_current_speed() < 10 or not self.scene.can_use_movemode_here(pc.mmode, *pc.pos)):
-                    pc.gear_up(self.scene)
-                    if pc.get_current_speed() < 10:
-                        # Looks like we have a genuine Mobility Kill.
-                        if pc.get_pilot() is self.camp.pc:
-                            mymenu = pbge.widgetmenu.AlertMenuWidget("Your {} has been immobilized. You can either try to repair the damage, or let the mission continue without you.".format(pc.get_full_name()), pop_when_clicked=True, on_escape=self._abandon_mkill)
-                        else:
-                            mymenu = ghcutscene.SimpleMonologueMenu("[I_HAVE_BEEN_IMMOBILIZED] [HELP_WITH_MOBILITY_KILL]", pc, self.camp)
-                        if any([m.get_current_mental() > 0 for m in myparty]):
-                            _=mymenu.add_item("Attempt to repair the damage.", self._try_to_fix_mkill, data=(myparty,pc))
-                        _=mymenu.add_item("Leave {} behind.".format(pc), self._abandon_mkill, data=(myparty, pc))
-
-                        mymenu.push_and_deploy()
-                        choice = mymenu.query()
-                        if choice:
-                            choice(myparty, pc)
-                        else:
-                            self._abandon_mkill(myparty, pc)
-
-            if myparty and treasure:
-                _=pbge.alerts.TextAlert("You acquired some valuables from the battle.", data=treasure, on_close=self._open_item_exchanger)
-
-            _=PostCombatCleanup(self.camp)
-            self.scene.tidy_enchantments(gears.enchantments.END_COMBAT)
-
-    def _open_item_exchanger(self, wid, _ev):
-        fieldhq.backpack.ItemExchangeWidget.push_state_and_instantiate(
-            camp=self.camp, pc=self.camp.first_active_pc(), conlist=wid.data
-        )
+        self.camp.check_trigger("COMBATROUND")
 
     def __setstate__(self, state):
         # For saves from V0.905 or earlier, make sure the CombatDict is used.

@@ -465,7 +465,7 @@ class PlayerTurn(pbge.widgets.Widget):
                         self.actions.pop(0)
             else:
                 self.visible = True
-                if not self.camp.fight.cstat[self.pc].can_act():
+                if not (self.camp.fight.cstat[self.pc].can_act() and self.camp.fight.still_fighting()):
                     self.pop()
 
             
