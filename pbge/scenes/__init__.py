@@ -399,7 +399,7 @@ class Scene:
 
     def get_cover(self, x1, y1, x2, y2, vmode=movement.Vision):
         # x1,y1 is the viewer, x2,y2 is the target
-        my_line = animobs.get_line(x1, y1, x2, y2)[1:]
+        my_line = animobs.get_line(int(x1), int(y1), int(x2), int(y2))[1:]
         it = 0
         for p in my_line:
             if self.on_the_map(*p):

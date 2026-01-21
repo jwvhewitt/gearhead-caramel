@@ -230,7 +230,7 @@ class BasicAI(object):
                                 camp.scene.are_hostile(self.npc, tar)]
                 best = max(sample, key=self._desirability)
                 if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
-                    self.move_to(camp, mynav, best)
+                    return actions.MoveModelToPos(self.camp, self.npc, mynav, best)
 
     def attempt_jump_to_better_position(self, camp):
         # Check for a better tile.
@@ -245,14 +245,14 @@ class BasicAI(object):
                 return actions.JumpModelToPos(self.camp, self.npc, best)
 
     def attempt_attack(self, camp):
-        # 1. Do I want to move?
-        #    - Check to see if there's a better firing position within 1AP
-        #    - Check to see if enemies are too close if minimum comfort range
-        # 2. Attempt to attack
-        #    - Preferred target is usually closest enemy within LOS
-        #    - If can't hit preferred target, see if anyone else is in range
-        #    - If no attacks possible, move closer
-        actions = list()
+        # Check all of this model's attacks.
+        # - Can I move+attack my preferred target? Stick that in "premium" attacks.
+        # - Can I move+attack a secondary target? Stick that in "backup" attacks.
+        # If a premium or backup attack exists, choose the best one by this NPC's weighting function
+        # Choose the tile to move to based on tile desirability
+        # Attack if possible, which is should be, since we handled those calculations up there
+
+        my_actions = list()
         if (
                 hasattr(self.npc, "get_speed") and self.npc.get_speed(gears.tags.Jumping) > 10 and
                 camp.fight.cstat[self.npc].action_points > random.randint(1, 3) and
@@ -260,11 +260,11 @@ class BasicAI(object):
         ):
             move = self.attempt_jump_to_better_position(camp)
             if move:
-                return (move,)
+                return [move,]
         else:
             move = self.attempt_move_to_better_position(camp)
             if move:
-                actions.append(move)
+                return [move,]
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
         if camp.fight.cstat[self.npc].can_act():
@@ -274,9 +274,7 @@ class BasicAI(object):
             # within range.
             my_invo, my_targets = self.aim_attack(camp, my_attacks)
             if my_invo:
-                my_invo.invoke(camp, self.npc, my_targets, pbge.my_state.view.anim_list)
-                pbge.my_state.view.handle_anim_sequence()
-                camp.fight.cstat[self.npc].spend_ap(1)
+                return [actions.InvokeInvocation(camp, my_invo, self.npc.pos, self.npc, my_targets, None),]
             elif hasattr(self.npc, "get_current_speed") and self.npc.get_current_speed() > 10:
                 # Attempt to move closer to the target.
                 mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene, self.npc.pos,
@@ -291,17 +289,10 @@ class BasicAI(object):
                         dest = p
                         break
                 if dest and dest != self.npc.pos:
-                    self.move_to(camp, mynav, dest)
-                else:
-                    # Can't move towards this target.
-                    # Sit around and consider how you've reached this point in life.
-                    self.target = None
-                    camp.fight.cstat[self.npc].spend_ap(1)
-            else:
-                # Can't move, can't attack. Might as well do nothing.
-                camp.fight.cstat[self.npc].spend_ap(1)
+                    return [actions.MoveModelToPos(self.camp, self.npc, mynav, dest),]
+                    
 
-        return actions
+        return my_actions
 
     def try_to_use_a_skill(self, camp):
         # Check to see if any skills are usable.
@@ -402,8 +393,8 @@ class NonPlayerTurn(pbge.widgets.Widget):
             self.brain = camp.fight.ai_brains[pc]
 
         # Maybe buy an extra action or two?
-        if camp.fight.cstat[self.npc].can_buy_bonus_action():
-            while random.randint(1,10) == 5 and (self.npc.get_current_stamina() - camp.fight.cstat[self.npc].bonus_action_cost()) > random.randint(10,20):
+        if camp.fight.cstat[self.pc].can_buy_bonus_action():
+            while random.randint(1,10) == 5 and (self.pc.get_current_stamina() - camp.fight.cstat[self.pc].bonus_action_cost()) > random.randint(10,20):
                 self.actions.append(actions.BuyBonusActions(camp, pc))
 
     def update(self, delta):

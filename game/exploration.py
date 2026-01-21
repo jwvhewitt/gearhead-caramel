@@ -530,6 +530,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
     def on_activate(self):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
             pbge.my_state.start_music(self.scene.exploration_music)
+        pbge.my_state.view.cursor.frame = invoker.InvocationUI.SC_VOIDCURSOR
 
 
 class Explorer(pbge.campaign.ExploPrototype):

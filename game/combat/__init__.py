@@ -240,13 +240,7 @@ class CombatControlWidget(pbge.widgets.Widget):
                 # Outsource the turn-taking.
                 pcaction.PlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
             else:
-                self.camp.fight.cstat[chara].end_turn()
-                # if chara not in self.camp.fight.ai_brains:
-                #     chara_ai = aibrain.BasicAI(chara)
-                #     self.camp.fight.ai_brains[chara] = chara_ai
-                # else:
-                #     chara_ai = self.camp.fight.ai_brains[chara]
-                # chara_ai.act(self.camp)
+                aibrain.NonPlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
 
     def update(self, delta):
         super().update(delta)
