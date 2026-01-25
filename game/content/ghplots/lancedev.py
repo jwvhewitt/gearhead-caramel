@@ -424,7 +424,7 @@ class ProfessionalColleagueBecomesRival(LMPlot):
         )
         _=missionbuilder.NewMissionNotification(self.duel.name, self.elements["MISSION_GATE"])
         self.accepted_duel = True
-        self.memo = Memo("{NPC} has challenged you to a practice duel.", self.elements["METROSCENE"])
+        self.memo = Memo("{NPC} has challenged you to a practice duel.".format(**self.elements), self.elements["METROSCENE"])
 
     def _reject_offer(self, wid, _ev):
         camp = wid.data

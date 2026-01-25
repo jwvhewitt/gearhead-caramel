@@ -7,10 +7,10 @@ class PuzzleMenu( widgetmenu.MenuWidget ):
     ACTIVATE_IMMEDIATELY = True
     WIDTH = 350
     HEIGHT = 250
-    MENU_HEIGHT = 75
+    MENU_HEIGHT = 125
 
-    FULL_RECT = frects.Frect(-175,-125,350,250)
-    TEXT_RECT = frects.Frect(-175,-125,350,165)
+    FULL_RECT = frects.Frect(-175,-150,350,300)
+    TEXT_RECT = frects.Frect(-175,-150,350,165)
 
     def __init__( self, camp, wp ):
         super().__init__(-self.WIDTH//2,self.HEIGHT//2-self.MENU_HEIGHT,self.WIDTH,self.MENU_HEIGHT,draw_border=False, pop_when_clicked=True)

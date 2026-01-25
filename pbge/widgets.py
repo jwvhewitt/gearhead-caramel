@@ -39,6 +39,29 @@ class WidgetException(Exception):
 class FrozenUIState:
     # Widgets may have "on_activate" and "on_freeze" methods that get called when the widget is either popped or
     # pushed.
+    # 
+    #       ****************************
+    #    ***                           ***
+    #  ***   GOLDEN  RULE  OF  POPPING   ***
+    #    ***                           ***
+    #       ****************************
+    #
+    # If you are going to pop a current widget and open a new widget, make sure that
+    # you do in fact pop the widget-to-be-popped first and activate the second widget
+    # second. Doing this in opposite order will in fact pop the second widget's frozen
+    # state when you pop the first widget, leaving a corrupted stack and a UI from
+    # the nightmares of Hieronymous Bosch. I know I am given to long winded comments
+    # but I've messed this up at least twice so far in the unblocking refactoring project
+    # and want to make sure I remember it for next time.
+    #
+    # >>> THOSE WHO DISOBEY THE GOLDEN RULE OF POPPING SHALL BE POOPED UPON!!! <<<
+    #
+    # ISSUE: It is possible for two or more widgets which push a frozen state to the stack to be
+    #  deployed simultaneously. For example, two conversations starting at once. There are other
+    #  cases where multiple widgets with pushed states should be active at the same time- for example,
+    #  the scene handler opening the exploration widget which opens the combat widget. In the "good"
+    #  cases there is an order to the widgets so they should push/pop correctly. I am not certain
+    #  how to deal with this other than to be very very careful. Which as we all know never works.
     def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=(), tags_to_push=(), pushing_widget=None):
         self.pushed_widgets = list()
         for wtp in widgets_to_push:
@@ -131,6 +154,15 @@ class FrozenUIState:
             my_state.ui_stack.pop(-1)
         FrozenUIState.pop(popping_widget)
 
+    def is_current(self):
+        # Return True if the current state of the UI is about the same as when this state was frozen.
+        # This means the snapshot is at the top of the UI stack and there are no pending animations
+        # or alerts.
+        if my_state.view and my_state.view.has_animations():
+            return False
+        return self is my_state.ui_stack[-1] and not my_state.alert_queue
+
+
 type On_Click = Callable[[Widget, pygame.event.Event], None]|None
 
 
@@ -170,6 +202,9 @@ class Widget(frects.Frect):
         self.can_take_focus = can_take_focus
         self.should_hilight = should_hilight or self._default_should_hilight
         self.desc = desc
+
+        # Record FrozenUIState belonging to this widget.
+        self.snapshot = None
 
         self.up_widget = up_widget
         if up_widget and return_links:
@@ -326,7 +361,7 @@ class Widget(frects.Frect):
     @classmethod
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
         my_widget = cls(**kwargs)
-        _=FrozenUIState(
+        my_widget.snapshot=FrozenUIState(
             *widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, 
             tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH,
             pushing_widget=my_widget
@@ -342,7 +377,7 @@ class Widget(frects.Frect):
                 my_state.widgets.remove(w)
 
     def push_and_deploy(self, *widgets_to_push):
-        _=FrozenUIState(
+        self.snapshot=FrozenUIState(
             *widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
             tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH,
             pushing_widget=self

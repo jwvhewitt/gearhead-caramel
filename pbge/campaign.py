@@ -156,14 +156,17 @@ class Campaign(object):
                 for p in ob.scripts:
                     yield p
 
-    def check_trigger(self, trigger, thing=None):
+    def check_trigger(self, trigger, thing=None) -> bool|None:
         # Something is happened that plots may need to react to.
         # Only check a trigger if the campaign has been constructed.
+        # NEW: Return True if this trigger tripped any scripts, or False/None if it did nothing.
         if self.scene:
+            my_state.trigger_tripped_stack.append(False)
             if trigger == "UPDATE":
                 self.update_plots()
             for p in self.active_plots():
                 p.handle_trigger(self, trigger, thing)
+            return my_state.trigger_tripped_stack.pop(-1)
 
     def expand_puzzle_menu(self, thing, thingmenu: scenes.waypoints.PuzzleMenu):
         # Something is happened that plots may need to react to.

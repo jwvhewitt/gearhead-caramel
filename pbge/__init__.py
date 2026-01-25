@@ -168,6 +168,9 @@ class GameState(object):
         # a queue of display widgets that get cycled through automatically.
         self.alert_queue = list()
 
+        # The following stack is used by the check_trigger function in campaign
+        self.trigger_tripped_stack = list()
+
         # self.client = SteamClient()
 
     def render_notifications(self):

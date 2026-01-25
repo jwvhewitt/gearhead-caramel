@@ -15,8 +15,8 @@ ALERT_EVENT = pygame.event.custom_type()
 # the queue will be deployed.
 
 class AbstractAlert(widgets.Widget):
-    def __init__(self, dx=0, dy=0, w=0, h=0, on_close: widgets.On_Click=None):
-        super().__init__(dx,dy,w,h, tags={WTAG_ALERT}, )
+    def __init__(self, dx=0, dy=0, w=0, h=0, on_close: widgets.On_Click=None, data=None):
+        super().__init__(dx,dy,w,h, tags={WTAG_ALERT}, data=data)
         self.on_close = on_close
         my_state.alert_queue.append(self)
 
@@ -25,17 +25,17 @@ class AbstractAlert(widgets.Widget):
 
     def _builtin_responder(self, ev):
         if (ev.type == pygame.MOUSEBUTTONUP):
-            if self.on_close:
-                self.on_close(self, ev)
             self.register_response()
             self.pop()
+            if self.on_close:
+                self.on_close(self, ev)
             my_state.update_alerts()
         elif (ev.type == pygame.KEYDOWN):
             if my_state.is_key_for_action(ev, "exit") or my_state.is_key_for_action(ev, "select"):
-                if self.on_close:
-                    self.on_close(self, ev)
                 self.register_response()
                 self.pop()
+                if self.on_close:
+                    self.on_close(self, ev)
                 my_state.update_alerts()
 
     def _render(self, _delta):
@@ -85,10 +85,10 @@ class AnimAlert(AbstractAlert):
         elif not my_state.view.has_animations():
             self.timer -= delta
             if self.timer <= 0:
-                if self.on_close:
-                    self.on_close(self, pygame.event.Event(ALERT_EVENT, {}))
                 self.register_response()
                 self.pop()
+                if self.on_close:
+                    self.on_close(self, pygame.event.Event(ALERT_EVENT, {}))
                 my_state.update_alerts()
 
     def _builtin_responder(self, ev):

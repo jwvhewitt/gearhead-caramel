@@ -606,10 +606,7 @@ class Explorer(pbge.campaign.ExploPrototype):
         del pbge.my_state.notifications[:]
         _=pbge.BasicNotification(str(self.scene))
 
-        self.camp.check_trigger("INITIALIZE")
-        if not self.camp.fight:
-            self.camp.check_trigger("START")
-            self.camp.check_trigger("ENTER", self.scene)
+        self._initial_triggers_need_checking = True
 
     def should_stop_exploring(self):
         if self.camp.has_a_destination():
@@ -618,6 +615,15 @@ class Explorer(pbge.campaign.ExploPrototype):
             return True
 
     def update(self, delta):
+        # The first frame is spent checking start triggers.
+        if self._initial_triggers_need_checking:
+            self.camp.check_trigger("INITIALIZE")
+            if not self.camp.fight:
+                self.camp.check_trigger("START")
+                self.camp.check_trigger("ENTER", self.scene)
+            self._initial_triggers_need_checking = False
+            return
+
         super().update(delta)
 
         self.thirty_second_timer += delta
@@ -640,6 +646,10 @@ class Explorer(pbge.campaign.ExploPrototype):
                 self.active = False
             if not pbge.my_state.ui_is_active():
                 self.pop()
+
+    def respond_event(self, ev):
+        if not self._initial_triggers_need_checking:
+            return super().respond_event(ev)
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:

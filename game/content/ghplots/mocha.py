@@ -498,35 +498,37 @@ class FrozenHotSpringCity(Plot):
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):
         if not self.did_opening_sequence:
-            pbge.alerts.TextAlert("December 23, NT157. It's been an awful year for the Federated Territories of Earth.")
+            _=pbge.alerts.TextAlert("December 23, NT157. It's been an awful year for the Federated Territories of Earth.")
             if camp.pc.has_badge(gears.oldghloader.TYPHON_SLAYER.name):
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. Fortunately, a team of cavaliers was able to destroy it before it reached Snake Lake. You were there.")
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "Now, six months later, you are meeting with several of your former lancemates for a charity mecha tournament in the recently constructed Mauna Arena.")
             else:
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "An ancient bioweapon named Typhon was awakened from stasis and rampaged through several cities. You watched the destruction unfold on vidnet, and saw the final battle when a team of cavaliers brought the beast down just outside of Snake Lake City."
                 )
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "Now, six months later, you have been invited to a charity mecha tournament at Mauna Arena. The funds raised will be donated to reconstruction efforts in Wujung."
                 )
-            pbge.alerts.TextAlert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.")
+            _=pbge.alerts.TextAlert("At 5AM, alarms go off through the hotel. You rush outside to see what's going on.", on_close=self._finish_intro, data=camp)
 
-            npc = self.elements["VIKKI"]
-            ghdialogue.start_conversation(camp, camp.pc, npc, cue=Cue(ContextTag([self])))
+    def _finish_intro(self, wid, _ev):
+        camp = wid.data
+        npc = self.elements["VIKKI"]
+        ghdialogue.start_conversation(camp, camp.pc, npc, cue=Cue(ContextTag([self])))
 
-            # Also at this time: We need to lock away any spare mecha the PC might have, since this adventure
-            # relies upon the PC not having access to said mecha. Don't worry; we'll give everything back at
-            # the end.
-            camp.campdata["PC_STUFF"] = list()
-            for mek in list(camp.party):
-                if not isinstance(mek, gears.base.Being):
-                    camp.party.remove(mek)
-                    camp.campdata["PC_STUFF"].append(mek)
-                    if hasattr(mek, "pilot"):
-                        mek.pilot = None
-            self.did_opening_sequence = True
+        # Also at this time: We need to lock away any spare mecha the PC might have, since this adventure
+        # relies upon the PC not having access to said mecha. Don't worry; we'll give everything back at
+        # the end.
+        camp.campdata["PC_STUFF"] = list()
+        for mek in list(camp.party):
+            if not isinstance(mek, gears.base.Being):
+                camp.party.remove(mek)
+                camp.campdata["PC_STUFF"].append(mek)
+                if hasattr(mek, "pilot"):
+                    mek.pilot = None
+        self.did_opening_sequence = True
 
     def t_INITIALIZE(self, camp: gears.GearHeadCampaign):
         if gears.tags.SCENE_BUILDING not in camp.scene.attributes:

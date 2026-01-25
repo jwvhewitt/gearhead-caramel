@@ -121,6 +121,12 @@ class HandleTreasure:
             camp=self.camp, pc=self.camp.first_active_pc(), conlist=self.treasure
         )
 
+class HandleTrigger:
+    def __init__(self, camp, trigger, thing):
+        self.camp = camp
+        self.trigger = trigger
+        self.thing = thing
+
 
 class Finisher(pbge.widgets.Widget):
     def __init__(self, camp:gears.GearHeadCampaign):
@@ -130,13 +136,14 @@ class Finisher(pbge.widgets.Widget):
 
         # Combat is over. Deal with things.
         treasure = pbge.container.ContainerList()
+        self.fainters = list()
         for m in camp.fight.active:
             if m in camp.scene.contents and camp.scene.is_an_actor(m):
                 if not m.is_operational():
-                    self.camp.check_trigger("FAINT", m)
+                    self.fainters.append(m)
                     n = m.get_pilot()
                     if n and m is not n and not n.is_operational():
-                        self.camp.check_trigger("FAINT", n)
+                        self.fainters.append(m)
                     mteam = camp.scene.local_teams.get(m)
                     if mteam and camp.scene.player_team.is_enemy(mteam) and hasattr(m, "treasure_type") and m.treasure_type:
                         maybe_treasure = m.treasure_type.generate_treasure(self.camp, m, gears.selector.get_design_by_full_name)
@@ -161,12 +168,19 @@ class Finisher(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.cleanup_queue:
-            cjob = self.cleanup_queue.pop(0)
-            cjob.handle(self)
+        if self.snapshot.is_current():
+            if self.fainters:
+                while self.fainters:
+                    fnpc = self.fainters.pop()
+                    if self.camp.check_trigger("FAINT", fnpc):
+                        break
 
-        else:
-            # no cleanup jobs left. Remove the fight from the camp and pop.
-            self.camp.fight = None
-            self.pop()
+            elif self.cleanup_queue:
+                cjob = self.cleanup_queue.pop(0)
+                cjob.handle(self)
+
+            else:
+                # no cleanup jobs left. Remove the fight from the camp and pop.
+                self.camp.fight = None
+                self.pop()
 

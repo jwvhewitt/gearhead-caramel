@@ -1,5 +1,5 @@
 import random
-from . import dialogue
+from . import dialogue, my_state
 from .memos import Memo
 
 LOCALE = "LOCALE"
@@ -397,15 +397,18 @@ class Plot(object):
                 handler = getattr(self, "SELF_{0}".format(trigger), None)
                 if handler:
                     handler(camp)
+                    my_state.trigger_tripped_stack[-1] = True
             idlist = self.get_element_idents(thing)
             for label in idlist:
                 handler = getattr(self, "{0}_{1}".format(label, trigger), None)
                 if handler:
                     handler(camp)
+                    my_state.trigger_tripped_stack[-1] = True
         else:
             handler = getattr(self, "t_{0}".format(trigger), None)
             if handler:
                 handler(camp)
+                my_state.trigger_tripped_stack[-1] = True
 
     def get_dialogue_offers(self, npc, camp):
         """Get any dialogue offers this plot has for npc."""
