@@ -1,6 +1,6 @@
 from . import widgets
 from . import image
-from . import my_state, Border, TEXT_COLOR, default_border, draw_text
+from . import my_state, Border, TEXT_COLOR, default_border, draw_text, WHITE
 from . import frects
 import pygame
 from collections.abc import Callable
@@ -371,3 +371,34 @@ class AlertMenuWidget(MenuWidget):
         draw_text(self.alert_font, self.msg, self.TEXT_RECT.get_rect(), justify=0)
         super()._render(delta)
 
+
+class TitleMenuWidget(MenuWidget):
+    WIDTH = 350
+    HEIGHT = 250
+    TITLE_HEIGHT = 30
+    PADDING = 24
+
+    MENU_RECT = frects.Frect(-WIDTH // 2, -HEIGHT // 2 + TITLE_HEIGHT + PADDING, WIDTH, HEIGHT - TITLE_HEIGHT - PADDING)
+    TITLE_RECT = frects.Frect(-WIDTH // 2, -HEIGHT // 2, WIDTH, TITLE_HEIGHT)
+
+    def __init__(self, title, title_font=None, **kwargs):
+        if "draw_border" in kwargs:
+            kwargs.pop("draw_border")
+        super().__init__(
+            **self.MENU_RECT.get_dict(),
+            draw_border=False, **kwargs
+        )
+        self.title = title
+        self.title_font = title_font
+
+    def _render(self, delta):
+        default_border.render(self.my_menu.MENU_RECT.get_rect())
+        default_border.render(self.my_menu.TITLE_RECT.get_rect())
+        draw_text(
+            self.my_menu.title_font, self.my_menu.title, self.my_menu.TITLE_RECT.get_rect(), justify=0, vjustify=0,
+            color=WHITE
+        )
+        super()._render(delta)
+
+
+ 

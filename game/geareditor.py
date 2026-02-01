@@ -973,24 +973,7 @@ class GearEditor(pbge.widgets.Widget):
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
             self.pop()
-            pbge.my_state.widget_responded = True
-
-    @classmethod
-    def create_and_invoke(cls, redraw):
-        # Create the UI. Run the UI. Clean up after you leave.
-        #mymek = gears.selector.get_design_by_full_name("TR9-02 Trailblazer")
-        mymek = gears.selector.get_design_by_full_name("SAN-X9 Buru Buru")
-        mymek.colors = (gears.color.ShiningWhite,gears.color.FreedomBlue,gears.color.ElectricYellow,gears.color.WarmGrey,gears.color.GunRed)
-        myui = cls(mymek)
-        pbge.my_state.widgets.append(myui)
-        pbge.my_state.view = redraw
-        while not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                redraw()
-                pbge.my_state.do_flip()
-
-        pbge.my_state.widgets.remove(myui)
+            self.register_response()
 
 
 MAIN_MENU_DXYWH = (-150,0,300,226)

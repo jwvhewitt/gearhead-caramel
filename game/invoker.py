@@ -15,8 +15,11 @@ from collections.abc import Callable
 # gathered or False if it was not.
 
 class DataGatherer:
-    def __call__(self, data: dict):
+    def gather(self, _data: dict):
         raise(NotImplementedError("This data gatherer does nothing!"))
+
+    def confirm(self, _data: dict):
+        raise(NotImplementedError("This data gatherer cannot confirm the data it did not collect."))
 
 
 # The On_Invoke callable accepts the invocation being invoked, the "firing position",
@@ -300,6 +303,40 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
         else:
             self.set_shelf_invo(self.shelf, self.shelf.invo_list[self.invo])
 
+WTAG_INVOKER = "WTAG_INVOKER"
+
+class DataGatheringWidget(pbge.widgets.Widget):
+    TAGS_TO_DEACTIVATE = {WTAG_INVOKER,}
+
+    def __init__(self, data_gatherers: list, data_dict: dict, on_completion, on_cancel):
+        # on_completion and on_cancel are callables that don't take any params.
+        super().__init__(0,0,0,0)
+        self.data_gatherers = list(data_gatherers)
+        self.current_data_gatherer = None
+        self.data_dict = data_dict
+        self.on_completion = on_completion
+        self.on_cancel = on_cancel
+
+    def update(self, delta):
+        super().update(delta)
+        if self.active:
+            if self.current_data_gatherer:
+                # The only way this widget can be active with a current_data_gatherer set is if
+                # the data gatherer has finished its work.
+                if not self.current_data_gatherer.confirm(self.data_dict):
+                    self.pop()
+                    self.on_cancel()
+                    return
+                self.current_data_gatherer = None
+            
+            if self.data_gatherers:
+                self.current_data_gatherer = self.data_gatherers.pop(0)
+                self.current_data_gatherer.gather(self.data_dict)
+            else: 
+                # We have run out of data to gather.
+                self.pop()
+                self.on_completion()
+
 
 class InvocationUI(pbge.widgets.Widget):
     SC_ORIGIN = 4
@@ -322,7 +359,7 @@ class InvocationUI(pbge.widgets.Widget):
         source=None, top_shelf_fun=None, auto_escape=False,
         bottom_shelf_fun=None, name="invocations", clock=None , **kwargs
     ):
-        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}, **kwargs)
+        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION, WTAG_INVOKER}, **kwargs)
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
@@ -472,47 +509,41 @@ class InvocationUI(pbge.widgets.Widget):
         # both inside and outside of combat. I'm gonna think about that.
         self.ready_to_invoke = True
         self.data.clear()
-        for data_g in self.invo.data_gatherers:
-            if not data_g(self.data):
-                self.ready_to_invoke = False
-                break
-        # if self.camp.fight and self.ready_to_invoke:
-        #     # Launch the effect.
-        #     self.invo.invoke(self.camp, self.pc, self.targets, pbge.my_state.view.anim_list, data=self.data)
-        #     pbge.my_state.view.handle_anim_sequence(self.record)
-        #     self.camp.fight.cstat[self.pc].spend_ap(1)
-        #     self.targets = list()
-        #     self.my_widget.update_buttons()
-        #     self.record = False
 
-        #     # Recalculate the combat info.
-        #     self.activate()
-        #     self.camp.scene.update_party_position(self.camp)
-        #     self.ready_to_invoke = False
+        if self.invo.data_gatherers:
+            DataGatheringWidget.push_state_and_instantiate(
+                data_gatherers=self.invo.data_gatherers, data_dict=self.data, 
+                on_completion=self._final_launch, on_cancel=self._cancel_launch
+            )
+        else:
+            self._final_launch()
+
+    def _cancel_launch(self):
+        if self.auto_escape:
+            self.pop()
+        self.tidy()
+        if not self.auto_escape:
+            self.targets = list()
+            self.my_widget.update_buttons()
+            self.record = False
+            self.activate()
+
+    def _final_launch(self):
         if self.auto_escape:
             self.pop()
         self.tidy()
         self.on_invoke(self.invo, self.get_firing_pos(), self.targets, self.data)
+        if not self.auto_escape:
+            self.targets = list()
+            self.my_widget.update_buttons()
+            self.record = False
+            self.activate()
 
     def click_left(self):
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             self.targets.append(pbge.my_state.view.mouse_tile)
         elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(
                 pbge.my_state.view.mouse_tile):
-            if self.camp.fight:
-                # Maybe we can move into range? We can determine firing points by
-                # checking from the target's position.
-                tarp = pbge.my_state.view.mouse_tile
-                firing_points = self.camp.fight.can_move_and_invoke(self.pc, self.nav, self.invo, tarp)
-                if firing_points:
-                    self.camp.fight.move_and_invoke(self.pc, self.nav, self.invo, [tarp, ], firing_points,
-                                                    self.record)
-                    # Recalculate the combat info.
-                    self.targets = list()
-                    self.my_widget.update_buttons()
-                    self.record = False
-                    self.activate()
-            else:
                 self.targets.append(pbge.my_state.view.mouse_tile)
 
         if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):

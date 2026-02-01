@@ -537,6 +537,7 @@ class Explorer(pbge.campaign.ExploPrototype):
     # The object which is exploration of a scene. OO just got existential.
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
+    HEADLINER = False
     def __init__(self, camp: gears.GearHeadCampaign):
         super().__init__(
             0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}

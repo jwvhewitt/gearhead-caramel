@@ -395,10 +395,7 @@ class MysteryMemo(object):
     def open_mystery(self, wid, ev):
         # Open the Hypothesis Widget.
         memob, camp = wid.data
-        memob.active = False
-        okapipuzzle.OkapiPuzzleWidget(self.challenge.mystery, camp, self.solve_mystery)()
-        memob.regen_memo()
-        memob.active = True
+        okapipuzzle.OkapiPuzzleWidget.push_state_and_instantiate(memob, mystery=self.challenge.mystery, camp=camp, on_solution=self.solve_mystery)
 
     def solve_mystery(self):
         pass

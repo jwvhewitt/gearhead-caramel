@@ -1,6 +1,6 @@
 # A Quest is the opposite of a story- it is a randomly generated narrative with a defined ending.
 
-from . import plots, widgets, my_state, frects, image, wait_event, TIMEREVENT, util, Singleton
+from . import plots, widgets, my_state, frects, image, util, Singleton
 import pygame
 import random
 
@@ -383,18 +383,12 @@ class Quest:
     def open_lore(self, wid, ev):
         # Open the lore Widget.
         memob, camp = wid.data
-        memob.active = False
-        BrowseLoreWidget(self._revealed_lore, camp)()
-        memob.regen_memo()
-        memob.active = True
+        BrowseLoreWidget.push_state_and_instantiate(memob, revealed_lore=self._revealed_lore, camp=camp)
 
     def open_debug(self, wid, ev):
         # Open the quest debugging Widget.
         memob, camp = wid.data
-        memob.active = False
-        QuestDebugInfoWidget(self, camp)()
-        memob.regen_memo()
-        memob.active = True
+        QuestDebugInfoWidget.push_state_and_instantiate(memob, quest=self, camp=camp)
 
     def get_widget(self, memobrowser, camp):
         mylabel = widgets.LabelWidget(
@@ -524,22 +518,13 @@ class BrowseLoreWidget(widgets.ScrollColumnWidget):
                 self.add_interior(widgets.LabelWidget(0,0,self.w,0,msg, font=my_state.medium_font))
 
     def close_browser(self, button=None, ev=None):
-        self.keep_going = False
-        my_state.widgets.remove(self)
+        self.pop()
 
-    def __call__(self):
-        # Run the UI. Clean up after you leave.
-        my_state.widgets.append(self)
-        while self.keep_going and not my_state.got_quit:
-            ev = wait_event()
-            if ev.type == TIMEREVENT:
-                my_state.render_and_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self.keep_going = False
-
-        if self in my_state.widgets:
-            my_state.widgets.remove(self)
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()
 
 
 class QuestDebugInfoWidget(widgets.ScrollColumnWidget):
@@ -581,19 +566,10 @@ class QuestDebugInfoWidget(widgets.ScrollColumnWidget):
                 self.add_interior(widgets.LabelWidget(0,0,self.w,0,msg, font=my_state.medium_font, color=color))
 
     def close_browser(self, button=None, ev=None):
-        self.keep_going = False
-        my_state.widgets.remove(self)
+        self.pop()
 
-    def __call__(self):
-        # Run the UI. Clean up after you leave.
-        my_state.widgets.append(self)
-        while self.keep_going and not my_state.got_quit:
-            ev = wait_event()
-            if ev.type == TIMEREVENT:
-                my_state.render_and_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self.keep_going = False
-
-        if self in my_state.widgets:
-            my_state.widgets.remove(self)
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()

@@ -30,6 +30,7 @@ class ExploPrototype(widgets.Widget):
 
 class SessionMonitor(widgets.Widget):
     TAGS_TO_PUSH = {widgets.WTAG_TITLESCREEN,}
+    HEADLINER = False
 
     def __init__(self, camp: "Campaign"):
         super().__init__(0,0,0,0,tags={WTAG_SESSIONMONITOR,})

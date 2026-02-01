@@ -62,6 +62,10 @@ class FrozenUIState:
     #  the scene handler opening the exploration widget which opens the combat widget. In the "good"
     #  cases there is an order to the widgets so they should push/pop correctly. I am not certain
     #  how to deal with this other than to be very very careful. Which as we all know never works.
+    #
+    # SEMI-SOLUTION: Added the "HEADLINER" property. Only one HEADLINER widget can be active at a
+    #  time. HEADLINER is True by default. So, it is still possible to muck up the state with
+    #  multiple simultaneously pushed widgets, but you have to try harder to do so.
     def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=(), tags_to_push=(), pushing_widget=None):
         self.pushed_widgets = list()
         for wtp in widgets_to_push:
@@ -91,6 +95,13 @@ class FrozenUIState:
             self.focused_widget_wr = weakref.ref(my_state.focused_widget)
         except TypeError:
             self.focused_widget_wr = None
+
+        # If the pushing widget is a headliner, make sure there are no other headliners lined up.
+        if pushing_widget and pushing_widget.HEADLINER:
+            for widg in list(my_state.widgets):
+                if widg.HEADLINER and widg.active and widg.visible:
+                    self.push_widget(widg)
+                    print("Pushed headliner {}".format(widg))
 
         my_state.ui_stack.append(self)
 
@@ -357,6 +368,7 @@ class Widget(frects.Frect):
     TAGS_TO_HIDE = ()
     TAGS_TO_PUSH = ()
     ACTIVATE_IMMEDIATELY = False
+    HEADLINER = True
 
     @classmethod
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):

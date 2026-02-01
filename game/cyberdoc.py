@@ -353,19 +353,23 @@ class SurgeryUI(pbge.widgets.Widget):
         if not (a_rect.collidepoint(pbge.my_state.mouse_pos) or b_rect.collidepoint(pbge.my_state.mouse_pos)):
             self._set_infopanel(self.pc)
 
-    ### Primary entry point.
-    def activate_and_run(self):
-        pbge.my_state.widgets.append(self)
-        self.running = True
-        while self.running and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self.running = False
-        pbge.my_state.widgets.remove(self)
 
+class SurgeryWaitingRoomWidget(pbge.widgetmenu.TitleMenuWidget):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
+    def __init__(self, camp, shop):
+        super().__init__("Choose patient", font=pbge.BIGFONT, auto_escape=True)
+        self.camp = camp
+        self.shop = shop
+        for char in camp.party:
+            if isinstance(char, gears.base.Character) and char.material is gears.materials.Meat:
+                _=self.add_item(char.name, self._enter_clinic, data=char)
+        self.sort()
+        _=self.add_item("[EXIT]", self._exit_clinic)
 
+    def _enter_clinic(self, wid, _ev):
+        pc = wid.data
+        self.shop.customer = pc
+        SurgeryUI.push_state_and_instantiate(self, camp=self.camp, shop=self.shop, pc=pc)
 
+    def _exit_clinic(self, _wid, _ev):
+        self.pop()

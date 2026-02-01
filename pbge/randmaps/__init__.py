@@ -13,7 +13,6 @@ from . import rooms
 from .rooms import Room
 from . import architect
 from . import terrset
-from . import debugviewer
 
 
 # A scene is constructed in the following steps:

@@ -64,6 +64,9 @@ class MemoBrowser(widgets.Widget):
     def regen_memo(self):
         self.memo_n = self.memo_n
 
+    def on_activate(self):
+        self.regen_memo()
+
     def _get_memo_n(self):
         return self._memo_n
 

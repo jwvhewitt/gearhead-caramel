@@ -259,11 +259,11 @@ class EdgesEditor(pbge.widgets.Widget):
 
 
 class WorldMapEditor(pbge.widgets.Widget):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET}
     def __init__(self, sc_editor, wm_blueprint):
         super().__init__(0, 0, 0, 0)
         self.sc_editor = sc_editor
         self.wm_blueprint = wm_blueprint
-        self.finished = False
 
         # Step One: Build the world map that we will be editing.
         self.world_map = campfeatures.WorldMap(self.wm_blueprint.raw_vars["image_file"].strip('"'))
@@ -277,7 +277,6 @@ class WorldMapEditor(pbge.widgets.Widget):
             myerrors = blueprint.get_errors()
             if myerrors:
                 print("Blueprint {} has errors".format(blueprint))
-                self.finished = True
                 node_vars = blueprint.get_ultra_vars()
                 print(myerrors)
             else:
@@ -362,30 +361,17 @@ class WorldMapEditor(pbge.widgets.Widget):
         self.active_edge = None
 
     def _quit_editor(self, *args):
-        self.finished = True
+        self.pop()
 
     def _click_world_map(self, wid, ev):
-        pygame.event.post(pygame.event.Event(CLICK_WORLD_MAP_TILE_EVENT, pos=wid.data))
+        _=pygame.event.post(pygame.event.Event(CLICK_WORLD_MAP_TILE_EVENT, pos=wid.data))
 
     def _render(self, delta):
         self.world_map_viewer.render(self.active_entrance_uid, self.active_edge)
 
-    @classmethod
-    def create_and_invoke(cls, redraw, sc_editor, wm_blueprint):
-        # Create the UI. Run the UI. Clean up after you leave.
-        myui = cls(sc_editor, wm_blueprint)
-        sc_editor.active = False
-        pbge.my_state.widgets.append(myui)
-        pbge.my_state.view = redraw
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                redraw()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if pbge.my_state.is_key_for_action(ev, "exit"):
-                    keepgoing = False
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.pop()
 
-        pbge.my_state.widgets.remove(myui)
-        sc_editor.active = True
+

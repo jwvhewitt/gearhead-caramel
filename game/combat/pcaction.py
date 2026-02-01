@@ -228,7 +228,7 @@ class PlayerTurn(pbge.widgets.Widget):
 
     def _on_invoke(self, invo, firing_pos, targets, data):
         if firing_pos != self.pc.pos:
-            self.actions.append(actions.MoveModelToPos(self.camp, self.pc, self.camp.fight.get_action_nav(), firing_pos))
+            self.actions.append(actions.MoveModelToPos(self.camp, self.pc, self.camp.fight.get_action_nav(self.pc), firing_pos))
         self.actions.append(actions.InvokeInvocation(self.camp, invo, firing_pos, self.pc, targets, data))
 
     def end_turn(self, _button, _ev):

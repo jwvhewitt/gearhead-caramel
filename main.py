@@ -376,16 +376,6 @@ def draw_border():
     pbge.default_border.render(myarea.get_rect())
 
 
-def just_show_background(_):
-    while True:
-        ev = pbge.wait_event()
-        if ev.type == pbge.TIMEREVENT:
-            #tsrd(False)
-            draw_border()
-            pbge.my_state.do_flip()
-        elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
-            break
-
 minimal_saves = dict()
 quarantined_files = list()
 
@@ -418,17 +408,6 @@ class QuarantineViewer(pbge.widgetmenu.AlertMenuWidget):
         self.pop()
 
 
-def test_map_generator(_tsrd):
-    intscene = gears.GearHeadScene(30, 30, "Wujung Hospital", player_team=None, civilian_team=None,
-                                   attributes=(
-                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
-                                       gears.tags.SCENE_HOSPITAL),
-                                   scale=gears.scale.HumanScale)
-    intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
-    intscene.contents.append(pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ))
-    intscene.contents.append(pbge.randmaps.rooms.ClosedRoom())
-    pbge.randmaps.debugviewer.DebugViewer.test_map_generation(intscene, intscenegen)
-
 def gen_names(namegen: pbge.namegen.NameGen):
     print(namegen.filename)
     start = len(namegen.forbidden.splitlines())
@@ -441,6 +420,7 @@ def gen_names(namegen: pbge.namegen.NameGen):
 class MainMenu(pbge.widgets.Widget):
     MENU_DEST = pbge.frects.Frect(-150, 0, 300, 270)
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
+    HEADLINER = False
 
     def __init__(self):
         super().__init__(0,0,0,0,tags={pbge.widgets.WTAG_TITLESCREEN,})
@@ -463,10 +443,9 @@ class MainMenu(pbge.widgets.Widget):
         _=self._menu.add_item("Edit Mecha", self._open_mecha_editor)
         if quarantined_files:
             _=self._menu.add_item("Quarantined Saves", self._open_quarantine_viewer)
-        #if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            # _=self._menu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
+        if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            _=self._menu.add_item("Edit Scenario", self._start_plot_creator)
             # _=self._menu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-            #_=self._menu.add_item("Test Map Generator", test_map_generator)
             #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
@@ -508,6 +487,9 @@ class MainMenu(pbge.widgets.Widget):
 
     def _open_quarantine_viewer(self, _widget, _ev):
         QuarantineViewer.push_state_and_instantiate()
+
+    def _start_plot_creator(self, _widget, _ev):
+        game.scenariocreator.ScenarioCreatorFrontend.push_state_and_instantiate()
 
     def _builtin_responder(self, ev):
         if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:

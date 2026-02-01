@@ -415,7 +415,13 @@ class PhysicalFocusWidget(pbge.widgets.ColumnWidget):
         self.editor.switch_to_tree_mode()
 
 
+class AddFeatureMenu(pbge.widgetmenu.MenuWidget):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET}
+
+
 class ScenarioEditor(pbge.widgets.Widget):
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
+
     def __init__(self, mytree: BluePrint, **kwargs):
         super().__init__(-400, -300, 800, 600, **kwargs)
 
@@ -443,8 +449,6 @@ class ScenarioEditor(pbge.widgets.Widget):
 
         self.vars_widget = VarEditorPanel(mytree, self)
         self.children.append(self.vars_widget)
-
-        self.finished = False
 
         self.active_node = None
         self.update_parts_widget()
@@ -476,7 +480,9 @@ class ScenarioEditor(pbge.widgets.Widget):
             #self.set_active_node(myparent)
 
     def _exit_editor(self, widj, ev):
-        self.finished = True
+        if self.mytree.raw_vars["unique_id"]:
+            self._save(None, None)
+        self.pop()
 
     def _save(self, *args):
         fname = "PLOTCREATOR_{}.json".format(self.mytree.raw_vars["unique_id"])
@@ -490,7 +496,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         # First, check for errors.
         myerrors = self.mytree.get_errors()
         if myerrors:
-            pbge.BasicNotification("{} has errors. Check the console.".format(fname))
+            _=pbge.BasicNotification("{} has errors. Check the console.".format(fname))
             for e in myerrors:
                 print(e)
             return
@@ -500,7 +506,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         if FormatCode:
             try:
                 fullprog, changed = FormatCode(myprog["main"])
-            except yapf.yapflib.errors.YapfError:
+            except yapf.yapflib.errors.YapfError:  # pyright: ignore[reportPossiblyUnboundVariable]
                 fullprog = myprog["main"]
         else:
             fullprog = myprog["main"]
@@ -508,7 +514,7 @@ class ScenarioEditor(pbge.widgets.Widget):
         with open(pbge.util.user_dir("content", pbge.util.sanitize_filename(fname)), 'wt') as fp:
             fp.write(fullprog)
 
-        pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))
+        _=pbge.BasicNotification("{} has been written. You can start the scenario from the main menu.".format(fname))
         ghplots.reload_plot_module(fname.rpartition('.')[0])
         for k, v in myprog.items():
             if k != "main":
@@ -552,42 +558,30 @@ class ScenarioEditor(pbge.widgets.Widget):
             for cc in self.get_all_nodes(c):
                 yield cc
 
-    @classmethod
-    def create_and_invoke(cls, redraw, mytree):
-        # Create the UI. Run the UI. Clean up after you leave.
-        myui = cls(mytree)
-        pbge.my_state.widgets.append(myui)
-        pbge.my_state.view = redraw
-        keepgoing = True
-        while keepgoing and not myui.finished and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                redraw()
-                pbge.my_state.do_flip()
 
-        if myui.mytree.raw_vars["unique_id"]:
-            myui._save(None, None)
+class ScenarioCreatorFrontend(pbge.widgetmenu.MenuWidget):
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
+    def __init__(self):
+        super().__init__(-150, 0, 300, 226, font=pbge.BIGFONT, auto_escape=True, pop_when_clicked=True)
 
-        pbge.my_state.widgets.remove(myui)
+        _=self.add_item("+Create New Scenario", self._create_new_scenario)
+        myfiles = glob.glob(pbge.util.user_dir("content", "PLOTCREATOR_*.json"))
+        for f in myfiles:
+            _=self.add_item(os.path.basename(f), self._load_scenario, data=f)
 
-
-def start_plot_creator(redraw):
-    mainmenu = pbge.rpgmenu.Menu(-150, 0, 300, 226, predraw=redraw, font=pbge.BIGFONT)
-    mainmenu.add_item("+Create New Scenario", "CNS")
-    myfiles = glob.glob(pbge.util.user_dir("content", "PLOTCREATOR_*.json"))
-    for f in myfiles:
-        mainmenu.add_item(os.path.basename(f), f)
-
-    fname = mainmenu.query()
-    if fname == "CNS":
+    def _create_new_scenario(self, _wid, _ev):
         mytree = BluePrint(BRICKS_BY_NAME["Scenario"], None)
-        ScenarioEditor.create_and_invoke(redraw, mytree)
-    elif fname:
+        ScenarioEditor.push_state_and_instantiate(mytree=mytree)
+
+    def _load_scenario(self, wid, _ev):
+        fname = wid.data
+
         with open(fname, 'rt') as fp:
             mydict = json.load(fp)
             if mydict:
                 mytree = BluePrint.load_save_dict(mydict)
-                ScenarioEditor.create_and_invoke(redraw, mytree)
+                ScenarioEditor.push_state_and_instantiate(mytree=mytree)
+
 
 
 def init_plotcreator():

@@ -140,9 +140,9 @@ class CostBlock(object):
         self.height = self.image.get_height()
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image
-                                  , pygame.Rect(x, y, self.width, self.height)
-                                  )
+        _=my_state.screen.blit(
+            self.image, pygame.Rect(x, y, self.width, self.height)
+        )
 
 
 ###############################################################################
@@ -212,7 +212,22 @@ class WareMenuData:
         self.sort_order = sort_order
 
 
+class CheckoutMenu(pbge.widgetmenu.MenuWidget):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
+    def __init__(self, on_finalize: pbge.widgets.On_Click, on_cancel: pbge.widgets.On_Click):
+        super().__init__(
+            -EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2, EXITMENU_WIDTH, EXITMENU_HEIGHT, font=pbge.MEDIUM_DISPLAY_FONT
+        )
+        _=self.add_item('Continue Shopping', self._continue_shopping)
+        _=self.add_item('Finalize Transactions', on_finalize)
+        _=self.add_item('Cancel All Transactions', on_cancel)
+
+    def _continue_shopping(self, _wid, _ev):
+        self.pop()
+
+
 class ShopUI(pbge.widgets.Widget):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
     def __init__(self, camp, shop, **kwargs):
         # Note that the order in which the sub-widgets are initialized is a finely tuned machine. It's that
         # PlayerSelectorWidget that causes all the problems because it expects everything to be set up and ready by
@@ -221,8 +236,6 @@ class ShopUI(pbge.widgets.Widget):
 
         self.camp = camp
         self.shop = shop
-
-        self.running = False
 
         self.undo_sys = actions.ShoppingUndoSystem()
         self.shop_panel = ShopPanel(self.shop, self.camp, self.undo_sys)
@@ -473,8 +486,9 @@ class ShopUI(pbge.widgets.Widget):
             self.shop_panel.reset_caption()
         self._refresh_ware_lists()
 
-    def _checkout(self, *etc):
-        self.running = False
+    def _cancel_transactions(self, *etc):
+        self.undo_sys.undo_all()
+        self.pop()
 
     def _on_escape_key(self):
         '''
@@ -485,45 +499,21 @@ class ShopUI(pbge.widgets.Widget):
             return
 
         if self.undo_sys.actions_have_happened():
-            # Ask if we should abort or not.
-            mymenu = pbge.rpgmenu.Menu(-EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2
-                                       , EXITMENU_WIDTH, EXITMENU_HEIGHT
-                                       , font=pbge.MEDIUM_DISPLAY_FONT
-                                       )
-            mymenu.add_item('Continue Shopping', 0)
-            mymenu.add_item('Finalize Transactions', 1)
-            mymenu.add_item('Cancel All Transactions', 2)
-            res = mymenu.query()
-            if not res:
-                # Keep on going on.
-                self.running = True
-                return
-            if res == 2:
-                self.undo_sys.undo_all()
-        self.running = False
+            CheckoutMenu.push_state_and_instantiate(on_finalize=self._checkout, on_cancel=self._cancel_transactions)
+        else:
+            self.pop()
 
-    def activate_and_run(self):
-        pbge.my_state.widgets.append(self)
-        self.running = True
-        while self.running and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self._on_escape_key()
-                elif ev.unicode == "R" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    self.shop.wares = list()
-                    self.shop.update_wares(self.camp)
-                    self._refresh_ware_lists()
-
-        pbge.my_state.widgets.remove(self)
-        # Improve friendliness for all items bought.
+    def _checkout(self):
+        self.pop()
         if self.undo_sys.actions_have_happened():
-            pbge.my_state.start_sound_effect("purchase2.ogg")
+            _=pbge.my_state.start_sound_effect("purchase2.ogg")
         for item in self.undo_sys.get_bought_items():
             self.shop.improve_friendliness(self.camp, item)
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self._on_escape_key()
 
     def _render(self, delta):
         super()._render(delta)

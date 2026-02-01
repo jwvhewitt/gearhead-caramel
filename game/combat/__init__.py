@@ -325,7 +325,7 @@ class Combat(object):
         for m in self.scene.contents:
             if m not in self.active and self.scene.local_teams.get(m) is self.scene.player_team and isinstance(m,
                                                                                                gears.base.Combatant):
-                self.camp.check_trigger('ACTIVATE', m)
+                _=self.camp.check_trigger('ACTIVATE', m)
                 self.active.append(m)
 
     def num_enemies(self):
@@ -362,38 +362,6 @@ class Combat(object):
         self.cstat[chara].moves_this_round += 1
         self.camp.invoke_area_effects(dest)
 
-    def move_model_to(self, chara, nav, dest):
-        # Move the model along the path. Handle attacks of opportunity and wotnot.
-        # Return the tile where movement ends.
-        is_player_model = chara in self.camp.party
-        path = nav.get_path(dest)[1:]
-        for p in path:
-            self.step(chara, p)
-            if is_player_model:
-                self.scene.update_party_position(self.camp)
-
-        # Spend the movement points.
-        self.cstat[chara].spend_mp(nav.cost_to_tile[chara.pos])
-
-        # Return the actual end point, which may be different from that requested.
-        return chara.pos
-
-    def move_model_and_bump(self, chara, nav, dest):
-        # Move the model along the path, stopping before the last tile. Handle attacks of opportunity and wotnot.
-        # Return the tile where movement ends.
-        is_player_model = chara in self.camp.party
-        path = nav.get_path(dest)[1:]
-        for p in path[:-1]:
-            self.step(chara, p)
-            if is_player_model:
-                self.scene.update_party_position(self.camp)
-
-        # Spend the movement points.
-        self.cstat[chara].spend_mp(nav.cost_to_tile[chara.pos])
-
-        # Return the actual end point, which may be different from that requested.
-        return chara.pos
-
     def get_action_nav(self, pc):
         # Return the navigation guide for this character taking into account that you can make
         # half a move while invoking an action.
@@ -415,29 +383,12 @@ class Combat(object):
             else:
                 return {chara.pos}.intersection(firing_points)
 
-    def move_and_invoke(self, pc, nav, invo, target_list, firing_points, record=False):
-        # Note that "nav" may not exist, if pc is a prop or other immobile type.
-        if nav:
-            fp = min(firing_points, key=lambda r: nav.cost_to_tile.get(r, 10000))
-            self.move_model_to(pc, nav, fp)
-        else:
-            fp = pc.pos
-        if pc.pos == fp:
-            pbge.my_state.view.overlays.clear()
-            # Launch the effect.
-            invo.invoke(self.camp, pc, target_list, pbge.my_state.view.anim_list)
-            pbge.my_state.view.handle_anim_sequence(record)
-            self.cstat[pc].spend_ap(1)
-
-        else:
-            self.cstat[pc].spend_ap(1)
-
     def end_round(self):
         for chara in self.active:
             self.cstat[chara].end_turn()
             self.cstat[chara].has_started_turn = False
         self.camp.update_area_enchantments()
-        self.camp.check_trigger("COMBATROUND")
+        _=self.camp.check_trigger("COMBATROUND")
 
     def __setstate__(self, state):
         # For saves from V0.905 or earlier, make sure the CombatDict is used.

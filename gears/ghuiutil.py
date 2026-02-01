@@ -5,20 +5,26 @@ import pbge
 import pygame
 from . import info
 
-class GearMenuDesc( pbge.frects.Frect ):
-    def __init__(self, dx, dy, w, h, anchor=pbge.frects.ANCHOR_CENTER):
+class GearMenuDesc( pbge.widgets.Widget ):
+    def __init__(self, dx, dy, w, h, menu: pbge.widgetmenu.MenuWidget, anchor=pbge.frects.ANCHOR_CENTER):
         super().__init__(dx, dy, w, h, anchor=anchor)
         self.library = dict()
+        self.menu = menu
 
-    def __call__( self, menu_item ):
-        # Just print this weapon's stats in the provided window.
-        if menu_item.value not in self.library:
-            self.library[menu_item.value] = info.get_longform_display(
-                menu_item.value,width=self.w,font=pbge.MEDIUMFONT
+    def _render(self, _delta):
+        super()._render(_delta)
+
+        mygear = self.menu.current_data
+    
+        # Just print this weapon's stats in the provided area.
+        if mygear not in self.library:
+            self.library[mygear] = info.get_longform_display(
+                mygear,width=self.w,font=pbge.MEDIUMFONT
             )
         myrect = self.get_rect()
-        self.library[menu_item.value].render(myrect.x,myrect.y)
+        self.library[mygear].render(myrect.x,myrect.y)
 
+# Data gatherers should have gather(data: dict) and confirm(data: dict) methods.
 
 class SelectGearDataGatherer:
     COLUMN_WIDTH = 220
@@ -49,19 +55,29 @@ class SelectGearDataGatherer:
             pbge.BIGFONT, self.caption, myrect, color=pbge.WHITE, justify=0, vjustify=0
         )
 
-    def __call__(self, data):
-        mymenu = pbge.rpgmenu.Menu(
+    def gather(self, data):
+        mymenu = pbge.widgetmenu.MenuWidget(
             self.RIGHT_COLUMN_X, self.COLUMN_Y, self.COLUMN_WIDTH, self.COLUMN_HEIGHT,
-            border=pbge.default_border, predraw=self.render, font=pbge.MEDIUM_DISPLAY_FONT
+            font=pbge.MEDIUM_DISPLAY_FONT, pop_when_clicked=True, auto_escape=True
         )
-        mymenu.descobj = GearMenuDesc(self.LEFT_COLUMN_X, self.COLUMN_Y, self.COLUMN_WIDTH, self.COLUMN_HEIGHT)
+        mymenu.set_header(pbge.widgets.LabelWidget(
+            0, 0, 200, 0, self.caption, font=pbge.BIGFONT, justify=0, draw_border=True
+        ))
+        mymenu.children.append(GearMenuDesc(self.LEFT_COLUMN_X, self.COLUMN_Y, self.COLUMN_WIDTH, self.COLUMN_HEIGHT, mymenu))
+        mymenu.TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
 
         for g in self.gear_list:
-            _=mymenu.add_item(g.get_full_name(), g)
+            _=mymenu.add_item(g.get_full_name(), self._on_click, data=(data, g))
 
-        data_val = mymenu.query()
-        data[self.data_key] = data_val
-        return data_val
+        mymenu.push_and_deploy()
+
+    def confirm(self, data):
+        # If the key is present in the data and the value is from the gear list, all is good.
+        return self.data_key in data and data[self.data_key] in self.gear_list
+
+    def _on_click(self, wid, _ev):
+        data, mygear = wid.data
+        data[self.data_key] = mygear
 
 
 class TextDisplayWidget(pbge.widgetmenu.MenuWidget):

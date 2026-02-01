@@ -1,5 +1,5 @@
 import random
-from . import widgets, INFO_HILIGHT, ENEMY_RED, INFO_GREEN, image, my_state, wait_event, TIMEREVENT, frects, widgetmenu
+from . import widgets, INFO_HILIGHT, ENEMY_RED, INFO_GREEN, image, my_state, frects, widgetmenu
 import pygame
 
 # This unit is called "Okapi Puzzle" because the puzzles it generates are not Zebra Puzzles exactly but they are sort
@@ -406,6 +406,7 @@ class HypothesisWidget(widgets.ColumnWidget):
 
 
 class OkapiPuzzleWidget(widgets.ColumnWidget):
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
     def __init__(self, mystery: OkapiPuzzle, camp, on_solution, deck_widget_class=ImageDeckWidget, **kwargs):
         super().__init__(-250, -200, 500, 400, center_interior=True, padding=16, **kwargs)
         self.mystery = mystery
@@ -425,7 +426,6 @@ class OkapiPuzzleWidget(widgets.ColumnWidget):
         self.add_interior(self.myclues)
         self.add_interior(down_arrow)
 
-        self.keep_going = True
         closebuttonsprite = image.Image('sys_closeicon.png')
 
         self.close_button = widgets.ButtonWidget(
@@ -436,9 +436,8 @@ class OkapiPuzzleWidget(widgets.ColumnWidget):
 
         self.update_clues()
 
-    def close_browser(self, button=None, ev=None):
-        self.keep_going = False
-        my_state.widgets.remove(self)
+    def close_browser(self, _button=None, _ev=None):
+        self.pop()
 
     def update_clues(self):
         self.myclues.clear()
@@ -467,16 +466,9 @@ class OkapiPuzzleWidget(widgets.ColumnWidget):
         self.mystery.solved = True
         self.camp.check_trigger(MYSTERY_SOLVED, self.mystery)
 
-    def __call__(self):
-        # Run the UI. Clean up after you leave.
-        my_state.widgets.append(self)
-        while self.keep_going and not my_state.got_quit:
-            ev = wait_event()
-            if ev.type == TIMEREVENT:
-                my_state.render_and_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self.keep_going = False
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if my_state.is_key_for_action(ev, "exit"):
+                self.pop()
+                self.register_response()
 
-        if self in my_state.widgets:
-            my_state.widgets.remove(self)

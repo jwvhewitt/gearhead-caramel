@@ -412,7 +412,7 @@ class WorldMapDataVariable(BaseVariableDefinition):
                 map_bp = c
                 break
         # We now have enough information to open up the world map editor.
-        worldmapeditor.WorldMapEditor.create_and_invoke(pbge.my_state.view, editor, map_bp)
+        worldmapeditor.WorldMapEditor.push_state_and_instantiate(sc_editor=editor, wm_blueprint=map_bp)
 
     def _node_parameters_ok(self, node_dict):
         if "pos" not in node_dict:

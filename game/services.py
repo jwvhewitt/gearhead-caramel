@@ -90,13 +90,14 @@ class Shop(object):
                 if isinstance(it, gears.base.Mecha):
                     champions.upgrade_to_champion(it)
                 elif it.scale == gears.scale.MechaScale and isinstance(it, (gears.base.Component, gears.base.Shield, gears.base.Launcher)):
-                    champions.upgrade_item_to_champion(it)
+                    _=champions.upgrade_item_to_champion(it)
 
             return it
 
 
     def generate_item(self, itype, rank, camp):
         tries = 0
+        it = None
         while tries < 10:
             it = self._pick_an_item(itype, rank, camp)
             # Avoid duplicates.
@@ -234,9 +235,8 @@ class Shop(object):
 
     def enter_shop(self, camp):
         self.customer = camp.pc
-        ui = shopui.ShopUI(camp, self)
-        ui.activate_and_run()
-
+        shopui.ShopUI.push_state_and_instantiate(camp=camp, shop=self)
+        
     def update_shop(self, camp):
         if camp.time > self.last_updated:
             self.update_wares(camp)
@@ -254,21 +254,7 @@ class Shop(object):
 
     def enter_surgery(self, camp):
         self.update_shop(camp)
-
-        char = True
-        while char:
-            mymenu = pbge.rpgmenu.TitleMenu("Choose patient",font=pbge.BIGFONT)
-            for char in camp.party:
-                if isinstance(char, gears.base.Character):
-                    mymenu.add_item(char.name, char)
-            mymenu.sort()
-            mymenu.add_item("[EXIT]", None)
-            char = mymenu.query()
-            if char:
-                self.customer = char
-                ui = cyberdoc.SurgeryUI(camp, self, char)
-                ui.activate_and_run()
-
+        cyberdoc.SurgeryWaitingRoomWidget.push_state_and_instantiate(camp=camp, shop=self)
 
 
 class SkillButtonWidget(pbge.widgets.LabelWidget):
@@ -333,47 +319,37 @@ class PlayerCharacterSwitchPlusSkillTrainingInfo(pbge.widgets.RowWidget):
                                                self.trainer.skill.name, self.trainer.pc.get_stat(self.trainer.skill))
 
 
-class SkillTrainer(object):
+class SkillTrainerWidget(pbge.widgets.ColumnWidget):
     CREDITS_PER_XP = 500
     COURSE_COSTS = (10000, 50000, 100000, 250000, 500000, 1000000, 2000000)
-    def __init__(self, skill_list=(gears.stats.Vitality, gears.stats.Athletics, gears.stats.Concentration)):
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
+    def __init__(self, camp, skill_list=(gears.stats.Vitality, gears.stats.Athletics, gears.stats.Concentration)):
+        super().__init__(-175,-200,350,400, draw_border=True, center_interior=True)
         self.skill_list = skill_list
-        self.pc = None
+        self.camp = camp
 
-    def do_training(self, camp):
-        # Setup the widgets.
-        mywidget = pbge.widgets.ColumnWidget(-175,-200,350,400, draw_border=True, center_interior=True)
         myswitch = PlayerCharacterSwitchPlusSkillTrainingInfo(camp, camp.pc, self._set_pc, self)
         self.pc: gears.base.Character = camp.pc
-        mywidget.add_interior(myswitch)
+        self.add_interior(myswitch)
 
         myrow = pbge.widgets.RowWidget(0,0,350,200)
         myskillcol = SkillColumn(self.skill_list, self._set_skill)
         self.skill = self.skill_list[0]
         myrow.add_left(myskillcol)
 
-        self.camp = camp
         mybuycol = pbge.widgets.ColumnWidget(0,0,155,200, padding=12)
         for t in self.COURSE_COSTS:
             mybuycol.add_interior(SkillBuyWidget(t, self._buy_training, self))
 
         myrow.add_right(mybuycol)
-        mywidget.add_interior(myrow)
+        self.add_interior(myrow)
 
-        mywidget.children.append(pbge.widgets.LabelWidget(95,210,80,16,text="Done",justify=0,on_click=self._done_button,draw_border=True))
+        self.children.append(pbge.widgets.LabelWidget(95,210,80,16,text="Done",justify=0,on_click=self._done_button,draw_border=True))
 
-
-        pbge.my_state.widgets.append(mywidget)
-        self.running = True
-        while self.running and not pbge.my_state.got_quit:
-            ev = pbge.wait_event()
-            if ev.type == pbge.TIMEREVENT:
-                pbge.my_state.view()
-                pbge.my_state.do_flip()
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
-                    self.running = False
-        pbge.my_state.widgets.remove(mywidget)
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.KEYDOWN:
+            if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.pop()
 
     def _set_pc(self, pc):
         self.pc = pc
@@ -381,10 +357,10 @@ class SkillTrainer(object):
     def _set_skill(self, sk):
         self.skill = sk
 
-    def _done_button(self, wid, ev):
-        self.running = False
+    def _done_button(self, _wid, _ev):
+        self.pop()
 
-    def _buy_training(self, wid, ev):
+    def _buy_training(self, wid, _ev):
         if self.pc and wid.data <= self.camp.credits and self.skill in self.pc.statline:
             xpcred = wid.data
             if self.pc.get_stat(gears.stats.Knowledge) > 10:
@@ -392,5 +368,10 @@ class SkillTrainer(object):
             self.camp.credits -= wid.data
             self.pc.dole_experience(xpcred//self.CREDITS_PER_XP, self.skill)
 
+
+class SkillTrainer:
+    def __init__(self, skill_list=(gears.stats.Vitality, gears.stats.Athletics, gears.stats.Concentration)):
+        self.skill_list = skill_list
+
     def __call__(self, camp):
-        self.do_training(camp)
+        SkillTrainerWidget.push_state_and_instantiate(camp=camp, skill_list=self.skill_list)
