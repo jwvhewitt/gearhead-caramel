@@ -31,7 +31,7 @@ class PlotNodeWidget(pbge.widgets.Widget):
         self.editor = editor
         self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
         self.regular_image = self._draw_image(pbge.INFO_GREEN)
-        self.mouseover_image = self._draw_image(pbge.rpgmenu.MENU_SELECT_COLOR)
+        self.mouseover_image = self._draw_image(pbge.widgetmenu.MENU_SELECT_COLOR)
 
     def _part_text(self):
         return self.data.name
@@ -418,6 +418,23 @@ class PhysicalFocusWidget(pbge.widgets.ColumnWidget):
 class AddFeatureMenu(pbge.widgetmenu.MenuWidget):
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET}
 
+    def __init__(self, on_select_brick, blueprint: BluePrint, child_types):
+        super().__init__(-100, -200, 250, 400, auto_escape=True, pop_when_clicked=True)
+        self.children.append(pbge.widgetmenu.DescBoxWidget(175, -200, 175, 400, menu=self))
+        self.on_select_brick = on_select_brick
+
+        for tlabel in child_types:
+            for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
+                if not (tbrick.singular and any([t.brick.name == tbrick.name for t in blueprint.children])):
+                    _=self.add_item(tbrick.name, self._on_select_brick, data=tbrick, desc=tbrick.desc)
+        self.sort()
+
+    def _on_select_brick(self, wid, _ev):
+        nubrick = wid.data
+        _ = BluePrint(nubrick, self.blueprint)
+        self.editor.update_parts_widget()
+        self.editor.mytree.sort()
+
 
 class ScenarioEditor(pbge.widgets.Widget):
     TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
@@ -453,24 +470,11 @@ class ScenarioEditor(pbge.widgets.Widget):
         self.active_node = None
         self.update_parts_widget()
 
-    def _add_feature(self, widj, ev):
-        mymenu = pbge.rpgmenu.Menu(-100, -200, 250, 400)
-        mymenu.add_descbox(175, -200, 175, 400)
+    def _add_feature(self, _wid, _ev):
         my_blueprint, child_types = self.active_node.get_bp_and_child_types()
-        mybrick = my_blueprint.brick
-        for tlabel in child_types:
-            for tbrick in BRICKS_BY_LABEL.get(tlabel, ()):
-                if not (tbrick.singular and any([t.brick.name == tbrick.name for t in my_blueprint.children])):
-                    mymenu.add_item(tbrick.name, tbrick, tbrick.desc)
-        mymenu.sort()
-        nubrick = mymenu.query()
-        if nubrick:
-            newbp = BluePrint(nubrick, my_blueprint)
-            self.update_parts_widget()
-            self.mytree.sort()
-            # self.set_active_node(newbp)
+        AddFeatureMenu.push_state_and_instantiate(self, editor=self, blueprint=my_blueprint, child_types=child_types)
 
-    def _remove_feature(self, widj, ev):
+    def _remove_feature(self, _wid, _ev):
         mybp = self.active_node.blueprint
         if mybp != self.mytree and hasattr(mybp, "container") and mybp.container:
             myparent = mybp.container.owner

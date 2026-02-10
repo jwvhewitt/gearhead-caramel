@@ -8,12 +8,17 @@ from game.content import gharchitecture
 from pbge.plots import Plot, PlotState
 from . import missionbuilder, campfeatures, wmw_occupation
 import collections
+from collections.abc import Callable
+
 
 # Elements passed to the world map handler plot.
 WORLD_MAP_IDENTIFIER = "WORLD_MAP_IDENTIFIER"
 WORLD_MAP_TEAMS = "WORLD_MAP_TEAMS"
 WORLD_MAP_LEGEND = "WORLD_MAP_LEGEND"
 WORLD_MAP_WAR = "WORLD_MAP_WAR"
+
+
+type WarCallback = Callable[[pbge.campaign.Campaign, missionbuilder.BuildAMissionSeed|None], None]
 
 
 class WarStats:
@@ -327,83 +332,66 @@ class WorldMapWar:
         return my_teams[-1]
 
 
-class WorldMapWarTurn:
+class WorldMapAlert(pbge.alerts.AbstractAlert):
+    def __init__(self, message, visualizer, target_waypoint, on_close: pbge.widgets.On_Click, **kwargs):
+        super().__init__(on_close=on_close, **kwargs)
+        self.message = message
+        self.visualizer = visualizer
+        self.target_waypoint = target_waypoint
+
+    def _render(self, delta):
+        self.visualizer.render(waypoint=self.target_waypoint)
+        myrect = campfeatures.WorldMapMenu.MENU_AREA.get_rect()
+        pbge.default_border.render(myrect)
+        pbge.draw_text(pbge.MEDIUMFONT, self.message, myrect, justify=0)
+
+        super()._render(delta)
+
+
+class WorldMapBattleAlert(WorldMapAlert):
     DEFENDER_POSITIONS = [(-6, -16), (6, -16), (-12, -8), (-4, -8), (4, -8), (12, -8),
                           (-12, 8), (-4, 8), (4, 8), (12, 8), (-6, 16), (6, 16)]
     ATTACKER_POSITIONS = [(-8, -20), (8, -20), (15, -15), (20, -8), (20, 8), (15, 15),
                           (8, 20), (-8, 20), (-15, 15), (-20, 8), (-20, -8), (-15, -15)]
-
-    def __init__(self, world_map_war: WorldMapWar, camp: gears.GearHeadCampaign, fac):
-        self.world_map_war = world_map_war
-        self.world_map = world_map_war.world_map
-        self.camp = camp
-        self.visualizer = campfeatures.WorldMapViewer(world_map_war.world_map)
-        self.fac = fac
-        self.message = ""
-        self.target_waypoint = None
-        self.target_node = None
-        self.defender_positions = self.DEFENDER_POSITIONS.copy()
-        random.shuffle(self.defender_positions)
-        self.attacker_positions = self.ATTACKER_POSITIONS.copy()
-        random.shuffle(self.attacker_positions)
-        self.mecha_sprite = pbge.image.Image(self.world_map_war.legend.image_name, 20, 20)
-        self.small_boom_sprite = pbge.image.Image("anim_smallboom.png", 64, 64)
-        self.casulties = list()
-        self.num_attackers = 0
-        self.num_defenders = 0
-        self.kill_counter = 0  # A special counter used to show mecha being destroyed.
-
-    def show_turn_progress(self, msg):
-        self.message = msg
-        if self.world_map_war.war_teams[self.fac].home_base:
-            self.target_waypoint = self.world_map.get_node_with_destination(
-                self.world_map_war.war_teams[self.fac].home_base).entrance
-        else:
-            self.target_waypoint = None
-        pbge.alerts.FunAlert(self.render_alert)
-
-    def render_alert(self):
-        pbge.my_state.view()
-        self.visualizer.render(waypoint=self.target_waypoint)
-        myrect = campfeatures.WorldMapMenu.MENU_AREA.get_rect()
-        pbge.default_border.render(myrect)
-        pbge.draw_text(pbge.MEDIUMFONT, self.message, myrect, justify=0)
-
-    def show_war_progress(self, msg, target_node):
-        self.message = msg
-        self.target_node = target_node
-        self.target_waypoint = target_node.entrance
-        pbge.alerts.FunAlert(self.render_war_alert)
-
     MECHA_WIGGLE = (-1, -1, 0, 0, 0, 1, 1, 0, 0, 0)
 
-    def render_war_alert(self):
-        pbge.my_state.view()
-        self.visualizer.render(waypoint=self.target_waypoint)
-        myrect = campfeatures.WorldMapMenu.MENU_AREA.get_rect()
-        pbge.default_border.render(myrect)
-        pbge.draw_text(pbge.MEDIUMFONT, self.message, myrect, justify=0)
-        attack_frame = self.world_map_war.legend.get_mecha_frame(self.world_map_war.war_teams[self.fac].color)
+    def __init__(
+        self, message, visualizer, target_node, on_close: pbge.widgets.On_Click,
+        num_attackers, num_defenders, attacker_casulties=0, defender_casulties=0,
+        attack_frame=1, defence_frame=0, **kwargs
+    ):
+        # If casulties are given, the battle will be animated over however many seconds it takes.
+        super().__init__(message, visualizer, target_node.entrance, on_close, **kwargs)
+        self.num_attackers = num_attackers
+        self.num_defenders = num_defenders
+        self.target_node = target_node
+        self.attacker_casulties = attacker_casulties
+        self.defender_casulties = defender_casulties
+        self.attack_frame = attack_frame
+        self.defence_frame = defence_frame
+        self.kill_counter = 0
+        self.casulties = [-1] * attacker_casulties + [1] * defender_casulties
+        random.shuffle(self.casulties)
+        self.small_boom_sprite = pbge.image.Image("anim_smallboom.png", 64, 64)
+
+    def _render(self, delta):
+        super()._render(delta)
+
         map_rect = self.visualizer.map_area.get_rect()
         for n in range(self.num_attackers):
             x, y = self.attacker_positions[n]
             self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x +
                                         self.MECHA_WIGGLE[(pbge.my_state.anim_phase + n * 3) % 10],
                                         self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
-                                       attack_frame)
+                                       self.attack_frame)
 
-        if self.target_node.destination.faction:
-            defence_frame = self.world_map_war.legend.get_mecha_frame(
-                self.world_map_war.war_teams[self.target_node.destination.faction].color)
-        else:
-            defence_frame = self.world_map_war.legend.get_mecha_frame(0)
 
         for n in range(self.num_defenders):
             x, y = self.defender_positions[n]
             self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x +
                                         self.MECHA_WIGGLE[(pbge.my_state.anim_phase + n * 3) % 10],
                                         self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
-                                       defence_frame)
+                                       self.defence_frame)
 
         if self.kill_counter != 0:
             if self.kill_counter < 0:
@@ -426,17 +414,38 @@ class WorldMapWarTurn:
         elif self.casulties:
             self.kill_counter = self.casulties.pop(0) * 8
 
-    def update(self):
-        # This method used to prepare teams for the upcoming turn. However, the preparation steps have been cut out.
-        # So now it exists as a "I might need this in the future" method.
-        pass
+
+class WorldMapWarTurn:
+    def __init__(self, world_map_war: WorldMapWar, camp: gears.GearHeadCampaign, fac, callback: WarCallback):
+        # callback is used to call back to the handler plot when this turn has been resolved.
+        self.world_map_war = world_map_war
+        self.world_map = world_map_war.world_map
+        self.camp = camp
+        self.visualizer = campfeatures.WorldMapViewer(world_map_war.world_map)
+        self.fac = fac
+        self.message = ""
+        self.target_waypoint = None
+        self.target_node = None
+        self.defender_positions = self.DEFENDER_POSITIONS.copy()
+        random.shuffle(self.defender_positions)
+        self.attacker_positions = self.ATTACKER_POSITIONS.copy()
+        random.shuffle(self.attacker_positions)
+        self.mecha_sprite = pbge.image.Image(self.world_map_war.legend.image_name, 20, 20)
+        self.callback = callback
+
+    def _close_turn_alert(self, _wid, _ev):
+        self.callback(self.camp, None)
 
     def prepare_for_war(self):
-        self.show_turn_progress("{} prepares for war.".format(self.fac))
         if not self.world_map_war.war_teams[self.fac].boosted:
             self.world_map_war.war_teams[self.fac].boosted = True
         elif self.world_map_war.player_team and self.camp.are_faction_enemies(self.fac, self.world_map_war.player_team):
             self.world_map_war.war_teams[self.world_map_war.player_team].boosted = False
+        _=WorldMapAlert(
+            "{} prepares for war.".format(self.fac),
+            self.visualizer, self.world_map.get_node_with_destination(self.world_map_war.war_teams[self.fac].home_base).entrance,
+            self._close_turn_alert
+        )
 
     def attack_desirability(self, target_node: campfeatures.WorldMapNode):
         fac = target_node.destination.faction
@@ -482,130 +491,160 @@ class WorldMapWarTurn:
     def go_to_war(self, target_node):
         # Perform a war action. If the war is targeting the metroscene that the PC is in, the PC might take part
         # in the defense. This is the function that potentially returns the adventure seed.
-        self.num_attackers = self.world_map_war.get_attack_strength(self.fac)
-        self.num_defenders = self.world_map_war.get_defense_strength(target_node)
+        num_attackers = self.world_map_war.get_attack_strength(self.fac)
+        num_defenders = self.world_map_war.get_defense_strength(target_node)
         spend_boost = True
+
+        attack_frame = self.world_map_war.legend.get_mecha_frame(self.world_map_war.war_teams[self.fac].color)
+        if self.target_node.destination.faction:
+            defence_frame = self.world_map_war.legend.get_mecha_frame(
+                self.world_map_war.war_teams[self.target_node.destination.faction].color)
+        else:
+            defence_frame = self.world_map_war.legend.get_mecha_frame(0)
 
         if not target_node.destination.faction:
             msg = "{} occupies {}.".format(self.fac, target_node)
-            self.num_defenders = 0
+            num_defenders = 0
             spend_boost = False
         elif self.camp.are_faction_enemies(self.fac, target_node.destination):
             msg = "{} attacks {}.".format(self.fac, target_node)
         else:
             msg = "{} launches surprise attack on {}!".format(self.fac, target_node)
             self.camp.set_faction_enemies(self.fac, target_node.destination)
-        self.show_war_progress(msg, target_node)
 
+        # Set the initial alert.
+        _=WorldMapBattleAlert(
+            msg, self.visualizer, target_node, self.war_phase_two,
+            num_attackers, 0, data=(target_node, num_attackers, num_defenders, spend_boost, attack_frame, defence_frame),
+            attack_frame=attack_frame, defence_frame=defence_frame
+        )
+
+    def _start_player_mission(self, wid, _ev):
+        target_node, _num_attackers, _num_defenders, _spend_boost, _attack_frame, _defence_frame = wid.data
+        self.callback(self.camp, self.get_defence_missionseed(target_node))
+
+    def war_phase_two(self, wid, _ev):
+        target_node, num_attackers, num_defenders, spend_boost, attack_frame, defence_frame = wid.data
+
+        # Next, we branch depending on whether the PC gets to defend or not.
         pc_metro_scene = self.camp.scene.get_metro_scene()
         if pc_metro_scene is target_node.destination:
             if self.world_map_war.player_team and self.world_map_war.player_team is target_node.destination.faction:
-                return self.get_defence_missionseed(target_node)
+                self.callback(self.camp, self.get_defence_missionseed(target_node))
+                return
             elif self.fac != self.world_map_war.player_team:
-                mymenu = pbge.rpgmenu.Menu(
-                    campfeatures.WorldMapMenu.MENU_AREA.dx, campfeatures.WorldMapMenu.MENU_AREA.dy,
-                    campfeatures.WorldMapMenu.MENU_AREA.w, campfeatures.WorldMapMenu.MENU_AREA.h,
-                    predraw=self.render_war_alert
+                mymenu = campfeatures.WorldMapMenu(
+                    self.camp, target_node.entrance
                 )
-                self.message = ""
-                mymenu.add_item("Aid the defence of {}.".format(target_node), True)
-                mymenu.add_item("Don't get involved in the fighting.", False)
-                if mymenu.query():
-                    return self.get_defence_missionseed(target_node)
+                _=mymenu.add_item("Aid the defence of {}.".format(target_node), self._start_player_mission)
+                _=mymenu.add_item("Don't get involved in the fighting.", self._do_war_auto_fighting, data=wid.data)
+                mymenu.push_and_deploy()
+                return
+        self._do_war_auto_fighting(wid, None)
 
+    def _do_war_auto_fighting(self, wid, _ev):
+        target_node, num_attackers, num_defenders, spend_boost, attack_frame, defence_frame = wid.data
         # Show the results of the fighting.
-        if self.num_defenders > 0:
+        if num_defenders > 0:
             self.casulties.clear()
             attacker_casulties = 0
             defender_casulties = 0
-            while self.num_attackers - attacker_casulties > 0 and self.num_defenders - defender_casulties > 0:
+            while num_attackers - attacker_casulties > 0 and num_defenders - defender_casulties > 0:
                 if random.randint(1, 2) == 1:
-                    self.casulties.append(-1)
                     attacker_casulties += 1
                 else:
-                    self.casulties.append(1)
                     defender_casulties += 1
             attacker_won = self.num_attackers - attacker_casulties > 0
-            self.show_war_progress("The fighting begins...", target_node)
+            _=WorldMapBattleAlert(
+                "The fighting begins...", self.visualizer, target_node, None,
+                num_attackers, num_defenders, attacker_casulties=attacker_casulties, defender_casulties=defender_casulties,
+                attack_frame=attack_frame, defence_frame=defence_frame
+            )
         else:
             attacker_won = True
+            attacker_casulties = 0
+            defender_casulties = 0
 
         if attacker_won:
             self.world_map_war.capture(self.camp, self.fac, target_node)
-            self.show_war_progress("{} has captured {}.".format(self.fac, target_node), target_node)
+            _=WorldMapBattleAlert(
+                "{} has captured {}.".format(self.fac, target_node),
+                self.visualizer, target_node, self._close_turn_alert,
+                num_attackers - attacker_casulties, 0,
+                attack_frame=attack_frame, defence_frame=defence_frame
+            )
         else:
-            self.show_war_progress("{} have been defeated.".format(self.fac), target_node)
+            _=WorldMapBattleAlert(
+                "{} have been defeated.".format(self.fac),
+                self.visualizer, target_node, self._close_turn_alert,
+                0, num_defenders - defender_casulties,
+                attack_frame=attack_frame, defence_frame=defence_frame
+            )
 
         if spend_boost:
             self.world_map_war.war_teams[self.fac].boosted = False
 
     def __call__(self):
-        # Return a mission seed if the player is going to have to fight, or nothing otherwise.
-        # Step One: See if the faction is severely depleted. If it is, prepare for war. Also, the player team always
-        # prepares for war because it's expected that the player will be out there attacking for them.
+        # Step One: See if the faction is a valid war faction.
         if self.fac not in self.world_map_war.war_teams:
             # Error check- if this team has already been defeated, they don't get a turn.
-            return None
-        self.update()
-        if self.fac is self.world_map_war.player_team:
-            return None
-
-        # Step Two: check to see if the hqnode is in mortal danger.
-        attack_candidates = set()
-        if self.world_map_war.war_teams[self.fac].home_base:
-            hqnode = self.world_map.get_node_with_destination(self.world_map_war.war_teams[self.fac].home_base)
-            for edge in self.world_map.edges:
-                if edge.connects_to_node(hqnode):
-                    far_node = edge.get_link(hqnode)
-                    if self.camp.are_faction_enemies(hqnode.destination, far_node.destination) and far_node.destination is not self.world_map_war.just_captured:
-                        attack_candidates.add(far_node)
-        # If no mortal danger, check other nodes to possibly invade.
-        if not attack_candidates:
-            # Check for other nodes to attack.
-            for node in self.world_map.nodes:
-                if node.destination and node.destination.faction is self.fac:
-                    for edge in self.world_map.edges:
-                        if edge.connects_to_node(node):
-                            far_node = edge.get_link(node)
-                            if self.camp.are_faction_enemies(self.fac, far_node.destination) and far_node.destination is not self.world_map_war.just_captured:
-                                attack_candidates.add(far_node)
-                            elif not far_node.destination.faction:
-                                attack_candidates.add(far_node)
-                            elif (
-                                    far_node.destination.faction is not self.fac and
-                                    random.randint(1, 100) > self.world_map_war.war_teams[self.fac].loyalty and
-                                    (
-                                            far_node.destination.faction is not self.world_map_war.player_team or
-                                            self.world_map_war.war_teams[far_node.destination.faction].home_base is not
-                                            far_node.destination
-                                    )
-                            ):
-                                attack_candidates.add(far_node)
-
-        if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression and not self.world_map_war.war_teams[self.fac].boosted:
-            self.prepare_for_war()
-            return None
-        elif not attack_candidates:
-            self.prepare_for_war()
-            return None
+            self.callback(self.camp, None)
+        elif self.fac is self.world_map_war.player_team:
+            self.callback(self.camp, None)
         else:
-            # Attack!
-            attack_candidates = sorted(attack_candidates, key=self.attack_desirability)
-            i = min(random.randint(0, len(attack_candidates) - 1), random.randint(0, len(attack_candidates) - 1))
-            return self.go_to_war(attack_candidates[i])
+            # Step Two: check to see if the hqnode is in mortal danger.
+            attack_candidates = set()
+            if self.world_map_war.war_teams[self.fac].home_base:
+                hqnode = self.world_map.get_node_with_destination(self.world_map_war.war_teams[self.fac].home_base)
+                for edge in self.world_map.edges:
+                    if edge.connects_to_node(hqnode):
+                        far_node = edge.get_link(hqnode)
+                        if self.camp.are_faction_enemies(hqnode.destination, far_node.destination) and far_node.destination is not self.world_map_war.just_captured:
+                            attack_candidates.add(far_node)
+            # If no mortal danger, check other nodes to possibly invade.
+            if not attack_candidates:
+                # Check for other nodes to attack.
+                for node in self.world_map.nodes:
+                    if node.destination and node.destination.faction is self.fac:
+                        for edge in self.world_map.edges:
+                            if edge.connects_to_node(node):
+                                far_node = edge.get_link(node)
+                                if self.camp.are_faction_enemies(self.fac, far_node.destination) and far_node.destination is not self.world_map_war.just_captured:
+                                    attack_candidates.add(far_node)
+                                elif not far_node.destination.faction:
+                                    attack_candidates.add(far_node)
+                                elif (
+                                        far_node.destination.faction is not self.fac and
+                                        random.randint(1, 100) > self.world_map_war.war_teams[self.fac].loyalty and
+                                        (
+                                                far_node.destination.faction is not self.world_map_war.player_team or
+                                                self.world_map_war.war_teams[far_node.destination.faction].home_base is not
+                                                far_node.destination
+                                        )
+                                ):
+                                    attack_candidates.add(far_node)
+
+            if random.randint(1, 100) > self.world_map_war.war_teams[self.fac].aggression and not self.world_map_war.war_teams[self.fac].boosted:
+                self.prepare_for_war()
+            elif not attack_candidates:
+                self.prepare_for_war()
+            else:
+                # Attack!
+                attack_candidates = sorted(attack_candidates, key=self.attack_desirability)
+                i = min(random.randint(0, len(attack_candidates) - 1), random.randint(0, len(attack_candidates) - 1))
+                self.go_to_war(attack_candidates[i])
 
 
 class RoundAnnouncer:
     def __init__(self):
         self.bitmap = pbge.my_state.huge_font.render("War Update", True, pbge.TEXT_COLOR)
-        pbge.alerts.FunAlert(self)
+        _=pbge.alerts.FunAlert(self)
 
     def __call__(self):
-        pbge.my_state.view()
         screen_rect = pbge.my_state.screen.get_rect()
         myrect = self.bitmap.get_rect(center=screen_rect.center)
         pbge.default_border.render(myrect)
-        pbge.my_state.screen.blit(self.bitmap, myrect)
+        _=pbge.my_state.screen.blit(self.bitmap, myrect)
 
 
 class WorldMapWarRound:
@@ -615,7 +654,7 @@ class WorldMapWarRound:
         self.camp = camp
         self.actors = list(world_map_war.war_teams.keys())
         self.actors.sort(key=self._sort_teams)
-        RoundAnnouncer()
+        _=RoundAnnouncer()
 
     def _sort_teams(self, fac):
         if fac is self.world_map_war.player_team:
@@ -626,12 +665,11 @@ class WorldMapWarRound:
     def keep_going(self):
         return bool(self.actors)
 
-    def perform_turn(self):
+    def perform_turn(self, callback: WarCallback):
         # This function may return a mission seed. If so, perform that mission seed before proceeding with the next
         # turn.
         myfac = self.actors.pop()
-        myturn = WorldMapWarTurn(self.world_map_war, self.camp, myfac)
-        return myturn()
+        _=WorldMapWarTurn(self.world_map_war, self.camp, myfac, callback)()
 
 
 class EdgeAttack:
@@ -654,6 +692,7 @@ class EdgeAttack:
             else:
                 _=pbge.alerts.TextAlert("You move into {} unopposed.".format(dest_node))
                 self.war.capture(camp, self.war.player_team, dest_node)
+
                 camp.go(dest_node.entrance)
                 self.adv.end_plot(camp, True)
             self.war.ready_for_next_round = True
@@ -689,31 +728,35 @@ class WorldMapWarHandler(Plot):
         # Otherwise, I guess we don't have anything to do here.
         result = self.world_map_war.get_war_status(camp)
         if result == self.world_map_war.WAR_WON:
-            camp.check_trigger("WIN", self)
+            _=camp.check_trigger("WIN", self)
             self.end_plot(camp)
         elif result == self.world_map_war.WAR_LOST:
-            camp.check_trigger("LOSE", self)
+            _=camp.check_trigger("LOSE", self)
             self.end_plot(camp)
+
+    def war_turn_callback(self, camp, adventure_seed):
+        self.adventure_seed = adventure_seed
+        if self.adventure_seed:
+            if self.adventure_seed.can_do_mission(camp):
+                self.adventure_seed(camp)
+            else:
+                _=pbge.alerts.TextAlert("Without working mecha, you are unable to take part in the battle.")
+                self.adventure_seed.on_loss(camp)
+                self.adventure_seed = None
+            self.check_war_status(camp)
+        elif self.current_round.keep_going():
+            self.handle_war_round(camp)
+        if not self.current_round.keep_going():
+            self.current_round = None
+            self.world_map_war.just_captured = None
 
     def handle_war_round(self, camp):
         if self.world_map_war.ready_for_next_round and not self.current_round:
             self.current_round = WorldMapWarRound(self.world_map_war, camp)
             self.world_map_war.ready_for_next_round = False
-        if self.current_round:
-            while self.active and self.current_round.keep_going():
-                self.adventure_seed = self.current_round.perform_turn()
-                if self.adventure_seed:
-                    if self.adventure_seed.can_do_mission(camp):
-                        self.adventure_seed(camp)
-                        break
-                    else:
-                        pbge.alerts.TextAlert("Without working mecha, you are unable to take part in the battle.")
-                        self.adventure_seed.on_loss(camp)
-                        self.adventure_seed = None
-                self.check_war_status(camp)
-            if not self.current_round.keep_going():
-                self.current_round = None
-                self.world_map_war.just_captured = None
+        if self.current_round and self.active and self.current_round.keep_going():
+            self.current_round.perform_turn(self.war_turn_callback)
+
 
     def t_START(self, camp: gears.GearHeadCampaign):
         if self.adventure_seed and self.adventure_seed.is_completed():

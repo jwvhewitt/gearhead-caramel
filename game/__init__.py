@@ -11,7 +11,6 @@ from . import services
 from . import fieldhq
 from . import mechabrowser
 from . import geareditor
-from . import devstuff
 from . import scenariocreator
 from . import traildrawer
 from game.fieldhq import backpack

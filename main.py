@@ -446,7 +446,6 @@ class MainMenu(pbge.widgets.Widget):
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
             _=self._menu.add_item("Edit Scenario", self._start_plot_creator)
             # _=self._menu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
-            #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
             #_=self._menu.add_item("Steam The Eggs", prep_eggs_for_steam)

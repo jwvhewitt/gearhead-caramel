@@ -182,10 +182,12 @@ class RoadEdge(object):
         else:
             return self.go_to_end_node
 
-    def go_to_end_node(self, camp):
+    def go_to_end_node(self, wid, _ev):
+        camp = wid.data
         camp.go(self.end_node.entrance)
 
-    def go_to_start_node(self, camp):
+    def go_to_start_node(self, wid, _ev):
+        camp = wid.data
         camp.go(self.start_node.entrance)
 
 
@@ -351,18 +353,20 @@ class RoadMap(object):
             mydest = e.get_link(mymenu.waypoint.node)
             e.visible = True
             mydest.visible = True
-            mymenu.add_item("Go to {}".format(mydest), e.get_menu_fun(camp, mydest), e)
+            mymenu.add_item("Go to {}".format(mydest), e.get_menu_fun(camp, mydest), desc=e, data=camp)
 
 
-class DZDRoadMapMenu(pbge.rpgmenu.Menu):
+class DZDRoadMapMenu(pbge.widgetmenu.MenuWidget):
     WIDTH = 640
     HEIGHT = 320
     MAP_AREA = pbge.frects.Frect(-320, -210, 640, 320)
     MENU_AREA = pbge.frects.Frect(-200, 130, 400, 80)
 
     def __init__(self, camp, wp):
-        super(DZDRoadMapMenu, self).__init__(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
-                                             border=None, predraw=self.pre)
+        super(DZDRoadMapMenu, self).__init__(
+            self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
+            draw_border=False, pop_when_clicked=True, auto_escape=True
+        )
         self.desc = wp.desc
         self.waypoint = wp
         self.map_sprite = pbge.image.Image("dzd_roadmap.png")
@@ -403,13 +407,11 @@ class DZDRoadMapMenu(pbge.rpgmenu.Menu):
             self.road_sprite.render_c((center_x, center_y), frame)
             a = b
 
-    def pre(self):
-        if pbge.my_state.view:
-            pbge.my_state.view()
+    def _render(self, delta):
         pbge.default_border.render(self.MENU_AREA.get_rect())
         my_map_rect = self.MAP_AREA.get_rect()
         self.map_sprite.render(my_map_rect, 0)
-        active_item_edge = self.get_current_item().desc
+        active_item_edge = self.current_desc
 
         for myedge in self.waypoint.roadmap.edges:
             if myedge.visible and myedge is not active_item_edge:
@@ -426,10 +428,11 @@ class DZDRoadMapMenu(pbge.rpgmenu.Menu):
                     self.legend_sprite.render_c(dest, mynode.frame + 10)
                 mylabel = self._get_text_label(mynode)
                 texdest = mylabel.get_rect(center=(dest[0], dest[1] + 16))
-                pbge.my_state.screen.blit(mylabel, texdest.clamp(my_map_rect))
+                _=pbge.my_state.screen.blit(mylabel, texdest.clamp(my_map_rect))
 
         pbge.notex_border.render(self.MAP_AREA.get_rect())
-        # pbge.draw_text( pbge.my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify = 0 )
+
+        super()._render(delta)
 
 
 class DZDRoadMapExit(Exit):
@@ -448,11 +451,8 @@ class DZDRoadMapExit(Exit):
 
         # Add the plot-linked menu items
         camp.expand_puzzle_menu(self, rpm)
-        rpm.add_item("[Cancel]", None)
-        fx = rpm.query()
-        if fx:
-            camp.time += 1
-            fx(camp)
+        _=rpm.add_item("[Cancel]", None)
+        rpm.push_and_deploy()
 
     def bump(self, camp, pc):
         # Send a BUMP trigger.

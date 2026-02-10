@@ -484,25 +484,27 @@ class WorldMapViewer:
         # pbge.draw_text( pbge.my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify = 0 )
 
 
-class WorldMapMenu(pbge.rpgmenu.Menu):
+class WorldMapMenu(pbge.widgetmenu.MenuWidget):
     WIDTH = 640
     HEIGHT = 320
     MENU_AREA = pbge.frects.Frect(-200, 130, 400, 150)
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
 
-    def __init__(self, camp, wp):
-        super().__init__(self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h, border=None,
-                         predraw=self.pre)
+    def __init__(self, camp, wp, pop_when_clicked=True):
+        super().__init__(
+            self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
+            draw_border=False, pop_when_clicked=pop_when_clicked
+        )
         self.desc = wp.desc
         self.waypoint = wp
         self.map_viewer = WorldMapViewer(self.waypoint.world_map)
 
-    def pre(self):
-        if pbge.my_state.view:
-            pbge.my_state.view()
+    def _render(self, delta):
         pbge.default_border.render(self.MENU_AREA.get_rect())
-        active_item_edge = self.get_current_item().desc
+        active_item_edge = self.current_desc
 
         self.map_viewer.render(self.waypoint, active_item_edge)
+        super()._render(delta)
 
 
 class WorldMapHandler(Plot):

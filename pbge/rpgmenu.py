@@ -372,33 +372,3 @@ class AlertMenu( Menu ):
         self.alert_font = alert_font or my_state.medium_font
 
 
-class TitleMenu(Menu):
-    WIDTH = 350
-    HEIGHT = 250
-    TITLE_HEIGHT = 30
-    PADDING = 24
-
-    MENU_RECT = Frect(-WIDTH // 2, -HEIGHT // 2 + TITLE_HEIGHT + PADDING, WIDTH, HEIGHT - TITLE_HEIGHT - PADDING)
-    TITLE_RECT = Frect(-WIDTH // 2, -HEIGHT // 2, WIDTH, TITLE_HEIGHT)
-
-    class _TitleMenuBorder:
-        def __init__(self, my_menu):
-            self.my_menu = my_menu
-
-        def render(self, _dest):
-            default_border.render(self.my_menu.MENU_RECT.get_rect())
-            default_border.render(self.my_menu.TITLE_RECT.get_rect())
-            draw_text(
-                self.my_menu.title_font, self.my_menu.title, self.my_menu.TITLE_RECT.get_rect(), justify=0, vjustify=0,
-                color=WHITE
-            )
-
-    def __init__(self, title, title_font=None, **kwargs):
-        if "border" in kwargs:
-            kwargs.pop("border")
-        super().__init__(
-            self.MENU_RECT.dx, self.MENU_RECT.dy, self.MENU_RECT.w, self.MENU_RECT.h,
-            border=self._TitleMenuBorder(self), **kwargs
-        )
-        self.title = title
-        self.title_font = title_font or my_state.big_font

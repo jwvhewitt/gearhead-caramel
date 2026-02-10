@@ -140,11 +140,6 @@ class ROPP_WarStarter(Plot):
         else:
             camp.set_faction_allies(gears.factions.TheSolarNavy, gears.factions.TreasureHunters)
 
-    def start_war_round(self, camp):
-        myround = worldmapwar.WorldMapWarRound(self.world_map_war, camp)
-        while myround.keep_going():
-            _ = myround.perform_turn()
-
 
 class AegisInfiltratorPlot(Plot):
     LABEL = "ROPP_AEGIS_INFILTRATOR"
