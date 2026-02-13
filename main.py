@@ -228,21 +228,17 @@ class BadSaveFileWidget(pbge.widgetmenu.AlertMenuWidget):
     def __init__(self, fname, err):
         super().__init__(
             "File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err),
-            on_escape=self._do_nothing
+            pop_when_clicked=True, auto_escape=True
         )
         self.fname = fname
         _=self.add_item("Eject the character and delete the broken campaign file.", self._eject_character)
-        _=self.add_item("Leave it alone for now.", self._do_nothing)
+        _=self.add_item("Leave it alone for now.", None)
 
     def _eject_character(self, _wid, _ev):
         minimal_saves[self.fname][1].save()
         if os.path.exists(self.fname):
             os.remove(self.fname)
         check_rpg_saves()
-        self.pop()
-
-    def _do_nothing(self, _wid, _ev):
-        self.pop()
 
 
 class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
@@ -298,14 +294,20 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
         self.pop()
 
     def deal_with_bad_file(self, fname, err):
-        mymenu = pbge.rpgmenu.AlertMenu("File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err))
-        _=mymenu.add_item("Eject the character and delete the broken campaign file.", True)
-        _=mymenu.add_item("Leave it alone for now.", False)
-        if mymenu.query():
-            minimal_saves[fname][1].save()
-            if os.path.exists(fname):
-                os.remove(fname)
-            check_rpg_saves()
+        self.pop()
+        mymenu = pbge.widgetmenu.AlertMenuWidget(
+            "File \"{}\" cannot be loaded due to exception \"{}\". Do you want to eject the character so you can start a new campaign?".format(fname, err),
+            pop_when_clicked=True, auto_escape=True
+        )
+        _=mymenu.add_item("Eject the character and delete the broken campaign file.", self._eject_character, data=fname)
+        _=mymenu.add_item("Leave it alone for now.", None)
+
+    def _eject_character(self, wid, _ev):
+        fname = wid.data
+        minimal_saves[fname][1].save()
+        if os.path.exists(fname):
+            os.remove(fname)
+        check_rpg_saves()
 
     @staticmethod
     def _string_to_major_version(version):

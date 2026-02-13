@@ -60,6 +60,8 @@ EXIT_BUTTON_FRECT = pbge.frects.Frect( UL_X + SCREEN_WIDTH - (MARGIN + 40), UL_Y
                                      , 40, 40
                                      )
 
+WTAG_SURGERY_INTERFACE = "WTAG_SURGERY_INTERFACE"
+
 ###############################################################################
 
 class _TraumaBlock(gears.info.AbstractModelTextBlock):
@@ -154,18 +156,19 @@ class _MedicalCommentaryPanel(gears.info.InfoPanel):
 
 ###############################################################################
 
-class CyberMenu(pbge.rpgmenu.AlertMenu):
+class CyberMenu(pbge.widgetmenu.AlertMenuWidget):
     WIDTH = 350
     HEIGHT = 250
     MENU_HEIGHT = 150
 
     FULL_RECT = pbge.frects.Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT)
     TEXT_RECT = pbge.frects.Frect(-WIDTH//2,-HEIGHT//2,WIDTH,HEIGHT - MENU_HEIGHT - 10)
+    TAGS_TO_DEACTIVATE = {WTAG_SURGERY_INTERFACE,}
 
 
 class SurgeryUI(pbge.widgets.Widget):
     def __init__(self, camp: gears.GearHeadCampaign, shop, pc: gears.base.Being, **kwargs):
-        super().__init__(UL_X, UL_Y, SCREEN_WIDTH, SCREEN_HEIGHT, **kwargs)
+        super().__init__(UL_X, UL_Y, SCREEN_WIDTH, SCREEN_HEIGHT, tags={WTAG_SURGERY_INTERFACE,}, **kwargs)
 
         self.pc = pc
         self.shop = shop
@@ -286,6 +289,24 @@ class SurgeryUI(pbge.widgets.Widget):
 
         self._available_listwidget.sort(key=lambda a: str(a))
 
+    def _confirm_install(self, wid, _ev):
+        cyber, limb = wid.data
+        other_cyber = cyber.get_current_cyber(limb)
+        if other_cyber:
+            other_cyber.container.remove(other_cyber)
+            other_cyber.record_dna(self.pc)
+            self.pc.inv_com.append(other_cyber)
+
+        self.camp.credits -= self.shop.calc_purchase_price(self.camp, cyber)
+
+        if cyber in self.pc.inv_com:
+            self.pc.inv_com.remove(cyber)
+        else:
+            cyber = copy.deepcopy(cyber)
+        cyber.record_dna(self.pc)
+        limb.sub_com.append(cyber)
+        self._refresh_all()
+
     def _install(self, widj, ev):
         cyber = widj.data
         mymenu = CyberMenu("Select Installation Location", alert_font=pbge.BIGFONT, font=pbge.MEDIUM_DISPLAY_FONT)
@@ -294,48 +315,33 @@ class SurgeryUI(pbge.widgets.Widget):
                 if limb.can_install(cyber, False):
                     other_cyber = cyber.get_current_cyber(limb)
                     if limb.can_install(cyber):
-                        mymenu.add_item("Install {} in {}".format(cyber, limb), limb)
+                        _=mymenu.add_item("Install {} in {}".format(cyber, limb), self._confirm_install, data=(cyber, limb))
                     elif other_cyber and cyber.can_replace(limb, other_cyber):
-                        mymenu.add_item("Replace {} with {} in {}".format(other_cyber, cyber, limb), limb)
+                        _=mymenu.add_item("Replace {} with {} in {}".format(other_cyber, cyber, limb), self._confirm_install, data=(cyber, limb))
             if mymenu.items:
-                mymenu.add_item("Cancel installation", False)
+                _=mymenu.add_item("Cancel installation", None)
             else:
-                mymenu.add_item("Cannot install {} due to current trauma".format(cyber), False)
+                _=mymenu.add_item("Cannot install {} due to current trauma".format(cyber), None)
         else:
             mymenu.desc = "You cannot afford {}".format(cyber)
-            mymenu.add_item("[Continue]", False)
+            _=mymenu.add_item("[Continue]", None)
+        mymenu.push_and_deploy()
 
-        limb = mymenu.query()
-        if limb:
-            other_cyber = cyber.get_current_cyber(limb)
-            if other_cyber:
-                other_cyber.container.remove(other_cyber)
-                other_cyber.record_dna(self.pc)
-                self.pc.inv_com.append(other_cyber)
-
-            self.camp.credits -= self.shop.calc_purchase_price(self.camp, cyber)
-
-            if cyber in self.pc.inv_com:
-                self.pc.inv_com.remove(cyber)
-            else:
-                cyber = copy.deepcopy(cyber)
-            cyber.record_dna(self.pc)
-            limb.sub_com.append(cyber)
-            self._refresh_all()
-
-    def _remove(self, widj, ev):
+    def _remove(self, widj, _ev):
         cyber = widj.data
         mymenu = CyberMenu(
             "Remove {} from {}?".format(cyber, cyber.parent), alert_font=pbge.BIGFONT, font=pbge.MEDIUM_DISPLAY_FONT
         )
-        mymenu.add_item("Accept", True)
-        mymenu.add_item("Cancel", False)
+        _=mymenu.add_item("Accept", self._confirm_remove, data=cyber)
+        _=mymenu.add_item("Cancel", None)
+        mymenu.push_and_deploy()
 
-        if mymenu.query():
-            cyber.container.remove(cyber)
-            cyber.record_dna(self.pc)
-            self.pc.inv_com.append(cyber)
-            self._refresh_all()
+    def _confirm_remove(self, wid, _ev):
+        cyber = wid.data
+        cyber.container.remove(cyber)
+        cyber.record_dna(self.pc)
+        self.pc.inv_com.append(cyber)
+        self._refresh_all()
 
     def _on_exit(self, *args, **kwargs):
         self.running = False

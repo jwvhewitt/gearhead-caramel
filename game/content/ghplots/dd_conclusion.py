@@ -4,14 +4,13 @@ from game import teams, services, ghdialogue
 from game.ghdialogue import context
 import gears
 import pbge
-from game.content import backstory, plotutility, ghterrain, ghwaypoints, gharchitecture, ghrooms, ghcutscene
+from game.content import plotutility, ghwaypoints, gharchitecture, ghrooms, ghcutscene
 import random
-from gears import relationships
 from game import content
-from . import dd_main, missionbuilder, dd_customobjectives, dd_misc
+from . import dd_main, missionbuilder, dd_customobjectives
 from .dd_main import DZDRoadMapExit
 from pbge.memos import Memo
-from .dd_homebase import CD_BIOTECH_DISCOVERIES, BiotechDiscovery
+from .dd_homebase import BiotechDiscovery
 
 
 DZDCVAR_NUM_ALLIANCES = "DZDCVAR_NUM_ALLIANCES"
@@ -154,44 +153,46 @@ class VictoryParty(Plot):
 
     def _give_speech(self, camp):
         #TODO: This needs to be split at the menu.
-        pbge.alerts.TextAlert("At this suggestion, everyone in the bar turns to you and applauds. It seems you won't be getting out of here tonight without saying a few words.")
+        _=pbge.alerts.TextAlert(
+            "At this suggestion, everyone in the bar turns to you and applauds. It seems you won't be getting out of here tonight without saying a few words.",
+            on_close=self._first_line, data=camp
+        )
 
-        mymenu= pbge.rpgmenu.AlertMenu("How do you want to begin your speech?")
-        mymenu.add_item("Start on a joke.", "[DZDC_VICTORY_PARTY:TRY_FUNNY]")
-        mymenu.add_item("Introduce yourself.", "[DZDC_VICTORY_PARTY:TRY_INTRODUCTION]")
+    def _first_line(self, wid, _ev):
+        camp = wid.data
+        mymenu= pbge.widgetmenu.AlertMenuWidget("How do you want to begin your speech?")
+        _=mymenu.add_item("Start on a joke.", self._deliver_first_line, data=(camp, "[DZDC_VICTORY_PARTY:TRY_FUNNY]"))
+        _=mymenu.add_item("Introduce yourself.", self._deliver_first_line, data=(camp, "[DZDC_VICTORY_PARTY:TRY_INTRODUCTION]"))
 
-        answer = mymenu.query()
-        if answer:
-            _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False)
-        else:
-            _=ghcutscene.SimpleMonologueDisplay("...", camp.pc,camp,False)
-            pbge.alerts.TextAlert("The rest of the party watches you with anticipation.")
 
-        mymenu= pbge.rpgmenu.AlertMenu("What will you say next?")
-        mymenu.add_item("Tell then about securing the highway.", "[DZDC_VICTORY_PARTY:TELL_HIGHWAY]")
-        mymenu.add_item("Tell them about the adventures you've had.", "[DZDC_VICTORY_PARTY:TELL_ADVENTURES]")
+    def _deliver_first_line(self, wid, _ev):
+        camp, answer = wid.data
+        _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False, on_close=self._second_line, data=camp)
 
-        answer = mymenu.query()
-        if answer:
-            _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False)
-        else:
-            _=ghcutscene.SimpleMonologueDisplay("um...", camp.pc,camp,False)
-            _=pbge.alerts.TextAlert("Everybody stares at you expectantly.")
+    def _second_line(self, wid, _ev):
+        camp = wid.data
+        mymenu= pbge.widgetmenu.AlertMenuWidget("What will you say next?")
+        _=mymenu.add_item("Tell then about securing the highway.", self._deliver_second_line, data=(camp, "[DZDC_VICTORY_PARTY:TELL_HIGHWAY]"))
+        _=mymenu.add_item("Tell them about the adventures you've had.", self._deliver_second_line, data=(camp, "[DZDC_VICTORY_PARTY:TELL_ADVENTURES]"))
 
-        mymenu= pbge.rpgmenu.AlertMenu("How will you conclude?")
-        mymenu.add_item("Make a toast to {}.".format(self.elements["METROSCENE"]), "[DZDC_VICTORY_PARTY:TOAST_TOWN]")
-        mymenu.add_item("Thank {} for {} help.".format(self.elements["DZ_CONTACT"],self.elements["DZ_CONTACT"].gender.possessive_determiner), "[DZDC_VICTORY_PARTY:TOAST_SHERIFF]")
+    def _deliver_second_line(self, wid, _ev):
+        camp, answer = wid.data
+        _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False, on_close=self._third_line, data=camp)
 
-        answer = mymenu.query()
-        if answer:
-            _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False)
-            _=pbge.alerts.TextAlert("The people in the bar give you a round of thunderous applause.")
-        else:
-            _=ghcutscene.SimpleMonologueDisplay("...and that's all I have to say about that.", camp.pc,camp,False)
-            _=pbge.alerts.TextAlert("The people in the bar nod in polite silence and then get back to whatever they were doing before.")
+    def _third_line(self, wid, _ev):
+        camp = wid.data
+        mymenu= pbge.widgetmenu.AlertMenuWidget("How will you conclude?")
+        _=mymenu.add_item("Make a toast to {}.".format(self.elements["METROSCENE"]), self._deliver_third_line, data=(camp, "[DZDC_VICTORY_PARTY:TOAST_TOWN]"))
+        _=mymenu.add_item("Thank {} for {} help.".format(self.elements["DZ_CONTACT"],self.elements["DZ_CONTACT"].gender.possessive_determiner), self._deliver_third_line, data=(camp, "[DZDC_VICTORY_PARTY:TOAST_SHERIFF]"))
 
-        _=pbge.alerts.TextAlert("As you finish your speech, {} rushes over and pulls you aside.".format(self.elements["DZ_CONTACT"]))
-        self._end_the_party(camp)
+    def _deliver_third_line(self, wid, _ev):
+        camp, answer = wid.data
+        _=ghcutscene.SimpleMonologueDisplay(answer, camp.pc,camp,False, data=camp)
+
+        _=pbge.alerts.TextAlert(
+            "As you finish your speech, {} rushes over and pulls you aside.".format(self.elements["DZ_CONTACT"]),
+            on_close = self._end_the_party, data=camp
+        )
 
     def _get_dialogue_grammar(self, npc, camp):
         mygram = dict()
@@ -242,11 +243,13 @@ class VictoryParty(Plot):
 
     def METROSCENE_ENTER(self, camp):
         if self.started_party:
-            pbge.alerts.TextAlert(
-                "As you leave {}, {} rushes over and pulls you aside.".format(self.elements["TAVERN"], self.elements["DZ_CONTACT"]))
-            self._end_the_party(camp)
+            _=pbge.alerts.TextAlert(
+                "As you leave {}, {} rushes over and pulls you aside.".format(self.elements["TAVERN"], self.elements["DZ_CONTACT"]),
+                on_close=self._end_the_party, data=camp
+            )
 
-    def _end_the_party(self, camp):
+    def _end_the_party(self, wid, _ev):
+        camp = wid.data
         _=ghcutscene.SimpleMonologueDisplay(
             "[THIS_IS_AN_EMERGENCY] I just got a distress call from {DOOMED_VILLAGE}- right before the comm signal cut out entirely. Could you go there and make sure everything is alright?".format(**self.elements),
             self.elements["DZ_CONTACT"], camp, False

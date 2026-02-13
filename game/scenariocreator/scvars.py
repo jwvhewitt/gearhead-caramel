@@ -566,15 +566,16 @@ class TagReactionVariable(BaseVariableDefinition):
 
     def _delete_widget(self, wid, ev):
         mylist, refresh_fun = wid.data
-        mymenu = pbge.rpgmenu.PopUpMenu()
+        mymenu = pbge.widgetmenu.PopupMenuWidget()
         for item in mylist:
-            mymenu.add_item(item[0], item)
-        mymenu.add_item("==None==", None)
+            _=mymenu.add_item(item[0], self._do_the_delete, data=(mylist, refresh_fun, item))
+        _=mymenu.add_item("==None==", None)
+        mymenu.push_and_deploy()
 
-        item_to_delete = mymenu.query()
-        if item_to_delete:
-            mylist.remove(item_to_delete)
-            refresh_fun()
+    def _do_the_delete(self, wid, _ev):
+        mylist, refresh_fun, item_to_delete = wid.data
+        mylist.remove(item_to_delete)
+        refresh_fun()
 
     def get_errors(self, part, key):
         myerrors = list()

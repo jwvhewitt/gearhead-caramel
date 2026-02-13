@@ -356,12 +356,12 @@ class AlertMenuWidget(MenuWidget):
 
     ACTIVATE_IMMEDIATELY = True
 
-    def __init__(self, msg, alert_font=None, **kwargs):
+    def __init__(self, msg, alert_font=None, pop_when_clicked=True, **kwargs):
         if "draw_border" in kwargs:
             kwargs.pop("draw_border")
         super().__init__(
             **self.MENU_RECT.get_dict(),
-            draw_border=False, **kwargs
+            draw_border=False, pop_when_clicked=pop_when_clicked, **kwargs
         )
         self.alert_font = alert_font or my_state.medium_font
         self.msg = msg

@@ -797,7 +797,6 @@ class BasicNotification(frects.Frect):
         return self._inflation_phase == self.IP_DONE
 
 
-from . import rpgmenu
 from . import container
 from . import namegen
 from . import randmaps

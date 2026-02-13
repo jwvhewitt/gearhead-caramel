@@ -264,9 +264,9 @@ class SkillButtonWidget(pbge.widgets.LabelWidget):
 
     def _render(self, delta):
         if self._should_flash() or (self is self.scolumn.active_button):
-            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.rpgmenu.MENU_SELECT_COLOR,self.justify)
+            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.widgetmenu.MENU_SELECT_COLOR,self.justify)
         else:
-            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.rpgmenu.MENU_ITEM_COLOR,self.justify)
+            pbge.draw_text(self.font,self.text,self.get_rect(),pbge.widgetmenu.MENU_ITEM_COLOR,self.justify)
 
 
 class SkillColumn(pbge.widgets.ColumnWidget):

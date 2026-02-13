@@ -73,16 +73,17 @@ class MultiMissionNodePlot(Plot):
         if myfun:
             myfun(camp)
 
-    def call_node(self, camp):
+    def call_node(self, wid, _ev):
+        camp = wid.data
         mymission = self.create_mission(camp)
-        mymission(camp)
+        _=mymission(camp)
 
     def can_do_mission(self, camp):
         return bool(camp.get_usable_party(gears.scale.MechaScale, just_checking=True,
                                           enviro=self.elements["ARCHITECTURE"].ENV))
 
 
-class MultiMissionMenu(pbge.rpgmenu.Menu):
+class MultiMissionMenu(pbge.widgetmenu.MenuWidget):
     WIDTH = 350
     HEIGHT = 250
     MENU_HEIGHT = 75
@@ -94,8 +95,8 @@ class MultiMissionMenu(pbge.rpgmenu.Menu):
     def __init__(self, mmission, desc):
         self.mmission = mmission
         super().__init__(
-            -self.WIDTH // 2, self.HEIGHT // 2 - self.MENU_HEIGHT + 75, self.WIDTH, self.MENU_HEIGHT, predraw=self.pre,
-            no_escape=True, border=None, font=pbge.MEDIUMFONT
+            -self.WIDTH // 2, self.HEIGHT // 2 - self.MENU_HEIGHT + 75, self.WIDTH, self.MENU_HEIGHT,
+            draw_border=False, font=pbge.MEDIUMFONT, pop_when_clicked=True
         )
         self.desc = desc
         self.img = pbge.image.Image("sys_multimissionstages.png", self.FRAME_WIDTH, self.FRAME_WIDTH)
@@ -103,9 +104,7 @@ class MultiMissionMenu(pbge.rpgmenu.Menu):
         sdrw = (len(mmission.mission_stages) * 2 - 1) * self.FRAME_WIDTH
         self.stages_display_rect = pbge.frects.Frect(-sdrw//2, -175, sdrw, self.FRAME_WIDTH)
 
-    def pre(self):
-        if pbge.my_state.view:
-            pbge.my_state.view()
+    def _render(self, delta):
         pbge.default_border.render(self.FULL_RECT.get_rect())
 
         mydest = self.stages_display_rect.get_rect()
@@ -125,6 +124,8 @@ class MultiMissionMenu(pbge.rpgmenu.Menu):
                 mydest.x += self.FRAME_WIDTH
 
         pbge.draw_text(pbge.my_state.medium_font, self.desc, self.TEXT_RECT.get_rect(), justify=0)
+
+        super()._render(delta)
 
 
 
@@ -198,38 +199,39 @@ class MultiMissionStagePlot(Plot):
         if myfun:
             myfun(camp)
 
+    def _abort_mission(self, wid, _ev):
+        camp, mmission = wid.data
+        if mmission.elements.get("ONE_SHOT", True):
+            mmission._lose_mission(camp)
+
     def _add_stage_node(self, nart, nodelabel: str, necessary: bool = True):
         mynode = self.add_sub_plot(nart, nodelabel, necessary=necessary, elements={
             "WIN_MISSION_FUN": self._win_mission_wrapper, "LOSE_MISSION_FUN": self._lose_mission_wrapper
         })
         self.nodes.append(mynode)
 
-    def _get_stage_desc(self, camp):
+    def _auto_win_mission(self, wid, _ev):
+        self._win_mission_wrapper(wid.data)
+
+    def _get_stage_desc(self, _camp):
         return self.DESC_PATTERN.format(**self.elements)
 
     def _create_node_menu(self, camp, mmission):
         mymenu = MultiMissionMenu(mmission, self._get_stage_desc(camp))
         for node in self.nodes:
             if node.can_do_mission(camp):
-                mymenu.add_item(node.name, node.call_node)
+                _=mymenu.add_item(node.name, node.call_node, data=camp)
         mymenu.sort()
         if mmission.mission_number > 0:
-            mymenu.add_item("Abort the mission", None)
+            _=mymenu.add_item("Abort the mission", self._abort_mission, data=(camp, mmission))
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            mymenu.add_item("Win da mission (cheater!)", self._win_mission_wrapper)
+            _=mymenu.add_item("Win da mission (cheater!)", self._auto_win_mission, data=camp)
 
         return mymenu
 
     def call_stage(self, camp, mmission):
         mymenu = self._create_node_menu(camp, mmission)
-        dest = mymenu.query()
-        if dest:
-            dest(camp)
-        elif mmission.elements.get("ONE_SHOT", True):
-            mmission._lose_mission(camp)
-        else:
-            dest = mymenu.get_current_item()
-            dest(camp)
+        mymenu.push_and_deploy()
 
 
 class MultiMission(Plot):

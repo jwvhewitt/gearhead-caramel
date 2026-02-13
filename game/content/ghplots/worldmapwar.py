@@ -370,8 +370,21 @@ class WorldMapBattleAlert(WorldMapAlert):
         self.attack_frame = attack_frame
         self.defence_frame = defence_frame
         self.kill_counter = 0
-        self.casulties = [-1] * attacker_casulties + [1] * defender_casulties
-        random.shuffle(self.casulties)
+        self.defender_positions = self.DEFENDER_POSITIONS.copy()
+        random.shuffle(self.defender_positions)
+        self.attacker_positions = self.ATTACKER_POSITIONS.copy()
+        random.shuffle(self.attacker_positions)
+        self.mecha_sprite = pbge.image.Image(self.world_map_war.legend.image_name, 20, 20)
+
+        # Make sure the last casualty is the losing team.
+        if attacker_casulties >= num_attackers:
+            self.casulties = [-1] * (attacker_casulties-1) + [1] * defender_casulties
+            random.shuffle(self.casulties)
+            self.casulties.append(-1)
+        else:
+            self.casulties = [-1] * attacker_casulties + [1] * (defender_casulties-1)
+            random.shuffle(self.casulties)
+            self.casulties.append(1)
         self.small_boom_sprite = pbge.image.Image("anim_smallboom.png", 64, 64)
 
     def _render(self, delta):

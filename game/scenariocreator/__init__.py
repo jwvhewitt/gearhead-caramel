@@ -38,36 +38,34 @@ class PlotNodeWidget(pbge.widgets.Widget):
 
     def _draw_image(self, text_color):
         myimage = pygame.Surface((self.w, self.h))
-        myimage.fill((0, 0, 0))
+        _=myimage.fill((0, 0, 0))
         myimage.set_colorkey((0, 0, 0), pygame.RLEACCEL)
 
-        myimage.blit(self.font.render(self._part_text(), True, text_color), (self.indent * 12, 0))
+        _=myimage.blit(self.font.render(self._part_text(), True, text_color), (self.indent * 12, 0))
         return myimage
 
     def _render(self, delta):
         myrect = self.get_rect()
         if myrect.collidepoint(*pbge.my_state.mouse_pos):
-            pbge.my_state.screen.blit(self.mouseover_image, myrect)
+            _=pbge.my_state.screen.blit(self.mouseover_image, myrect)
             if self.editor:
                 self.editor.mouseover_part = self
         elif self._should_flash() or self.editor.is_active_node(self):
-            pbge.my_state.screen.blit(self.selected_image, myrect)
+            _=pbge.my_state.screen.blit(self.selected_image, myrect)
         else:
-            pbge.my_state.screen.blit(self.regular_image, myrect)
+            _=pbge.my_state.screen.blit(self.regular_image, myrect)
 
-    def _open_popup(self, *args):
-        mymenu = pbge.rpgmenu.PopUpMenu()
-        mymenu.add_item("Copy", self._copy_node)
+    def _open_popup(self, *_args):
+        mymenu = pbge.widgetmenu.PopupMenuWidget()
+        _=mymenu.add_item("Copy", self._copy_node)
         if self.editor.clipboard and self.editor.clipboard.brick.label in self.data.brick.child_types:
-            mymenu.add_item("Paste", self._paste_node)
-        q = mymenu.query()
-        if q:
-            q()
+            _=mymenu.add_item("Paste", self._paste_node)
+        mymenu.push_and_deploy()
 
-    def _copy_node(self):
+    def _copy_node(self, *_args):
         self.editor.clipboard = self.data.copy()
 
-    def _paste_node(self):
+    def _paste_node(self, *_args):
         self.data.children.append(self.editor.clipboard.copy())
         self.editor.update_parts_widget()
 
@@ -94,7 +92,7 @@ class PhysicalNodeWidget(pbge.widgets.RowWidget):
 
         self.selected_image = self._draw_image(pbge.INFO_HILIGHT)
         self.regular_image = self._draw_image(pbge.INFO_GREEN)
-        self.mouseover_image = self._draw_image(pbge.rpgmenu.MENU_SELECT_COLOR)
+        self.mouseover_image = self._draw_image(pbge.widgetmenu.MENU_SELECT_COLOR)
 
     def _part_text(self):
         return self.physical_desc.element_def.name
@@ -136,7 +134,7 @@ class SELabelButton(pbge.widgets.Widget):
                          , self.font.get_linesize() + 1, **kwargs)
         self.selected_image = self._draw_image(text, pbge.INFO_HILIGHT)
         self.regular_image = self._draw_image(text, pbge.INFO_GREEN)
-        self.mouseover_image = self._draw_image(text, pbge.rpgmenu.MENU_SELECT_COLOR)
+        self.mouseover_image = self._draw_image(text, pbge.widgetmenu.MENU_SELECT_COLOR)
 
     def _draw_image(self, text, text_color):
         myimage = pygame.Surface((self.w, self.h))

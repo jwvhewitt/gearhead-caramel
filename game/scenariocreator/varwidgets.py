@@ -40,13 +40,15 @@ class CampaignVarNameWidget(pbge.widgets.ColumnWidget):
         self.part.raw_vars[self.var_name] = widj.text
 
     def _click_arrow(self, wid, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu(w=300)
+        mymenu = pbge.widgetmenu.PopupMenuWidget(w=300)
         for cvn in self.part.get_campaign_variable_names():
-            mymenu.add_item(cvn, cvn)
+            _=mymenu.add_item(cvn, self._set_widget_text, data=cvn)
         mymenu.sort()
-        choice = mymenu.query()
-        if choice:
-            self.text_widget.text = choice
+        mymenu.push_and_deploy()
+
+    def _set_widget_text(self, wid, _ev):
+        choice = wid.data
+        self.text_widget.text = choice
 
 
 class TextVarEditorWidget(pbge.widgets.ColumnWidget):
@@ -548,19 +550,25 @@ class AddRemoveFSOptionsWidget(pbge.widgets.ColumnWidget):
 
     def _delete_op(self, widg, ev):
         if self.ops_taken:
-            mymenu = pbge.rpgmenu.PopUpMenu()
+            mymenu = pbge.widgetmenu.PopupMenuWidget()
             for p in self.ops_taken:
-                mymenu.add_item(self.op_dict.get(p, "Unknown"), p)
-            delete_this_one = mymenu.query()
-            if delete_this_one in self.ops_taken:
-                self.ops_taken.remove(delete_this_one)
+                _=mymenu.add_item(self.op_dict.get(p, "Unknown"), self._do_the_delete, data=p)
+            mymenu.push_and_deploy()
+
+    def _do_the_delete(self, wid, _ev):
+        delete_this_one = wid.data
+
+        if delete_this_one in self.ops_taken:
+            self.ops_taken.remove(delete_this_one)
 
     def _add_op(self, widg, ev):
-        mymenu = pbge.rpgmenu.PopUpMenu()
+        mymenu = pbge.widgetmenu.PopupMenuWidget()
         for a, b in self.op_candidates:
             if b not in self.ops_taken:
-                mymenu.add_item(a, b)
+                _=mymenu.add_item(a, self._do_the_add, data=b)
         mymenu.sort()
-        add_this_one = mymenu.query()
+
+    def _do_the_add(self, wid, _ev):
+        add_this_one = wid.data
         if add_this_one:
             self.ops_taken.append(add_this_one)
