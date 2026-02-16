@@ -92,7 +92,7 @@ class Image(object):
         # Start by determining the correct sub-area of the image.
         area = self._get_frame_area(frame)
         dest_surface = dest_surface or my_state.screen
-        dest_surface.blit(self.bitmap, dest, area)
+        _=dest_surface.blit(self.bitmap, dest, area)
 
     def render_c(self, dest=(0, 0), frame=0, dest_surface=None ):
         # As above, but the dest coordinates point to the center of the image.
@@ -100,7 +100,13 @@ class Image(object):
         dest_c = self.get_rect(frame)
         dest_c.center = dest
         dest_surface = dest_surface or my_state.screen
-        dest_surface.blit(self.bitmap, dest_c, area)
+        _=dest_surface.blit(self.bitmap, dest_c, area)
+
+    def render_montage(self, dest=(0, 0), h_frames=1, v_frames=1, dest_surface=None ):
+        # Render a section of this spritesheet.
+        area = pygame.Rect(0, 0, h_frames*self.frame_width, v_frames*self.frame_height)
+        dest_surface = dest_surface or my_state.screen
+        _=dest_surface.blit(self.bitmap, dest, area)
 
     def get_subsurface(self, frame):
         # Return one of the frames as a pygame subsurface.
@@ -157,6 +163,7 @@ class Image(object):
         if ident:
             self.record_pre_loaded(ident, None, nu_sprite.bitmap)
         return nu_sprite
+
 
 class TextImage(Image):
     def __init__(self, txt='?????', frame_width=128, color=None, font=None):

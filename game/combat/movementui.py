@@ -218,7 +218,7 @@ class MovementUI(pbge.widgets.Widget):
 
     def _render_normal_movemode(self):
         if self.mover.get_current_speed() <= 1:
-            self.clock.set_ap_mp_costs()
+            self.clock.indicate_mp_cost()
             pbge.my_state.view.cursor.frame = self.get_blocked_cursor()
         elif pbge.my_state.view.mouse_tile in self.nav.cost_to_tile:
             mypath = self.nav.get_path(pbge.my_state.view.mouse_tile)
@@ -230,7 +230,7 @@ class MovementUI(pbge.widgets.Widget):
                                    , self.camp.fight.cstat[self.mover].mp_remaining
                                    , mypath
                                    )
-            self.clock.set_ap_mp_costs(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
+            self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
             pbge.my_state.view.cursor.frame = self.SC_GOCURSOR
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
             _wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
@@ -243,21 +243,21 @@ class MovementUI(pbge.widgets.Widget):
                                    , self.camp.fight.cstat[self.mover].mp_remaining
                                    , mypath
                                    )
-            self.clock.set_ap_mp_costs(ap_to_spend=1, mp_to_spend=self.nav.cost_to_tile[mypath[-1]])
+            self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[mypath[-1]])
             pbge.my_state.view.cursor.frame = self.SC_CURSOR
 
         else:
             #pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
-            self.clock.set_ap_mp_costs()
+            self.clock.indicate_mp_cost()
             pbge.my_state.view.cursor.frame = self.get_blocked_cursor()
 
     def _render_jumping_movemode(self):
         if pbge.my_state.view.mouse_tile in self.jumpable_points:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_GOCURSOR)
-            self.clock.set_ap_mp_costs(ap_to_spend=1)
+            self.clock.indicate_mp_cost(99999999)
         else:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.get_blocked_cursor())
-            self.clock.set_ap_mp_costs()
+            self.clock.indicate_mp_cost()
 
     def get_blocked_cursor(self):
         # Movement to this tile is blocked. Still, if there's an enemy in the tile, we want to display that visually.
@@ -287,7 +287,7 @@ class MovementUI(pbge.widgets.Widget):
                 self.mover.mmode = gears.tags.Crashed
             self.origin = self.mover.pos
             self.nav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.origin, self.camp.fight.cstat[
-                self.mover].total_mp_remaining, self.mover.mmode, self.camp.scene.get_blocked_tiles())
+                self.mover].mp_remaining, self.mover.mmode, self.camp.scene.get_blocked_tiles())
 
             # Calculate the paths for the waypoints.
             self.reachable_waypoints.clear()

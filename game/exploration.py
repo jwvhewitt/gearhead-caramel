@@ -492,9 +492,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
         self.threat_viewer.update(self.view, self.threat_tiles)
 
         # Display info for this tile.
-        my_info = self.scene.get_tile_info(self.view)
-        if my_info:
-            my_info.view_display(self.camp)
+        if self.active:
+            my_info = self.scene.get_tile_info(self.view)
+            if my_info:
+                my_info.view_display(self.camp)
 
     def _builtin_responder(self, ev):
         if not self.order:

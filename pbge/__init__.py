@@ -589,9 +589,6 @@ my_state = GameState()
 # The FPS the rules runs at.
 FPS = 30
 
-# Use a timer to control FPS.
-TIMEREVENT = pygame.event.custom_type()
-
 # Remember whether or not this unit has been initialized, since we don't need
 # to initialize it more than once.
 INIT_DONE = False
@@ -693,40 +690,6 @@ def draw_text(font, text, rect, color=TEXT_COLOR, justify=-1, antialias=True, de
     dest_surface.set_clip(rect)
     dest_surface.blit(myimage, myrect)
     dest_surface.set_clip(None)
-
-
-def wait_event():
-    # Wait for input, then return it when it comes.
-    ev = pygame.event.wait()
-
-    # Record if a quit event took placewaitwait
-    if ev.type == pygame.QUIT:
-        my_state.got_quit = True
-    elif ev.type == TIMEREVENT:
-        pygame.event.clear(TIMEREVENT)
-    elif ev.type == pygame.MOUSEMOTION:
-        my_state.update_mouse_pos()
-    elif ev.type == pygame.KEYDOWN:
-        if ev.key == pygame.K_PRINT:
-            pygame.image.save(my_state.screen, util.user_dir("out.png"))
-        elif my_state.is_key_for_action(ev, "next_widget"):
-            my_state.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
-    elif ev.type == pygame.VIDEORESIZE:
-        # PG2 Change
-        # pygame.display._resize_event(ev)
-        my_state.set_size(max(ev.w, 800), max(ev.h, 600))
-
-    # Inform any interested widgets of the event.
-    my_state.widget_responded = False
-    if my_state.widgets_active:
-        for w in reversed(my_state.widgets):
-            w.respond_event(ev)
-
-    # If the view has a check_event method, call that.
-    if my_state.view and hasattr(my_state.view, "check_event") and not my_state.widget_responded:
-        my_state.view.check_event(ev)
-
-    return ev
 
 
 def please_stand_by(caption=None):

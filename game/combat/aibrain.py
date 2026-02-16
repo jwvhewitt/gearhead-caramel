@@ -278,7 +278,7 @@ class BasicAI(object):
             elif hasattr(self.npc, "get_current_speed") and self.npc.get_current_speed() > 10:
                 # Attempt to move closer to the target.
                 mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene, self.npc.pos,
-                                                                camp.fight.cstat[self.npc].total_mp_remaining,
+                                                                camp.fight.cstat[self.npc].mp_remaining,
                                                                 self.npc.mmode, camp.scene.get_blocked_tiles())
                 mypath = pbge.scenes.pathfinding.AStarPath(camp.scene, self.npc.pos, self.target.pos, self.npc.mmode,
                                                            camp.scene.get_blocked_tiles()).get_path(self.target.pos)

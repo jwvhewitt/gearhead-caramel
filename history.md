@@ -1,3 +1,4 @@
+* Movement points and action points are now independent of one another
 * Import GH1 Character should now work with Linux repository installs
 * MenuWidget activate_child_on_enter=True is now the default behaviour
 * Widgets now have a sort layer

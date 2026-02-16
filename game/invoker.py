@@ -469,12 +469,12 @@ class InvocationUI(pbge.widgets.Widget):
                         pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             if self.clock:
-                self.clock.set_ap_mp_costs(ap_to_spend=1)
+                self.clock.indicate_mp_cost()
         elif mmecha and self.can_move_and_attack(mmecha[0].pos):
             if self.camp.fight:
                 mp_remaining = self.camp.fight.cstat[self.pc].mp_remaining
                 if self.clock:
-                    self.clock.set_ap_mp_costs(ap_to_spend=1, mp_to_spend=self.nav.cost_to_tile[self.mypath[-1]])
+                    self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[self.mypath[-1]])
             else:
                 mp_remaining = float('inf')
             traildrawer.draw_trail( self.cursor_sprite
@@ -492,7 +492,7 @@ class InvocationUI(pbge.widgets.Widget):
             else:
                 pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
             if self.clock:
-                self.clock.set_ap_mp_costs()
+                self.clock.indicate_mp_cost()
 
         # Display info for this tile.
         my_info = self.camp.scene.get_tile_info(pbge.my_state.view)

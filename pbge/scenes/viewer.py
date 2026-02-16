@@ -663,7 +663,7 @@ class SceneViewWidget(widgets.Widget):
             self.scene_view.process_anims()
             if not self.showing_animation:
                 _=widgets.FrozenUIState(
-                    tags_to_deactivate={WTAG_DEACTIVATE_DURING_ANIMATION,},
+                    tags_to_deactivate={WTAG_DEACTIVATE_DURING_ANIMATION, widgets.WTAG_WIDGET},
                     tags_to_hide={WTAG_HIDE_DURING_ANIMATION,}
                 )
                 self.showing_animation=True

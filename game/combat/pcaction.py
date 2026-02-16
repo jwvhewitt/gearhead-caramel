@@ -44,69 +44,54 @@ class BonusActionWidget(pbge.widgets.ButtonWidget):
         super()._render(delta)
 
 
-class ActionClockWidget(pbge.widgets.Widget):
+class MovementClockWidget(pbge.widgets.Widget):
     ACTION_QUARTER_ANCHORS = (
         (27, 2), (27, 27), (2, 27), (2, 2)
     )
     def __init__(self, pc, camp):
         self.pc = pc
         self.camp = camp
-        self.bg_image = pbge.image.Image("sys_actionclock_bg.png")
-        self.quarters = pbge.image.Image("sys_actionclock_quarters.png", 23, 23)
-        self.ap_to_spend = 0
+        self.bg_image = pbge.image.Image("sys_movementclock_face.png")
+        self.sectors = pbge.image.Image("sys_movementclock.png", 46, 46)
+        self.sectors_bg = pbge.image.Image("sys_movementclock_bg.png", 46, 46)
+        self.total_mp = self.camp.fight.cstat[self.pc].mp_remaining
         self.mp_to_spend = 0
 
-        super().__init__(-42, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining")
+        self.action_counters = pbge.image.Image("sys_action_counters.png", 45, 13)
+        self.action_counters_bg = pbge.image.Image("sys_action_counters_bg.png")
 
-    def set_ap_mp_costs(self, ap_to_spend=0, mp_to_spend=0):
-        self.ap_to_spend = ap_to_spend
+        super().__init__(
+            -42, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining",
+            tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
+        )
+
+    def on_activate(self):
+        self.total_mp = self.camp.fight.cstat[self.pc].mp_remaining
+
+    def indicate_mp_cost(self, mp_to_spend=0):
         self.mp_to_spend = mp_to_spend
 
-    def _draw_clock(self, actions, leftover, frame_offset=0):
-        if actions > 4:
-            actions = 4
-            leftover = 0
-        if actions > 0:
-            for t in range(actions):
-                adest = self.get_rect()
-                adest.x += self.ACTION_QUARTER_ANCHORS[t][0]
-                adest.y += self.ACTION_QUARTER_ANCHORS[t][1]
-                self.quarters.render(adest, t*32 + frame_offset)
-        if leftover > 0:
-            adest = self.get_rect()
-            adest.x += self.ACTION_QUARTER_ANCHORS[actions][0]
-            adest.y += self.ACTION_QUARTER_ANCHORS[actions][1]
-            frame = actions * 32 + min(max((16 * (100-leftover))//100, 0), 15) + frame_offset
-            if leftover < 50:
-                frame = max(frame, actions * 32 + 9 + frame_offset)
-            else:
-                frame = min(frame, actions * 32 + 8 + frame_offset)
-            self.quarters.render(adest, frame)
+    def _frame_for_mp(self, mp):
+        return min(max(mp//4, 0), 63)
 
     def _render(self, delta):
         mydest = self.get_rect()
         self.bg_image.render(mydest)
-        actions, leftover = self.camp.fight.cstat[self.pc].get_actions_and_move_percent()
-        self._draw_clock(actions, leftover, frame_offset=16)
-        actions, leftover = self.camp.fight.cstat[self.pc].get_modified_actions_and_move_percent(self.ap_to_spend, self.mp_to_spend)
-        self._draw_clock(actions, leftover)
+        mydest.x += 4
+        mydest.y += 4
+        if self.total_mp > 0:
+            if self.mp_to_spend > 0:
+                self.sectors_bg.render(mydest, self._frame_for_mp(self.total_mp))
+                self.sectors.render(mydest, self._frame_for_mp(self.total_mp - self.mp_to_spend))
+            else:
+                # Just draw the mp.
+                self.sectors.render(mydest, self._frame_for_mp(self.total_mp))
 
-
-class WaypointBumper:
-    # A special action so the player can go bump a waypoint.
-    def __init__(self, pc, camp, turn, nav, wp, dest):
-        self.pc = pc
-        self.camp = camp
-        self.turn = turn
-        self.nav = nav
-        self.wp = wp
-        self.dest = dest
-
-    def __call__(self):
-        dest = self.camp.fight.move_model_to(self.pc, self.nav, self.dest)
-        self.turn.movement_ui.needs_tile_update = True
-        if dest == self.dest:
-            self.wp.combat_bump(self.camp, self.pc)
+        mydest.x += 40
+        mydest.y -= 4
+        self.action_counters_bg.render(mydest)
+        self.action_counters.render_montage(mydest, v_frames=min(self.camp.fight.cstat[self.pc].action_points, 4))
+        self.tooltip = "{} Move Points, {} Actions".format(self.total_mp, self.camp.fight.cstat[self.pc].action_points)
 
 
 class PlayerTurn(pbge.widgets.Widget):
@@ -117,7 +102,7 @@ class PlayerTurn(pbge.widgets.Widget):
         self.camp = camp
         self.active_ui = None
 
-        myclock = ActionClockWidget(self.pc, self.camp)
+        myclock = MovementClockWidget(self.pc, self.camp)
         self.children.append(myclock)
         my_bonus_action_button = BonusActionWidget(self.pc, self.camp, self._update_current_nav)
         myclock.children.append(my_bonus_action_button)
@@ -313,7 +298,7 @@ class PlayerTurn(pbge.widgets.Widget):
         # Pop Pop PopMenu Pop Pop PopMenu
         mymenu = pbge.widgetmenu.PopupMenuWidget(auto_escape=True)
         mynav = pbge.scenes.pathfinding.NavigationGuide(self.camp.scene, self.pc.pos, self.camp.fight.cstat[
-                self.pc].total_mp_remaining, self.pc.mmode, self.camp.scene.get_blocked_tiles())
+                self.pc].mp_remaining, self.pc.mmode, self.camp.scene.get_blocked_tiles())
         path = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, pbge.my_state.view.mouse_tile,
                                                  self.pc.mmode)
         if len(path.results) > 1 and path.results[-2] in mynav.cost_to_tile:

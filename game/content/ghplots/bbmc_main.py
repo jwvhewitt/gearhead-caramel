@@ -1556,9 +1556,11 @@ class SceneOne(Plot):
         present.place(self.elements["LOCALE"], (23, 12))
 
     def PRESENT_GET(self, camp):
-        pbge.alerts.TextAlert("Suddenly, the box explodes in your hands!")
-        pbge.my_state.view.play_anims(gears.geffects.SuperBoom(pos=camp.pc.pos),
-                                      pbge.scenes.animobs.Caption("Surprise!", pos=camp.pc.pos, delay=6))
+        _=pbge.alerts.TextAlert("Suddenly, the box explodes in your hands!")
+        _=pbge.alerts.AnimAlert(
+            gears.geffects.SuperBoom(pos=camp.pc.pos),
+            pbge.scenes.animobs.Caption("Surprise!", pos=camp.pc.pos, delay=6)
+        )
         present: gears.base.Treasure = self.elements["PRESENT"]
         if present in camp.pc.inv_com:
             camp.pc.inv_com.remove(present)

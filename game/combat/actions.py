@@ -18,7 +18,7 @@ class MoveModelToPos:
                 self.camp.scene.update_party_position(self.camp)
             if not self.path:
                 # Spend the movement points.
-                self.camp.fight.cstat[self.chara].spend_mp(self.nav.cost_to_tile[self.chara.pos])
+                self.camp.fight.cstat[self.chara].spend_mp(self.nav.cost_to_tile[self.dest])
                 return False
             else:
                 return True

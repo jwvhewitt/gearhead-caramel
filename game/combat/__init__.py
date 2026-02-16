@@ -60,44 +60,28 @@ class CombatStat(object):
 
     @property
     def mp_remaining(self):
-        return self.combatant.get_current_speed() - self._mp_spent
-
-    @property
-    def total_mp_remaining(self):
-        return self._ap_remaining * self.combatant.get_current_speed() - self._mp_spent
+        if hasattr(self.combatant, "get_current_speed"):
+            return max(self.combatant.get_current_speed() - self._mp_spent, 0)
+        else:
+            return 0
 
     @property
     def action_points(self):
-        base_ap = self._ap_remaining
-        if hasattr(self.combatant, "get_current_speed") and self._mp_spent > (self.combatant.get_current_speed()//2):
-            base_ap -= 1
-        return base_ap
+        return self._ap_remaining
 
     def can_act(self):
         return self.action_points > 0
 
     def spend_ap(self, ap):
         self._ap_remaining -= ap
-        if hasattr(self.combatant, "get_current_speed") and self._mp_spent > (self.combatant.get_current_speed()//2):
-            self._ap_remaining -= 1
-        self._mp_spent = 0
+        self._mp_spent = 99999999
 
     def spend_mp(self, mp):
         self._mp_spent += mp
-        if hasattr(self.combatant, "get_current_speed"):
-            speed = self.combatant.get_current_speed()
-            if speed > 0:
-                while self._mp_spent >= speed and self._ap_remaining > 0:
-                    self._mp_spent -= speed
-                    self._ap_remaining -= 1
-            else:
-                self.end_turn()
-        else:
-            self.end_turn()
 
     def reset_movement(self):
         if self._mp_spent > 0:
-            self.spend_ap(1)
+            self._mp_spent = 99999999
 
     def start_turn(self, chara):
         self._ap_remaining += chara.get_action_points()
@@ -111,52 +95,6 @@ class CombatStat(object):
         if self._ap_remaining > 0:
             self._ap_remaining = 0
         self._mp_spent = 0
-
-    def get_actions_and_move_percent(self):
-        if hasattr(self.combatant, "get_current_speed") and self.combatant.get_current_speed() > 0 and self._mp_spent > 0:
-            speed = self.combatant.get_current_speed()
-            percent = (speed - self._mp_spent)*100 // self.combatant.get_current_speed()
-            if self._mp_spent > (speed//2):
-                percent = min(percent, 49)
-            return self._ap_remaining - 1, percent
-        else:
-            return self.action_points, 0
-
-    def get_modified_actions_and_move_percent(self, ap_to_spend=0, mp_to_spend=0):
-        mp_spent = mp_to_spend + self._mp_spent
-        ap_spent_on_movement = 0
-        if hasattr(self.combatant, "get_current_speed"):
-            speed = self.combatant.get_current_speed()
-            if speed > 0:
-                while mp_spent >= speed:
-                    mp_spent -= speed
-                    ap_spent_on_movement += 1
-
-            #else:
-                #ap_spent_on_movement = 999999999
-
-            if ap_to_spend > 0 and mp_spent > (self.combatant.get_current_speed()//2):
-                ap_to_spend += 1
-        else:
-            speed = 0
-
-        if ap_to_spend > 0 and mp_spent > 0:
-            mp_spent = 0
-        ap_to_spend += ap_spent_on_movement
-
-        if speed > 0 and mp_spent > 0:
-            percent = (speed - mp_spent)*100 // speed
-            if mp_spent > (speed//2):
-                percent = min(percent, 49)
-            return max(self._ap_remaining - 1 - ap_to_spend, 0), percent
-        else:
-            return max(self.action_points - ap_to_spend, 0), 0
-
-    def __setstate__(self, state):
-        # For saves from V0.974 or earlier, make sure there's an extra_actions_taken property.
-        if "extra_actions_taken" not in state:
-            self.extra_actions_taken = 0
-        self.__dict__.update(state)
 
     def bonus_action_cost(self):
         return max(self.extra_actions_taken * 5 + self.combatant.scale.BONUS_ACTION_BASE_COST - self.combatant.get_bonus_action_cost_mod(), 5)
@@ -295,13 +233,13 @@ class Combat(object):
         team_frontier = [foeteam, self.scene.player_team]
         while team_frontier:
             myteam = team_frontier.pop()
-            self.camp.check_trigger('ACTIVATETEAM', myteam)
+            _=self.camp.check_trigger('ACTIVATETEAM', myteam)
             activation_area = set()
             # Add team members
             for m in self.scene.contents:
                 if m not in self.active and self.scene.local_teams.get(m) is myteam and isinstance(m,
                                                                                                    gears.base.Combatant):
-                    self.camp.check_trigger('ACTIVATE', m)
+                    _=self.camp.check_trigger('ACTIVATE', m)
                     myview = scenes.pfov.PointOfView(self.scene, m.pos[0], m.pos[1], 5)
                     activation_area.update(myview.tiles)
                     if not hasattr(m, "combatant") or m.combatant:
@@ -363,11 +301,10 @@ class Combat(object):
         self.camp.invoke_area_effects(dest)
 
     def get_action_nav(self, pc):
-        # Return the navigation guide for this character taking into account that you can make
-        # half a move while invoking an action.
+        # Return the navigation guide for this character.
         if hasattr(pc, 'get_current_speed'):
             return pbge.scenes.pathfinding.NavigationGuide(
-                self.camp.scene, pc.pos, self.cstat[pc].total_mp_remaining - pc.get_current_speed() // 2, pc.mmode,
+                self.camp.scene, pc.pos, self.cstat[pc].mp_remaining, pc.mmode,
                 self.camp.scene.get_blocked_tiles()
             )
 
