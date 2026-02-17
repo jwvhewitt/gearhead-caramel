@@ -168,6 +168,9 @@ class GameState(object):
         # a queue of display widgets that get cycled through automatically.
         self.alert_queue = list()
 
+        # Instead of getting deployed immediately, widgets get stored here.
+        self.deployment_queue = list()
+
         # The following stack is used by the check_trigger function in campaign
         self.trigger_tripped_stack = list()
 
@@ -524,6 +527,12 @@ class GameState(object):
                             self.activate_left_widget()
                         elif self.is_key_for_action(ev, "right"):
                             self.activate_right_widget()
+
+            # Deploy queued widgets here, if appropriate.
+            if self.deployment_queue and not (self.alert_queue or any(alerts.WTAG_ALERT in w.tags for w in self.widgets)):
+                while self.deployment_queue:
+                    w = self.deployment_queue.pop(0)
+                    w.launch()
 
             # Rendering happens here.
             self.anim_phase = (self.anim_phase + 1) % 6000

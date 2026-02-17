@@ -485,7 +485,7 @@ class NonComSkillBlock(LabeledItemsListBlock):
 
     def get_sorted_items(self):
         # First, generate the base skills and the effective skills.
-        base_skills = set([sk for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS])
+        base_skills = set([sk for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS and self.model.statline[sk] > 0])
         all_skills = self.model.get_all_skills()
         effective_skills = set([sk for sk in all_skills if sk in stats.NONCOMBAT_SKILLS])
         # Now get normal skills everyone has that are lost.

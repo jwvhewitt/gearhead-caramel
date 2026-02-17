@@ -177,6 +177,29 @@ class FrozenUIState:
 type On_Click = Callable[[Widget, pygame.event.Event], None]|None
 
 
+class WidgetLauncher:
+    # Instead of launching widgets immediately, they get enqueued to prevent stack problems.
+    # Please note that it *is* probably possible to mess up the stack with non-HEADLINER widgets!
+    def __init__(self, wid, widgets_to_push, tags_to_deactivate, tags_to_hide, tags_to_push):
+        self.wid = wid
+        self.widgets_to_push = widgets_to_push
+        self.tags_to_deactivate = tags_to_deactivate
+        self.tags_to_hide = tags_to_hide
+        self.tags_to_push = tags_to_push
+        my_state.deployment_queue.append(self)
+
+    def launch(self):
+        self.wid.snapshot=FrozenUIState(
+            *self.widgets_to_push, tags_to_deactivate=self.tags_to_deactivate, 
+            tags_to_hide=self.tags_to_hide, tags_to_push=self.tags_to_push,
+            pushing_widget=self.wid
+        )
+        my_state.widgets.append(self.wid)
+        if self.wid.ACTIVATE_IMMEDIATELY:
+            self.wid.activate()
+
+
+
 class Widget(frects.Frect):
     SORT_LAYER = 0 # If widgets are to be sorted, they will be sorted by (sort layer, str(w)) by default
     def __init__(self, dx, dy, w, h, data=None, on_click: On_Click=None, tooltip=None, children=(), active=True,
@@ -373,14 +396,11 @@ class Widget(frects.Frect):
     @classmethod
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
         my_widget = cls(**kwargs)
-        my_widget.snapshot=FrozenUIState(
-            *widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, 
-            tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH,
-            pushing_widget=my_widget
+        _=WidgetLauncher(
+            my_widget,
+            widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, 
+            tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH
         )
-        my_state.widgets.append(my_widget)
-        if my_widget.ACTIVATE_IMMEDIATELY:
-            my_widget.activate()
 
     @staticmethod
     def close_widgets_with_tag(tag_to_close):
@@ -389,15 +409,11 @@ class Widget(frects.Frect):
                 my_state.widgets.remove(w)
 
     def push_and_deploy(self, *widgets_to_push) -> None:
-        self.snapshot=FrozenUIState(
-            *widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
-            tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH,
-            pushing_widget=self
+        _=WidgetLauncher(
+            self,
+            widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
+            tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH
         )
-        my_state.widgets.append(self)
-        if self.ACTIVATE_IMMEDIATELY:
-            self.activate()
-        pygame.event.clear()
 
 
 class ButtonWidget(Widget):

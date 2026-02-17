@@ -525,6 +525,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
                     configedit.PopupGameMenu.push_state_and_instantiate()
                     self.register_response()
 
+                elif ev.key == pygame.K_F1:
+                    print(list(self.camp.pc.statline.items()))
+                    self.register_response()
+
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
 
