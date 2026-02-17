@@ -462,15 +462,17 @@ class DespairCrushPersonalMission(LMMissionPlot):
         if not self.started_convo:
             self.started_convo = True
             npc = self.elements["NPC"]
-            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} approaches you anxiously.".format(**self.elements))
+            _=pbge.alerts.TextAlert("As you enter {METROSCENE}, {NPC} approaches you anxiously.".format(**self.elements), on_close=self._start_monologue, dtaa=(camp, npc))
 
-            mymenu = ghcutscene.AlertMonologueMenu(
-                "I'm sorry but I need to leave the lance. There's an urgent personal matter that I must attend to.",
-                npc, camp
-            )
-            _=mymenu.add_item("If you've got a problem, we'll all go to help you with it.", self._offer_help, data=camp)
-            _=mymenu.add_dialogue_item(camp, camp.pc, "[UNDERSTOOD] Good luck handling it.", self._wish_good_luck, data=camp)
-            choice = mymenu.query()
+    def _start_monologue(self, wid, _ev):
+        camp, npc = wid.data
+        mymenu = ghcutscene.AlertMonologueMenu(
+            "I'm sorry but I need to leave the lance. There's an urgent personal matter that I must attend to.",
+            npc, camp
+        )
+        _=mymenu.add_item("If you've got a problem, we'll all go to help you with it.", self._offer_help, data=camp)
+        _=mymenu.add_dialogue_item(camp, camp.pc, "[UNDERSTOOD] Good luck handling it.", self._wish_good_luck, data=camp)
+        mymenu.push_and_deploy()
 
     def _offer_help(self, wid, _ev):
         camp = wid.data

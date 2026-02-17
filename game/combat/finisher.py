@@ -165,10 +165,15 @@ class Finisher(pbge.widgets.Widget):
             self.cleanup_queue.append(HandleTreasure(self.camp, treasure))
 
         self.cleanup_queue.append(PostCombatCleanup(self.camp))
+        self.checked_end_trigger = False
 
     def update(self, delta):
         super().update(delta)
         if my_state.widgets_active and self.snapshot.is_current():
+            if not self.checked_end_trigger:
+                if self.camp.check_trigger("ENDCOMBAT"):
+                    self.checked_end_trigger = True
+                    return
             if self.fainters:
                 while self.fainters:
                     fnpc = self.fainters.pop()

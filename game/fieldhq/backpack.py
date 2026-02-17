@@ -3,6 +3,8 @@ from pbge import widgets
 import gears
 import pygame
 
+from pbge import widgetmenu
+
 INFO_COLUMN = pbge.frects.Frect(-300, -200, 220, 300)
 EQUIPMENT_COLUMN = pbge.frects.Frect(-50, -200, 350, 170)
 INVENTORY_COLUMN = pbge.frects.Frect(-50, 0, 350, 200)
@@ -100,7 +102,7 @@ class InvItemWidget(widgets.Widget):
         mydest.clamp_ip(pbge.my_state.screen.get_rect())
         mymenu = pbge.widgetmenu.PopupMenuWidget(
             w=mydest.w, h=mydest.h, topleft=mydest.topleft, font=pbge.MEDIUMFONT,
-            border=widgets.popup_menu_border, anchor=pbge.frects.ANCHOR_UPPERLEFT
+            border=widgets.popup_menu_border
         )
         mymenu.push_and_deploy(*widgets_to_push)
         return mymenu
@@ -282,19 +284,21 @@ class BackpackWidget(widgets.Widget):
 
     def _equip_item(self, menu_item, _ev):
         wid = menu_item.data
-        mymenu = wid.get_menu()
+        mymenu: pbge.widgetmenu.PopupMenuWidget = wid.get_menu()
         for part in self.pc.descendants():
             if part.can_equip(wid.item, check_slots=False):
-                mymenu.add_item(part.get_full_name(), part)
-        mymenu.add_item("[CANCEL]", None)
-        dest = mymenu.query()
+                _=mymenu.add_item(part.get_full_name(), self._select_destination, (wid.item, part))
+        _=mymenu.add_item("[CANCEL]", None)
+
+    def _select_destination(self, wid, _ev):
+        part, dest = wid.data
         if dest:
             for item in dest.inv_com:
-                if item.slot == wid.item.slot:
+                if item.slot == part.slot:
                     item.parent.inv_com.remove(item)
                     self.pc.inv_com.append(item)
-            wid.item.parent.inv_com.remove(wid.item)
-            dest.inv_com.append(wid.item)
+            part.parent.inv_com.remove(part)
+            dest.inv_com.append(part)
             self.update_selectors()
 
     def _load_ammo(self, menu_item, _ev):
@@ -305,28 +309,32 @@ class BackpackWidget(widgets.Widget):
                 msg = part.get_full_name()
                 if part.parent is not self.pc:
                     msg = "{} ({})".format(msg, part.parent)
-                mymenu.add_item(msg, part)
+                mymenu.add_item(msg, self._do_the_loading, data=(wid.item, part))
         mymenu.sort()
         mymenu.add_item("[CANCEL]", None)
-        dest = mymenu.query()
-        if dest:
-            dest.reload(wid.item)
-            _=pbge.my_state.start_sound_effect("reload.ogg")
-            self.update_selectors()
+        mymenu.push_and_deploy()
+
+    def _do_the_loading(self, wid, _ev):
+        ammo, dest = wid.data
+        dest.reload(ammo)
+        _=pbge.my_state.start_sound_effect("reload.ogg")
+        self.update_selectors()
 
     def _reload_gun(self, menu_item, _ev):
         wid = menu_item.data
         mymenu = wid.get_menu()
         for part in self.pc.inv_com:
             if isinstance(part, (gears.base.Ammo, gears.base.Chem)) and wid.item.is_good_ammo(part):
-                mymenu.add_item("{} [{}/{}]".format(part.get_full_name(), part.quantity - part.spent, part.quantity), part)
+                mymenu.add_item("{} [{}/{}]".format(part.get_full_name(), part.quantity - part.spent, part.quantity), self._do_the_reload, data=(wid.item, part))
         mymenu.sort()
         mymenu.add_item("[CANCEL]", None)
-        dest = mymenu.query()
-        if dest:
-            wid.item.reload(dest)
-            _=pbge.my_state.start_sound_effect("reload.ogg")
-            self.update_selectors()
+        mymenu.push_and_deploy()
+
+    def _do_the_reload(self, wid, _ev):
+        gun, dest = wid.data
+        gun.reload(dest)
+        _=pbge.my_state.start_sound_effect("reload.ogg")
+        self.update_selectors()
 
     def _drop_item(self, menu_item, _ev):
         wid = menu_item.data
@@ -337,19 +345,21 @@ class BackpackWidget(widgets.Widget):
 
     def _trade_item(self, menu_item, _ev):
         wid = menu_item.data
-        mymenu = wid.get_menu()
+        mymenu: widgetmenu.PopupMenuWidget = wid.get_menu()
         mypc = self.pc.get_root()
         for pc in self.camp.get_active_party():
             if pc is not mypc and pc.can_equip(wid.item) and isinstance(pc,
                                                                         (gears.base.Mecha, gears.base.Character)) and (
                     not hasattr(pc, "owner") or not pc.owner):
-                mymenu.add_item(str(pc), pc)
-        mymenu.add_item("[Cancel]", None)
-        nupc = mymenu.query()
-        if nupc:
-            wid.item.parent.inv_com.remove(wid.item)
-            nupc.inv_com.append(wid.item)
-            self.update_selectors()
+                _=mymenu.add_item(str(pc), self._do_the_trade, data=(pc, wid.item))
+        _=mymenu.add_item("[Cancel]", None)
+        mymenu.push_and_deploy()
+
+    def _do_the_trade(self, wid, _ev):
+        nupc, item = wid.data
+        item.parent.inv_com.remove(item)
+        nupc.inv_com.append(item)
+        self.update_selectors()
 
     def _stash_item(self, menu_item, _ev):
         wid = menu_item.data

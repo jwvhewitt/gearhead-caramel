@@ -388,7 +388,7 @@ class Widget(frects.Frect):
             if tag_to_close in w.tags:
                 my_state.widgets.remove(w)
 
-    def push_and_deploy(self, *widgets_to_push):
+    def push_and_deploy(self, *widgets_to_push) -> None:
         self.snapshot=FrozenUIState(
             *widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
             tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH,

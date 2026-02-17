@@ -131,14 +131,10 @@ class CombatDict:
         return nu_dict
 
 
-
-
-
-
 class CombatControlWidget(pbge.widgets.Widget):
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_EXPLORATIONMODE,}
 
-    def __init__(self, camp):
+    def __init__(self, camp: gears.GearHeadCampaign):
         super().__init__(0,0,0,0,tags={WTAG_COMBATHANDLER,})
         self.camp = camp
         self._current_combatant = None
@@ -169,7 +165,7 @@ class CombatControlWidget(pbge.widgets.Widget):
             #     alt_ais = chara.ench_list.get_tags('ALT_AI')
             #     if alt_ais:
             #         current_ai = random.choice(alt_ais)
-            #         if current_ai in ALT_AIS:
+            #         if current_ai in ALT_AIS:COMBATLOOP
             #             ALT_AIS[current_ai](chara, self.camp)
         if chara.is_operational():
             self._current_combatant = chara
@@ -182,6 +178,10 @@ class CombatControlWidget(pbge.widgets.Widget):
     def update(self, delta):
         super().update(delta)
         if self.camp.fight:
+            if not self.camp.fight.checked_start_trigger:
+                _=self.camp.check_trigger("STARTCOMBAT")
+                self.camp.fight.checked_start_trigger = True
+                return
             if self.camp.fight.still_fighting():
                 # Find the next active combatant and deploy their turn widget.
                 chara = self.get_next_combatant()
@@ -192,11 +192,11 @@ class CombatControlWidget(pbge.widgets.Widget):
                     # No combatants to act? Start the next round.
                     self.camp.fight.end_round()
                     self._current_combatant = None
-                    self.camp.check_trigger("COMBATLOOP")
+                    _=self.camp.check_trigger("COMBATLOOP")
 
             else:
                 if self.camp.fight.is_concluded():
-                    self.camp.check_trigger("COMBATLOOP")
+                    _=self.camp.check_trigger("COMBATLOOP")
                     finisher.Finisher.push_state_and_instantiate(self, camp=self.camp)
                 else:
                     self.pop()
@@ -212,10 +212,10 @@ class Combat(object):
         self.ap_spent = collections.defaultdict(int)
         self.cstat = CombatDict()
         self.ai_brains = dict()
-        self.no_quit = True
         self.n = 0
         self.keep_going_without_enemies = keep_going_without_enemies
         self.cooldowns = collections.defaultdict(int)
+        self.checked_start_trigger = False
 
     def roll_initiative(self):
         # Sort based on initiative roll.

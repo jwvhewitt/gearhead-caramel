@@ -34,11 +34,13 @@ class Exit( Waypoint ):
     def combat_use(self, camp, pc):
         rpm = self.MENU_CLASS(camp, self)
         rpm.desc = "Do you want to retreat?"
-        rpm.add_item("Leave combat.", True)
-        rpm.add_item("Keep fighting.", False)
-        fx = rpm.query()
-        if fx:
-            camp.scene.contents.remove(pc)
+        _=rpm.add_item("Leave combat.", self._leave_combat, data=(camp, pc))
+        _=rpm.add_item("Keep fighting.", None)
+        rpm.push_and_deploy()
+
+    def _leave_combat(self, wid, _ev):
+        camp, pc = wid.data
+        camp.scene.contents.remove(pc)
 
     def combat_bump(self, camp, pc):
         # Send a BUMP trigger.
@@ -48,9 +50,7 @@ class Exit( Waypoint ):
         if self.plot_locked:
             rpm = self.MENU_CLASS( camp, self )
             camp.expand_puzzle_menu( self, rpm )
-            fx = rpm.query()
-            if fx:
-                fx( camp )
+            rpm.push_and_deploy()
         else:
             self.combat_use( camp, pc )
 
@@ -141,31 +141,35 @@ class LockedSteelBox(Crate):
                 self.unlock_rank = max(camp.renown + random.randint(1,10) - random.randint(1,10), 5)
             rpm = self.MENU_CLASS(camp, self)
             rpm.desc = "This crate is locked. What do you want to do?"
-            rpm.add_item("Attempt to hack the lock. [Computers + Craft]", 1)
-            rpm.add_item("Break into the crate with brute force. [Athletics + Body]", 2)
-            rpm.add_item("Leave it alone.", False)
-            fx = rpm.query()
-            if fx == 1:
-                pc = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.unlock_rank, no_random=True)
-                if pc:
-                    if pc is camp.pc:
-                        pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
-                    else:
-                        pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
-                    self.unlocked = True
-                else:
-                    pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
-            elif fx == 2:
-                pc = camp.do_skill_test(gears.stats.Body, gears.stats.Athletics, self.unlock_rank,
-                                        difficulty=gears.stats.DIFFICULTY_HARD, no_random=True, untrained_ok=True)
-                if pc:
-                    if pc is camp.pc:
-                        pbge.alerts.TextAlert("You smash the lock. The crate can now be opened.")
-                    else:
-                        pbge.alerts.TextAlert("{} smashes the lock. The crate can now be opened.".format(pc))
-                    self.unlocked = True
-                else:
-                    pbge.alerts.TextAlert("You are not strong enough to smash this lock.")
+            _=rpm.add_item("Attempt to hack the lock. [Computers + Craft]", self._use_computers, data=camp)
+            _=rpm.add_item("Break into the crate with brute force. [Athletics + Body]", self._use_brute_force, data=camp)
+            _=rpm.add_item("Leave it alone.", None)
+            rpm.push_and_deploy()
+
+    def _use_computers(self, wid, _ev):
+        camp = wid.data
+        pc = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.unlock_rank, no_random=True)
+        if pc:
+            if pc is camp.pc:
+                _=pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
+            else:
+                _=pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
+            self.unlocked = True
+        else:
+            _=pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
+
+    def _use_brute_force(self, wid, _ev):
+        camp = wid.data
+        pc = camp.do_skill_test(gears.stats.Body, gears.stats.Athletics, self.unlock_rank,
+                                difficulty=gears.stats.DIFFICULTY_HARD, no_random=True, untrained_ok=True)
+        if pc:
+            if pc is camp.pc:
+                _=pbge.alerts.TextAlert("You smash the lock. The crate can now be opened.")
+            else:
+                _=pbge.alerts.TextAlert("{} smashes the lock. The crate can now be opened.".format(pc))
+            self.unlocked = True
+        else:
+            _=pbge.alerts.TextAlert("You are not strong enough to smash this lock.")
 
 
 
@@ -266,25 +270,28 @@ class LockedReinforcedDoor(Exit):
                 self.unlock_rank = max(camp.renown + random.randint(1,10) - random.randint(1,10), 5)
             rpm = self.MENU_CLASS(camp, self)
             rpm.desc = "This door is locked, and it is too strong to break down. What do you want to do?"
-            rpm.add_item("Attempt to hack the lock. [Computers + Craft]", True)
-            rpm.add_item("Leave it alone.", False)
-            fx = rpm.query()
-            if fx:
-                pc = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.unlock_rank, no_random=True)
-                if pc:
-                    if pc is camp.pc:
-                        pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
-                    else:
-                        pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
-                    self.unlocked = True
-                else:
-                    pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
+            _=rpm.add_item("Attempt to hack the lock. [Computers + Craft]", self._hack_lock, data=camp)
+            _=rpm.add_item("Leave it alone.", None)
+
+            rpm.push_and_deploy()
+
+    def _hack_lock(self, wid, _ev):
+        camp = wid.data
+        pc = camp.do_skill_test(gears.stats.Craft, gears.stats.Computers, self.unlock_rank, no_random=True)
+        if pc:
+            if pc is camp.pc:
+                _=pbge.alerts.TextAlert("You hack the lock. The door can now be opened.")
+            else:
+                _=pbge.alerts.TextAlert("{} hacks the lock. The door can now be opened.".format(pc))
+            self.unlocked = True
+        else:
+            _=pbge.alerts.TextAlert("You are not skilled enough to hack this lock.")
 
     def combat_use(self, camp, pc):
         if self.unlocked:
             super().combat_use(camp, pc)
         else:
-            pbge.alerts.TextAlert("This door is locked!")
+            _=pbge.alerts.TextAlert("This door is locked!")
 
 
 class DZDWConcreteBuilding( Exit ):

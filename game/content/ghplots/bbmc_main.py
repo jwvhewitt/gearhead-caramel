@@ -636,7 +636,7 @@ class BCamMouse(Plot):
         room2 = self.register_element("ROOM1", pbge.randmaps.rooms.ClosedRoom(5, 5), dident="BASEMENT")
 
         # Connect the scenes.
-        plotutility.TrapdoorToStairsUpConnector(
+        _=plotutility.TrapdoorToStairsUpConnector(
             nart, self, self.elements["LOCALE"], intscene, room1=room1, room2=room2
         )
 
@@ -647,7 +647,7 @@ class BCamMouse(Plot):
         mychest.contents.append(gears.selector.get_design_by_full_name("5 Pack Antidote"))
         intscene.contents[-1].contents.append(mychest)
 
-        mouseroom = self.register_element("MOUSEROOM",
+        _mouseroom = self.register_element("MOUSEROOM",
                                           pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),
                                           dident="BASEMENT")
         team2 = self.register_element("MTEAM", teams.Team("Mouse Team", enemies=(team1,)), dident="MOUSEROOM")
@@ -722,13 +722,13 @@ class BCamMouse(Plot):
     def MTEAM_ACTIVATETEAM(self, camp: gears.GearHeadCampaign):
         if not self.did_mouse_intro:
             if gears.personality.DeadZone in camp.pc.personality:
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "Without warning, the denizen of this dusty place attacks you! It seems to be a mechanical mouse... this must be some kind of robot monster built in the green zone.")
             elif gears.personality.GreenZone in camp.pc.personality:
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "Without warning, the denizen of this dusty place attacks you! It's some kind of mechanical mouse... it must have wandered into Last Hope from the PreZero ruins of the dead zone.")
             else:
-                pbge.alerts.TextAlert(
+                _=pbge.alerts.TextAlert(
                     "Without warning, the denizen of this dusty place attacks you! It appears to be some kind of feral robotic hamster... this confirms all the bad things you've ever heard about living on Earth.")
             self.did_mouse_intro = True
 
@@ -738,8 +738,8 @@ class BCamMouse(Plot):
             if len(myteam.get_members_in_play(camp)) < 1:
                 self.dealt_with_mouse = True
             elif not camp.pc.is_operational():
-                camp.pc.restore_all()
-                camp.check_trigger("LOSE", self)
+                _=camp.pc.restore_all()
+                _=camp.check_trigger("LOSE", self)
 
 
 class ACamGracious(Plot):
