@@ -195,7 +195,7 @@ class MovementUI(pbge.widgets.Widget):
     def __init__(self, camp, mover, on_move, on_switch_to_attack, top_shelf_fun=None, bottom_shelf_fun=None, name="movement", clock=None, **kwargs):
         # on_move is a callable which accepts a list of actions
         # on_switch_to_attck is a callable which takes no parameters
-        super().__init__(0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}, **kwargs)
+        super().__init__(0,0,0,0,**kwargs)
         self.camp = camp
         self.mover = mover
         self.origin = mover.pos

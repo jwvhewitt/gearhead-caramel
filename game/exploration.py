@@ -359,7 +359,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
     ENCHANTMENT_TIME = 6000
     def __init__(self, camp: gears.GearHeadCampaign, view):
         super().__init__(
-            0,0,0,0,tags={pbge.scenes.viewer.WTAG_HIDE_DURING_ANIMATION, pbge.widgets.WTAG_EXPLORATIONMODE}
+            0,0,0,0,tags={pbge.widgets.WTAG_EXPLORATIONMODE, }
         )
         self.camp = camp
         self.scene = camp.scene
@@ -463,7 +463,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.active and self.visible:
+        if self.active and self.visible and pbge.my_state.widgets_active:
             if self.camp.fight:
                 # If there's a combat going on, switch this widget out for the combat
                 # control widget.
@@ -541,7 +541,7 @@ class Explorer(pbge.campaign.ExploPrototype):
     HEADLINER = False
     def __init__(self, camp: gears.GearHeadCampaign):
         super().__init__(
-            0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
+            0,0,0,0, tags={pbge.campaign.WTAG_SCENEHANDLER,}
         )
         pbge.please_stand_by()
         self.camp = camp

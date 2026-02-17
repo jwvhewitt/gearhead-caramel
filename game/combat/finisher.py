@@ -4,7 +4,7 @@
 # will handle all end-of-combat cleanup and UI before removing the Combat object
 # from the campaign.
 import pbge
-from pbge import scenes
+from pbge import my_state, scenes
 import gears
 from game import fieldhq
 from game.content import ghcutscene
@@ -130,7 +130,7 @@ class HandleTrigger:
 
 class Finisher(pbge.widgets.Widget):
     def __init__(self, camp:gears.GearHeadCampaign):
-        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,})
+        super().__init__(0,0,0,0, )
         self.cleanup_queue = list()
         self.camp = camp
 
@@ -168,7 +168,7 @@ class Finisher(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.snapshot.is_current():
+        if my_state.widgets_active and self.snapshot.is_current():
             if self.fainters:
                 while self.fainters:
                     fnpc = self.fainters.pop()

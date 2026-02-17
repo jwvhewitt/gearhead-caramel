@@ -74,7 +74,6 @@ class CombatStat(object):
 
     def spend_ap(self, ap):
         self._ap_remaining -= ap
-        self._mp_spent = 99999999
 
     def spend_mp(self, mp):
         self._mp_spent += mp
@@ -140,7 +139,7 @@ class CombatControlWidget(pbge.widgets.Widget):
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_EXPLORATIONMODE,}
 
     def __init__(self, camp):
-        super().__init__(0,0,0,0,tags={WTAG_COMBATHANDLER,pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION})
+        super().__init__(0,0,0,0,tags={WTAG_COMBATHANDLER,})
         self.camp = camp
         self._current_combatant = None
         if self.camp.scene.combat_music:
@@ -216,6 +215,7 @@ class Combat(object):
         self.no_quit = True
         self.n = 0
         self.keep_going_without_enemies = keep_going_without_enemies
+        self.cooldowns = collections.defaultdict(int)
 
     def roll_initiative(self):
         # Sort based on initiative roll.
@@ -324,6 +324,10 @@ class Combat(object):
         for chara in self.active:
             self.cstat[chara].end_turn()
             self.cstat[chara].has_started_turn = False
+        for k in list(self.cooldowns.keys()):
+            self.cooldowns[k] -= 1
+            if self.cooldowns[k] <= 0:
+                del self.cooldowns[k]
         self.camp.update_area_enchantments()
         _=self.camp.check_trigger("COMBATROUND")
 
@@ -335,3 +339,5 @@ class Combat(object):
         self.__dict__.update(state)
         if "keep_going_without_enemies" not in state:
             self.keep_going_without_enemies = False
+        if "cooldowns" not in state:
+            self.cooldowns = collections.defaultdict(int)

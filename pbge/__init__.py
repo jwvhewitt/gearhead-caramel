@@ -141,7 +141,7 @@ class GameState(object):
         self.view = None
         self.got_quit = False
         self.widgets = list()
-        self.widgets_active = True
+        self._widgets_active = True
         self._focused_widget = None
         self.widget_responded = False
         self.audio_enabled = True
@@ -468,6 +468,19 @@ class GameState(object):
             if not any(alerts.WTAG_ALERT in w.tags for w in self.widgets):
                 aw = self.alert_queue.pop(0)
                 aw.push_and_deploy()
+
+    @property
+    def widgets_active(self):
+        return self._widgets_active
+    
+    @widgets_active.setter
+    def widgets_active(self, new_val):
+        self._widgets_active = bool(new_val)
+        for w in self.all_active_widgets():
+            if self._widgets_active and hasattr(w, "on_activate"):
+                w.on_activate()
+            elif not self._widgets_active and hasattr(w, "on_freeze"):
+                w.on_freeze()
 
     def play(self):
         # A nonblocking game loop.

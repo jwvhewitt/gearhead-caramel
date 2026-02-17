@@ -359,7 +359,7 @@ class InvocationUI(pbge.widgets.Widget):
         source=None, top_shelf_fun=None, auto_escape=False,
         bottom_shelf_fun=None, name="invocations", clock=None , **kwargs
     ):
-        super().__init__(0,0,0,0, tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION, WTAG_INVOKER}, **kwargs)
+        super().__init__(0,0,0,0, tags={WTAG_INVOKER, }, **kwargs)
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)

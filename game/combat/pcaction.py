@@ -62,7 +62,6 @@ class MovementClockWidget(pbge.widgets.Widget):
 
         super().__init__(
             -42, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining",
-            tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,}
         )
 
     def on_activate(self):
@@ -97,7 +96,7 @@ class MovementClockWidget(pbge.widgets.Widget):
 class PlayerTurn(pbge.widgets.Widget):
     # It's the player's turn. Allow the player to control this PC.
     def __init__(self, pc, camp):
-        super().__init__(0,0,0,0,tags={pbge.scenes.viewer.WTAG_DEACTIVATE_DURING_ANIMATION,})
+        super().__init__(0,0,0,0,)
         self.pc = pc
         self.camp = camp
         self.active_ui = None
@@ -438,7 +437,7 @@ class PlayerTurn(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
-        if self.active:
+        if self.active and pbge.my_state.widgets_active:
             if self.actions:
                 self.visible = False
                 if not pbge.my_state.view.has_animations():

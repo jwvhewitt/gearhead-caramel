@@ -38,8 +38,8 @@ class Accurate(Singleton):
     TARGETS = ("evasive targets",)
 
     @classmethod
-    def get_attacks(cls, weapon):
-        base = weapon.get_basic_attack(name='Aim +20', attack_icon=12)
+    def get_aa_attacks(cls, weapon, attacker):
+        base = weapon.get_basic_attack(attacker, name='Aim +20', attack_icon=12)
         base.price.append(geffects.MentalPrice(4))
         base.data.thrill_power = base.data.thrill_power + 10
         replace_attack_roll(base)
@@ -74,9 +74,9 @@ class Automatic(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(cls, weapon):
-        return [weapon.get_basic_attack(name='2 shots, x5 ammo', targets=2, ammo_cost=5, attack_icon=3),
-                weapon.get_basic_attack(name='3 shots, x10 ammo', targets=3, ammo_cost=10, attack_icon=6)]
+    def get_aa_attacks(cls, weapon, attacker):
+        return [weapon.get_basic_attack(attacker, name='2 shots, x5 ammo', targets=2, ammo_cost=5, attack_icon=3),
+                weapon.get_basic_attack(attacker, name='3 shots, x10 ammo', targets=3, ammo_cost=10, attack_icon=6)]
 
 
 class Blast1(Singleton):
@@ -124,9 +124,11 @@ class BonusStrike1(Singleton):
     CAPABILITIES = ("strike multiple times",)
 
     @classmethod
-    def replace_primary_attack(cls, weapon):
-        base = weapon.get_basic_attack(name='Bonus Strike +{}'.format(cls.STRIKE_NUMBER),
-                                       attack_icon=9, bonus_strike=cls.STRIKE_NUMBER)
+    def replace_primary_attack(cls, weapon, attacker):
+        base = weapon.get_basic_attack(
+            attacker, name='Bonus Strike +{}'.format(cls.STRIKE_NUMBER),
+            attack_icon=9, bonus_strike=cls.STRIKE_NUMBER
+        )
         base.data.thrill_power = base.data.thrill_power + 5 * cls.STRIKE_NUMBER
         return [base, ]
 
@@ -187,9 +189,11 @@ class BurstFire2(Singleton):
     BURST_VALUE = 2
 
     @classmethod
-    def replace_primary_attack(cls, weapon):
-        base = weapon.get_basic_attack(name='Burst x{}'.format(cls.BURST_VALUE), ammo_cost=cls.BURST_VALUE,
-                                       attack_icon=9)
+    def replace_primary_attack(cls, weapon, attacker):
+        base = weapon.get_basic_attack(
+            attacker, name='Burst x{}'.format(cls.BURST_VALUE), ammo_cost=cls.BURST_VALUE,
+            attack_icon=9
+        )
         old_fx = base.fx
         base.shot_anim = geffects.BulletFactory(cls.BURST_VALUE, base.shot_anim)
         base.fx = geffects.MultiAttackRoll(
@@ -251,8 +255,8 @@ class ChargeAttack(Singleton):
     COST_EFFECTIVE_REACH_MIN = 3
 
     @classmethod
-    def get_attacks(cls, weapon):
-        aa = weapon.get_basic_attack(name='Charge', attack_icon=15)
+    def get_aa_attacks(cls, weapon, attacker):
+        aa = weapon.get_basic_attack(attacker, name='Charge', attack_icon=15)
         replace_attack_roll(aa)
         aa.fx.modifiers.append(geffects.GenericBonus('Charge', 10))
         aa.fx.children[0].damage_d = round(aa.fx.children[0].damage_d * 5 / 3)
@@ -361,11 +365,11 @@ class FastAttack(Singleton):
     CAPABILITIES = ("attack multiple enemies at once",)
 
     @classmethod
-    def get_attacks(cls, weapon):
-        aa: pbge.effects.Invocation = weapon.get_basic_attack(name='{} attacks', attack_icon=9)
+    def get_aa_attacks(cls, weapon, attacker):
+        aa: pbge.effects.Invocation = weapon.get_basic_attack(attacker, name='{} attacks', attack_icon=9)
         aa.targets = max(aa.targets + 1, 2)
         aa.name = aa.name.format(aa.targets)
-        aa.price.append(geffects.MentalPrice(3))
+        _=aa.price.append(geffects.MentalPrice(3))
         aa.data.thrill_power += 2
         return [aa]
 
@@ -477,13 +481,13 @@ class LinkedFire(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(cls, weapon):
+    def get_aa_attacks(cls, weapon, attacker):
         myroot = weapon.get_root()
         weapons = cls.get_all_weapons(myroot, weapon)
-        invos = [wep.get_primary_attacks()[0] for wep in weapons]
+        invos = [wep.get_primary_attacks(attacker)[0] for wep in weapons]
         mylist = list()
         if invos and len(invos) > 1:
-            myattack = weapon.get_primary_attacks()[0]
+            myattack = weapon.get_primary_attacks(attacker)[0]
             myattack.targets = 0
             for i in invos:
                 if i.can_be_invoked(myroot, True):
@@ -522,8 +526,8 @@ class MultiWielded(LinkedFire):
     name = "Multi Wielded"
 
     @classmethod
-    def get_attacks(cls, weapon):
-        mylist = LinkedFire.get_attacks(weapon)
+    def get_aa_attacks(cls, weapon, attacker):
+        mylist = LinkedFire.get_aa_attacks(weapon, attacker)
         if mylist:
             # Rename from "Link {} shots" to "Wield {} weapons"
             myattack = mylist[0]
@@ -631,9 +635,11 @@ class SwarmFire2(Singleton):
     SWARM_VALUE = 2
 
     @classmethod
-    def replace_primary_attack(cls, weapon):
-        base = weapon.get_basic_attack(name='Swarm x{}'.format(cls.SWARM_VALUE), ammo_cost=cls.SWARM_VALUE,
-                                       targets=cls.SWARM_VALUE, attack_icon=9)
+    def replace_primary_attack(cls, weapon, attacker):
+        base = weapon.get_basic_attack(
+            attacker, name='Swarm x{}'.format(cls.SWARM_VALUE), ammo_cost=cls.SWARM_VALUE,
+            targets=cls.SWARM_VALUE, attack_icon=9
+        )
         return [base, ]
 
 
@@ -656,8 +662,8 @@ class VariableFire2(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(cls, weapon):
-        base = BurstFire2.replace_primary_attack(weapon)[0]
+    def get_aa_attacks(cls, weapon, attacker):
+        base = BurstFire2.replace_primary_attack(weapon, attacker)[0]
         return [base]
 
 
@@ -670,8 +676,8 @@ class VariableFire3(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(cls, weapon):
-        base = BurstFire3.replace_primary_attack(weapon)[0]
+    def get_aa_attacks(cls, weapon, attacker):
+        base = BurstFire3.replace_primary_attack(weapon, attacker)[0]
         return [base]
 
 
@@ -684,8 +690,8 @@ class VariableFire4(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(cls, weapon):
-        base = BurstFire4.replace_primary_attack(weapon)[0]
+    def get_aa_attacks(cls, weapon, attacker):
+        base = BurstFire4.replace_primary_attack(weapon, attacker)[0]
         return [base]
 
 
@@ -698,6 +704,6 @@ class VariableFire5(Singleton):
     POWER_MODIFIER = 1.0
 
     @classmethod
-    def get_attacks(cls, weapon):
-        base = BurstFire5.replace_primary_attack(weapon)[0]
+    def get_aa_attacks(cls, weapon, attacker):
+        base = BurstFire5.replace_primary_attack(weapon, attacker)[0]
         return [base]

@@ -1,3 +1,5 @@
+v1.000beta February 17, 2026
+* Most weapons now have a cooldown time of 1
 * Movement points and action points are now independent of one another
 * Import GH1 Character should now work with Linux repository installs
 * MenuWidget activate_child_on_enter=True is now the default behaviour

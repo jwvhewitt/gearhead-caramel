@@ -20,6 +20,7 @@ WTAG_SCENEHANDLER = "WTAG_SCENEHANDLER"
 WTAG_SESSIONMONITOR = "WTAG_SESSIONMONITOR"
 
 # Session data keys
+SDAT_CAMPAIGN = "SDAT_CAMPAIGN"
 SDAT_DESTINATION = "SDAT_DESTINATION"
 SDAT_GOT_QUIT = "SDAT_GOT_QUIT"
 
@@ -35,6 +36,7 @@ class SessionMonitor(widgets.Widget):
     def __init__(self, camp: "Campaign"):
         super().__init__(0,0,0,0,tags={WTAG_SESSIONMONITOR,})
         self.camp = camp
+        my_state.session_data[SDAT_CAMPAIGN] = camp
 
     def on_activate(self):
         if my_state.session_data.get(SDAT_DESTINATION, None):
@@ -42,6 +44,7 @@ class SessionMonitor(widgets.Widget):
             self.play_campaign()
         elif my_state.session_data.get(SDAT_GOT_QUIT, None):
             self.camp.save()
+            my_state.session_data[SDAT_CAMPAIGN] = None
             self.pop()
         elif not self.camp.first_active_pc() and self.camp.home_base:
             # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!
@@ -50,6 +53,7 @@ class SessionMonitor(widgets.Widget):
             self.camp.arrive_at_destination()
             self.play_campaign()
         else:
+            my_state.session_data[SDAT_CAMPAIGN] = None
             self.pop()
 
     def play_campaign(self):

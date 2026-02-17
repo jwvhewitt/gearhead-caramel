@@ -61,6 +61,7 @@ class JumpModelToPos:
         if self.camp.fight:
             self.camp.fight.cstat[self.chara].moves_this_round += distance
             self.camp.fight.cstat[self.chara].spend_ap(1)
+            self.camp.fight.cstat[self.chara].spend_mp(99999999)
         if self.is_player_model:
             self.camp.scene.update_party_position(self.camp)
 

@@ -22,7 +22,7 @@ from . import treasuretype
 
 
 class Restoreable(object):
-    def restore(self):
+    def restore(self) -> int:
         # Remove all damage and other stuff. Return the restoration cost in credits.
         return 0
 
@@ -131,7 +131,7 @@ class StandardDamageHandler(KeyObject, Restoreable):
         self.hp_damage = 0
         if hasattr(self, "ench_list"):
             del self.ench_list[:]
-        return sum(rdic.values()) + super(StandardDamageHandler, self).restore()
+        return sum(rdic.values()) + super().restore()
 
 
 class InvulnerableDamageHandler(StandardDamageHandler):
@@ -400,7 +400,7 @@ class Combatant(KeyObject):
         my_invos = list()
         for p in self.descendants(include_pilot=False):
             if p.is_operational() and hasattr(p, 'get_attacks'):
-                p_list = geffects.InvoLibraryShelf(p, p.get_attacks())
+                p_list = geffects.InvoLibraryShelf(p, p.get_attacks(self))
                 if p_list.has_at_least_one_working_invo(self, True):
                     my_invos.append(p_list)
         my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))
@@ -1900,7 +1900,7 @@ class Weapon(Component, StandardDamageHandler):
                 + self.get_ranged_modifiers(self.reach)
                 )
 
-    def get_basic_attack(self):
+    def get_basic_attack(self, attacker):
         ba = geffects.AttackInvocation(
             self,
             name='Basic Attack',
@@ -1916,7 +1916,7 @@ class Weapon(Component, StandardDamageHandler):
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
-            price=[geffects.RevealPositionPrice(self.damage)],
+            price=[geffects.RevealPositionPrice(self.damage), geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
                                      thrill_power=self.shop_rank()),
             targets=1)
@@ -1928,25 +1928,25 @@ class Weapon(Component, StandardDamageHandler):
     def get_attributes(self):
         return self.attributes
 
-    def get_primary_attacks(self):
+    def get_primary_attacks(self, attacker):
         # Normally, the primary attack will be the basic attack as above.
         # However, certain attack attributes may replace the primary attack...
         # If more than one replacement exists, provide them all.
-        default = [self.get_basic_attack()]
+        default = [self.get_basic_attack(attacker)]
         modified = list()
         for aa in self.get_attributes():
             if hasattr(aa, 'replace_primary_attack'):
-                modified += aa.replace_primary_attack(self)
+                modified += aa.replace_primary_attack(self, attacker)
         return modified or default
 
-    def get_attacks(self):
+    def get_attacks(self, attacker):
         # Return a list of invocations associated with this weapon.
         # Being a weapon, the invocations are likely to all be attacks.
-        my_invos = self.get_primary_attacks()
+        my_invos = self.get_primary_attacks(attacker)
 
         for aa in self.attributes:
-            if hasattr(aa, 'get_attacks'):
-                my_invos += aa.get_attacks(self)
+            if hasattr(aa, 'get_aa_attacks'):
+                my_invos += aa.get_aa_attacks(self, attacker)
 
         return my_invos
 
@@ -2005,7 +2005,7 @@ class MeleeWeapon(Weapon):
         if hasattr(myroot, "get_melee_damage_bonus"):
             return myroot.get_melee_damage_bonus(self)
 
-    def get_basic_attack(self, name='Basic Attack', attack_icon=0, bonus_strike=0, targets=1):
+    def get_basic_attack(self, attacker, name='Basic Attack', attack_icon=0, bonus_strike=0, targets=1):
         ba = geffects.AttackInvocation(
             self,
             name=name,
@@ -2025,7 +2025,7 @@ class MeleeWeapon(Weapon):
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
-            price=[geffects.RevealPositionPrice(self.damage - 1)],
+            price=[geffects.RevealPositionPrice(self.damage - 1), geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.shop_rank()),
             targets=targets)
@@ -2127,7 +2127,7 @@ class EnergyWeapon(Weapon):
         if hasattr(myroot, "get_melee_damage_bonus"):
             return myroot.get_melee_damage_bonus(self)
 
-    def get_basic_attack(self, name='Basic Attack', bonus_strike=0, attack_icon=0):
+    def get_basic_attack(self, attacker, name='Basic Attack', bonus_strike=0, attack_icon=0):
         ba = geffects.AttackInvocation(
             self,
             name=name,
@@ -2145,7 +2145,10 @@ class EnergyWeapon(Weapon):
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
-            price=[geffects.PowerPrice(self.get_basic_power_cost()), geffects.RevealPositionPrice(self.damage)],
+            price=[
+                geffects.PowerPrice(self.get_basic_power_cost()), geffects.RevealPositionPrice(self.damage), 
+                geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                ],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.shop_rank()),
             targets=1)
@@ -2390,8 +2393,8 @@ class BallisticWeapon(Weapon):
             volume_limit += current_ammo.volume
         return self.can_install(ammo, check_volume=False) and ammo.volume <= volume_limit and ammo.spent < ammo.quantity
 
-    def get_attacks(self):
-        attacks = super().get_attacks()
+    def get_attacks(self, attacker):
+        attacks = super().get_attacks(attacker)
         if any([self.is_good_ammo(a) for a in self.get_root().inv_com]):
             _=attacks.append(
                 geffects.AttackInvocation(
@@ -2437,7 +2440,7 @@ class BallisticWeapon(Weapon):
     def get_needed_bang(self):
         return self.damage * max(self.penetration, 1)
 
-    def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
+    def get_basic_attack(self, attacker, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         # Check the ammunition. If it doesn't have enough bang, downgrade the attack.
         my_ammo = self.get_ammo()
         penetration = self.penetration * 10
@@ -2468,7 +2471,10 @@ class BallisticWeapon(Weapon):
             shot_anim=self.shot_anim,
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.shop_rank()),
-            price=[geffects.AmmoPrice(my_ammo, ammo_cost), geffects.RevealPositionPrice(self.damage)],
+            price=[
+                geffects.AmmoPrice(my_ammo, ammo_cost), geffects.RevealPositionPrice(self.damage), 
+                geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+            ],
             targets=targets)
 
         for aa in self.get_attributes():
@@ -2568,7 +2574,7 @@ class BeamWeapon(Weapon):
             mult *= aa.POWER_MODIFIER
         return max(int(self.scale.scale_power(self.damage) * mult), 1)
 
-    def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
+    def get_basic_attack(self, attacker, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         # Check the ammunition. If it doesn't have enough bang, downgrade the attack.
         ba = geffects.AttackInvocation(
             self,
@@ -2588,7 +2594,9 @@ class BeamWeapon(Weapon):
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.shop_rank()),
             price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost),
-                   geffects.RevealPositionPrice(self.damage)],
+                   geffects.RevealPositionPrice(self.damage),
+                   geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+            ],
             targets=targets)
         for aa in self.get_attributes():
             if hasattr(aa, 'modify_basic_attack'):
@@ -2815,7 +2823,7 @@ class Launcher(BaseGear, ContainerDamageHandler):
         else:
             return []
 
-    def get_basic_attack(self):
+    def get_basic_attack(self, attacker):
         ammo = self.get_ammo()
         if ammo:
             ba = geffects.AttackInvocation(
@@ -2876,13 +2884,13 @@ class Launcher(BaseGear, ContainerDamageHandler):
                     aa.modify_basic_attack(self, ba)
             return ba
 
-    def get_attacks(self):
+    def get_attacks(self, attacker):
         # Return a list of invocations associated with this weapon.
         # Being a weapon, the invocations are likely to all be attacks.
         my_invos = list()
         ammo = self.get_ammo()
         if ammo:
-            my_invos.append(self.get_basic_attack())
+            my_invos.append(self.get_basic_attack(attacker))
             last_n = int(ammo.quantity // 4)
             if last_n > 1:
                 my_invos.append(self.get_multi_attack(last_n, 3))
@@ -3046,8 +3054,8 @@ class ChemThrower(Weapon):
             volume_limit += current_ammo.volume
         return self.can_install(ammo, check_volume=False) and ammo.volume <= volume_limit and ammo.spent < ammo.quantity
 
-    def get_attacks(self):
-        attacks = super().get_attacks()
+    def get_attacks(self, attacker):
+        attacks = super().get_attacks(attacker)
         if any([self.is_good_ammo(a) for a in self.get_root().inv_com]):
             _=attacks.append(
                 geffects.AttackInvocation(
@@ -3104,7 +3112,7 @@ class ChemThrower(Weapon):
             mult *= aa.POWER_MODIFIER
         return max(int(mult * self.damage), 1)
 
-    def get_basic_attack(self, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
+    def get_basic_attack(self, attacker, targets=1, name='Basic Attack', ammo_cost=1, attack_icon=0):
         my_ammo = self.get_ammo()
 
         ba = geffects.AttackInvocation(
@@ -3125,8 +3133,10 @@ class ChemThrower(Weapon):
             shot_anim=self.get_shot_anim(),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
                                      thrill_power=self.shop_rank()),
-            price=[geffects.AmmoPrice(my_ammo, ammo_cost * self.get_chem_cost()),
-                   geffects.RevealPositionPrice(self.damage)],
+            price=[geffects.ChemPrice(my_ammo, ammo_cost * self.get_chem_cost()),
+                   geffects.RevealPositionPrice(self.damage),
+                   geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+            ],
             targets=targets)
 
         for aa in self.get_attributes():
@@ -3609,7 +3619,7 @@ class Module(BaseGear, StandardDamageHandler):
         if hasattr(myroot, "get_melee_damage_bonus"):
             return myroot.get_melee_damage_bonus(self)
 
-    def get_attacks(self):
+    def get_attacks(self, attacker):
         # Return a list of invocations associated with this module.
         my_invos = list()
         if self.form.CAN_ATTACK:
@@ -3628,7 +3638,10 @@ class Module(BaseGear, StandardDamageHandler):
                 ),
                 area=pbge.scenes.targetarea.SingleTarget(reach=1),
                 used_in_combat=True, used_in_exploration=False,
-                price=[geffects.RevealPositionPrice(self.size // 3)],
+                price=[
+                    geffects.RevealPositionPrice(self.size // 3),
+                    geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                ],
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
                 shot_anim=None,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0),
@@ -4997,7 +5010,7 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
         my_invos = list()
         for p in self.descendants(include_pilot=False):
             if hasattr(p, 'get_attacks') and p.is_not_destroyed():
-                p_list = geffects.InvoLibraryShelf(p, p.get_attacks())
+                p_list = geffects.InvoLibraryShelf(p, p.get_attacks(self))
                 if p_list.has_at_least_one_working_invo(self, True):
                     my_invos.append(p_list)
         my_invos.sort(key=lambda shelf: -shelf.get_average_thrill_power(self))

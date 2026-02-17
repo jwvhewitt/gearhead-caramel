@@ -2311,6 +2311,51 @@ class AmmoPrice(object):
         return self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
 
 
+class ChemPrice(object):
+    def __init__(self, chem_source, chem_amount):
+        self.chem_source = chem_source
+        self.chem_amount = chem_amount
+
+    def pay(self, chara):
+        self.chem_source.spent += self.chem_amount
+
+    def can_pay(self, chara):
+        return self.chem_source.quantity >= (self.chem_source.spent + self.chem_amount)
+
+    @classmethod
+    def describe(cls, prices):
+        total = sum(p.chem_amount for p in prices)
+        return 'Chem:{}'.format(total)
+
+
+class CooldownPrice:
+    def __init__(self, key, cooldown=1):
+        self.key = key
+        self.cooldown = cooldown
+
+    @staticmethod
+    def gen_cooldown_key(chara, mygear):
+        return (chara, mygear)
+
+    def pay(self, _chara):
+        camp = pbge.my_state.session_data.get(pbge.campaign.SDAT_CAMPAIGN)
+        if camp and camp.fight and camp.fight.cooldowns[self.key] < self.cooldown:
+            camp.fight.cooldowns[self.key] = self.cooldown
+
+    def can_pay(self, _chara):
+        camp = pbge.my_state.session_data.get(pbge.campaign.SDAT_CAMPAIGN)
+        if camp and camp.fight:
+            return camp.fight.cooldowns.get(self.key, 0) <= 0
+        else:
+            return True
+
+    @classmethod
+    def describe(cls, prices):
+        total = max(p.cooldown for p in prices)
+        return 'Cooldown:{}'.format(total)
+
+
+
 class ItemPrice(object):
     def __init__(self, item_source):
         self.item_source = item_source
