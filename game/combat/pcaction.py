@@ -430,6 +430,11 @@ class PlayerTurn(pbge.widgets.Widget):
                     elif ev.key == pygame.K_ESCAPE:
                         configedit.PopupGameMenu().push_state_and_instantiate()
                         self.register_response()
+                    elif ev.unicode == "*" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                        for npc in self.camp.fight.active:
+                            if npc not in self.camp.party:
+                                npc.free_pilots()
+                        self.register_response()
                 elif ev.type == pygame.MOUSEBUTTONUP:
                     if ev.button == 3 and not pbge.my_state.widget_responded:
                         self.pop_menu()

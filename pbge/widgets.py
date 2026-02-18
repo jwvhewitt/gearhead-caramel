@@ -67,6 +67,7 @@ class FrozenUIState:
     #  time. HEADLINER is True by default. So, it is still possible to muck up the state with
     #  multiple simultaneously pushed widgets, but you have to try harder to do so.
     def __init__(self, *widgets_to_push, tags_to_deactivate=(), tags_to_hide=(), tags_to_push=(), pushing_widget=None):
+        self.pushing_widget=pushing_widget
         self.pushed_widgets = list()
         for wtp in widgets_to_push:
             self.push_widget(wtp)
@@ -81,8 +82,7 @@ class FrozenUIState:
         self.hidden_widgets = list()
         tags_to_deactivate = set(tags_to_deactivate)
         tags_to_hide = set(tags_to_hide)
-        self.pushing_widget=pushing_widget
-
+        
         for widg in my_state.all_widgets():
             if widg.active and widg.tags.intersection(tags_to_deactivate):
                 self.deactivated_widgets.append(widg)
@@ -101,7 +101,7 @@ class FrozenUIState:
             for widg in list(my_state.widgets):
                 if widg.HEADLINER and widg.active and widg.visible:
                     self.push_widget(widg)
-                    print("Pushed headliner {}".format(widg))
+                    print("{} pushed headliner {}".format(pushing_widget, widg))
 
         my_state.ui_stack.append(self)
 
@@ -112,7 +112,7 @@ class FrozenUIState:
             if hasattr(widget_to_push, "on_freeze"):
                 widget_to_push.on_freeze()
         else:
-            raise WidgetException("{} cannot be pushed".format(widget_to_push))
+            raise WidgetException("{} cannot be pushed by {}".format(widget_to_push, self.pushing_widget))
 
     def unfreeze(self):
         done = set()
@@ -385,8 +385,16 @@ class Widget(frects.Frect):
     @classmethod
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
         my_widget = cls(**kwargs)
+        #_=WidgetLauncher(
+        #    my_widget, widgets_to_push
+        #)
+        my_widget.deploy_to_main(*widgets_to_push)
+
+    @classmethod
+    def instantiate_and_schedule(cls, *widgets_to_push, **kwargs):
+        my_widget = cls(**kwargs)
         _=WidgetLauncher(
-            my_widget, widgets_to_push
+           my_widget, widgets_to_push
         )
 
     @staticmethod
@@ -396,9 +404,10 @@ class Widget(frects.Frect):
                 my_state.widgets.remove(w)
 
     def push_and_deploy(self, *widgets_to_push) -> None:
-        _=WidgetLauncher(
-            self, widgets_to_push
-        )
+        #_=WidgetLauncher(
+        #    self, widgets_to_push
+        #)
+        self.deploy_to_main(*widgets_to_push)
 
     def deploy_to_main(self, *widgets_to_push):
         self.snapshot=FrozenUIState(

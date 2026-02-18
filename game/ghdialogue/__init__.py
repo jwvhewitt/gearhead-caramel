@@ -288,7 +288,7 @@ class GearHeadConversationWidget(dialogue.ConversationWidget):
 
 def start_conversation(camp: gears.GearHeadCampaign, pc, npc, cue=None):
     # If this NPC has no relationship with the PC, create that now.
-    GearHeadConversationWidget.push_state_and_instantiate(
+    GearHeadConversationWidget.instantiate_and_schedule(
         camp=camp, pc=pc, npc=npc, cue=cue
     )
 

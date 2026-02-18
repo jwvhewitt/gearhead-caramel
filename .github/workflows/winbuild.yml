@@ -5,7 +5,7 @@ name: Windows Builder
 
 on:
   push:
-    branches: [ master, testing ]
+    branches: [ master, testing, Nonblocking ]
   pull_request:
     branches: [ master ]
 
@@ -19,7 +19,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: '3.12'
+        python-version: '3.13'
         architecture: x64
     - name: Install dependencies
       run: |

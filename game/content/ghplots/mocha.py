@@ -2940,17 +2940,20 @@ class BurnTheBarrels(Plot):
     SPRITE_OFF = [(0, 0), (-14, 0), (-6, 12), (6, 9), (14, 0), (6, -12), (-6, -12)]
 
     def PUZZITEM_IGNITE(self, camp):
-        pbge.alerts.TextAlert("The barrel of fuel fires up, melting some of the nearby snow.")
+        _=pbge.alerts.TextAlert("The barrel of fuel fires up, melting some of the nearby snow.")
         scene = self.elements["LOCALE"]
         barrel = self.elements["PUZZITEM"]
 
         random.shuffle(self.SPRITE_OFF)
+        anims = list()
         for t in range(5):
-            pbge.my_state.view.anim_list.append(
+            anims.append(
                 gears.geffects.BigBoom(pos=barrel.pos, x_off=self.SPRITE_OFF[t][0], y_off=self.SPRITE_OFF[t][1],
                                        delay=t * 5))
-        pbge.my_state.view.handle_anim_sequence()
+        _=pbge.alerts.AnimAlert(*anims, on_close=self._after_destruction, data=(scene,barrel,camp))
 
+    def _after_destruction(self, wid, _ev):
+        scene,barrel,camp = wid.data
         scene._map[barrel.pos[0]][barrel.pos[1]].decor = WinterMochaBurningBarrelTerrain
         camp.check_trigger("HEAT", self.elements["TARGET"])
         self.active = False
