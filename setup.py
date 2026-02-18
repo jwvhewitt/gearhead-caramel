@@ -13,7 +13,7 @@ build_exe_options = {"packages": ["os", "numpy"],
 # console application).
 base = None
 if sys.platform == "win32":
-    base = "Win32GUI"
+    base = "GUI"
 
 setup(  name = "ghcaramel",
         version = VERSION,
