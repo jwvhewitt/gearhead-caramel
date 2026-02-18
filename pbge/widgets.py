@@ -180,24 +180,13 @@ type On_Click = Callable[[Widget, pygame.event.Event], None]|None
 class WidgetLauncher:
     # Instead of launching widgets immediately, they get enqueued to prevent stack problems.
     # Please note that it *is* probably possible to mess up the stack with non-HEADLINER widgets!
-    def __init__(self, wid, widgets_to_push, tags_to_deactivate, tags_to_hide, tags_to_push):
+    def __init__(self, wid: "Widget", widgets_to_push):
         self.wid = wid
         self.widgets_to_push = widgets_to_push
-        self.tags_to_deactivate = tags_to_deactivate
-        self.tags_to_hide = tags_to_hide
-        self.tags_to_push = tags_to_push
         my_state.deployment_queue.append(self)
 
     def launch(self):
-        self.wid.snapshot=FrozenUIState(
-            *self.widgets_to_push, tags_to_deactivate=self.tags_to_deactivate, 
-            tags_to_hide=self.tags_to_hide, tags_to_push=self.tags_to_push,
-            pushing_widget=self.wid
-        )
-        my_state.widgets.append(self.wid)
-        if self.wid.ACTIVATE_IMMEDIATELY:
-            self.wid.activate()
-
+        self.wid.deploy_to_main(*self.widgets_to_push)
 
 
 class Widget(frects.Frect):
@@ -397,9 +386,7 @@ class Widget(frects.Frect):
     def push_state_and_instantiate(cls, *widgets_to_push, **kwargs):
         my_widget = cls(**kwargs)
         _=WidgetLauncher(
-            my_widget,
-            widgets_to_push, tags_to_deactivate=cls.TAGS_TO_DEACTIVATE, 
-            tags_to_hide=cls.TAGS_TO_HIDE, tags_to_push=cls.TAGS_TO_PUSH
+            my_widget, widgets_to_push
         )
 
     @staticmethod
@@ -410,10 +397,18 @@ class Widget(frects.Frect):
 
     def push_and_deploy(self, *widgets_to_push) -> None:
         _=WidgetLauncher(
-            self,
-            widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
-            tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH
+            self, widgets_to_push
         )
+
+    def deploy_to_main(self, *widgets_to_push):
+        self.snapshot=FrozenUIState(
+            *widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
+            tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH,
+            pushing_widget=self
+        )
+        my_state.widgets.append(self)
+        if self.ACTIVATE_IMMEDIATELY:
+            self.activate()
 
 
 class ButtonWidget(Widget):

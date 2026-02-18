@@ -174,6 +174,8 @@ class CombatControlWidget(pbge.widgets.Widget):
                 pcaction.PlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
             else:
                 aibrain.NonPlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
+        else:
+            self.camp.fight.cstat[chara].end_turn()
 
     def update(self, delta):
         super().update(delta)

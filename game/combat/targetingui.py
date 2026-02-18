@@ -4,18 +4,21 @@ import pygame
 from .. import invoker
 
 
-class WeaponMenuDesc( pbge.frects.Frect ):
-    def __init__(self, dx, dy, w, h, anchor):
+class WeaponMenuDesc( pbge.widgets.Widget ):
+    def __init__(self, dx, dy, w, h, anchor, menu: pbge.widgetmenu.MenuWidget):
         super(WeaponMenuDesc, self).__init__(dx, dy, w, h, anchor=anchor)
         self.library = dict()
+        self.menu = menu
 
-    def __call__( self, menu_item ):
+    def _render(self, _delta):
         # Just print this weapon's stats in the provided window.
-        if menu_item.value not in self.library:
-            self.library[menu_item.value.source] = info.get_shortform_display(menu_item.value.source,width=self.w,font=pbge.SMALLFONT)
+        value = self.menu.current_data
+        if value.source not in self.library:
+            self.library[value.source] = info.get_shortform_display(value.source,width=self.w,font=pbge.SMALLFONT)
         myrect = self.get_rect()
-        self.library[menu_item.value.source].render(myrect.x,myrect.y)
-
+        self.library[value.source].render(myrect.x,myrect.y)
+        return super()._render(_delta)
+ 
 
 class AttackWidget(invoker.InvocationLibraryWidget):
     DESC_CLASS = WeaponMenuDesc

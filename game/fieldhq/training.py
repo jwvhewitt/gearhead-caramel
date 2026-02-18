@@ -27,19 +27,18 @@ class TrainingMenu(pbge.widgetmenu.MenuWidget):
 
     def _refresh_menu(self):
         for skill in self.active_pc.statline.keys():
-            if issubclass(skill,gears.stats.Skill):
-                _=self.add_custom(pbge.widgets.LabelWidget(
-                    0, 0, self.scroll_column.w, 0, text_fun=self._menu_text_fun, 
-                    data=skill, on_click=self._improve_skill, desc=skill.desc
-                ))
+            if issubclass(skill,gears.stats.Skill) and self.active_pc.statline[skill] > 0:
+                _=self.add_item(
+                    self._menu_text_fun(skill), self._improve_skill, 
+                    data=skill, desc=skill.desc
+                )
         self.sort()
         _=self.add_item('[exit]', self._close_menu)
 
     def _close_menu(self, _wid, _ev):
         self.pop()
 
-    def _menu_text_fun(self, wid):
-        skill = wid.data
+    def _menu_text_fun(self, skill):
         value = self.active_pc.statline.get(skill)
         return '{} {:+} ({}XP)'.format(skill.name,value,skill.improvement_cost(self.active_pc,value))
 
@@ -49,6 +48,7 @@ class TrainingMenu(pbge.widgetmenu.MenuWidget):
             self._spend_xp(choice.improvement_cost(self.active_pc,self.active_pc.statline[choice]))
             self.active_pc.statline[choice] += 1
             self.infoz[self.active_pc].update()
+            wid.text = self._menu_text_fun(choice)
 
     def _render(self, delta):
         if self.active_pc not in self.infoz:

@@ -2,7 +2,7 @@ import pbge
 import gears
 
 class MoveModelToPos:
-    def __init__(self, camp, chara, nav, dest):
+    def __init__(self, camp, chara, nav: pbge.scenes.pathfinding.NavigationGuide, dest):
         self.camp = camp
         self.chara = chara
         self.nav = nav

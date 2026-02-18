@@ -436,7 +436,6 @@ class PlayerTurn(pbge.widgets.Widget):
                         self.register_response()
 
     def update(self, delta):
-        super().update(delta)
         if self.active and pbge.my_state.widgets_active:
             if self.actions:
                 self.visible = False
@@ -448,9 +447,12 @@ class PlayerTurn(pbge.widgets.Widget):
                     if not act():
                         self.actions.pop(0)
             else:
-                self.visible = True
                 if not (self.camp.fight.cstat[self.pc].can_act() and self.camp.fight.still_fighting()):
                     self.pop()
+                elif not self.visible:
+                    self.visible = True
+                    self.active_ui.activate()
+        super().update(delta)
 
-            
+
 

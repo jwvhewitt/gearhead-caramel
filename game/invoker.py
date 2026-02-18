@@ -202,7 +202,8 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
             shelf_to_use = None
             for shelf in self.library:
                 if this_source is shelf.source:
-                    shelf_to_use = shelf
+                    if shelf.has_at_least_one_working_invo(self.pc):
+                        shelf_to_use = shelf
                     break
             if shelf_to_use:
                 self.set_shelf_invo(shelf_to_use,
@@ -216,8 +217,12 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
         self.shelf = None
         for shelf in self.library:
             if this_source is shelf.source:
-                self.set_shelf_invo(shelf, shelf.get_first_working_invo(self.pc, self.camp.fight) or shelf.invo_list[0])
-                break
+                if shelf.has_at_least_one_working_invo(self.pc):
+                    self.set_shelf_invo(shelf, shelf.get_first_working_invo(self.pc, self.camp.fight) or shelf.invo_list[0])
+                    break
+                else:
+                    self.select_first_usable_invo()
+                    break
 
     def select_first_usable_invo(self):
         self.library = self.build_library()
@@ -302,6 +307,9 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
                 self.select_first_usable_invo()
         else:
             self.set_shelf_invo(self.shelf, self.shelf.invo_list[self.invo])
+
+    def on_activate(self):
+        self.update_buttons()
 
 WTAG_INVOKER = "WTAG_INVOKER"
 
@@ -537,17 +545,18 @@ class InvocationUI(pbge.widgets.Widget):
             self.targets = list()
             self.my_widget.update_buttons()
             self.record = False
-            self.activate()
+            #self.activate()
 
     def click_left(self):
-        if pbge.my_state.view.mouse_tile in self.legal_tiles:
-            self.targets.append(pbge.my_state.view.mouse_tile)
-        elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(
-                pbge.my_state.view.mouse_tile):
+        if self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):
+            if pbge.my_state.view.mouse_tile in self.legal_tiles:
                 self.targets.append(pbge.my_state.view.mouse_tile)
+            elif self.can_move_and_attack(pbge.my_state.view.mouse_tile) and pbge.my_state.view.modelmap.get(
+                    pbge.my_state.view.mouse_tile):
+                    self.targets.append(pbge.my_state.view.mouse_tile)
 
-        if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):
-            self.launch()
+            if len(self.targets) >= self.num_targets and self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):
+                self.launch()
 
     def auto_launch(self):
         # Auto-launch will automatically launch an automatically targeted invocation.
@@ -591,6 +600,7 @@ class InvocationUI(pbge.widgets.Widget):
         # Used during combat only!
         self.visible = False
         self.my_widget.help_on = False
+        self.tidy()
         pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
 
     def update_nav(self):
@@ -600,6 +610,9 @@ class InvocationUI(pbge.widgets.Widget):
     def get_firing_pos(self) -> tuple[int, int]:
         if self.targets[0] in self.legal_tiles:
             return self.pc.pos
+        elif self.nav and self.camp.fight:
+            self.firing_points = self.camp.fight.can_move_and_invoke(self.pc, self.nav, self.invo, self.targets[0])
+            return min(self.firing_points, key=lambda r: self.nav.cost_to_tile.get(r, 10000))
         else:
             self.firing_points = self.invo.area.get_targets(self.camp, self.targets[0])
             mynav = pbge.scenes.pathfinding.AStarPath(self.camp.scene, self.pc.pos, self.targets[0], self.pc.mmode)

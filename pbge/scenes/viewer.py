@@ -391,11 +391,12 @@ class SceneView(object):
                 a.update(self)
         if not self.has_animations():
             self.anims.clear()
-            # Update any placable things that need updates.
-            for thing in self.scene.contents:
-                if hasattr(thing, 'update_graphics'):
-                    thing.update_graphics()
 
+    def post_anim_cleanup(self):
+        # Update any placable things that need updates.
+        for thing in self.scene.contents:
+            if hasattr(thing, 'update_graphics'):
+                thing.update_graphics()
 
     def play_anims(self, *args):
         self.anim_list += args
@@ -663,6 +664,7 @@ class SceneViewWidget(widgets.Widget):
                 my_state.widgets_active = False
                 self.showing_animation=True
         elif self.showing_animation:
+            self.scene_view.post_anim_cleanup()
             self.showing_animation = False
             my_state.widgets_active = True
 

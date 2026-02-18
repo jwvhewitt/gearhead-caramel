@@ -470,7 +470,8 @@ class GameState(object):
         if self.alert_queue:
             if not any(alerts.WTAG_ALERT in w.tags for w in self.widgets):
                 aw = self.alert_queue.pop(0)
-                aw.push_and_deploy()
+                aw.deploy_to_main()
+                pygame.event.clear()
 
     @property
     def widgets_active(self):

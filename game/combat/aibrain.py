@@ -314,14 +314,14 @@ class BasicAI(object):
                         my_skills += [invo, ] * invo.ai_tar.get_impulse(invo, camp, self.npc)
                         my_targets[invo] = potar
         if my_skills:
-            actions = list()
+            my_actions = list()
             invo = random.choice(my_skills)
             tar = random.choice(my_targets[invo])
-            firing_pos = random.choice(camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos))
+            firing_pos = random.choice(list(camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos)))
             if firing_pos != self.npc.pos:
-                actions.append(actions.MoveModelToPos(self.camp, self.npc, self.camp.fight.get_action_nav(), firing_pos))
-            self.actions.append(actions.InvokeInvocation(self.camp, invo, firing_pos, self.npc, tar))
-            return actions
+                my_actions.append(actions.MoveModelToPos(camp, self.npc, camp.fight.get_action_nav(self.npc), firing_pos))
+            my_actions.append(actions.InvokeInvocation(camp, invo, firing_pos, self.npc, [tar.pos], data=None))
+            return my_actions
 
     def fail_ejection_check(self, camp):
         # Return True if this mecha has ejected.

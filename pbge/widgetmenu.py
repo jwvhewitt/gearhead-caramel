@@ -341,8 +341,10 @@ class DescBoxWidget(widgets.LabelWidget):
 
     def _desc_text_fun(self, _widg):
         my_item = self.menu.active_item
-        if my_item:
-            return my_item.desc
+        if my_item and my_item.desc:
+            return str(my_item.desc)
+        else:
+            return ""
 
 
 class AlertMenuWidget(MenuWidget):

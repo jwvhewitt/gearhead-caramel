@@ -467,6 +467,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
             if self.camp.fight:
                 # If there's a combat going on, switch this widget out for the combat
                 # control widget.
+                self.view.overlays.clear()
                 combat.CombatControlWidget.push_state_and_instantiate(camp=self.camp)
             else:
                 if self.order:
@@ -488,11 +489,11 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
     def _render(self, _delta):
         super()._render(_delta)
-        self.view.overlays.clear()
-        self.threat_viewer.update(self.view, self.threat_tiles)
 
         # Display info for this tile.
         if self.active:
+            self.view.overlays.clear()
+            self.threat_viewer.update(self.view, self.threat_tiles)
             my_info = self.scene.get_tile_info(self.view)
             if my_info:
                 my_info.view_display(self.camp)
@@ -523,10 +524,6 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
                 elif ev.key == pygame.K_ESCAPE:
                     configedit.PopupGameMenu.push_state_and_instantiate()
-                    self.register_response()
-
-                elif ev.key == pygame.K_F1:
-                    print(list(self.camp.pc.statline.items()))
                     self.register_response()
 
                 # elif ev.unicode == "F":

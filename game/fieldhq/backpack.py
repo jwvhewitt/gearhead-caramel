@@ -466,7 +466,10 @@ class ItemExchangeWidget(widgets.Widget):
 
         self.update_selectors()
 
-        self.finished = False
+        self.children.append( pbge.widgets.LabelWidget(
+            150, 220, 80, 0, text="Done", justify=0, on_click=self.done_button,
+            draw_border=True
+        ))
 
     def set_pc(self, pc):
         self.pc = pc
