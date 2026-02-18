@@ -5,12 +5,11 @@
 
 rm -rf ghcaramel
 
-mv ghcaramel_steam.zip ghcaramel-$1-steamos.zip
-mv ghclinux.zip ghcaramel-$1-linux.zip
+#mv ghcaramel_steam.zip ghcaramel-$1-steamos.zip
 mv ghcmac.zip ghcaramel-$1-macos.zip
 
 unzip ghcwin.zip
-mv exe.win-amd64-3.8 ghcaramel
+mv exe.win-amd64-3.12 ghcaramel
 mv ghcaramel/main.exe ghcaramel/ghcaramel.exe
 
 zip -r ghcaramel-$1-windows.zip ghcaramel
@@ -20,5 +19,13 @@ mv ghcaramel-$1-steamwin.zip ..
 cd ..
 rm ghcwin.zip
 
+rm -rf ghcaramel
+unzip ghclinux.zip
+
+mv ghclinux.zip ghcaramel-$1-linux.zip
+cd ghcaramel
+zip -r ghcaramel-$1-steamos.zip *
+mv ghcaramel-$1-steamos.zip ..
+cd ..
 
 

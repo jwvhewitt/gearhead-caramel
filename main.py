@@ -57,7 +57,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.977"
+VERSION = "v1.000a"
 
 
 class DZDTitleScreenRedraw(object):

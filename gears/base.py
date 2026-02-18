@@ -1916,7 +1916,10 @@ class Weapon(Component, StandardDamageHandler):
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
-            price=[geffects.RevealPositionPrice(self.damage), geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))],
+            price=[
+                geffects.RevealPositionPrice(self.damage), 
+                # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+            ],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
                                      thrill_power=self.shop_rank()),
             targets=1)
@@ -2025,7 +2028,10 @@ class MeleeWeapon(Weapon):
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
-            price=[geffects.RevealPositionPrice(self.damage - 1), geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))],
+            price=[
+                geffects.RevealPositionPrice(self.damage - 1), 
+                # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+            ],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.shop_rank()),
             targets=targets)
@@ -2147,7 +2153,7 @@ class EnergyWeapon(Weapon):
             shot_anim=self.shot_anim,
             price=[
                 geffects.PowerPrice(self.get_basic_power_cost()), geffects.RevealPositionPrice(self.damage), 
-                geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
                 ],
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), attack_icon,
                                      thrill_power=self.shop_rank()),
@@ -2473,7 +2479,7 @@ class BallisticWeapon(Weapon):
                                      thrill_power=self.shop_rank()),
             price=[
                 geffects.AmmoPrice(my_ammo, ammo_cost), geffects.RevealPositionPrice(self.damage), 
-                geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
             ],
             targets=targets)
 
@@ -3134,8 +3140,8 @@ class ChemThrower(Weapon):
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0,
                                      thrill_power=self.shop_rank()),
             price=[geffects.ChemPrice(my_ammo, ammo_cost * self.get_chem_cost()),
-                   geffects.RevealPositionPrice(self.damage),
-                   geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                geffects.RevealPositionPrice(self.damage),
+                # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
             ],
             targets=targets)
 
@@ -3640,7 +3646,7 @@ class Module(BaseGear, StandardDamageHandler):
                 used_in_combat=True, used_in_exploration=False,
                 price=[
                     geffects.RevealPositionPrice(self.size // 3),
-                    geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                    # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
                 ],
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
                 shot_anim=None,

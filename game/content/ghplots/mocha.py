@@ -2975,7 +2975,7 @@ class IndustrialStrengthHeater(Plot):
         return True
 
     def PUZZITEM_ENERGIZE(self, camp):
-        pbge.alerts.TextAlert("The industrial heat lamp fires up, melting some of the nearby snow.")
+        _=pbge.alerts.TextAlert("The industrial heat lamp fires up, melting some of the nearby snow.")
         camp.check_trigger("HEAT", self.elements["TARGET"])
         self.active = False
 
