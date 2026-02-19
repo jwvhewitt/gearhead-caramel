@@ -313,7 +313,7 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
     def _string_to_major_version(version):
         # If the first decimal place of the version number changes, there may be problems with loading older save
         # files. Print a warning if this is the case.
-        return math.floor(float(version[1:])*10)
+        return math.floor(float(version.strip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"))*10)
 
     def _render(self, delta):
         super()._render(delta)

@@ -167,11 +167,11 @@ class FrozenUIState:
 
     def is_current(self):
         # Return True if the current state of the UI is about the same as when this state was frozen.
-        # This means the snapshot is at the top of the UI stack and there are no pending animations
-        # or alerts.
+        # This means the snapshot is at the top of the UI stack and there are no pending animations,
+        # alerts, or queued widgets.
         if my_state.view and my_state.view.has_animations():
             return False
-        return self is my_state.ui_stack[-1] and not my_state.alert_queue
+        return self is my_state.ui_stack[-1] and not my_state.alert_queue and not my_state.deployment_queue
 
 
 type On_Click = Callable[[Widget, pygame.event.Event], None]|None

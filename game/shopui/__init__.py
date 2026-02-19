@@ -246,7 +246,7 @@ class ShopUI(pbge.widgets.Widget):
         # Build UI.
         self._sell_list_widget = pbge.widgetmenu.MenuWidget(
             INVENTORY_LIST_FRECT.dx, INVENTORY_LIST_FRECT.dy, INVENTORY_LIST_FRECT.w, INVENTORY_LIST_FRECT.h,
-            activate_child_on_enter=True, on_activate_item=self._set_item_panel
+            activate_child_on_enter=True, on_activate_item=self._set_item_panel, font=pbge.MEDIUM_DISPLAY_FONT
         )
         self.children.append(self._sell_list_widget)
         wares_label = pbge.widgets.LabelWidget(WARES_LABEL_FRECT.dx, WARES_LABEL_FRECT.dy
@@ -258,7 +258,7 @@ class ShopUI(pbge.widgets.Widget):
         self.children.append(wares_label)
         self._buy_list_widget = pbge.widgetmenu.MenuWidget(
             WARES_LIST_FRECT.dx, WARES_LIST_FRECT.dy, WARES_LIST_FRECT.w, WARES_LIST_FRECT.h,
-            activate_child_on_enter=True, on_activate_item=self._set_item_panel
+            activate_child_on_enter=True, on_activate_item=self._set_item_panel, font=pbge.MEDIUM_DISPLAY_FONT
         )
 
         self.children.append(self._buy_list_widget)
@@ -272,7 +272,6 @@ class ShopUI(pbge.widgets.Widget):
                                                    )
         self.children.append(checkout_button)
 
-        self._style = dict(font=pbge.MEDIUM_DISPLAY_FONT)
         self._special_wares = list()
 
         self.customer_manager = CustomerPanelWidget(self.camp, self._refresh_ware_lists, self._open_backpack)
@@ -322,7 +321,7 @@ class ShopUI(pbge.widgets.Widget):
         active_index = self._sell_list_widget.active_index
         self._sell_list_widget.clear()
         pc = self.customer_manager.get_customer()
-        pc_root = pc.get_root()
+        pc_root = pc.get_root() 
         source = list(pc.inv_com) + self.camp.party
         bought_items = self.undo_sys.get_bought_items()
         for ware in source:
@@ -330,28 +329,22 @@ class ShopUI(pbge.widgets.Widget):
                 continue
             if ware in bought_items:
                 continue
-            self._sell_list_widget.add_interior(
-                pbge.widgetmenu.MenuItemWidget(
-                    0,0,INVENTORY_LIST_FRECT.w, 0,
-                    text = ware.get_full_name(),
-                    data=WareMenuData(
-                        ware=ware, price=self.shop.calc_sale_price(self.camp, ware),
-                        action=actions.SellAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
-                    ), on_click=self._click_ware, **self._style
+            _=self._sell_list_widget.add_item(
+                ware.get_full_name(), self._click_ware,
+                data=WareMenuData(
+                    ware=ware, price=self.shop.calc_sale_price(self.camp, ware),
+                    action=actions.SellAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
                 )
             )
 
         # Add returnable items.
         for ware in bought_items:
             if ware in self.camp.party or ware.get_root() is pc_root:
-                self._sell_list_widget.add_interior(
-                    pbge.widgetmenu.MenuItemWidget(
-                        0, 0, INVENTORY_LIST_FRECT.w, 0,
-                        text="{} [Bought]".format(ware.get_full_name()),
-                        data=WareMenuData(
-                            ware=ware, price=self.undo_sys.items_to_undo[ware].price,
-                            action=self.undo_sys.get_undo_action(ware),
-                        ), on_click=self._click_ware, **self._style
+                _=self._sell_list_widget.add_item(
+                    "{} [Bought]".format(ware.get_full_name()), self._click_ware, 
+                    data=WareMenuData(
+                        ware=ware, price=self.undo_sys.items_to_undo[ware].price,
+                        action=self.undo_sys.get_undo_action(ware),
                     )
                 )
         self._sell_list_widget.sort(key=lambda a: str(a))
@@ -367,23 +360,17 @@ class ShopUI(pbge.widgets.Widget):
         active_index = self._buy_list_widget.active_index
         self._buy_list_widget.clear()
         for ware in self._special_wares:
-            self._buy_list_widget.add_interior(
-                pbge.widgetmenu.MenuItemWidget(
-                    0, 0, INVENTORY_LIST_FRECT.w, 0,
-                    text=ware.get_full_name(),
-                    data=WareMenuData(
-                        ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
-                        action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
-                    ), on_click=self._click_ware, **self._style
-                )
+            _=self._buy_list_widget.add_item(
+                ware.get_full_name(),
+                data=WareMenuData(
+                    ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
+                    action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
+                ), on_click=self._click_ware
             )
         self._buy_list_widget.sort(key=lambda a: str(a))
 
-        self._buy_list_widget.add_interior(
-            pbge.widgetmenu.MenuItemWidget(
-                0, 0, INVENTORY_LIST_FRECT.w, 0,
-                text="[Done]", on_click=self._return_to_regular_menu, **self._style
-            )
+        _=self._buy_list_widget.add_item(
+            "[Done]", on_click=self._return_to_regular_menu
         )
         self._buy_list_widget.active_index = active_index
 
@@ -391,28 +378,22 @@ class ShopUI(pbge.widgets.Widget):
         active_index = self._buy_list_widget.active_index
         self._buy_list_widget.clear()
         for ware in self.shop.wares:
-            self._buy_list_widget.add_interior(
-                pbge.widgetmenu.MenuItemWidget(
-                    0, 0, INVENTORY_LIST_FRECT.w, 0,
-                    text=ware.get_full_name(),
-                    data=WareMenuData(
-                        ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
-                        action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
-                    ), on_click=self._click_ware, **self._style
-                )
+            _=self._buy_list_widget.add_item(
+                ware.get_full_name(),
+                data=WareMenuData(
+                    ware=ware, price=self.shop.calc_purchase_price(self.camp, ware),
+                    action=actions.BuyAction(self.camp, self.shop, ware, self.undo_sys, self.customer_manager),
+                ), on_click=self._click_ware,
             )
 
         # Add cancelable sales.
         for ware in self.undo_sys.get_sold_items():
-            self._buy_list_widget.add_interior(
-                pbge.widgetmenu.MenuItemWidget(
-                    0, 0, INVENTORY_LIST_FRECT.w, 0,
-                    text="{} [Sold]".format(ware.get_full_name()),
-                    data=WareMenuData(
-                        ware=ware, price=self.undo_sys.items_to_undo[ware].price,
-                        action=self.undo_sys.get_undo_action(ware),
-                    ), on_click=self._click_ware, **self._style
-                )
+            _=self._buy_list_widget.add_item(
+                "{} [Sold]".format(ware.get_full_name()),
+                data=WareMenuData(
+                    ware=ware, price=self.undo_sys.items_to_undo[ware].price,
+                    action=self.undo_sys.get_undo_action(ware),
+                ), on_click=self._click_ware,
             )
 
         self._buy_list_widget.sort(key=lambda a: str(a))
@@ -424,31 +405,25 @@ class ShopUI(pbge.widgets.Widget):
         for wid in self._buy_list_widget.get_items():
             if wid.data.ware:
                 if self.shop.can_stock_ammo(wid.data.ware):
-                    self._buy_list_widget.add_interior(
-                        pbge.widgetmenu.MenuItemWidget(
-                            0, 0, INVENTORY_LIST_FRECT.w, 0,
-                            text="+ {} ammo".format(wid.data.ware.get_full_name()),
-                            data=WareMenuData(
-                                ware=wid.data.ware, price=self.shop.calc_purchase_price(self.camp, wid.data.ware),
-                                action=None, sort_order=wid.data.sort_order + 1
-                            ), on_click=self._switch_ammo_menu, **self._style
-                        )
+                    _=self._buy_list_widget.add_item(
+                        "+ {} ammo".format(wid.data.ware.get_full_name()),
+                        data=WareMenuData(
+                            ware=wid.data.ware, price=self.shop.calc_purchase_price(self.camp, wid.data.ware),
+                            action=None, sort_order=wid.data.sort_order + 1
+                        ), on_click=self._switch_ammo_menu
                     )
                 elif isinstance(wid.data.ware, gears.base.ChemThrower):
                     myammo = wid.data.ware.get_ammo()
                     if myammo:
                         myammo = copy.deepcopy(myammo)
-                        self._buy_list_widget.add_interior(
-                            pbge.widgetmenu.MenuItemWidget(
-                                0, 0, INVENTORY_LIST_FRECT.w, 0,
-                                text="+ {}".format(myammo.get_full_name()),
-                                data=WareMenuData(
-                                    ware=myammo, price=self.shop.calc_purchase_price(self.camp, myammo),
-                                    action=actions.BuyAction(self.camp, self.shop, myammo, self.undo_sys,
-                                                             self.customer_manager),
-                                    sort_order=wid.data.sort_order + 1
-                                ), on_click=self._click_ware, **self._style
-                            )
+                        _=self._buy_list_widget.add_item(
+                            "+ {}".format(myammo.get_full_name()),
+                            data=WareMenuData(
+                                ware=myammo, price=self.shop.calc_purchase_price(self.camp, myammo),
+                                action=actions.BuyAction(self.camp, self.shop, myammo, self.undo_sys,
+                                                            self.customer_manager),
+                                sort_order=wid.data.sort_order + 1
+                            ), on_click=self._click_ware
                         )
 
         self._buy_list_widget.sort(key=lambda a: a.data.sort_order)
@@ -514,6 +489,7 @@ class ShopUI(pbge.widgets.Widget):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self._on_escape_key()
+                self.register_response()
 
     def _render(self, delta):
         super()._render(delta)

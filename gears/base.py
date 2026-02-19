@@ -2601,7 +2601,7 @@ class BeamWeapon(Weapon):
                                      thrill_power=self.shop_rank()),
             price=[geffects.PowerPrice(self.get_basic_power_cost() * ammo_cost),
                    geffects.RevealPositionPrice(self.damage),
-                   geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
+                #    geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
             ],
             targets=targets)
         for aa in self.get_attributes():

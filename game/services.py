@@ -235,7 +235,7 @@ class Shop(object):
 
     def enter_shop(self, camp):
         self.customer = camp.pc
-        shopui.ShopUI.push_state_and_instantiate(camp=camp, shop=self)
+        shopui.ShopUI.instantiate_and_schedule(camp=camp, shop=self)
         
     def update_shop(self, camp):
         if camp.time > self.last_updated:
@@ -254,7 +254,7 @@ class Shop(object):
 
     def enter_surgery(self, camp):
         self.update_shop(camp)
-        cyberdoc.SurgeryWaitingRoomWidget.push_state_and_instantiate(camp=camp, shop=self)
+        cyberdoc.SurgeryWaitingRoomWidget.instantiate_and_schedule(camp=camp, shop=self)
 
 
 class SkillButtonWidget(pbge.widgets.LabelWidget):
@@ -374,4 +374,4 @@ class SkillTrainer:
         self.skill_list = skill_list
 
     def __call__(self, camp):
-        SkillTrainerWidget.push_state_and_instantiate(camp=camp, skill_list=self.skill_list)
+        SkillTrainerWidget.instantiate_and_schedule(camp=camp, skill_list=self.skill_list)

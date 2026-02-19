@@ -458,7 +458,7 @@ class GameState(object):
 
     def ui_is_active(self):
         # Return True if there are any active UI elements.
-        return any([w.active for w in self.widgets]) or self.alert_queue
+        return any([w.active for w in self.widgets]) or self.alert_queue or self.deployment_queue
 
     def flip(self):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):

@@ -187,7 +187,7 @@ class SurgeryUI(pbge.widgets.Widget):
         self.children.append(installed_label)
         self._installed_listwidget = pbge.widgetmenu.MenuWidget(
             INSTALLED_LIST_FRECT.dx, INSTALLED_LIST_FRECT.dy, INSTALLED_LIST_FRECT.w, INSTALLED_LIST_FRECT.h,
-            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel
+            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel, font=pbge.MEDIUM_DISPLAY_FONT
         )
         self.children.append(self._installed_listwidget)
         available_label = pbge.widgets.LabelWidget( AVAILABLE_LABEL_FRECT.dx, AVAILABLE_LABEL_FRECT.dy
@@ -198,7 +198,7 @@ class SurgeryUI(pbge.widgets.Widget):
         self.children.append(available_label)
         self._available_listwidget = pbge.widgetmenu.MenuWidget(
             AVAILABLE_LIST_FRECT.dx, AVAILABLE_LIST_FRECT.dy, AVAILABLE_LIST_FRECT.w, AVAILABLE_LIST_FRECT.h,
-            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel
+            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel, font=pbge.MEDIUM_DISPLAY_FONT
         )
         self.children.append(self._available_listwidget)
 
@@ -227,8 +227,6 @@ class SurgeryUI(pbge.widgets.Widget):
             info_panel = self._credits_panel
         )
         self.children.append(self._credits_panel_widget)
-
-        self._style = dict(font=pbge.MEDIUM_DISPLAY_FONT)
 
         # Preparations
         self._build_all()
@@ -267,9 +265,9 @@ class SurgeryUI(pbge.widgets.Widget):
         self._installed_listwidget.clear()
         for gear in self.pc.sub_sub_coms():
             if isinstance(gear, gears.base.BaseCyberware):
-                self._installed_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                    0, 0, COLUMN_WIDTH, 0, text="{} [{}]".format(gear, gear.parent), data=gear, on_click=self._remove, **self._style
-                ))
+                _=self._installed_listwidget.add_item(
+                    "{} [{}]".format(gear, gear.parent), data=gear, on_click=self._remove
+                )
 
         self._installed_listwidget.sort(key=lambda a: str(a))
 
@@ -277,15 +275,15 @@ class SurgeryUI(pbge.widgets.Widget):
         self._available_listwidget.clear()
         for gear in self.shop.wares:
             if isinstance(gear, gears.base.BaseCyberware):
-                self._available_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                    0, 0, COLUMN_WIDTH, 0, text=gear.get_full_name(), data=gear, on_click=self._install, **self._style
-                ))
+                _=self._available_listwidget.add_item(
+                    gear.get_full_name(), data=gear, on_click=self._install
+                )
 
         for gear in self.pc.inv_com:
             if isinstance(gear, gears.base.BaseCyberware) and (gear.dna_sequence == self.pc.dna_sequence or not gear.dna_sequence):
-                self._available_listwidget.add_interior(pbge.widgetmenu.MenuItemWidget(
-                    0, 0, COLUMN_WIDTH, 0, text="{} [inv]".format(gear.get_full_name()), data=gear, on_click=self._install, **self._style
-                ))
+                _=self._available_listwidget.add_item(
+                    "{} [inv]".format(gear.get_full_name()), data=gear, on_click=self._install
+                )
 
         self._available_listwidget.sort(key=lambda a: str(a))
 
