@@ -461,7 +461,7 @@ class ShopUI(pbge.widgets.Widget):
             self.shop_panel.reset_caption()
         self._refresh_ware_lists()
 
-    def _cancel_transactions(self, *etc):
+    def _cancel_transactions(self, *_etc):
         self.undo_sys.undo_all()
         self.pop()
 
@@ -478,7 +478,7 @@ class ShopUI(pbge.widgets.Widget):
         else:
             self.pop()
 
-    def _checkout(self):
+    def _checkout(self, *_args):
         self.pop()
         if self.undo_sys.actions_have_happened():
             _=pbge.my_state.start_sound_effect("purchase2.ogg")
