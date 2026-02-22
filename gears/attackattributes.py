@@ -465,7 +465,7 @@ class LineAttack(Singleton):
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Change the area to cone.
-        attack.area = pbge.scenes.targetarea.Line(reach=weapon.reach * 3, delay_from=-1)
+        attack.area = pbge.scenes.targetarea.Line(reach=weapon.reach * 2, delay_from=-1)
         attack.shot_anim = None
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
         attack.fx.anim = weapon.get_area_anim()

@@ -878,8 +878,9 @@ class DZDKettelMission( DZDIntroMission ):
                                                scale=gears.scale.MechaScale,
                                                is_brutal=True),
                     area=pbge.scenes.targetarea.SelfCentered(radius=5, delay_from=-1))
-                my_invo.invoke(camp, None, [self.elements["FUEL_TANKS"].pos, ], pbge.my_state.view.anim_list)
-                pbge.my_state.view.handle_anim_sequence()
+                anim_list = list()
+                my_invo.invoke(camp, None, [self.elements["FUEL_TANKS"].pos, ], anim_list)
+                _=pbge.alerts.AnimAlert(anim_list)
 
                 _=SimpleMonologueDisplay(
                     "I admit, I was not expecting that. Let's head back to base...",

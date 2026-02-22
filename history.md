@@ -1,4 +1,11 @@
-v1.000beta February 17, 2026
+* Combat handler will only start new turn when no pending alerts or animations
+* Medium range removed; now only short and long range bands
+* Removed remaining calls to handle_anim_sequence
+* Exploration orders get cancelled when combat starts
+* Fixed movement clock showing full MP after moving
+* Fixed DZDRoadMapMenu not deactivating the exploration widget
+
+v1.000alpha February 17, 2026
 * Weapons and skills can now have a cooldown time
 * Movement points and action points are now independent of one another
 * Import GH1 Character should now work with Linux repository installs

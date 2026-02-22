@@ -585,13 +585,17 @@ class DDBAM_FightCetusFirstTime(Plot):
                                            scale=gears.scale.MechaScale,
                                            is_brutal=True),
                 area=pbge.scenes.targetarea.SelfCentered(radius=5, delay_from=-1, exclude_middle=True))
-            pbge.my_state.view.anim_list.append(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
-            my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
-            pbge.my_state.view.handle_anim_sequence()
-            pbge.alerts.TextAlert("Cetus rockets into the air and quickly disappears from sight.")
-            pbge.my_state.view.play_anims(gears.geffects.SmokePoof(pos=self.cetus.pos),
-                                          pbge.scenes.animobs.BlastOffAnim(model=self.cetus))
-            camp.scene.contents.remove(self.cetus)
+            anim_list = list()
+            anim_list.append(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
+            _=my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], anim_list)
+            _=pbge.alerts.AnimAlert(*anim_list)
+
+            _=pbge.alerts.TextAlert("Cetus rockets into the air and quickly disappears from sight.")
+            _=pbge.alerts.AnimAlert(gears.geffects.SmokePoof(pos=self.cetus.pos), pbge.scenes.animobs.BlastOffAnim(model=self.cetus), on_close=self._remove_cetus, data=camp)
+
+    def _remove_cetus(self, wid, _ev):
+        camp = wid.data
+        camp.scene.contents.remove(self.cetus)
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
@@ -640,7 +644,7 @@ class DDBAM_FightCetusNextTime(Plot):
         myteam = self.elements["_eteam"]
         if self.cetus.current_health < (self.cetus.max_health // 2) or not self.cetus.is_operational():
             self.regen_count += 1
-            self.cetus.restore_all()
+            _=self.cetus.restore_all()
             pbge.my_state.view.play_anims(gears.geffects.BiotechnologyAnim(pos=self.cetus.pos))
             my_invo = pbge.effects.Invocation(
                 fx=gears.geffects.DoDamage(3, 6, anim=gears.geffects.DeathWaveAnim,
@@ -648,9 +652,8 @@ class DDBAM_FightCetusNextTime(Plot):
                                            is_brutal=True),
                 area=pbge.scenes.targetarea.SelfCentered(radius=4 - self.regen_count, delay_from=-1,
                                                          exclude_middle=True))
-            pbge.my_state.view.anim_list.append(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
-            my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
-            pbge.my_state.view.handle_anim_sequence()
+            _=pbge.alerts.AnimAlert(gears.geffects.InvokeDeathWaveAnim(pos=self.cetus.pos))
+            _=pbge.alerts.InvocationAlert(my_invo, camp, self.cetus, [self.cetus.pos, ])
 
             if self.regen_count > 1 and not self._has_an_advantage(camp):
                 _=pbge.alerts.TextAlert("Once again, Cetus rockets into the air and quickly disappears from sight.")
@@ -690,7 +693,7 @@ class DDBAM_FightCetusNextTime(Plot):
                                         scale=gears.scale.MechaScale,
                                         is_brutal=True),
             area=pbge.scenes.targetarea.SelfCentered(radius=9, delay_from=-1))
-        _=my_invo.invoke(camp, self.cetus, [self.cetus.pos, ], pbge.my_state.view.anim_list)
+        _=pbge.alerts.InvocationAlert(my_invo, camp, self.cetus, [self.cetus.pos, ])
         camp.scene.contents.remove(self.cetus)
 
     def t_CHEATINGFUCKINGBASTARD(self, camp):

@@ -579,18 +579,18 @@ class Biotank(Waypoint):
         if scene and scene.on_the_map(*self.pos):
             scene.set_decor(self.pos[0], self.pos[1], ghterrain.EmptyBiotankTerrain)
 
-    def break_tank(self, process_anim=True):
-        # If you're breaking a bunch of tanks at once, set process_anim to False and call handle_anim_sequence yerself.
+    def break_tank(self):
         scene = self.scene
         if scene and scene.on_the_map(*self.pos):
             mypoints = random.sample(self.SPRITE_OFF,5)
+            myanims = list()
             for t in range(5):
-                pbge.my_state.view.anim_list.append(
-                    gears.geffects.BigBoom(pos=self.pos, x_off=mypoints[t][0], y_off=mypoints[t][1],
-                                           delay=t * 5))
-            if process_anim:
-                pbge.my_state.view.handle_anim_sequence()
-            scene.set_decor(self.pos[0], self.pos[1], ghterrain.BrokenBiotankTerrain)
+                myanims.append(gears.geffects.BigBoom(pos=self.pos, x_off=mypoints[t][0], y_off=mypoints[t][1], delay=t * 5))
+            _=pbge.alerts.AnimAlert(*myanims, data=scene, on_close=self._tank_broken)
+
+    def _tank_broken(self, wid, _ev):
+        scene = wid.data
+        scene.set_decor(self.pos[0], self.pos[1], ghterrain.BrokenBiotankTerrain)
 
 
 class EmptyBiotank(Biotank):

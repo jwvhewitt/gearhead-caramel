@@ -153,11 +153,16 @@ class DashReach(pfov.PointOfView):
         self.model = model
         self.scene = camp.scene
         self.blocked_tiles = camp.scene.get_blocked_tiles()
-        self.radius = model.get_current_speed() // 10 + 1
         self.tiles = set()
         self.vision_type = model.mmode
-        self.nav = pbge.scenes.pathfinding.NavigationGuide(camp.scene, model.pos, model.get_current_speed(),
-                                                           model.mmode, self.blocked_tiles)
+        if camp.fight:
+            rng = camp.fight.cstat[model].mp_remaining
+        else:
+            rng = model.get_current_speed()
+        self.nav = pbge.scenes.pathfinding.NavigationGuide(
+            camp.scene, model.pos, rng, model.mmode, self.blocked_tiles
+        )
+        self.radius = rng // 10 + 1
         pfov.fieldOfView(x0, y0, camp.scene.width, camp.scene.height, self.radius, self)
 
     def TileBlocked(self, x, y):
@@ -1882,11 +1887,14 @@ class RangeModifier(object):
 
     def calc_modifier(self, camp, attacker, pos):
         my_range = camp.scene.distance(attacker.pos, pos)
-        my_mod = ((my_range - 1) // self.range_step) * -10
-        self.name = "Too Far"
-        if my_range < (self.range_step - 3):
-            my_mod += (self.range_step - 3 - my_range) * -10
+        if my_range > self.range_step:
+            my_mod = -10 + (-25 * (my_range - self.range_step - 1))//self.range_step
+            self.name = "Too Far"
+        elif my_range < (self.range_step - 2):
+            my_mod = (self.range_step - 2 - my_range) * -10
             self.name = "Too Close"
+        else:
+            my_mod = 0
         return my_mod
 
 
@@ -2499,7 +2507,6 @@ class Burning(NegativeEnchantment):
                         anim=BurnAnim, ),
             area=pbge.scenes.targetarea.SingleTarget(), )
         burn.invoke(camp, None, [owner.pos, ], pbge.my_state.view.anim_list)
-        pbge.my_state.view.handle_anim_sequence()
 
 
 class Disintegration(NegativeEnchantment):
@@ -2513,7 +2520,6 @@ class Disintegration(NegativeEnchantment):
                         anim=DisintegrationAnim, affected_by_armor=False),
             area=pbge.scenes.targetarea.SingleTarget(), )
         burn.invoke(camp, None, [owner.pos, ], pbge.my_state.view.anim_list)
-        pbge.my_state.view.handle_anim_sequence()
 
     def get_penetration_bonus(self, owner):
         return 15
@@ -2569,7 +2575,6 @@ class Poisoned(NegativeEnchantment):
                          ),
             area=pbge.scenes.targetarea.SingleTarget(), )
         burn.invoke(camp, None, [owner.pos, ], pbge.my_state.view.anim_list)
-        pbge.my_state.view.handle_anim_sequence()
 
     @classmethod
     def can_affect(cls, target):
@@ -2663,7 +2668,6 @@ class AIAssisted(PositiveEnchantment):
                 fx=effects.NoEffect(anim=AIAssistAnim),
                 area=pbge.scenes.targetarea.SingleTarget())
             assist.invoke(camp, None, [owner.pos, ], pbge.my_state.view.anim_list)
-            pbge.my_state.view.handle_anim_sequence()
 
     def get_stat(self, stat):
         # If not currently in effect, no bonus.

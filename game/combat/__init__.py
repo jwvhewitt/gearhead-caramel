@@ -180,28 +180,29 @@ class CombatControlWidget(pbge.widgets.Widget):
     def update(self, delta):
         super().update(delta)
         if self.camp.fight:
-            if not self.camp.fight.checked_start_trigger:
-                _=self.camp.check_trigger("STARTCOMBAT")
-                self.camp.fight.checked_start_trigger = True
-                return
-            if self.camp.fight.still_fighting():
-                # Find the next active combatant and deploy their turn widget.
-                chara = self.get_next_combatant()
+            if self.snapshot.is_current():
+                if not self.camp.fight.checked_start_trigger:
+                    _=self.camp.check_trigger("STARTCOMBAT")
+                    self.camp.fight.checked_start_trigger = True
+                    return
+                if self.camp.fight.still_fighting():
+                    # Find the next active combatant and deploy their turn widget.
+                    chara = self.get_next_combatant()
 
-                if chara:
-                    self.do_combat_turn(chara)
-                else:
-                    # No combatants to act? Start the next round.
-                    self.camp.fight.end_round()
-                    self._current_combatant = None
-                    _=self.camp.check_trigger("COMBATLOOP")
+                    if chara:
+                        self.do_combat_turn(chara)
+                    else:
+                        # No combatants to act? Start the next round.
+                        self.camp.fight.end_round()
+                        self._current_combatant = None
+                        _=self.camp.check_trigger("COMBATLOOP")
 
-            else:
-                if self.camp.fight.is_concluded():
-                    _=self.camp.check_trigger("COMBATLOOP")
-                    finisher.Finisher.push_state_and_instantiate(self, camp=self.camp)
                 else:
-                    self.pop()
+                    if self.camp.fight.is_concluded():
+                        _=self.camp.check_trigger("COMBATLOOP")
+                        finisher.Finisher.push_state_and_instantiate(self, camp=self.camp)
+                    else:
+                        self.pop()
         else:
             self.pop()
 

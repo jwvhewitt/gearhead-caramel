@@ -54,7 +54,6 @@ class MovementClockWidget(pbge.widgets.Widget):
         self.bg_image = pbge.image.Image("sys_movementclock_face.png")
         self.sectors = pbge.image.Image("sys_movementclock.png", 46, 46)
         self.sectors_bg = pbge.image.Image("sys_movementclock_bg.png", 46, 46)
-        self.total_mp = self.camp.fight.cstat[self.pc].mp_remaining
         self.mp_to_spend = 0
 
         self.action_counters = pbge.image.Image("sys_action_counters.png", 45, 13)
@@ -64,9 +63,6 @@ class MovementClockWidget(pbge.widgets.Widget):
             -42, 2, 54, 54, anchor=pbge.frects.ANCHOR_TOP, tooltip="Actions Remaining",
         )
 
-    def on_activate(self):
-        self.total_mp = self.camp.fight.cstat[self.pc].mp_remaining
-
     def indicate_mp_cost(self, mp_to_spend=0):
         self.mp_to_spend = mp_to_spend
 
@@ -74,23 +70,24 @@ class MovementClockWidget(pbge.widgets.Widget):
         return min(max(mp//4, 0), 63)
 
     def _render(self, delta):
+        total_mp = self.camp.fight.cstat[self.pc].mp_remaining
         mydest = self.get_rect()
         self.bg_image.render(mydest)
         mydest.x += 4
         mydest.y += 4
-        if self.total_mp > 0:
+        if total_mp > 0:
             if self.mp_to_spend > 0:
-                self.sectors_bg.render(mydest, self._frame_for_mp(self.total_mp))
-                self.sectors.render(mydest, self._frame_for_mp(self.total_mp - self.mp_to_spend))
+                self.sectors_bg.render(mydest, self._frame_for_mp(total_mp))
+                self.sectors.render(mydest, self._frame_for_mp(total_mp - self.mp_to_spend))
             else:
                 # Just draw the mp.
-                self.sectors.render(mydest, self._frame_for_mp(self.total_mp))
+                self.sectors.render(mydest, self._frame_for_mp(total_mp))
 
         mydest.x += 40
         mydest.y -= 4
         self.action_counters_bg.render(mydest)
         self.action_counters.render_montage(mydest, v_frames=min(self.camp.fight.cstat[self.pc].action_points, 4))
-        self.tooltip = "{} Move Points, {} Actions".format(self.total_mp, self.camp.fight.cstat[self.pc].action_points)
+        self.tooltip = "{} Move Points, {} Actions".format(total_mp, self.camp.fight.cstat[self.pc].action_points)
 
 
 class PlayerTurn(pbge.widgets.Widget):

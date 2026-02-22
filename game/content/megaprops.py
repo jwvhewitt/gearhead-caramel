@@ -57,7 +57,6 @@ class MegaProp(teams.Team):
         if move_ok:
             for p in prop_parts:
                 pbge.my_state.view.anim_list.append(pbge.scenes.animobs.MoveModel(p, dest=(p.pos[0] + dx, p.pos[1] + dy)))
-            pbge.my_state.view.handle_anim_sequence()
             #self.deal_with_collisions(camp, collisions)
         else:
             pbge.my_state.view.anim_list.clear()

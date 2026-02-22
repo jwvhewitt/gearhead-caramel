@@ -78,20 +78,24 @@ class HandleMKill:
                 ),
             area=pbge.scenes.targetarea.SingleTarget(),
             targets=1)
-        _=my_invo.invoke(self.camp, None, [mkpc.pos], pbge.my_state.view.anim_list)
-        pbge.my_state.view.handle_anim_sequence()
+        anim_list = list()
+        _=my_invo.invoke(self.camp, None, [mkpc.pos], anim_list)
+        if anim_list:
+            _=pbge.alerts.AnimAlert(*anim_list)
 
         mkpc.gear_up(self.camp.scene)
         if mkpc.get_current_speed() > 0:
             _=pbge.alerts.TextAlert("The repairs are successful; {} is able to move again.".format(mkpc.get_pilot()))
         else:
-            _=pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()))
-            self.camp.scene.contents.remove(mkpc)
+            _=pbge.alerts.TextAlert("The repairs failed. You are forced to leave {} behind.".format(mkpc.get_pilot()), on_close=self._remove_mkpc, data=mkpc)
+
+    def _remove_mkpc(self, wid, _ev):
+        mkpc = wid.data
+        self.camp.scene.contents.remove(mkpc)
 
     def _abandon_mkill(self, wid, _ev):
         _party, mkpc = wid.data
-        _=pbge.alerts.TextAlert("You leave {} behind.".format(mkpc.get_pilot()))
-        self.camp.scene.contents.remove(mkpc)
+        _=pbge.alerts.TextAlert("You leave {} behind.".format(mkpc.get_pilot()), on_close=self._remove_mkpc, data=mkpc)
 
     def handle(self, fwid):
         myparty = self.camp.get_active_party()

@@ -227,7 +227,6 @@ class DoInvocation(MoveTo):
         if self.pos == pc.pos:
             # Invoke the invocation from here.
             self.invo.invoke(exp.camp, pc, self.target_list, pbge.my_state.view.anim_list, data=self.data)
-            #pbge.my_state.view.handle_anim_sequence(self.record)
             return False
         elif (not pc.is_operational()) or (self.step > len(self.path.results)) or not exp.scene.on_the_map(*self.pos):
             return False
@@ -429,7 +428,6 @@ class ExploCommandWidget(pbge.widgets.Widget):
                                 pbge.my_state.view.anim_list.append(geffects.SmokePoof(pos=pc.pos))
                                 pbge.my_state.view.anim_list.append(
                                     pbge.scenes.animobs.Caption(txt='Spotted!', pos=pc.pos))
-                                pbge.my_state.view.handle_anim_sequence()
                                 in_sight = True
                                 break
                     if in_sight:
@@ -469,6 +467,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
                 # control widget.
                 self.view.overlays.clear()
                 combat.CombatControlWidget.push_state_and_instantiate(camp=self.camp)
+                self.order = None
             else:
                 if self.order:
                     if not self.order(self):

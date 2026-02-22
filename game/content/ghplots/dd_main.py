@@ -361,6 +361,7 @@ class DZDRoadMapMenu(pbge.widgetmenu.MenuWidget):
     HEIGHT = 320
     MAP_AREA = pbge.frects.Frect(-320, -210, 640, 320)
     MENU_AREA = pbge.frects.Frect(-200, 130, 400, 80)
+    TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
 
     def __init__(self, camp, wp):
         super(DZDRoadMapMenu, self).__init__(

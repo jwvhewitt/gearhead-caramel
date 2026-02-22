@@ -1,3 +1,4 @@
+from sre_parse import RANGE
 from . import materials
 from . import scale
 from . import calibre
@@ -19,6 +20,9 @@ from . import personality
 import uuid
 import math
 from . import treasuretype
+
+
+RANGED_WEAPON_REACH_MULTIPLIER = 2
 
 
 class Restoreable(object):
@@ -1912,7 +1916,7 @@ class Weapon(Component, StandardDamageHandler):
                 modifiers=self.get_modifiers(),
                 terrain_effects=[geffects.SceneryChewing(self.damage * 5, scale=self.scale)]
             ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
+            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * RANGED_WEAPON_REACH_MULTIPLIER),
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
@@ -1963,7 +1967,7 @@ class Weapon(Component, StandardDamageHandler):
                 rstr = aa.get_reach_str(self)
                 break
         if not rstr:
-            rstr = '{}-{}-{}'.format(self.reach, self.reach * 2, self.reach * 3)
+            rstr = '{}-{}'.format(self.reach, self.reach * 2)
         return rstr
 
     def get_text_desc(self):
@@ -2471,7 +2475,7 @@ class BallisticWeapon(Weapon):
                 modifiers=self.get_modifiers(),
                 terrain_effects=[geffects.SceneryChewing(terrain_power, scale=self.scale)]
             ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
+            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * RANGED_WEAPON_REACH_MULTIPLIER),
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
@@ -2593,7 +2597,7 @@ class BeamWeapon(Weapon):
                 modifiers=self.get_modifiers(),
                 terrain_effects=[geffects.SceneryChewing(self.damage * 5, scale=self.scale)]
             ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
+            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * RANGED_WEAPON_REACH_MULTIPLIER),
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.shot_anim,
@@ -2738,7 +2742,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
                 rstr = aa.get_reach_str(self)
                 break
         if not rstr:
-            rstr = '{}-{}-{}'.format(self.reach, self.reach * 2, self.reach * 3)
+            rstr = '{}-{}'.format(self.reach, self.reach * 2)
         return rstr
 
     def get_reload_cost(self):
@@ -3133,7 +3137,7 @@ class ChemThrower(Weapon):
                 modifiers=self.get_modifiers(),
                 terrain_effects=[geffects.SceneryChewing(self.damage * 5, scale=self.scale)]
             ),
-            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * 3),
+            area=pbge.scenes.targetarea.SingleTarget(reach=self.reach * RANGED_WEAPON_REACH_MULTIPLIER),
             used_in_combat=True, used_in_exploration=False,
             ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
             shot_anim=self.get_shot_anim(),
