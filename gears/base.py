@@ -1,4 +1,3 @@
-from sre_parse import RANGE
 from . import materials
 from . import scale
 from . import calibre

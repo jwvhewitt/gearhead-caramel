@@ -287,8 +287,9 @@ DEFAULT_GRAMMAR = {
     "[ATTACK]": {
         Default: ["I don't know what you're doing here, but you'll feel my wrath. [LETSFIGHT]",
                   "You shouldn't have come here. [LETSFIGHT]", "[BATTLE_GREETING] [LETSFIGHT]",
-                  "Do you remember that [MEM_Clash]? [LETSFIGHT]", "Today I will [objective_ep]; [LETSFIGHT]"
+                  "Do you remember that [MEM_Clash]? [LETSFIGHT]",
                   ],
+        FIRST_TIME: ["[COMBAT_INTRODUCTION] [LETSFIGHT]"],
         personality.Cheerful: ["I was hoping that today would be interesting, and now here you are... [LETSFIGHT]",
                                ],
         personality.Grim: ["I'm afraid it's time for you to die... I'll try to make it painless. [LETSFIGHT]",
@@ -527,7 +528,7 @@ DEFAULT_GRAMMAR = {
     },
 
     "[BATTLE_GREETING_FIRST]": {
-        Default: ["I am [speaker], and I will defeat you!",
+        Default: ["I am [speaker], and I will defeat you!", "[COMBAT_INTRODUCTION]"
                   ],
         personality.Cheerful: ["Hi there, I'm [speaker]!",
                                ],
@@ -679,7 +680,8 @@ DEFAULT_GRAMMAR = {
         personality.Cheerful: [
             "Time to party.", "You can't stop me now; I will [objective_ep]!",
             "Remember when [MEM_LoseToPC]? I've been waiting for payback!",
-            "Remember when [MEM_DefeatPC]? I'll enjoy doing that again."
+            "Remember when [MEM_DefeatPC]? I'll enjoy doing that again.",
+            "Try to show me a good time!"
         ],
         personality.Grim: [
             "Prepare for death.", "You don't stand a chance.",
@@ -1092,6 +1094,38 @@ DEFAULT_GRAMMAR = {
                                ],
         personality.Shy: ["Tell me about {subject}.",
                           ],
+    },
+
+    "[COMBAT_INTRODUCTION]": {
+        # The player is meeting someone for the first time in combat.
+        Default: [
+            "This is [speaker] of [speaker_faction].", "I am [speaker], and you are my [enemy].",
+            "I am [speaker] of [speaker_faction]."
+        ],
+        personality.Cheerful: [
+            "Look at that, a new [enemy]! I am [speaker].",
+            "Hey, a new [enemy]! I am [speaker] of [speaker_faction].",
+        ],
+        personality.Grim: [
+            "Greetings, [insult]. Today you will be defeated by [speaker].",
+            "Sad day for you, [stranger]. You face [speaker] of [speaker_faction]."
+        ],
+        personality.Easygoing: [
+            "You're in the wrong place, [stranger]. Now you have to fight [speaker].",
+            "Hey, [speaker_faction] won't like you being here. I'm [speaker]."
+        ],
+        personality.Passionate: [
+            "Listen up, [stranger]! You are about to be defeated by [speaker].",
+            "A [enemy]! I am [speaker], and I will bring the wrath of [speaker_faction] upon you!"
+        ],
+        personality.Sociable: [
+            "Aha, a new [enemy]. I'm [speaker].",
+            "Let me introduce myself. I am [speaker] of [speaker_faction].",
+            "Allow me to introduce myself; I am [speaker]."
+        ],
+        personality.Shy: [
+            "I don't know who you are and I don't care.",
+        ],
     },
 
     "[COMEBACKTOMORROW]": {
@@ -1704,6 +1738,30 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[enemy]": {
+        # Insert your favorite euphemism or trash talk,
+        Default: ["enemy", "target"
+                  ],
+        personality.Cheerful: ["plaything",
+                               ],
+        personality.Grim: ["adversary", "tragic target",
+                           ],
+        personality.Easygoing: ["opponent",
+                                ],
+        personality.Passionate: ["nemesis",
+                                 ],
+        personality.Sociable: ["opposition",
+                               ],
+        personality.Shy: ["foe",
+                          ],
+        personality.Glory: [
+            "competition", "latest challenge"
+        ],
+        personality.Fellowship: ["rival",],
+        personality.Duty: ["duly appointed opponent",],
+
+    },
+
     "[enemy_meks]": {
         # Insert your favorite euphemism or trash talk,
         Default: ["mecha", "enemy mecha",
@@ -1722,6 +1780,36 @@ DEFAULT_GRAMMAR = {
                           ],
         tags.Military: [
             "hostiles",
+        ],
+    },
+
+    "[ENEMY_OBJECTIVE_MONOLOGUE]": {
+        # The enemy NPC will spill the beans on their mission objectives.
+        Default: [
+            "I'm here to [defeat_you].", "I'm here to [objective_ep].",
+            "[speaker_faction] sent me to [objective_ep]."
+        ],
+        personality.Cheerful: [
+            "I thought it'd be fun to [objective_ep].",
+        ],
+        personality.Grim: [
+            "I'm here to [objective_ep] and [defeat_you].",
+        ],
+        personality.Easygoing: [
+            "I'm supposed to [objective_ep]... bit of a bother, really.",
+            "[speaker_faction] told me to [objective_ep] or something.",
+            "I'm on a super secret mission for [speaker_faction].",
+        ],
+        personality.Passionate: [
+            "Today I will [objective_ep]!",
+            "I am to prove my fighting superiority, and also to [objective_ep]!"
+        ],
+        personality.Sociable: [
+            "hostile mecha",
+        ],
+        personality.Shy: [
+            "My mission is none of your business.",
+            "That's confidential business of [speaker_faction]."
         ],
     },
 
@@ -4266,8 +4354,10 @@ DEFAULT_GRAMMAR = {
     },
 
     "[LETSFIGHT]": {
-        Default: ["Let's fight.", "Prepare for battle.", "I will [fight_you]."
-                  ],
+        Default: [
+            "Let's fight.", "Prepare for battle.", "I will [fight_you].",
+            "My mission is to [objective_ep]!"
+        ],
         personality.Cheerful: ["Let's fight! This will be fun.", "It'll be fun [defeating_you].",
                                "Shall we dance?", "I can't wait to [fight_you]."
                                ],
@@ -5661,6 +5751,15 @@ DEFAULT_GRAMMAR = {
                           ],
     },
 
+    "[stranger]": {
+        Default: ["stranger",],
+        personality.Cheerful: ["chum"],
+        personality.Easygoing: ["pal",],
+        personality.DeadZone: ["outlander",],
+        personality.GreenZone: ["wanderer",],
+    },
+
+
     "[subject_pronoun]": {
         Default: [
             "he", "she", "ze"
@@ -6800,7 +6899,7 @@ DEFAULT_GRAMMAR = {
 
     "[WHATAREYOUDOINGHERE]": {
         # The PC has wandered into someplace and is about to get attacked, maybe.
-        Default: ["What are you doing here?!",
+        Default: ["What are you doing here?!", "[WHAT_IS_YOUR_MISSION]"
                   ],
         personality.Cheerful: ["You aren't invited to this party, and we don't deal too kindly with crashers.",
                                ],
@@ -6813,6 +6912,24 @@ DEFAULT_GRAMMAR = {
         personality.Sociable: ["Sorry to say that I'm not in the mood for visitors right now.",
                                ],
         personality.Shy: ["An intruder!",
+                          ],
+    },
+
+    "[WHAT_IS_YOUR_MISSION]": {
+        # A demand for answers and possibly a call to violence.
+        Default: ["What are you doing here?", "What's your purpose for coming here?"
+                  ],
+        personality.Cheerful: ["I guess you're not just in town for sightseeing.",
+                               ],
+        personality.Grim: ["State your business if you want to continue living.",
+                           ],
+        personality.Easygoing: ["Could you tell me what the blazes you're doing here?",
+                                ],
+        personality.Passionate: ["Before I [defeat_you], tell me what you're doing here.",
+                                 ],
+        personality.Sociable: ["Explain to me why I shouldn't [defeat_you] right now.",
+                               ],
+        personality.Shy: ["State your business here.",
                           ],
     },
 

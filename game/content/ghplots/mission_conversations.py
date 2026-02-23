@@ -18,7 +18,7 @@ class NoDevBattleConversation(Plot):
     active = True
     scope = "LOCALE"
 
-    def NPC_offers(self, camp):
+    def NPC_offers(self, _camp):
         mylist = list()
         mylist.append(Offer("[CHALLENGE]",
                             context=ContextTag([context.CHALLENGE, ])))
@@ -38,16 +38,16 @@ class BasicDuelConversation(Plot):
     scope = "LOCALE"
 
     def custom_init(self, nart):
-        self.convo_happened = False
+        self.convo_happened = False  # pyright: ignore[reportUninitializedInstanceVariable]
         return True
 
-    def NPC_offers(self, camp):
+    def NPC_offers(self, _camp):
         mylist = list()
         mylist.append(Offer("[DUEL_GREETING]",
                             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         return mylist
 
-    def _start_conversation(self, camp):
+    def _start_conversation(self, _camp):
         self.convo_happened = True
 
 
@@ -74,12 +74,12 @@ class BasicBattleConversation(Plot):
 
     def NPC_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()
-        mylist.append(Offer("[BATTLE_GREETING] I will [objective_ep]!",
+        mylist.append(Offer("[ATTACK]",
                             context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
         mylist.append(Offer("[CHALLENGE]",
                             context=ContextTag([context.CHALLENGE, ])))
         if not self.elements.get(CONVO_CANT_RETREAT, False):
-            game.ghdialogue.SkillBasedPartyReply(
+            _=game.ghdialogue.SkillBasedPartyReply(
                 Offer(
                     "[CHANGE_MIND_AND_RETREAT] Until we meet again, [PC].",
                     context=ContextTag([context.RETREAT]), effect=self._enemies_retreat,
@@ -97,7 +97,7 @@ class BasicBattleConversation(Plot):
 
     def _player_retreat(self, camp: gears.GearHeadCampaign):
         if self.LABEL != "TEST_ENEMY_CONVO":
-            plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
+            _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
 
     def _enemies_retreat(self, camp):
         npc: gears.base.Character = self.elements["NPC"]
@@ -134,6 +134,57 @@ class BasicBattleConversation(Plot):
                 self._lose_adventure(camp)
 
 
+class FirstContactCombat(BasicBattleConversation):
+    @classmethod
+    def matches(cls, pstate):
+        return (
+                    not (pstate.elements["NPC"].relationship and pstate.elements["NPC"].relationship.met_before)
+               ) or cls.LABEL == "TEST_ENEMY_CONVO"
+
+    def NPC_offers(self, camp):
+        mylist = list()
+        mylist.append(Offer("[COMBAT_INTRODUCTION] [CHALLENGE]",
+                            context=ContextTag([context.ATTACK, ]), effect=self._start_conversation))
+
+        mylist.append(Offer(
+            "[ENEMY_OBJECTIVE_MONOLOGUE]",
+            context=ContextTag([context.COMBAT_CUSTOM, ]),
+            data={"reply": "[WHAT_IS_YOUR_MISSION]"}, 
+            subject=self, subject_start=True
+        ))
+
+        if not self.elements.get(CONVO_CANT_RETREAT, False):
+            _=game.ghdialogue.SkillBasedPartyReply(
+                Offer(
+                    "[CHANGE_MIND_AND_RETREAT]",
+                    context=ContextTag([context.CUSTOMREPLY]), effect=self._enemies_retreat,
+                    data={"reply": "[ATTACK:RETREAT]"},
+                    subject=self,
+                ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, self._effective_rank(),
+                difficulty=gears.stats.DIFFICULTY_HARD, no_random=False
+            )
+
+        mylist.append(Offer(
+            "[CHALLENGE]",
+            context=ContextTag([context.CUSTOMREPLY, ]),
+            data={"reply": "Well I'm here to [objective_pp]."}, 
+            subject=self,
+        ))
+
+        mylist.append(Offer("[CHALLENGE]", context=ContextTag([context.CHALLENGE, ])))
+
+        return mylist
+
+    def _enemies_retreat(self, camp):
+        super()._enemies_retreat(camp)
+        self.elements["NPC"].relationship.history.append(Memory(
+            "you scared me the first time we met",
+            "I made you run without firing a shot",
+            self.LOSE_REACTION_ADJUST, memtags=(relationships.MEM_LoseToPC,)
+        ))
+
+
+
 class RalphAndSam(BasicBattleConversation):
     UNIQUE = True
 
@@ -168,7 +219,7 @@ class RalphAndSam(BasicBattleConversation):
         ))
 
         if not self.elements.get(CONVO_CANT_RETREAT, False):
-            game.ghdialogue.SkillBasedPartyReply(
+            _=game.ghdialogue.SkillBasedPartyReply(
                 Offer(
                     "[REALLY?] Honestly, I don't even care if you're telling the truth or not. I could use a little break. See you around, [audience].",
                     context=ContextTag([context.COMBAT_CUSTOM]), effect=self.friendly_retreat,
@@ -253,7 +304,7 @@ class AegisInferiorityIntroduction(BasicBattleConversation):
         ))
 
         if not self.elements.get(CONVO_CANT_RETREAT, False):
-            game.ghdialogue.SkillBasedPartyReply(
+            _=game.ghdialogue.SkillBasedPartyReply(
                 Offer(
                     "It seems I have no chance of winning here today... [I_MUST_CONSIDER_MY_NEXT_STEP] [GOODBYE]",
                     context=ContextTag([context.COMBAT_CUSTOM]), effect=self._enemies_retreat,

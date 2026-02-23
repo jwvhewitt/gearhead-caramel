@@ -4,7 +4,6 @@ from pbge.scenes.movement import Walking, Flying, Vision
 from gears.tags import Skimming, Rolling, Cruising, SpaceFlight
 import random
 from gears.geffects import TerrainBreaker
-from pbge.scenes.terrain import Terrain
 
 
 
@@ -1845,7 +1844,7 @@ class PersonalCargoContainerTerrset(pbge.randmaps.terrset.TerrSet):
             )
         self.TERRAIN_MAP = list()
         self.TERRAIN_MAP.append([3,])
-        for t in range(min(random.randint(1,3), random.randint(1,3))):
+        for _ in range(min(random.randint(1,3), random.randint(1,3))):
             self.TERRAIN_MAP.append([random.randint(1,2)])
         self.TERRAIN_MAP.append([0,])
         self.WAYPOINT_POS["DOOR"] = (0, len(self.TERRAIN_MAP)-1)

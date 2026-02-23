@@ -29,7 +29,7 @@ ATTACK_RETREAT = Reply("[ATTACK:RETREAT]",
                        destination=Cue(ContextTag([context.RETREAT])),
                        context=ContextTag([context.ATTACK]))
 
-ATTACK_WITHDRAW = Reply("[ATTACK:WITHDRAW]",
+ATTACK_WITHDRAW = Reply("[ATTACK:WITHDRAW] (Retreat)",
                         destination=Cue(ContextTag([context.WITHDRAW])),
                         context=ContextTag([context.ATTACK]))
 
