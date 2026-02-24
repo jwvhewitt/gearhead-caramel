@@ -73,7 +73,7 @@ class DeadzoneDrifterStub(Plot):
     )
 
     def t_START(self, camp):
-        camp.check_trigger("UPDATE")
+        _=camp.check_trigger("UPDATE")
         if "INITIAL_QOL" not in camp.campdata:
             total_qol = 0
             mymap = self.elements["DZ_ROADMAP"]

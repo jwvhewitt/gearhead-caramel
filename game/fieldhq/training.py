@@ -4,6 +4,7 @@ import gears
 
 
 class TrainingMenu(pbge.widgetmenu.MenuWidget):
+    ACTIVATE_IMMEDIATELY = True
     def __init__(self,camp,pc):
         super().__init__(
             fhqinfo.RIGHT_MENU.dx,fhqinfo.RIGHT_MENU.dy,fhqinfo.RIGHT_MENU.w,fhqinfo.RIGHT_MENU.h,

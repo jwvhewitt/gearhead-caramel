@@ -76,13 +76,13 @@ class NameChangeWidget(widgets.ColumnWidget):
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
+                self.register_response()
                 self._check_name()
                 self.pop()
-                self.register_response()
             elif ev.unicode in "\n\r":
+                self.register_response()
                 self._check_name()
                 self.pop()
-                self.register_response()
 
 
 class InfoDisplayWidget(widgets.Widget):
@@ -619,8 +619,9 @@ class FieldHQ(widgets.Widget):
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
-                self.pop()
                 self.register_response()
+                self.pop()
+                #print(self, ev, id(ev))
 
     def on_activate(self):
         self.update_party()

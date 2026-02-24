@@ -318,8 +318,8 @@ class Widget(frects.Frect):
                         self.on_leave(self)
             if self.should_hilight(self) and not my_state.widget_responded and not my_state.widget_responded:
                 if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
-                    self.on_click(self, ev)
                     self.register_response()
+                    self.on_click(self, ev)
             if not my_state.widget_responded:
                 self._builtin_responder(ev)
         else:
@@ -462,22 +462,24 @@ class LabelWidget(Widget):
         self.font = font or my_state.small_font
         self.draw_border = draw_border
         self.text_fun = text_fun
-        if w == 0:
-            self.w = self.font.size(self.text)[0]
-            if self.draw_border:
-                self.w += 16
-                self.dx -= 8
-        if h == 0:
-            self.h = len(wrap_multi_line(text, self.font, self.w)) * self.font.get_linesize()
-            # if self.draw_border:
-            #    self.h += 16
-            #    self.dy -= 8
+        self.confirm_dimensions()
         self.justify = justify
         self.border = border
         self.focus_border = focus_border
         self.alt_smaller_fonts = alt_smaller_fonts
 
+    def confirm_dimensions(self):
+        if self.w == 0:
+            self.w = self.font.size(self.text)[0]
+            if self.draw_border:
+                self.w += 16
+                self.dx -= 8
+        if self.h == 0:
+            self.h = len(wrap_multi_line(self.text, self.font, self.w)) * self.font.get_linesize()
+
     def _render(self, delta):
+        if self.w == 0 or self.h == 0:
+            self.confirm_dimensions()
         if self.should_hilight(self):
             if self.draw_border and self.focus_border:
                 self.focus_border.render(self.get_rect())

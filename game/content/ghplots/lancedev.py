@@ -36,7 +36,7 @@ class LMPlot(Plot):
             self.elements["NPC"].relationship.reaction_mod += random.randint(1, 10)
         self.end_plot(camp)
 
-    def proper_non_end(self, camp, improve_react=True):
+    def proper_non_end(self, _camp, improve_react=True):
         # This plot is not ending, but it's entering a sort of torpor phase where we don't want it interfering
         # with other LANCEDEV plots. For instance: if a plot adds a permanent new location to the world, you
         # might not want to end the plot but you will want to unlock the NPC and whatever else.
@@ -1969,10 +1969,10 @@ class DeadZoneSortingDuel(LMPlot):
                 )
             self.proper_end_plot(camp)
 
-    def t_UPDATE(self, camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alerts.TextAlert("As you enter {}, you notice {} giving you a quizzical look.".format(camp.scene, npc))
+            _=pbge.alerts.TextAlert("As you enter {}, you notice {} giving you a quizzical look.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
 
@@ -2406,10 +2406,10 @@ class WangttaScent(LMPlot):
             npc.dole_experience(2000)
             self.proper_end_plot(camp)
 
-    def t_UPDATE(self, camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alerts.TextAlert("As you enter {}, {} waves you over for a conversation.".format(camp.scene, npc))
+            _=pbge.alerts.TextAlert("As you enter {}, {} waves you over for a conversation.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
 
@@ -2808,10 +2808,10 @@ class LD_JuniorQuestions(LMPlot):
             return not candidate.relationship.expectation and candidate.renown < 20 and candidate.relationship.attitude in (
                 relationships.A_JUNIOR, None)
 
-    def t_UPDATE(self, camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alerts.TextAlert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
+            _=pbge.alerts.TextAlert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
             npc.relationship.attitude = relationships.A_JUNIOR
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
@@ -3120,10 +3120,10 @@ class DDLD_LackingVirtue(LMPlot):
             virtues = virtues.difference(pc.personality)
         return virtues
 
-    def t_UPDATE(self, camp):
+    def METROSCENE_ENTER(self, camp):
         if not self.started_conversation:
             npc = self.elements["NPC"]
-            pbge.alerts.TextAlert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
+            _=pbge.alerts.TextAlert("As you enter {}, {} pulls you aside for a conversation.".format(camp.scene, npc))
             ghdialogue.start_conversation(camp, camp.pc, npc, cue=pbge.dialogue.Cue((context.HELLO, context.QUERY)))
             self.started_conversation = True
 

@@ -1,3 +1,8 @@
+v1.000alphatwo February 24, 2026
+* Fixed lancemate convo item bug
+* Fixed OkapiPuzzle solver bug
+* Lancedev monologues all switched to trigger on METROSCENE_ENTER signal
+* Event queue gets cleared when an event gets consumed
 * Combat handler will only start new turn when no pending alerts or animations
 * Medium range removed; now only short and long range bands
 * Removed remaining calls to handle_anim_sequence

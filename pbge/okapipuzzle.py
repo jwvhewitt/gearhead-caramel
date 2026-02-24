@@ -337,11 +337,11 @@ class ImageDeckWidget(widgets.ColumnWidget):
 
         self.my_dropdown = widgetmenu.DropdownWidget(0, 0, self.w, 0, draw_border=True, on_select=self.on_select)
         self.add_interior(self.my_dropdown)
-        self.my_dropdown.add_item("==None==", None)
+        _=self.my_dropdown.add_item("==None==", None)
 
         self.sprites = dict()
         for card in mydeck.cards:
-            self.my_dropdown.add_item(card.name, card)
+            _=self.my_dropdown.add_item(card.name, self.on_select, data=card)
             try:
                 if "image_fun" in card.data:
                     self.sprites[card] = card.data["image_fun"]()
@@ -351,8 +351,8 @@ class ImageDeckWidget(widgets.ColumnWidget):
                 self.sprites[card] = self.mystery_sprite
         self.my_dropdown.menu.sort()
 
-    def on_select(self, *args):
-        card = self.my_dropdown.menu.get_current_value()
+    def on_select(self, *_args):
+        card = self.my_dropdown.menu.current_data
         if card:
             self.my_image.sprite = self.sprites.get(card, self.mystery_sprite)
             self.my_image.frame = card.data.get("frame", 0)
@@ -364,7 +364,7 @@ class ImageDeckWidget(widgets.ColumnWidget):
 
     @property
     def value(self):
-        return self.my_dropdown.menu.get_current_value()
+        return self.my_dropdown.menu.current_data
 
 
 class HypothesisWidget(widgets.ColumnWidget):
@@ -386,9 +386,9 @@ class HypothesisWidget(widgets.ColumnWidget):
         self.add_interior(self.result_label)
 
     def get_hypothesis(self):
-        return tuple([w.value for w in self.myrow._center_widgets])
+        return tuple([w.value for w in self.myrow.children])
 
-    def on_select(self, choice):
+    def on_select(self, _choice):
         hypo = self.get_hypothesis()
         if self.mystery.known_clues_match_solution(hypo):
             if self.mystery.number_of_known_matches() == 1 and hypo == tuple(self.mystery.solution):

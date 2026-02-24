@@ -497,7 +497,8 @@ class GameState(object):
 
             # poll for events
             # pygame.QUIT event means the user clicked X to close your window
-            for ev in pygame.event.get():
+            pygame.event.pump()
+            for ev in pygame.event.get(pump=False):
                 if ev.type == pygame.QUIT:
                     self.got_quit = True
                 elif ev.type == pygame.MOUSEMOTION:
@@ -515,8 +516,12 @@ class GameState(object):
                 # Inform any interested widgets of the event.
                 self.widget_responded = False
                 if self.widgets_active:
-                    for w in reversed(self.widgets):
-                        w.respond_event(ev)
+                    for w in list(reversed(self.widgets)):
+                        if not self.widget_responded:
+                            w.respond_event(ev)
+                        else:
+                            pygame.event.clear()
+                            break
 
                 if not self.widget_responded:
                     if ev.type == pygame.KEYDOWN:

@@ -510,20 +510,25 @@ class ExploCommandWidget(pbge.widgets.Widget):
             elif ev.type == pygame.KEYDOWN:
                 if pbge.my_state.is_key_for_action(ev, "quit_game"):
                     # self.camp.save(self.screen)
+                    self.register_response()
                     pbge.my_state.session_data[pbge.campaign.SDAT_GOT_QUIT] = True
-                    self.register_response()
+
                 elif pbge.my_state.is_key_for_action(ev, "inventory"):
+                    self.register_response()
                     self.open_inventory()
-                    self.register_response()
+
                 elif pbge.my_state.is_key_for_action(ev, "field_hq"):
-                    fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
                     self.register_response()
+                    fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
+
                 elif pbge.my_state.is_key_for_action(ev, "memo_browser"):
+                    self.register_response()
                     memos.MemoBrowser.push_state_and_instantiate(camp=self.camp)
 
                 elif ev.key == pygame.K_ESCAPE:
-                    configedit.PopupGameMenu.push_state_and_instantiate()
                     self.register_response()
+                    #print(self, ev, id(ev))
+                    configedit.PopupGameMenu.push_state_and_instantiate()
 
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])

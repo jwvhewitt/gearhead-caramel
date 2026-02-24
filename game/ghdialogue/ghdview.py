@@ -15,7 +15,7 @@ class CameoMenuItem(pbge.widgets.LabelWidget):
         self.portrait = npc.get_portrait()
         
     def _render(self,delta):
-        super().render(delta)
+        super()._render(delta)
         if self.should_hilight(self):
             mydest = self.get_rect()
             mydest.x -= 125

@@ -1850,7 +1850,7 @@ class DZD_LongRoadLogistics(Plot):
 
     def _tell_about_services(self, camp: gears.GearHeadCampaign):
         camp.campdata["next_adv_memo"] = 3
-        camp.check_trigger("UPDATE")
+        _=camp.check_trigger("UPDATE")
         self._asked_about_construction = True
         camp.campdata["CONSTRUCTION_ARRANGED"] = True
         #self.locked_elements.remove(self.elements["REGEXNPC"])

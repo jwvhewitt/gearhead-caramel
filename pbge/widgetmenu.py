@@ -1,3 +1,4 @@
+from numpy import isin
 from . import widgets
 from . import image
 from . import my_state, Border, TEXT_COLOR, default_border, draw_text, WHITE
@@ -157,6 +158,10 @@ class MenuWidget(widgets.ColumnWidget):
         return item
 
     def add_custom(self, new_item: widgets.Widget):
+        if isinstance(new_item, widgets.LabelWidget):
+            new_item.w = self.scroll_column.w
+            new_item.h = 0
+            new_item.confirm_dimensions()
         self.add_interior(new_item)
         return new_item
 
@@ -177,8 +182,9 @@ class MenuWidget(widgets.ColumnWidget):
     def _builtin_responder(self, ev):
         if ((my_state.focused_widget is self.scroll_column) or self.scroll_column.focus_locked) and (ev.type == pygame.KEYDOWN):
             if my_state.is_key_for_action(ev, "exit") and self.on_escape:
-                self.on_escape(self, ev)
                 self.register_response()
+                self.on_escape(self, ev)
+                #print(self, ev, id(ev))
             elif ev.unicode in self.quick_keys:
                 self.quick_keys[ev.unicode].manual_click(ev)
 

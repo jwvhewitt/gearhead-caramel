@@ -28,6 +28,7 @@ class MemoBrowser(widgets.Widget):
     # - An object that has a defined str() value
     # - An object that has a get_widget(MemoBrowser, campaign) method which returns a widget
     DEFAULT_WIDTH = 400
+    TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
     def __init__(self, camp):
         super().__init__(-200, -200, self.DEFAULT_WIDTH, 200)
         self.camp = camp
@@ -89,11 +90,15 @@ class MemoBrowser(widgets.Widget):
         # gdi is a pygame event.
         if ev.type == pygame.KEYDOWN:
             if my_state.is_key_for_action(ev, "left"):
+                self.register_response()
                 self.prev_memo()
             elif my_state.is_key_for_action(ev, "right"):
+                self.register_response()
                 self.next_memo()
             elif my_state.is_key_for_action(ev, "exit"):
+                self.register_response()
                 self.pop()
         elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 3:
+            self.register_response()
             self.pop()
 
