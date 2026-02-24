@@ -1,7 +1,7 @@
 import sys
 from cx_Freeze import setup, Executable
 from Cython.Build import cythonize
-from main import VERSION
+from main import STRIPPED_VERSION
 import numpy
 
 # Dependencies are automatically detected, but it might need fine tuning.
@@ -15,8 +15,8 @@ base = None
 if sys.platform == "win32":
     base = "GUI"
 
-setup(  name = "ghcaramel",
-        version = VERSION,
+_=setup(  name = "ghcaramel",
+        version = STRIPPED_VERSION,
         description = "My GUI application!",
         options = {"build_exe": build_exe_options},
         executables = [Executable("main.py", base=base)],

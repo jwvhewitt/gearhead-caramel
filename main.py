@@ -58,6 +58,7 @@ import logging
 import traceback
 
 VERSION = "v1.000alphatwo"
+STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
 class DZDTitleScreenRedraw(object):
