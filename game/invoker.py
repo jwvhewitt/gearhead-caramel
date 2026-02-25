@@ -486,9 +486,7 @@ class InvocationUI(pbge.widgets.Widget):
             else:
                 mp_remaining = float('inf')
             traildrawer.draw_trail( self.cursor_sprite
-                                  , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, None
-                                  , self.camp.scene, self.pc
-                                  , mp_remaining
+                                  , self.SC_TRAILMARKER, None
                                   , self.mypath + [pbge.my_state.view.mouse_tile]
                                   )
         else:

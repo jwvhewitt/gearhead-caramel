@@ -205,6 +205,7 @@ class PlayerTurn(pbge.widgets.Widget):
         self.actions = list()
 
     def _on_move(self, *my_actions):
+        pbge.my_state.view.overlays.clear()
         self.actions += my_actions
 
     def _on_invoke(self, invo, firing_pos, targets, data):
@@ -450,7 +451,9 @@ class PlayerTurn(pbge.widgets.Widget):
                         self.actions.pop(0)
             else:
                 if not (self.camp.fight.cstat[self.pc].can_act() and self.camp.fight.still_fighting()):
+                    pbge.my_state.view.overlays.clear()
                     self.pop()
+                    self.visible = False
                 elif not self.visible:
                     self.visible = True
                     self.active_ui.activate()

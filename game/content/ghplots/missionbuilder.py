@@ -203,13 +203,17 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
                 camp.check_trigger("DEFEAT", self.enemy_faction)
             if self.make_enemies:
                 camp.set_faction_as_pc_enemy(self.enemy_faction)
-        super(BuildAMissionSeed, self).end_adventure(camp)
+        super().end_adventure(camp)
+        camp.time += 1
+
+    def _finalize_adventure(self, wid, ev):
+        camp = wid.data
+        super()._finalize_adventure(wid, ev)
         if self.call_win_loss_funs_after_card:
             if self.on_win and self.is_won():
                 self.on_win(camp)
             elif self.on_loss and not self.is_won():
                 self.on_loss(camp)
-        camp.time += 1
 
     def can_do_mission(self, camp: gears.GearHeadCampaign):
         return bool(camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=self.environment))

@@ -171,7 +171,7 @@ class FrozenUIState:
         # alerts, or queued widgets.
         if my_state.view and my_state.view.has_animations():
             return False
-        return self is my_state.ui_stack[-1] and not my_state.alert_queue and not my_state.deployment_queue
+        return self is my_state.ui_stack[-1] and not my_state.alert_queue and not my_state.deployment_queue and not my_state.trigger_queue
 
 
 type On_Click = Callable[[Widget, pygame.event.Event], None]|None

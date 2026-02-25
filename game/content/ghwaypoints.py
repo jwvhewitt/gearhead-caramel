@@ -346,20 +346,26 @@ class GoldPlaque(Waypoint):
     ATTACH_TO_WALL = True
 
 
-class MechEngMenuWidget(pbge.widgetmenu.MenuWidget):
+class MechEngMenuWidget(pbge.widgetmenu.TitleMenuWidget):
     ACTIVATE_IMMEDIATELY = True
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
     def __init__(self, camp):
         super().__init__(
-            -175,-100,350,250,predraw=self._predraw,font=pbge.BIGFONT,
-            on_click_child=self._edit_this_mecha, on_escape=self._exit_menu
+            "Choose mecha to edit", title_font=pbge.MEDIUM_DISPLAY_FONT, font=pbge.BIGFONT,
+            on_escape=self._exit_menu
         )
         self.camp = camp
         for mek in camp.party:
             if isinstance(mek,gears.base.Mecha) and not hasattr(mek,"owner"):
-                _=self.add_item(self._get_meng_name(mek), None, data=mek)
+                _=self.add_item(self._get_meng_name(mek), self._edit_this_mecha, data=mek)
         self.sort()
         _=self.add_item("[EXIT]", self._exit_menu, None)
+
+    def _get_meng_name(self,mek):
+        if hasattr(mek,"pilot") and mek.pilot:
+            return "{} [{}]".format(mek.get_full_name(),str(mek.pilot))
+        else:
+            return mek.get_full_name()
 
     def _edit_this_mecha(self, wid, _ev):
         mek = wid.data
@@ -376,18 +382,6 @@ class MechEngTerminal(Waypoint):
     TILE = pbge.scenes.Tile(None,None,ghterrain.MechEngTerminalTerrain)
     ATTACH_TO_WALL = True
     MENU_TITLE = pbge.frects.Frect(-100,-150,200,16)
-
-    def _predraw(self):
-        pbge.my_state.view()
-        mydest = self.MENU_TITLE.get_rect()
-        pbge.default_border.render(mydest)
-        pbge.draw_text(pbge.MEDIUMFONT,"Choose mecha to edit",mydest,color=pbge.INFO_HILIGHT,justify=0)
-
-    def _get_meng_name(self,mek):
-        if hasattr(mek,"pilot") and mek.pilot:
-            return "{} [{}]".format(mek.get_full_name(),str(mek.pilot))
-        else:
-            return mek.get_full_name()
 
     def unlocked_use( self, camp ):
         MechEngMenuWidget.push_state_and_instantiate(camp=camp)

@@ -342,7 +342,7 @@ class SurgeryUI(pbge.widgets.Widget):
         self._refresh_all()
 
     def _on_exit(self, *args, **kwargs):
-        self.running = False
+        self.pop()
 
     def _render(self, delta):
         super()._render(delta)

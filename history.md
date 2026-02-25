@@ -1,3 +1,11 @@
+v1.001alpha February 25, 2026
+* Traildrawer does not show AP markers anymore
+* Map overlays cleared when combat turn ends + when moving
+* AdventureSeed end_adventure method modified to not finalize until after display
+* Added trigger_queue
+* Fixed Mecha Engineering crash
+* Fixed Cyberdoc crash
+
 v1.000alphatwo February 24, 2026
 * Fixed lancemate convo item bug
 * Fixed OkapiPuzzle solver bug

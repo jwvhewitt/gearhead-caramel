@@ -27,8 +27,10 @@ class DDBAMO_PracticeDuel(Plot):
     def custom_init(self, nart):
         myscene = self.elements["LOCALE"]
 
-        self.register_element("ROOM", pbge.randmaps.rooms.FuzzyRoom(15, 15, anchor=pbge.randmaps.anchors.middle),
-                              dident="LOCALE")
+        _=self.register_element(
+            "ROOM", pbge.randmaps.rooms.FuzzyRoom(15, 15, anchor=pbge.randmaps.anchors.middle),
+            dident="LOCALE"
+        )
 
         team2 = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
 
@@ -37,7 +39,7 @@ class DDBAMO_PracticeDuel(Plot):
         self.party_member = mynpc in nart.camp.party
         if self.party_member:
             plotutility.AutoLeaver(mynpc)(nart.camp)
-        plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2, allow_death=False)
+        _=plotutility.CharacterMover(nart.camp, self, mynpc, myscene, team2, allow_death=False)
 
         self.obj = adventureseed.MissionObjective("Defeat {}".format(mynpc), missionbuilder.MAIN_OBJECTIVE_VALUE * 2)
         self.adv.objectives.append(self.obj)
@@ -62,13 +64,12 @@ class DDBAMO_PracticeDuel(Plot):
         myteam = self.elements["_eteam"]
         if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
-        else:
-            self.obj.failed = True
+
+    def end_plot(self, camp, total_removal=False):
         if self.party_member:
             self.elements[BAME_LANCEMATE].restore_all()
             plotutility.AutoJoiner(self.elements[BAME_LANCEMATE])(camp)
-        # for pc in camp.party:
-        #    pc.restore_all()
+        return super().end_plot(camp, total_removal)
 
 
 class LMBetrayalFight(Plot):

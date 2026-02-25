@@ -175,13 +175,13 @@ class Finisher(pbge.widgets.Widget):
         super().update(delta)
         if my_state.widgets_active and self.snapshot.is_current():
             if not self.checked_end_trigger:
-                if self.camp.check_trigger("ENDCOMBAT"):
-                    self.checked_end_trigger = True
+                self.checked_end_trigger = True
+                if self.camp.process_trigger("ENDCOMBAT"):
                     return
             if self.fainters:
                 while self.fainters:
                     fnpc = self.fainters.pop()
-                    if self.camp.check_trigger("FAINT", fnpc):
+                    if self.camp.process_trigger("FAINT", fnpc):
                         break
 
             elif self.cleanup_queue:

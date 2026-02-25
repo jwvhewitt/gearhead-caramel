@@ -225,9 +225,7 @@ class MovementUI(pbge.widgets.Widget):
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, None
-                                   , self.camp.scene, self.mover
-                                   , self.camp.fight.cstat[self.mover].mp_remaining
+                                   , self.SC_TRAILMARKER, None
                                    , mypath
                                    )
             self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
@@ -238,9 +236,7 @@ class MovementUI(pbge.widgets.Widget):
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, self.SC_ZEROCURSOR, None
-                                   , self.camp.scene, self.mover
-                                   , self.camp.fight.cstat[self.mover].mp_remaining
+                                   , self.SC_TRAILMARKER, None
                                    , mypath
                                    )
             self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[mypath[-1]])
@@ -333,6 +329,8 @@ class MovementUI(pbge.widgets.Widget):
             self._do_regular_movement()
 
     def _render(self, _delta):
+        if self.origin != self.mover.pos:
+            self.update_tiles()
         pbge.my_state.view.overlays.clear()
         pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
 

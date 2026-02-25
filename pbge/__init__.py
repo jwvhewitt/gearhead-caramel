@@ -173,6 +173,7 @@ class GameState(object):
 
         # The following stack is used by the check_trigger function in campaign
         self.trigger_tripped_stack = list()
+        self.trigger_queue = list()
 
         # self.client = SteamClient()
 
@@ -458,7 +459,7 @@ class GameState(object):
 
     def ui_is_active(self):
         # Return True if there are any active UI elements.
-        return any([w.active for w in self.widgets]) or self.alert_queue or self.deployment_queue
+        return any([w.active for w in self.widgets]) or self.alert_queue or self.deployment_queue or self.trigger_queue
 
     def flip(self):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
@@ -485,6 +486,22 @@ class GameState(object):
                 w.on_activate()
             elif not self._widgets_active and hasattr(w, "on_freeze"):
                 w.on_freeze()
+
+    def update_trigger_queue(self):
+        camp = self.session_data.get(campaign.SDAT_CAMPAIGN, None)
+        if not camp:
+            self.trigger_queue.clear()
+            return
+        while self.trigger_queue:
+            current_round = list(self.trigger_queue)
+            self.trigger_queue.clear()
+            done = set()
+
+            for item in current_round:
+                if item not in done:
+                    done.add(item)
+                camp.process_trigger(*item)
+
 
     def play(self):
         # A nonblocking game loop.
@@ -548,6 +565,8 @@ class GameState(object):
             self.render_notifications()
             if self.widget_tooltip:
                 self._draw_tooltip()
+
+            self.update_trigger_queue()
 
             # flip() the display to put your work on screen
             self.flip()

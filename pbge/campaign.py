@@ -45,6 +45,7 @@ class SessionMonitor(widgets.Widget):
         elif my_state.session_data.get(SDAT_GOT_QUIT, None):
             self.camp.save()
             my_state.session_data[SDAT_CAMPAIGN] = None
+            print("Quitting")
             self.pop()
         elif not self.camp.first_active_pc() and self.camp.home_base:
             # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!
@@ -161,7 +162,7 @@ class Campaign(object):
                 for p in ob.scripts:
                     yield p
 
-    def check_trigger(self, trigger, thing=None) -> bool|None:
+    def process_trigger(self, trigger, thing=None) -> bool|None:
         # Something is happened that plots may need to react to.
         # Only check a trigger if the campaign has been constructed.
         # NEW: Return True if this trigger tripped any scripts, or False/None if it did nothing.
@@ -172,6 +173,9 @@ class Campaign(object):
             for p in self.active_plots():
                 p.handle_trigger(self, trigger, thing)
             return my_state.trigger_tripped_stack.pop(-1)
+
+    def check_trigger(self, trigger, thing=None) -> None:
+        my_state.trigger_queue.append((trigger, thing))
 
     def expand_puzzle_menu(self, thing, thingmenu: scenes.waypoints.PuzzleMenu):
         # Something is happened that plots may need to react to.

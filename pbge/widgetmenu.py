@@ -397,13 +397,13 @@ class TitleMenuWidget(MenuWidget):
             draw_border=False, **kwargs
         )
         self.title = title
-        self.title_font = title_font
+        self.title_font = title_font or my_state.big_font
 
     def _render(self, delta):
-        default_border.render(self.my_menu.MENU_RECT.get_rect())
-        default_border.render(self.my_menu.TITLE_RECT.get_rect())
+        default_border.render(self.MENU_RECT.get_rect())
+        default_border.render(self.TITLE_RECT.get_rect())
         draw_text(
-            self.my_menu.title_font, self.my_menu.title, self.my_menu.TITLE_RECT.get_rect(), justify=0, vjustify=0,
+            self.title_font, self.title, self.TITLE_RECT.get_rect(), justify=0, vjustify=0,
             color=WHITE
         )
         super()._render(delta)

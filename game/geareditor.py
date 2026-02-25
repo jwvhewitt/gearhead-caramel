@@ -462,8 +462,10 @@ class PartsNodeWidget(pbge.widgets.Widget):
     def _part_text(self):
         if isinstance(self.data,gears.base.Module):
             return "{} [{}/{} free]".format(self.data.get_full_name(),self.data.free_volume,self.data.volume)
-        else:
+        elif isinstance(self.data, gears.base.BaseGear):
             return self.data.get_full_name()
+        else:
+            return ""
 
     def _draw_image(self,text_color):
         myimage = pygame.Surface((self.w,self.h))

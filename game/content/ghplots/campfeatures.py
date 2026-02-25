@@ -1,3 +1,4 @@
+from game.content.ghplots import lancedev
 from pbge.plots import Plot, PlotState
 import gears
 import pbge
@@ -84,6 +85,18 @@ class MetrosceneRecoveryHandler(Plot):
                                               plot_list=PLOT_LIST)
                     if nart.story:
                         nart.build()
+
+        # Attempt to load a lancedev test plot. DOn't worry about whether lancedev is enabled since if there's
+        # a lancedev plot labeled as a test plot, that's because *I wanna test it*.
+        # Not so happy about lance dev plots being handled here in the recovery handler but meh, whatchagonnado?
+        if not any(p.LABEL == lancedev.LANCEDEV_TEST_LABEL for p in camp.active_plots()):
+            # Attempt to load a lancemate test plot
+            nart = GHNarrativeRequest(
+                camp, pbge.plots.PlotState().based_on(self), adv_type=lancedev.LANCEDEV_TEST_LABEL,
+                plot_list=PLOT_LIST
+            )
+            if nart.story:
+                nart.build()
 
     def t_ENDCOMBAT(self, camp: gears.GearHeadCampaign):
         # Combat happens right here in the city? Do recovery right away.

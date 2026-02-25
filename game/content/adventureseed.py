@@ -154,11 +154,15 @@ class AdventureSeed(Adventure):
                     mydisplay = CombatResultsDisplay(title="Failure: {}".format(grade),
                                                      title_color=pygame.color.Color(250, 50, 0), mission_seed=self,
                                                      width=400)
-                pbge.alerts.FunAlert(mydisplay.show)
+                _=pbge.alerts.FunAlert(mydisplay.show, data=camp, on_close=self._finalize_adventure)
+            else:
+                super().end_adventure(camp)
 
             self.finished = True
 
-        super(AdventureSeed,self).end_adventure(camp)
+    def _finalize_adventure(self, wid, _ev):
+        camp = wid.data
+        super().end_adventure(camp)
 
 
 #   **********************
@@ -271,7 +275,7 @@ class MissionObjective(object):
     def reset_objective(self):
         if self.can_reset:
             self.awarded_points = 0
-            self.failed = 0
+            self.failed = False
 
 class ComeBackInOnePieceObjective(MissionObjective):
     def __init__(self,camp):

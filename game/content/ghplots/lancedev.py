@@ -16,6 +16,8 @@ from . import missionbuilder, lancedev_objectives, mysterymission
 
 #  Required elements: METRO, METROSCENE, MISSION_GATE
 
+LANCEDEV_TEST_LABEL = "LANCEDEV_TEST_LABEL"
+
 class LMPlot(Plot):
     LANCEDEV_PLOT = True
     UNIQUE = True
@@ -23,7 +25,7 @@ class LMPlot(Plot):
     # Contains convenience methods for lancemates.
     def npc_is_ready_for_lancedev(self, camp, npc):
         return (isinstance(npc, gears.base.Character) and npc in camp.party and npc.relationship
-                and npc.relationship.can_do_development())
+                and (npc.relationship.can_do_development() or self.LABEL == LANCEDEV_TEST_LABEL))
 
     def t_START(self, camp):
         npc = self.elements["NPC"]
@@ -2355,7 +2357,7 @@ class WangttaScent(LMPlot):
     LABEL = "LANCEDEV"
     active = True
     scope = True
-    UNIQUE = True
+    UNIQUE = False
 
     def custom_init(self, nart):
         npc = self.seek_element(nart, "NPC", self._is_good_npc, scope=nart.camp.scene, lock=True)
@@ -2376,8 +2378,8 @@ class WangttaScent(LMPlot):
 
     def _is_good_npc(self, nart, candidate):
         if self.npc_is_ready_for_lancedev(nart.camp, candidate):
-            return candidate.relationship.attitude is None and candidate.get_stat(gears.stats.MechaPiloting) < (
-                    candidate.renown // 10 + 4)
+            return (candidate.relationship.attitude is None and candidate.get_stat(gears.stats.MechaPiloting) < (
+                    candidate.renown // 10 + 4) and candidate.renown < nart.camp.pc.renown) or self.LABEL == LANCEDEV_TEST_LABEL
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.accepted_duel:
