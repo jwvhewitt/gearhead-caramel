@@ -867,28 +867,29 @@ class DZDKettelMission( DZDIntroMission ):
             # If the player team gets wiped out, end the mission.
             myteam = self.elements["_eteam"]
             if len(myteam.get_members_in_play(camp)) < 1:
-                pbge.alerts.TextAlert("As combat ends, you receive a comm signal from an unknown transmitter.")
-                pbge.alerts.TextAlert('"Kettel Industries reserves the right to defend itself from criminal activity. Those who harbor criminals will be considered accomplaices."', font=pbge.ALTTEXTFONT)
-                pbge.alerts.TextAlert('"Thank you for listening, and please consider Kettel Industries for your upcoming reconstruction work."', font=pbge.ALTTEXTFONT)
+                _=pbge.alerts.TextAlert("As combat ends, you receive a comm signal from an unknown transmitter.")
+                _=pbge.alerts.TextAlert('"Kettel Industries reserves the right to defend itself from criminal activity. Those who harbor criminals will be considered accomplaices."', font=pbge.ALTTEXTFONT)
+                _=pbge.alerts.TextAlert('"Thank you for listening, and please consider Kettel Industries for your upcoming reconstruction work."', font=pbge.ALTTEXTFONT)
 
-                pbge.my_state.view.play_anims(gears.geffects.Missile3(start_pos=self.elements["ENTRANCE"].pos, end_pos=self.elements["FUEL_TANKS"].pos))
+                _=pbge.alerts.AnimAlert(gears.geffects.Missile3(start_pos=self.elements["ENTRANCE"].pos, end_pos=self.elements["FUEL_TANKS"].pos))
 
                 my_invo = pbge.effects.Invocation(
                     fx=gears.geffects.DoDamage(10, 8, anim=gears.geffects.SuperBoom,
                                                scale=gears.scale.MechaScale,
                                                is_brutal=True),
                     area=pbge.scenes.targetarea.SelfCentered(radius=5, delay_from=-1))
-                anim_list = list()
-                my_invo.invoke(camp, None, [self.elements["FUEL_TANKS"].pos, ], anim_list)
-                _=pbge.alerts.AnimAlert(anim_list)
+                _=pbge.alerts.InvocationAlert(my_invo, camp, None, [self.elements["FUEL_TANKS"].pos, ])
 
                 _=SimpleMonologueDisplay(
                     "I admit, I was not expecting that. Let's head back to base...",
-                    self.elements["SHERIFF"], camp
+                    self.elements["SHERIFF"], camp, data=camp, on_close=self._finalize_mission
                 )
 
-                self.end_the_mission(camp)
-                camp.check_trigger("WIN",self)
             elif not camp.first_active_pc():
                 self.end_the_mission(camp)
                 camp.check_trigger("LOSE",self)
+
+    def _finalize_mission(self, wid, _ev):
+        camp = wid.data
+        self.end_the_mission(camp)
+        camp.check_trigger("WIN",self)

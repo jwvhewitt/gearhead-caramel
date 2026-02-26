@@ -100,6 +100,6 @@ class InvocationAlert(AnimAlert):
     def __init__(self, invo, camp, originator, target_points, invo_data=None, **kwargs):
         anim_list = list()
         invo.invoke(camp, originator, target_points, anim_list, data=invo_data)
-        super().__init__(anim_list, **kwargs)
+        super().__init__(*anim_list, **kwargs)
 
 

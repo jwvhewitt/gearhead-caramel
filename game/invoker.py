@@ -563,6 +563,8 @@ class InvocationUI(pbge.widgets.Widget):
             while len(self.targets) < self.num_targets:
                 self.targets.append(self.pc.pos)
             self.launch()
+        else:
+            self.click_left()
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:

@@ -1,3 +1,5 @@
+* Fixed DZD Kettel Intro crash
+
 v1.001alpha February 25, 2026
 * Traildrawer does not show AP markers anymore
 * Map overlays cleared when combat turn ends + when moving

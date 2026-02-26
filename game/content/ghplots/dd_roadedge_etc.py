@@ -766,7 +766,7 @@ class WarOnTheHighwayMain(Plot):
     )
     def get_dialogue_grammar(self, npc: gears.base.Character, camp: gears.GearHeadCampaign):
         mydict = dict()
-        if camp.is_not_lancemate(npc):
+        if npc and camp.is_not_lancemate(npc) and npc.scene:
             myscene = npc.scene.get_root_scene()
             if myscene is self.elements["CITY1"]:
                 mywar = self.elements["C1_WAR"]
