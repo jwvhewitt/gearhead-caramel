@@ -1,3 +1,7 @@
+v1.002alpha February 27, 2026
+* Fixed aibrain crash
+* Widget cannot be deployed twice
+* Converted backpack to use MenuWidgets, fixed crashes
 * Fixed DZD Kettel Intro crash
 
 v1.001alpha February 25, 2026

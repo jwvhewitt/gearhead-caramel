@@ -6,7 +6,7 @@ import pygame
 from pbge import widgetmenu
 
 INFO_COLUMN = pbge.frects.Frect(-300, -200, 220, 300)
-EQUIPMENT_COLUMN = pbge.frects.Frect(-50, -200, 350, 170)
+EQUIPMENT_COLUMN = pbge.frects.Frect(-50, -200, 350, 155)
 INVENTORY_COLUMN = pbge.frects.Frect(-50, 0, 350, 200)
 PC_SWITCH_AREA = pbge.frects.Frect(-300, 100, 220, 100)
 
@@ -66,46 +66,28 @@ class BackpackSwitchIP(gears.info.InfoPanel):
 
 
 class InvItemWidget(widgets.Widget):
-    def __init__(self, item, bp, show_parent=False, **kwargs):
+    def __init__(self, dx, dy, w, h, text, on_click: widgets.On_Click=None,data=None, desc=None, **kwargs):
         """
 
         :type bp: BackpackWidget
         :type item: gears.base.BaseGear
         """
-        self.item = item
-        self.bp = bp
-        if show_parent:
-            self.text = '{} [{}]'.format(str(item), str(item.parent))
-        else:
-            self.text = item.get_full_name()
-        super().__init__(0, 0, INVENTORY_COLUMN.w, pbge.MEDIUMFONT.get_linesize(), **kwargs)
+        self.text = text
+        if h == 0:
+            h = pbge.MEDIUMFONT.get_linesize()
+        super().__init__(dx, dy, w, h, on_click=on_click, data=data, desc=desc, **kwargs)
 
     def _render(self, delta):
         mydest = self.get_rect()
-        if self._should_flash() or (self is self.bp.active_item):
-            color = pbge.INFO_HILIGHT
-        elif self.item.is_destroyed():
+        if self._should_flash():
+            color = pbge.widgetmenu.MENU_SELECT_COLOR
+        elif self.data and self.data.is_destroyed():
             color = pbge.ENEMY_RED
         else:
-            color = pbge.INFO_GREEN
+            color = pbge.widgetmenu.MENU_ITEM_COLOR
         pbge.draw_text(pbge.MEDIUMFONT, self.text, mydest, color=color)
-        pbge.draw_text(pbge.ITALICFONT, self.item.scale.get_mass_string(self.item.mass), mydest, justify=1, color=color)
-
-    def _builtin_responder(self, ev):
-        if (ev.type == pygame.MOUSEMOTION) and self.get_rect().collidepoint(pbge.my_state.mouse_pos):
-            self.bp.active_item = self
-
-    def get_menu(self, *widgets_to_push) -> pbge.widgetmenu.MenuWidget:
-        # Return a popup menu for this widget.
-        mydest = self.get_rect()
-        mydest.h = 150
-        mydest.clamp_ip(pbge.my_state.screen.get_rect())
-        mymenu = pbge.widgetmenu.PopupMenuWidget(
-            w=mydest.w, h=mydest.h, topleft=mydest.topleft, font=pbge.MEDIUMFONT,
-            border=widgets.popup_menu_border
-        )
-        mymenu.push_and_deploy(*widgets_to_push)
-        return mymenu
+        if self.data:
+            pbge.draw_text(pbge.ITALICFONT, self.data.scale.get_mass_string(self.data.mass), mydest, justify=1, color=color)
 
     def __str__(self):
         return self.text
@@ -184,7 +166,6 @@ class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
 
 
 class BackpackWidget(widgets.Widget):
-    active_item: InvItemWidget = None
     TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
     def __init__(self, camp, pc, **kwargs):
@@ -198,51 +179,35 @@ class BackpackWidget(widgets.Widget):
         self.camp = camp
         self.pc = pc
         self.info_cache = dict()
+        self.active_item: pbge.widgets.Widget|None = None
+        self._latest_item_to_open_menu = None
 
-        self.ec_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
-                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.ec_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
-                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
-                                                   on_frame=2, off_frame=3)
-        self.equipment_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42,
-                                                             up_button=self.ec_up_button,
-                                                             down_button=self.ec_down_button, padding=2)
+        self.equipment_selector = widgetmenu.MenuWidget(
+            EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h,
+            on_activate_item=self._activate_item, item_class=InvItemWidget
+        )
 
-        self.equipment_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w,
-                                                     EQUIPMENT_COLUMN.h, draw_border=True)
+        self.children.append(self.equipment_selector)
 
-        self.equipment_column.add_interior(self.ec_up_button)
-        self.equipment_column.add_interior(self.equipment_selector)
-        self.equipment_column.add_interior(self.ec_down_button)
+        self.inventory_selector = widgetmenu.MenuWidget(
+            INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h,
+            on_activate_item=self._activate_item, item_class=InvItemWidget
+        )
 
-        self.children.append(self.equipment_column)
+        self.children.append(self.inventory_selector)
 
-        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
-                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
-                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
-                                                   on_frame=2, off_frame=3)
-        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42,
-                                                             up_button=self.ic_up_button,
-                                                             down_button=self.ic_down_button, padding=2)
-
-        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w,
-                                                     INVENTORY_COLUMN.h, draw_border=True)
-
-        self.inventory_column.add_interior(self.ic_up_button)
-        self.inventory_column.add_interior(self.inventory_selector)
-        self.inventory_column.add_interior(self.ic_down_button)
-
-        self.children.append(self.inventory_column)
         self.children.append(PlayerCharacterSwitchPlusBPInfo(camp, pc, self.set_pc, draw_border=True))
         self.finished = False
 
         self.update_selectors()
 
         self.children.append( pbge.widgets.LabelWidget(
-            150, 220, 80, 0, text="Done", justify=0, on_click=self.finish,
+            150, 240, 80, 0, text="Done", justify=0, on_click=self.finish,
             draw_border=True
         ))
+
+    def _activate_item(self, _col, colitem):
+        self.active_item = colitem.data
 
     def set_pc(self, pc):
         self.pc = pc
@@ -256,8 +221,10 @@ class BackpackWidget(widgets.Widget):
         """
         for part in part_list:
             if is_inv:
-                menu_widget.add_interior(
-                    InvItemWidget(part, self, show_parent=True, on_click=self.this_item_was_selected))
+                menu_widget.add_item(
+                    '{} [{}]'.format(str(part), str(part.parent)), self.this_item_was_selected,
+                    data=part
+                )
             self._add_equipped_items(part.sub_com, menu_widget, False)
             self._add_equipped_items(part.inv_com, menu_widget, True)
 
@@ -267,7 +234,7 @@ class BackpackWidget(widgets.Widget):
 
     def build_inventory_menu(self, container, menu_widget):
         for item in container.inv_com:
-            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False, on_click=self.this_item_was_selected))
+            menu_widget.add_item(item.get_full_name(), on_click=self.this_item_was_selected, data=item)
         menu_widget.sort(key=lambda w: w.text)
 
     def update_selectors(self):
@@ -277,17 +244,18 @@ class BackpackWidget(widgets.Widget):
         self.build_equipment_menu(self.equipment_selector)
         self.active_item = None
 
-    def _unequip_item(self, wid):
-        wid.item.parent.inv_com.remove(wid.item)
-        self.pc.inv_com.append(wid.item)
+    def _unequip_item(self, wid, _ev):
+        item = wid.data
+        item.parent.inv_com.remove(item)
+        self.pc.inv_com.append(item)
         self.update_selectors()
 
-    def _equip_item(self, menu_item, _ev):
-        wid = menu_item.data
-        mymenu: pbge.widgetmenu.PopupMenuWidget = wid.get_menu()
+    def _equip_item(self, wid, _ev):
+        item = wid.data
+        mymenu: pbge.widgetmenu.PopupMenuWidget = self.get_tiws_menu()
         for part in self.pc.descendants():
-            if part.can_equip(wid.item, check_slots=False):
-                _=mymenu.add_item(part.get_full_name(), self._select_destination, (wid.item, part))
+            if part.can_equip(item, check_slots=False):
+                _=mymenu.add_item(part.get_full_name(), self._select_destination, (item, part))
         _=mymenu.add_item("[CANCEL]", None)
 
     def _select_destination(self, wid, _ev):
@@ -301,18 +269,17 @@ class BackpackWidget(widgets.Widget):
             dest.inv_com.append(part)
             self.update_selectors()
 
-    def _load_ammo(self, menu_item, _ev):
-        wid = menu_item.data
-        mymenu = wid.get_menu()
+    def _load_ammo(self, wid, _ev):
+        item = wid.data
+        mymenu = self.get_tiws_menu()
         for part in self.pc.descendants():
-            if isinstance(part, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and part.is_good_ammo(wid.item):
+            if isinstance(part, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and part.is_good_ammo(item):
                 msg = part.get_full_name()
                 if part.parent is not self.pc:
                     msg = "{} ({})".format(msg, part.parent)
-                mymenu.add_item(msg, self._do_the_loading, data=(wid.item, part))
+                _=mymenu.add_item(msg, self._do_the_loading, data=(item, part))
         mymenu.sort()
-        mymenu.add_item("[CANCEL]", None)
-        mymenu.push_and_deploy()
+        _=mymenu.add_item("[CANCEL]", None)
 
     def _do_the_loading(self, wid, _ev):
         ammo, dest = wid.data
@@ -320,15 +287,14 @@ class BackpackWidget(widgets.Widget):
         _=pbge.my_state.start_sound_effect("reload.ogg")
         self.update_selectors()
 
-    def _reload_gun(self, menu_item, _ev):
-        wid = menu_item.data
-        mymenu = wid.get_menu()
+    def _reload_gun(self, wid, _ev):
+        item = wid.data
+        mymenu = self.get_tiws_menu()
         for part in self.pc.inv_com:
-            if isinstance(part, (gears.base.Ammo, gears.base.Chem)) and wid.item.is_good_ammo(part):
-                mymenu.add_item("{} [{}/{}]".format(part.get_full_name(), part.quantity - part.spent, part.quantity), self._do_the_reload, data=(wid.item, part))
+            if isinstance(part, (gears.base.Ammo, gears.base.Chem)) and item.is_good_ammo(part):
+                _=mymenu.add_item("{} [{}/{}]".format(part.get_full_name(), part.quantity - part.spent, part.quantity), self._do_the_reload, data=(item, part))
         mymenu.sort()
-        mymenu.add_item("[CANCEL]", None)
-        mymenu.push_and_deploy()
+        _=mymenu.add_item("[CANCEL]", None)
 
     def _do_the_reload(self, wid, _ev):
         gun, dest = wid.data
@@ -336,24 +302,23 @@ class BackpackWidget(widgets.Widget):
         _=pbge.my_state.start_sound_effect("reload.ogg")
         self.update_selectors()
 
-    def _drop_item(self, menu_item, _ev):
-        wid = menu_item.data
-        wid.item.parent.inv_com.remove(wid.item)
-        self.camp.scene.contents.append(wid.item)
-        wid.item.pos = self.pc.get_root().pos
+    def _drop_item(self, wid, _ev):
+        item = wid.data
+        item.parent.inv_com.remove(item)
+        self.camp.scene.contents.append(item)
+        item.pos = self.pc.get_root().pos
         self.update_selectors()
 
-    def _trade_item(self, menu_item, _ev):
-        wid = menu_item.data
-        mymenu: widgetmenu.PopupMenuWidget = wid.get_menu()
+    def _trade_item(self, wid, _ev):
+        item = wid.data
+        mymenu: widgetmenu.PopupMenuWidget = self.get_tiws_menu()
         mypc = self.pc.get_root()
         for pc in self.camp.get_active_party():
-            if pc is not mypc and pc.can_equip(wid.item) and isinstance(pc,
+            if pc is not mypc and pc.can_equip(item) and isinstance(pc,
                                                                         (gears.base.Mecha, gears.base.Character)) and (
                     not hasattr(pc, "owner") or not pc.owner):
-                _=mymenu.add_item(str(pc), self._do_the_trade, data=(pc, wid.item))
+                _=mymenu.add_item(str(pc), self._do_the_trade, data=(pc, item))
         _=mymenu.add_item("[Cancel]", None)
-        mymenu.push_and_deploy()
 
     def _do_the_trade(self, wid, _ev):
         nupc, item = wid.data
@@ -361,45 +326,64 @@ class BackpackWidget(widgets.Widget):
         nupc.inv_com.append(item)
         self.update_selectors()
 
-    def _stash_item(self, menu_item, _ev):
-        wid = menu_item.data
-        wid.item.parent.inv_com.remove(wid.item)
-        self.camp.party.append(wid.item)
+    def _stash_item(self, wid, _ev):
+        item = wid.data
+        item.parent.inv_com.remove(item)
+        self.camp.party.append(item)
         self.update_selectors()
+
+    def get_tiws_menu(self, current_menu_item: pbge.widgets.Widget|None=None) -> pbge.widgetmenu.MenuWidget:
+        # Return a popup menu for this widget.
+        if current_menu_item:
+            mydest = current_menu_item.get_rect()
+            self._latest_item_to_open_menu = current_menu_item
+        elif self._latest_item_to_open_menu:
+            mydest = self._latest_item_to_open_menu.get_rect()
+        else:
+            mydest = INVENTORY_COLUMN.get_rect()
+        mydest.h = 150
+        mydest.clamp_ip(pbge.my_state.screen.get_rect())
+        mymenu = pbge.widgetmenu.PopupMenuWidget(
+            w=mydest.w, h=mydest.h, topleft=mydest.topleft, font=pbge.MEDIUMFONT,
+            border=widgets.popup_menu_border
+        )
+        mymenu.push_and_deploy()
+        return mymenu
 
     def this_item_was_selected(self, wid: InvItemWidget, _ev):
         """
 
         :type wid: InvItemWidget
         """
-        mymenu = wid.get_menu()
+        mymenu = self.get_tiws_menu(wid)
+        item = wid.data
         # Basic options: Equip, Unequip, Transfer, Drop, Apply Skill
         # Let's let items set their own special menu options, like eat, use, engage safety, etc.
-        if wid.item.parent is self.pc:
-            _=mymenu.add_item("Equip {}".format(wid.item), self._equip_item, data=wid)
+        if item.parent is self.pc:
+            _=mymenu.add_item("Equip {}".format(item), self._equip_item, data=item)
         else:
-            _=mymenu.add_item("Unequip {}".format(wid.item), self._unequip_item, data=wid)
+            _=mymenu.add_item("Unequip {}".format(item), self._unequip_item, data=item)
 
-        if isinstance(wid.item, (gears.base.Ammo, gears.base.Chem)):
-            _=mymenu.add_item("Load {}".format(wid.item), self._load_ammo, data=wid)
-        elif isinstance(wid.item, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and any([wid.item.is_good_ammo(a) for a in self.pc.inv_com]):
-            _=mymenu.add_item("Reload {}".format(wid.item), self._reload_gu, data=wid)
+        if isinstance(item, (gears.base.Ammo, gears.base.Chem)):
+            _=mymenu.add_item("Load {}".format(item), self._load_ammo, data=item)
+        elif isinstance(item, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and any([item.is_good_ammo(a) for a in self.pc.inv_com]):
+            _=mymenu.add_item("Reload {}".format(item), self._reload_gu, data=item)
 
         if self.pc.get_root() in self.camp.scene.contents:
-            _=mymenu.add_item("Drop {}".format(wid.item), self._drop_item, data=wid)
+            _=mymenu.add_item("Drop {}".format(item), self._drop_item, data=item)
             if isinstance(self.pc.get_root(), gears.base.Character):
-                _=mymenu.add_item("Trade {}".format(wid.item), self._trade_item, data=wid)
+                _=mymenu.add_item("Trade {}".format(item), self._trade_item, data=item)
         else:
-            _=mymenu.add_item("Stash {}".format(wid.item), self._stash_item, data=wid)
+            _=mymenu.add_item("Stash {}".format(item), self._stash_item, data=item)
 
     def _render(self, delta):
         if self.active_item:
-            if self.active_item.item not in self.info_cache:
-                self.info_cache[self.active_item.item] = gears.info.get_longform_display(
-                    self.active_item.item, width=INFO_COLUMN.w
+            if self.active_item not in self.info_cache:
+                self.info_cache[self.active_item] = gears.info.get_longform_display(
+                    self.active_item, width=INFO_COLUMN.w
                 )
             mydest = INFO_COLUMN.get_rect()
-            self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
+            self.info_cache[self.active_item].render(mydest.x, mydest.y)
 
     def finish(self, _wid, _ev):
         self.pop()
@@ -412,7 +396,6 @@ class BackpackWidget(widgets.Widget):
 
 
 class ItemExchangeWidget(widgets.Widget):
-    active_item: InvItemWidget = None
     TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
     def __init__(self, camp, pc: gears.base.Character, conlist: pbge.container.ContainerList, **kwargs):
@@ -426,50 +409,33 @@ class ItemExchangeWidget(widgets.Widget):
         self.pc = pc
         self.conlist = conlist
         self.info_cache = dict()
+        self.active_item = None
 
-        self.cc_up_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
-                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.cc_down_button = widgets.ButtonWidget(0, 0, EQUIPMENT_COLUMN.w, 16,
-                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
-                                                   on_frame=2, off_frame=3)
-        self.crate_selector = widgets.ScrollColumnWidget(0, 0, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h - 42,
-                                                         up_button=self.cc_up_button, down_button=self.cc_down_button,
-                                                         padding=2)
+        self.crate_selector = widgetmenu.MenuWidget(
+            EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h,
+            on_activate_item=self._activate_item, item_class=InvItemWidget
+        )
 
-        self.crate_column = widgets.ColumnWidget(EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w,
-                                                 EQUIPMENT_COLUMN.h, draw_border=True)
+        self.children.append(self.crate_selector)
 
-        self.crate_column.add_interior(self.cc_up_button)
-        self.crate_column.add_interior(self.crate_selector)
-        self.crate_column.add_interior(self.cc_down_button)
+        self.inventory_selector = widgetmenu.MenuWidget(
+            INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h,
+            on_activate_item=self._activate_item, item_class=InvItemWidget
+        )
 
-        self.children.append(self.crate_column)
+        self.children.append(self.inventory_selector)
 
-        self.ic_up_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
-                                                 sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), off_frame=1)
-        self.ic_down_button = widgets.ButtonWidget(0, 0, INVENTORY_COLUMN.w, 16,
-                                                   sprite=pbge.image.Image("sys_updownbuttons.png", 128, 16), frame=2,
-                                                   on_frame=2, off_frame=3)
-        self.inventory_selector = widgets.ScrollColumnWidget(0, 0, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h - 42,
-                                                             up_button=self.ic_up_button,
-                                                             down_button=self.ic_down_button, padding=2)
-
-        self.inventory_column = widgets.ColumnWidget(INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w,
-                                                     INVENTORY_COLUMN.h, draw_border=True)
-
-        self.inventory_column.add_interior(self.ic_up_button)
-        self.inventory_column.add_interior(self.inventory_selector)
-        self.inventory_column.add_interior(self.ic_down_button)
-
-        self.children.append(self.inventory_column)
         self.children.append(PlayerCharacterSwitchPlusBPInfo(camp, pc, self.set_pc, draw_border=True))
 
         self.update_selectors()
 
         self.children.append( pbge.widgets.LabelWidget(
-            150, 220, 80, 0, text="Done", justify=0, on_click=self.done_button,
+            150, 240, 80, 0, text="Done", justify=0, on_click=self.done_button,
             draw_border=True
         ))
+
+    def _activate_item(self, _col, colitem):
+        self.active_item = colitem.data
 
     def set_pc(self, pc):
         self.pc = pc
@@ -477,8 +443,8 @@ class ItemExchangeWidget(widgets.Widget):
 
     def build_inventory_menu(self, mylist, menu_widget, click_fun):
         for item in mylist:
-            menu_widget.add_interior(InvItemWidget(item, self, show_parent=False, on_click=click_fun))
-        menu_widget.sort(key=lambda w: w.text)
+            menu_widget.add_item(item.get_full_name(), on_click=click_fun, data=item)
+        menu_widget.sort(key=lambda w: str(w))
 
     def update_selectors(self):
         self.inventory_selector.clear()
@@ -487,28 +453,30 @@ class ItemExchangeWidget(widgets.Widget):
         self.build_inventory_menu(self.conlist, self.crate_selector, self.trade_to_pc)
         self.active_item = None
 
-    def trade_to_crate(self, wid, ev):
-        wid.item.parent.inv_com.remove(wid.item)
-        self.conlist.append(wid.item)
+    def trade_to_crate(self, wid, _ev):
+        item = wid.data
+        item.parent.inv_com.remove(item)
+        self.conlist.append(item)
         self.update_selectors()
 
     def trade_to_pc(self, wid, _ev):
-        if self.pc.can_equip(wid.item):
-            self.conlist.remove(wid.item)
-            self.pc.inv_com.append(wid.item)
+        item = wid.data
+        if self.pc.can_equip(item):
+            self.conlist.remove(item)
+            _=self.pc.inv_com.append(item)
             self.update_selectors()
-            self.camp.check_trigger("GET", wid.item)
+            self.camp.check_trigger("GET", item)
 
     def done_button(self, _wid, _ev):
         self.pop()
 
     def _render(self, delta):
         if self.active_item:
-            if self.active_item.item not in self.info_cache:
-                self.info_cache[self.active_item.item] = gears.info.get_longform_display(self.active_item.item,
+            if self.active_item not in self.info_cache:
+                self.info_cache[self.active_item] = gears.info.get_longform_display(self.active_item,
                                                                                          width=INFO_COLUMN.w)
             mydest = INFO_COLUMN.get_rect()
-            self.info_cache[self.active_item.item].render(mydest.x, mydest.y)
+            self.info_cache[self.active_item].render(mydest.x, mydest.y)
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:

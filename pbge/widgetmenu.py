@@ -1,4 +1,3 @@
-from numpy import isin
 from . import widgets
 from . import image
 from . import my_state, Border, TEXT_COLOR, default_border, draw_text, WHITE
@@ -24,7 +23,7 @@ class MenuWidget(widgets.ColumnWidget):
         off_border=widget_menu_border_off, activate_child_on_enter=True,
         on_activate_item=None, center_interior=True, padding=5,
         item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
-        font=None, item_class=widgets.LabelWidget, item_data=None, 
+        font=None, item_class: type[widgets.Widget]=widgets.LabelWidget, item_data=None, 
         on_click_child: widgets.On_Click=None, pop_when_clicked=False,
         on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
         auto_escape=False,

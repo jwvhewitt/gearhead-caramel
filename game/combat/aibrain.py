@@ -289,7 +289,7 @@ class BasicAI(object):
                         dest = p
                         break
                 if dest and dest != self.npc.pos:
-                    return [actions.MoveModelToPos(self.camp, self.npc, mynav, dest),]
+                    return [actions.MoveModelToPos(camp, self.npc, mynav, dest),]
                     
 
         return my_actions

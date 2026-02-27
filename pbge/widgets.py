@@ -410,6 +410,8 @@ class Widget(frects.Frect):
         self.deploy_to_main(*widgets_to_push)
 
     def deploy_to_main(self, *widgets_to_push):
+        if self.snapshot:
+            raise WidgetException("Widget {} tried to deploy itself twice.".format(self))
         self.snapshot=FrozenUIState(
             *widgets_to_push, tags_to_deactivate=self.TAGS_TO_DEACTIVATE, 
             tags_to_hide=self.TAGS_TO_HIDE, tags_to_push=self.TAGS_TO_PUSH,
