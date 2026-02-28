@@ -724,6 +724,10 @@ class ScrollColumnWidget(Widget):
                 other_on_click(wid, ev)
             if self.on_click_child:
                 self.on_click_child(wid, ev)
+            # This is a weird line, but it is here to make sure that mouse activation of menu items keeps
+            # working in a persistant menu after one of the items is clicked.
+            if self.activate_child_on_enter:
+                self.active = self.active
 
         return nuclick
 

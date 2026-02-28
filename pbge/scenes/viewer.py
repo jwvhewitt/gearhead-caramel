@@ -140,7 +140,7 @@ class SceneView(object):
         else:
             return self._mouse_tile
 
-    def get_sprite(self, obj):
+    def get_sprite(self, obj) -> image.Image:
         """Return the sprite for the requested object. If no sprite exists, try to load one."""
         spr = self.modelsprite.get(obj)
         if not spr:

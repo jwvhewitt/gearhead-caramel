@@ -664,10 +664,10 @@ class WarOnTheHighwayMain(Plot):
 
         nart.camp.set_faction_enemies(city1, city2)
 
-        self.register_element("_C1FAC", city1.faction)
-        self.register_element("_C2FAC", city2.faction)
+        _=self.register_element("_C1FAC", city1.faction)
+        _=self.register_element("_C2FAC", city2.faction)
 
-        self.register_element("C1_WAR", Challenge(
+        _=self.register_element("C1_WAR", Challenge(
             "Defeat {}".format(city2), ghchallenges.FIGHT_CHALLENGE, (city2.faction,),
             involvement=ghchallenges.InvolvedMetroFactionNPCs(city1),
             data={
@@ -697,7 +697,7 @@ class WarOnTheHighwayMain(Plot):
             ), deactivate_on_win=False
         ))
 
-        self.register_element("C2_WAR", Challenge(
+        _=self.register_element("C2_WAR", Challenge(
             "Defeat {}".format(city1), ghchallenges.FIGHT_CHALLENGE, (city1.faction,),
             involvement=ghchallenges.InvolvedMetroFactionNPCs(city2),
             data={

@@ -146,7 +146,7 @@ class _MedicalCommentaryBlock( object ):
         self._text = text
 
     def render(self, x, y):
-        pbge.my_state.screen.blit( self._image
+        _=pbge.my_state.screen.blit( self._image
                                  , pygame.Rect(x, y, self.width, self.height)
                                  )
 
@@ -231,7 +231,7 @@ class SurgeryUI(pbge.widgets.Widget):
         # Preparations
         self._build_all()
 
-    def _try_set_info_panel(self, wmenu, menuitem):
+    def _try_set_info_panel(self, _wmenu, menuitem):
         if not self.active:
             return
         if menuitem and menuitem.data:
@@ -305,7 +305,7 @@ class SurgeryUI(pbge.widgets.Widget):
         limb.sub_com.append(cyber)
         self._refresh_all()
 
-    def _install(self, widj, ev):
+    def _install(self, widj, _ev):
         cyber = widj.data
         mymenu = CyberMenu("Select Installation Location", alert_font=pbge.BIGFONT, font=pbge.MEDIUM_DISPLAY_FONT)
         if self.camp.credits >= self.shop.calc_purchase_price(self.camp, cyber):
@@ -316,7 +316,7 @@ class SurgeryUI(pbge.widgets.Widget):
                         _=mymenu.add_item("Install {} in {}".format(cyber, limb), self._confirm_install, data=(cyber, limb))
                     elif other_cyber and cyber.can_replace(limb, other_cyber):
                         _=mymenu.add_item("Replace {} with {} in {}".format(other_cyber, cyber, limb), self._confirm_install, data=(cyber, limb))
-            if mymenu.items:
+            if not mymenu.is_empty():
                 _=mymenu.add_item("Cancel installation", None)
             else:
                 _=mymenu.add_item("Cannot install {} due to current trauma".format(cyber), None)
@@ -341,7 +341,7 @@ class SurgeryUI(pbge.widgets.Widget):
         self.pc.inv_com.append(cyber)
         self._refresh_all()
 
-    def _on_exit(self, *args, **kwargs):
+    def _on_exit(self, *_args, **_kwargs):
         self.pop()
 
     def _render(self, delta):

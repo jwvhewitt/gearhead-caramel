@@ -218,7 +218,7 @@ class VisibleGear(pbge.scenes.PlaceableThing):
     SAVE_PARAMETERS = ('portrait',)
     DESTROYED_FRAME = 1
 
-    def get_sprite(self):
+    def get_sprite(self) -> pbge.image.Image:
         """Generate the sprite for this thing."""
         if self.portrait and self.portrait.startswith('card_'):
             self.frame = 2
@@ -5144,7 +5144,7 @@ class Squad(BaseGear, ContainerDamageHandler, Mover, VisibleGear, HasPower, Comb
 
     MINI_SPRITE_OFFSETS = ((22, 40), (0, 40), (44, 40), (11, 44), (33, 44))
 
-    def get_sprite(self):
+    def get_sprite(self) -> pbge.image.Image:
         """Generate the sprite for this thing."""
         base_image = pbge.image.Image(frame_width=self.imagewidth, frame_height=self.imageheight)
         for n, mem in enumerate(self.sub_com):

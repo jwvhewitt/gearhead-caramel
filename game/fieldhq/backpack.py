@@ -314,9 +314,10 @@ class BackpackWidget(widgets.Widget):
         mymenu: widgetmenu.PopupMenuWidget = self.get_tiws_menu()
         mypc = self.pc.get_root()
         for pc in self.camp.get_active_party():
-            if pc is not mypc and pc.can_equip(item) and isinstance(pc,
-                                                                        (gears.base.Mecha, gears.base.Character)) and (
-                    not hasattr(pc, "owner") or not pc.owner):
+            if (pc is not mypc and pc.can_equip(item) 
+                and isinstance(pc, (gears.base.Mecha, gears.base.Character)) 
+                and not (hasattr(pc, "owner") and pc.owner)  # pyright: ignore[reportAttributeAccessIssue]
+            ):
                 _=mymenu.add_item(str(pc), self._do_the_trade, data=(pc, item))
         _=mymenu.add_item("[Cancel]", None)
 
@@ -345,7 +346,7 @@ class BackpackWidget(widgets.Widget):
         mydest.clamp_ip(pbge.my_state.screen.get_rect())
         mymenu = pbge.widgetmenu.PopupMenuWidget(
             w=mydest.w, h=mydest.h, topleft=mydest.topleft, font=pbge.MEDIUMFONT,
-            border=widgets.popup_menu_border
+            border=widgets.popup_menu_border, auto_escape=True
         )
         mymenu.push_and_deploy()
         return mymenu
@@ -367,7 +368,7 @@ class BackpackWidget(widgets.Widget):
         if isinstance(item, (gears.base.Ammo, gears.base.Chem)):
             _=mymenu.add_item("Load {}".format(item), self._load_ammo, data=item)
         elif isinstance(item, (gears.base.BallisticWeapon, gears.base.ChemThrower)) and any([item.is_good_ammo(a) for a in self.pc.inv_com]):
-            _=mymenu.add_item("Reload {}".format(item), self._reload_gu, data=item)
+            _=mymenu.add_item("Reload {}".format(item), self._reload_gun, data=item)
 
         if self.pc.get_root() in self.camp.scene.contents:
             _=mymenu.add_item("Drop {}".format(item), self._drop_item, data=item)

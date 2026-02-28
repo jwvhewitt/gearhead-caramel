@@ -34,7 +34,7 @@ class AreaEnchantment:
     # A set of tags describing how this area enchantment may be dispelled.
     DISPEL = {}
 
-    def get_sprite(self):
+    def get_sprite(self) -> image.Image:
         """Generate the sprite for this thing."""
         return image.Image(self.IMAGENAME, self.IMAGEWIDTH, self.IMAGEHEIGHT, self.COLORS, transparent=self.TRANSPARENT)
 

@@ -1,19 +1,14 @@
-from typing import override
-import gears
 import pbge
 from pbge import effects
 from pbge.scenes import animobs, movement, pfov
 import random
 from . import materials, scale
 from . import damage, stats, pets
-from .enchantments import Enchantment, END_COMBAT, ON_MOVE, DISPEL_NEGATIVE_ELECTRONIC, ON_DISPEL_POSITIVE, ON_DISPEL_NEGATIVE, USE_ANTIDOTE
+from .enchantments import Enchantment, END_COMBAT, DISPEL_NEGATIVE_ELECTRONIC, ON_DISPEL_POSITIVE, ON_DISPEL_NEGATIVE, USE_ANTIDOTE
 import math
 from . import base, tags
 import copy
 
-# For backwards compatibility reasons, import Skimming and Rolling to here. You can delete this import at
-# version v1.000 when savefile compatibility breaks again.
-from .tags import Skimming, Rolling
 
 MONSTER_LIST = ()
 
@@ -34,7 +29,7 @@ class AttackInvocation(effects.Invocation):
     def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
         if originator:
             anim_list.append(animobs.WatchMeWiggle(originator))
-        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
+        return super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
 
 
 class ItemInvocation(effects.Invocation):
@@ -45,7 +40,7 @@ class ItemInvocation(effects.Invocation):
     def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
         if originator:
             anim_list.append(animobs.WatchMeWiggle(originator))
-        super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
+        return super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
 
 
 class InvoLibraryShelf(object):
@@ -911,8 +906,13 @@ class AttackRoll(effects.NoEffect):
             att_bonus = random.randint(1, 100)
         att_roll = random.randint(1, 100)
 
+        if originator and originator.pos:
+            opos = originator.pos
+        else:
+            opos = pos
+
         for m in self.modifiers:
-            att_bonus += m.calc_modifier(camp, originator, pos)
+            att_bonus += m.calc_modifier(camp, originator, opos, pos)
 
         targets = camp.scene.get_operational_actors(pos)
         next_fx = []
@@ -947,7 +947,7 @@ class AttackRoll(effects.NoEffect):
 
         return list(next_fx or self.children) + self.terrain_effects
 
-    def get_odds(self, camp, originator, target):
+    def get_odds(self, camp, originator, firing_pos, target):
         # Return the percent chance that this attack will hit and the list of
         # modifiers in (value,name) form.
         modifiers = list()
@@ -956,7 +956,7 @@ class AttackRoll(effects.NoEffect):
         else:
             att_bonus = 50
         for m in self.modifiers:
-            mval = m.calc_modifier(camp, originator, target.pos)
+            mval = m.calc_modifier(camp, originator, firing_pos, target.pos)
             att_bonus += mval
             if mval != 0:
                 modifiers.append((mval, m.name))
@@ -982,8 +982,13 @@ class MeleeAttackRoll(AttackRoll):
             max_attacks = 3
         att_roll = random.randint(1, 100)
 
+        if originator and originator.pos:
+            opos = originator.pos
+        else:
+            opos = pos
+
         for m in self.modifiers:
-            att_bonus += m.calc_modifier(camp, originator, pos)
+            att_bonus += m.calc_modifier(camp, originator, opos, pos)
 
         targets = camp.scene.get_operational_actors(pos)
         next_fx = []
@@ -1060,8 +1065,13 @@ class MultiAttackRoll(effects.NoEffect):
             att_bonus = random.randint(1, 100)
         att_roll = random.randint(1, 100)
 
+        if originator and originator.pos:
+            opos = originator.pos
+        else:
+            opos = pos
+
         for m in self.modifiers:
-            att_bonus += m.calc_modifier(camp, originator, pos)
+            att_bonus += m.calc_modifier(camp, originator, opos, pos)
 
         targets = camp.scene.get_operational_actors(pos)
         next_fx = []
@@ -1104,7 +1114,7 @@ class MultiAttackRoll(effects.NoEffect):
 
         return list(next_fx or self.children) + self.terrain_effects
 
-    def get_odds(self, camp, originator, target):
+    def get_odds(self, camp, originator, firing_pos, target):
         # Return the percent chance that this attack will hit and the modifiers.
         modifiers = list()
         if self.apply_hit_modifier:
@@ -1114,7 +1124,7 @@ class MultiAttackRoll(effects.NoEffect):
         else:
             att_bonus = 50 + self.get_multi_bonus()
         for m in self.modifiers:
-            mval = m.calc_modifier(camp, originator, target.pos)
+            mval = m.calc_modifier(camp, originator, firing_pos, target.pos)
             att_bonus += mval
             if mval != 0:
                 modifiers.append((mval, m.name))
@@ -1885,13 +1895,13 @@ class RangeModifier(object):
     def __init__(self, range_step):
         self.range_step = range_step
 
-    def calc_modifier(self, camp, attacker, pos):
-        my_range = camp.scene.distance(attacker.pos, pos)
+    def calc_modifier(self, camp, _attacker, attacker_pos, target_pos):
+        my_range = camp.scene.distance(attacker_pos, target_pos)
         if my_range > self.range_step:
             my_mod = -10 + (-25 * (my_range - self.range_step - 1))//self.range_step
             self.name = "Too Far"
-        elif my_range < (self.range_step - 2):
-            my_mod = (self.range_step - 2 - my_range) * -10
+        elif my_range <= (self.range_step - 4):
+            my_mod = (self.range_step - 3 - my_range) * -15
             self.name = "Too Close"
         else:
             my_mod = 0
@@ -1904,9 +1914,9 @@ class CoverModifier(object):
     def __init__(self, vision_type=movement.Vision):
         self.vision_type = vision_type
 
-    def calc_modifier(self, camp, attacker, pos):
-        my_mod = -camp.scene.get_cover(attacker.pos[0], attacker.pos[1], pos[0], pos[1])
-        target = camp.scene.get_main_actor(pos)
+    def calc_modifier(self, camp, attacker, attacker_pos, target_pos):
+        my_mod = -camp.scene.get_cover(attacker_pos[0], attacker_pos[1], target_pos[0], target_pos[1])
+        target = camp.scene.get_main_actor(target_pos)
         attacker_flying = attacker and hasattr(attacker, "mmode") and attacker.mmode is pbge.scenes.movement.Flying
         target_flying = target and hasattr(target, "mmode") and target.mmode is pbge.scenes.movement.Flying
 
@@ -1931,9 +1941,9 @@ class MeleeFlyingModifier(object):
     def __init__(self, weapon_reach=1):
         self.weapon_reach = weapon_reach
 
-    def calc_modifier(self, camp, attacker, pos):
+    def calc_modifier(self, camp, attacker, _attacker_pos, target_pos):
         my_mod = min(-55 + self.weapon_reach * 15, -10)
-        target = camp.scene.get_main_actor(pos)
+        target = camp.scene.get_main_actor(target_pos)
         attacker_flying = attacker and hasattr(attacker, "mmode") and attacker.mmode is pbge.scenes.movement.Flying
         attacker_jumping = attacker and hasattr(attacker, "get_speed") and attacker.get_speed(tags.Jumping) > 0
 
@@ -1953,8 +1963,8 @@ class SpeedModifier(object):
     name = 'Target Movement'
     MOD_PER_TILE = -3
 
-    def calc_modifier(self, camp, attacker, pos):
-        targets = camp.scene.get_operational_actors(pos)
+    def calc_modifier(self, camp, _attacker, _attacker_pos, target_pos):
+        targets = camp.scene.get_operational_actors(target_pos)
         my_mod = 0
         if camp.fight:
             for t in targets:
@@ -1966,8 +1976,8 @@ class ImmobileModifier(object):
     name = 'Target Immobile'
     IMMOBILE_MODIFIER = 25
 
-    def calc_modifier(self, camp, attacker, pos):
-        targets = camp.scene.get_operational_actors(pos)
+    def calc_modifier(self, camp, _attacker, _attacker_pos, target_pos):
+        targets = camp.scene.get_operational_actors(target_pos)
         my_mod = 0
         for t in targets:
             if hasattr(t, "get_current_speed") and t.get_current_speed() < 1:
@@ -1979,10 +1989,10 @@ class SensorModifier(object):
     name = 'Sensor Range'
     PENALTY = -5
 
-    def calc_modifier(self, camp, attacker, pos):
-        my_range = camp.scene.distance(attacker.pos, pos)
+    def calc_modifier(self, camp, attacker, attacker_pos, target_pos):
+        my_range = camp.scene.distance(attacker_pos, target_pos)
         my_sensor = attacker.get_sensor_range(camp.scene.scale)
-        my_target = camp.scene.get_main_actor(pos)
+        my_target = camp.scene.get_main_actor(target_pos)
         if my_range > my_sensor:
             if hasattr(my_target, "ench_list") and my_target.ench_list.get_enchantment_of_class(SensorLock):
                 return 0
@@ -1997,10 +2007,10 @@ class OverwhelmModifier(object):
     name = 'Overwhelmed'
     MOD_PER_ATTACK = 4
 
-    def calc_modifier(self, camp, attacker, pos):
+    def calc_modifier(self, camp, _attacker, _attacker_pos, target_pos):
         my_mod = 0
         if camp.fight:
-            targets = camp.scene.get_operational_actors(pos)
+            targets = camp.scene.get_operational_actors(target_pos)
             for t in targets:
                 my_mod += camp.fight.cstat[t].attacks_this_round * self.MOD_PER_ATTACK
         return my_mod
@@ -2011,7 +2021,7 @@ class GenericBonus(object):
         self.name = name
         self.bonus = bonus
 
-    def calc_modifier(self, camp, attacker, pos):
+    def calc_modifier(self, _camp, _attacker, _attacker_pos, _target_pos):
         return self.bonus
 
 
@@ -2020,7 +2030,7 @@ class ModuleBonus(object):
         self.name = '{} Mod'.format(wmodule)
         self.wmodule = wmodule
 
-    def calc_modifier(self, camp, attacker, pos):
+    def calc_modifier(self, _camp, _attacker, _attacker_pos, _target_pos):
         if self.wmodule:
             it = self.wmodule.form.AIM_BONUS
             for i in self.wmodule.inv_com:
@@ -2035,7 +2045,7 @@ class SneakAttackBonus(object):
     name = 'Sneak Attack'
     BONUS = 20
 
-    def calc_modifier(self, camp, attacker, pos):
+    def calc_modifier(self, _camp, attacker, _attacker_pos, _target_pos):
         if attacker and attacker.hidden:
             return self.BONUS
         else:
@@ -2046,8 +2056,8 @@ class HiddenModifier(object):
     name = 'Hidden'
     BONUS = -25
 
-    def calc_modifier(self, camp, attacker, pos):
-        target = camp.scene.get_main_actor(pos)
+    def calc_modifier(self, camp, _attacker, _attacker_pos, target_pos):
+        target = camp.scene.get_main_actor(target_pos)
         if target and target.hidden:
             return self.BONUS
         else:
@@ -2064,7 +2074,7 @@ class HiddenModifier(object):
 # penetration if the attack hits.
 
 class DodgeRoll(object):
-    def make_roll(self, atroller, attacker, defender, att_bonus, att_roll, fx_record):
+    def make_roll(self, atroller, attacker, defender, att_bonus, att_roll, _fx_record):
         # If the attack roll + attack bonus + accuracy is higher than the
         # defender's defense bonus + maneuverability + 20, or if the attack roll
         # is greater than 95, the attack hits.
@@ -2132,7 +2142,7 @@ class BlockRoll(object):
     def __init__(self, weapon_to_block):
         self.weapon_to_block = weapon_to_block
 
-    def make_roll(self, atroller, attacker, defender, att_bonus, att_roll, fx_record):
+    def make_roll(self, atroller, _attacker, defender, att_bonus, att_roll, _fx_record):
         # First, locate the defender's shield.
         shield = self.get_shield(defender)
         if shield:
@@ -2185,7 +2195,7 @@ class ParryRoll(object):
     def __init__(self, weapon_to_parry):
         self.weapon_to_parry = weapon_to_parry
 
-    def make_roll(self, atroller, attacker, defender, att_bonus, att_roll, fx_record):
+    def make_roll(self, atroller, _attacker, defender, att_bonus, att_roll, _fx_record):
         # First, locate the defender's parrier.
         parrier = self.get_parrier(defender)
         if parrier:
@@ -2238,7 +2248,7 @@ class InterceptRoll(object):
     def __init__(self, weapon_to_intercept):
         self.weapon_to_intercept = weapon_to_intercept
 
-    def make_roll(self, atroller, attacker, defender, att_bonus, att_roll, fx_record):
+    def make_roll(self, atroller, _attacker, defender, att_bonus, att_roll, _fx_record):
         # First, locate the defender's interceptors.
         interceptors = self.get_interceptors(defender)
         highest_def_roll = 0

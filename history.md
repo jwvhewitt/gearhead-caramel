@@ -1,3 +1,14 @@
+v1.003alpha February 27, 2026
+* Lowered default volume to 70%
+* Invoker displayed to-hit score now calculated from firing pos, not current pos
+* Persistent menus won't lose mouse focus when an item clicked
+* Shopping checkout/cancel/continue menu will continue shopping on Esc
+* Shopping checkout/cancel/continue menu no longer locks the game (oops)
+* Can exit backpack's TIWS menu using the Esc key
+* Added more type annotations
+* Fixed cyberdoc install crash
+* Fixed reload ammo crash
+
 v1.002alpha February 27, 2026
 * Fixed aibrain crash
 * Widget cannot be deployed twice

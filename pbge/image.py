@@ -87,14 +87,14 @@ class Image(object):
             area = pygame.Rect(area_x, area_y, self.frame_width, self.frame_height)
         return area
 
-    def render(self, dest=(0, 0), frame=0, dest_surface=None ):
+    def render(self, dest=(0, 0), frame=0, dest_surface=None ) -> None:
         # Render this Image onto the provided surface.
         # Start by determining the correct sub-area of the image.
         area = self._get_frame_area(frame)
         dest_surface = dest_surface or my_state.screen
         _=dest_surface.blit(self.bitmap, dest, area)
 
-    def render_c(self, dest=(0, 0), frame=0, dest_surface=None ):
+    def render_c(self, dest=(0, 0), frame=0, dest_surface=None ) -> None:
         # As above, but the dest coordinates point to the center of the image.
         area = self._get_frame_area(frame)
         dest_c = self.get_rect(frame)
@@ -102,7 +102,7 @@ class Image(object):
         dest_surface = dest_surface or my_state.screen
         _=dest_surface.blit(self.bitmap, dest_c, area)
 
-    def render_montage(self, dest=(0, 0), h_frames=1, v_frames=1, dest_surface=None ):
+    def render_montage(self, dest=(0, 0), h_frames=1, v_frames=1, dest_surface=None ) -> None:
         # Render a section of this spritesheet.
         area = pygame.Rect(0, 0, h_frames*self.frame_width, v_frames*self.frame_height)
         dest_surface = dest_surface or my_state.screen

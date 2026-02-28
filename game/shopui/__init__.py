@@ -216,7 +216,8 @@ class CheckoutMenu(pbge.widgetmenu.MenuWidget):
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
     def __init__(self, on_finalize: pbge.widgets.On_Click, on_cancel: pbge.widgets.On_Click):
         super().__init__(
-            -EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2, EXITMENU_WIDTH, EXITMENU_HEIGHT, font=pbge.MEDIUM_DISPLAY_FONT
+            -EXITMENU_WIDTH // 2, -EXITMENU_HEIGHT // 2, EXITMENU_WIDTH, EXITMENU_HEIGHT, font=pbge.MEDIUM_DISPLAY_FONT,
+            pop_when_clicked=True, auto_escape=True
         )
         _=self.add_item('Continue Shopping', self._continue_shopping)
         _=self.add_item('Finalize Transactions', on_finalize)

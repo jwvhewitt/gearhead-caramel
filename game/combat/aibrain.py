@@ -50,7 +50,7 @@ class DefaultTargeter(object):
         if myat:
             myinvo = myat.get_first_working_invo(self.npc)
             if myinvo and hasattr(myinvo.fx, "get_odds"):
-                return myinvo.fx.get_odds(camp, self.npc, target)
+                return myinvo.fx.get_odds(camp, self.npc, self.npc.pos, target)
         return -1
 
     def strongest_target_selector(self, camp, target):
@@ -164,7 +164,7 @@ class BasicAI(object):
         candidates = list()
         for invo in candidate_invocations:
             if hasattr(invo.fx, "get_odds"):
-                odds, modz = invo.fx.get_odds(camp, self.npc, target)
+                odds, modz = invo.fx.get_odds(camp, self.npc, self.npc.pos, target)
                 candidates += [invo, ] * min(max(int((odds - 0.25) * 25), 1), 25)
             else:
                 candidates += [invo, ]

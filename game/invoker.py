@@ -57,7 +57,7 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
         # top_shelf_fun and bottom_shelf_fun are functions called when the user
         #   tries to scroll above the top item or below the bottom item. If None,
         #   this widget will just loop around to the other end of the list.
-        super(InvocationLibraryWidget, self).__init__(-383, -5, 383, 65, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
+        super().__init__(-383, -5, 383, 65, anchor=pbge.frects.ANCHOR_UPPERRIGHT, **kwargs)
         self.camp = camp
         self.pc = pc
         self.build_library = build_library_function
@@ -358,7 +358,7 @@ class InvocationUI(pbge.widgets.Widget):
     SC_GOODTARGET = 13
     SC_VOIDENEMYCURSOR = 14
     SC_VOIDGOODTARGET = 15
-    LIBRARY_WIDGET = InvocationLibraryWidget
+    LIBRARY_WIDGET: type[InvocationLibraryWidget] = InvocationLibraryWidget
 
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_EXPLORATIONMODE,}
 
@@ -372,7 +372,7 @@ class InvocationUI(pbge.widgets.Widget):
         self.pc = pc
         # self.change_invo(invo)
         self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
-        self.invo: pbge.effects.Invocation = None
+        self.invo: pbge.effects.Invocation|None = None
         self.data = dict()
 
         self.legal_tiles = set()
@@ -380,7 +380,7 @@ class InvocationUI(pbge.widgets.Widget):
         self.targets = list()
 
 
-        self.my_widget = self.LIBRARY_WIDGET(
+        self.my_widget: InvocationLibraryWidget = self.LIBRARY_WIDGET(
             camp, pc, build_library_function, self.change_invo, start_source=source,
             top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun,
             auto_launch_fun=self.auto_launch
@@ -475,20 +475,18 @@ class InvocationUI(pbge.widgets.Widget):
                     aoe = self.invo.area.get_area(self.camp, self.pc.pos, t)
                     for p in aoe:
                         pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
+        firing_pos = self.pc.pos
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             if self.clock:
                 self.clock.indicate_mp_cost()
         elif mmecha and self.can_move_and_attack(mmecha[0].pos):
-            if self.camp.fight:
-                mp_remaining = self.camp.fight.cstat[self.pc].mp_remaining
-                if self.clock:
-                    self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[self.mypath[-1]])
-            else:
-                mp_remaining = float('inf')
+            if self.camp.fight and self.clock:
+                self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[self.mypath[-1]])
             traildrawer.draw_trail( self.cursor_sprite
                                   , self.SC_TRAILMARKER, None
                                   , self.mypath + [pbge.my_state.view.mouse_tile]
                                   )
+            firing_pos = self.mypath[-1]
         else:
             if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
                 pbge.my_state.view.cursor.frame = self.SC_VOIDENEMYCURSOR
@@ -504,7 +502,7 @@ class InvocationUI(pbge.widgets.Widget):
         my_info = self.camp.scene.get_tile_info(pbge.my_state.view)
         if my_info:
             if self.invo and mmecha and hasattr(self.invo.fx, "get_odds"):
-                odds, modifiers = self.invo.fx.get_odds(self.camp, self.pc, mmecha[0])
+                odds, modifiers = self.invo.fx.get_odds(self.camp, self.pc, firing_pos, mmecha[0])
                 my_info.info_blocks.append(info.OddsInfoBlock(odds, modifiers))
             my_info.view_display(self.camp)
 

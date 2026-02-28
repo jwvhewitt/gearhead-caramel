@@ -2,6 +2,7 @@ from . import base
 import pbge
 import pygame
 from . import stats
+from abc import ABC, abstractmethod
 
 
 class InfoPanel(object):
@@ -43,7 +44,7 @@ class InfoPanel(object):
             if hasattr(block, "update"):
                 block.update()
 
-    def popup(self, pos=None, anchor=None):
+    def popup(self, pos=None):
         w, h = self.get_dimensions()
         if pos:
             x, y = pos
@@ -76,7 +77,7 @@ class InfoPanel(object):
             self.render(myrect.left, myrect.top)
 
 
-class AbstractModelTextBlock(object):
+class AbstractModelTextBlock(ABC):
     # Do not use this block on its own!!! Instead, subclass it and replace the get_text function with whatever
     # text function you need!
     COLOR_OVERRIDE = None
@@ -93,9 +94,10 @@ class AbstractModelTextBlock(object):
                                       self.width, justify=0, color=self.color)
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
-    def get_text(self):
+    @abstractmethod
+    def get_text(self) -> str:
         raise RuntimeError("AbstractModelTextBlock.get_text called")
 
 
@@ -108,11 +110,11 @@ class TitleBlock(object):
     def __init__(self, title="Title Block!", title_color=pbge.INFO_HILIGHT, width=220, **kwargs):
         self.title = title
         self.width = width
-        self.image = pbge.render_text(pbge.my_state.huge_font, title, width, justify=0, color=title_color)
+        self.image = pbge.render_text(pbge.my_state.huge_font, title, width, justify=0, color=title_color)  # pyright: ignore[reportAttributeAccessIssue]
         self.height = self.image.get_height()
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
 class FullNameBlock(AbstractModelTextBlock):
@@ -131,7 +133,7 @@ class ListBlock(object):
         self.height = self.image.get_height()
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
 class DescBlock(AbstractModelTextBlock):
@@ -153,7 +155,7 @@ class EnchantmentBlock(object):
 
     def render(self, x, y):
         if self.image:
-            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+            _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
 class ModuleStatusBlock(object):
@@ -202,10 +204,10 @@ class BeingStatusBlock(object):
         dark_rect = mydest.copy()
         dark_rect.x += text_width
         dark_rect.w -= text_width
-        pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
+        _=pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
         bright_rect = dark_rect.copy()
         bright_rect.w = int((bright_rect.w * mini) / maxi)
-        pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
+        _=pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
         pbge.draw_text(pbge.SMALLFONT, str(mini), dark_rect, justify=0, vjustify=0, color=pbge.WHITE)
 
         mydest.x += field_width + 5
@@ -215,10 +217,10 @@ class BeingStatusBlock(object):
         dark_rect = mydest.copy()
         dark_rect.x += text_width
         dark_rect.w -= text_width
-        pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
+        _=pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
         bright_rect = dark_rect.copy()
         bright_rect.w = int((bright_rect.w * mini) / maxi)
-        pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
+        _=pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
         pbge.draw_text(pbge.SMALLFONT, str(mini), dark_rect, justify=0, vjustify=0, color=pbge.WHITE)
 
         mydest.x += field_width + 5
@@ -228,10 +230,10 @@ class BeingStatusBlock(object):
         dark_rect = mydest.copy()
         dark_rect.x += text_width
         dark_rect.w -= text_width
-        pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
+        _=pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
         bright_rect = dark_rect.copy()
         bright_rect.w = int((bright_rect.w * mini) / maxi)
-        pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
+        _=pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
         pbge.draw_text(pbge.SMALLFONT, str(mini), dark_rect, justify=0, vjustify=0, color=pbge.WHITE)
 
         cp, mp = self.model.get_current_and_max_power()
@@ -278,10 +280,10 @@ class PilotStatusBlock(object):
                 dark_rect = mydest.copy()
                 dark_rect.x += text_width
                 dark_rect.w -= text_width
-                pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
+                _=pbge.my_state.screen.fill(self.DARK_HEALTH, dark_rect)
                 bright_rect = dark_rect.copy()
                 bright_rect.w = int((bright_rect.w * mini) / maxi)
-                pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
+                _=pbge.my_state.screen.fill(self.BRIGHT_HEALTH, bright_rect)
 
             mydest.x += field_width + 5
             if show_numbers:
@@ -294,10 +296,10 @@ class PilotStatusBlock(object):
                 dark_rect = mydest.copy()
                 dark_rect.x += text_width
                 dark_rect.w -= text_width
-                pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
+                _=pbge.my_state.screen.fill(self.DARK_MENTAL, dark_rect)
                 bright_rect = dark_rect.copy()
                 bright_rect.w = int((bright_rect.w * mini) / maxi)
-                pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
+                _=pbge.my_state.screen.fill(self.BRIGHT_MENTAL, bright_rect)
 
             mydest.x += field_width + 5
             if show_numbers:
@@ -310,10 +312,10 @@ class PilotStatusBlock(object):
                 dark_rect = mydest.copy()
                 dark_rect.x += text_width
                 dark_rect.w -= text_width
-                pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
+                _=pbge.my_state.screen.fill(self.DARK_STAMINA, dark_rect)
                 bright_rect = dark_rect.copy()
                 bright_rect.w = int((bright_rect.w * mini) / maxi)
-                pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
+                _=pbge.my_state.screen.fill(self.BRIGHT_STAMINA, bright_rect)
 
             cp, mp = self.mover.get_current_and_max_power()
             if mp > 0:
@@ -357,15 +359,15 @@ class OddsInfoBlock(object):
         self.height = pbge.SMALLFONT.get_linesize() * 3
 
     def render(self, x, y):
-        pbge.draw_text(pbge.my_state.huge_font, '{}%'.format(max(min(int(self.odds * 100), 99), 1)),
+        pbge.draw_text(pbge.my_state.huge_font, '{}%'.format(max(min(int(self.odds * 100), 99), 1)),  # pyright: ignore[reportAttributeAccessIssue]
                        pygame.Rect(x, y, 75, 32),
                        justify=0, color=pbge.INFO_HILIGHT)
-        pbge.draw_text(pbge.my_state.big_font, 'TO HIT',
-                       pygame.Rect(x, y + pbge.my_state.huge_font.get_linesize(), 75, 32), justify=0,
+        pbge.draw_text(pbge.my_state.big_font, 'TO HIT',  # pyright: ignore[reportAttributeAccessIssue]
+                       pygame.Rect(x, y + pbge.my_state.huge_font.get_linesize(), 75, 32), justify=0,  # pyright: ignore[reportAttributeAccessIssue]
                        color=pbge.INFO_HILIGHT)
         t = 0
         for mymod in self.modifiers:
-            pbge.draw_text(pbge.my_state.small_font, '{:+d}: {}'.format(int(mymod[0]), mymod[1]),
+            pbge.draw_text(pbge.my_state.small_font, '{:+d}: {}'.format(int(mymod[0]), mymod[1]),  # pyright: ignore[reportAttributeAccessIssue]
                            pygame.Rect(x + 77, y + t * pbge.SMALLFONT.get_linesize(), self.width - 77, 32), justify=-1,
                            color=pbge.INFO_GREEN)
             t += 1
@@ -438,10 +440,10 @@ class MechaStatsBlock(object):
     def render(self, x, y):
         mydest = pygame.Rect(x, y, self.width, self.height)
         myimg = self._get_text_image()
-        pbge.my_state.screen.blit(myimg, mydest)
+        _=pbge.my_state.screen.blit(myimg, mydest)
 
 
-class LabeledItemsListBlock(object):
+class LabeledItemsListBlock(ABC):
     LABEL = "???"
 
     def __init__(self, model, width=220, font=None, color=None, **kwargs):
@@ -458,7 +460,7 @@ class LabeledItemsListBlock(object):
         self.height = self.image.get_height()
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
     # Can override in derived class if you want your own sort.
     # Return a list of strings.
@@ -469,8 +471,9 @@ class LabeledItemsListBlock(object):
 
     # Override in derived class to give what you want to show.
     # Return a list of strings.
-    def get_items(self):
-        raise RuntimeError('LabeldItemsListBlock.get_items called')
+    @abstractmethod
+    def get_items(self) -> list:
+        raise NotImplementedError('LabeldItemsListBlock.get_items called')
 
 
 class InstalledCyberwaresBlock(LabeledItemsListBlock):
@@ -506,6 +509,9 @@ class NonComSkillBlock(LabeledItemsListBlock):
 
         return [annotate(sk) for sk in listed_skills]
 
+    def get_items(self):
+        return [sk for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS and self.model.statline[sk] > 0]
+
 
 class PetSkillBlock(LabeledItemsListBlock):
     LABEL = "Skills"
@@ -513,6 +519,9 @@ class PetSkillBlock(LabeledItemsListBlock):
     def get_sorted_items(self):
         # First, generate the base skills and the effective skills.
         return [str(sk) for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS] or ["None"]
+
+    def get_items(self):
+        return [sk for sk in list(self.model.statline.keys()) if sk in stats.NONCOMBAT_SKILLS and self.model.statline[sk] > 0]
 
 
 class MeritBadgesBlock(LabeledItemsListBlock):
@@ -544,7 +553,7 @@ class ExperienceBlock(object):
                                       self.width, justify=0, color=pbge.INFO_GREEN)
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
 class ModuleDisplay(object):
@@ -563,6 +572,9 @@ class ModuleDisplay(object):
     def __init__(self, model):
         self.model = model
         self.module_sprite = pbge.image.Image('sys_modules.png', 16, 16)
+        self.module_num = 0
+        self.dest: pygame.Rect|None = None
+        self.module_dest: pygame.Rect|None = None
 
     def part_struct_frame(self, module):
         if module.is_destroyed():
@@ -659,7 +671,7 @@ class MechaFeaturesAndSpriteBlock(object):
         self.width = width
         self.height = 136
         mybmp = pygame.Surface((128, 128))
-        mybmp.fill((0, 0, 255))
+        _=mybmp.fill((0, 0, 255))
         mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
         myimg = self.model.get_sprite()
         myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 128, 128), frame=self.model.frame)
@@ -669,7 +681,7 @@ class MechaFeaturesAndSpriteBlock(object):
 
     def render(self, x, y):
         self.bg.render(pygame.Rect(x, y, 136, 136), 0)
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x + 4, y + 4, 128, 128))
         mydest = pygame.Rect(x + 140, y, self.width - 140, self.height)
         pbge.draw_text(pbge.MEDIUMFONT,
                        "Mass: {:.1f} tons \n Armor: {} \n Mobility: {} \n Speed: {} \n Sensor Range: {} \n E-War Progs: {} \n Action Bonus: {} {}".format(
@@ -804,10 +816,10 @@ class WeaponSkillBlock(object):
         self.height = self.image.get_height()
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
-class ItemsListBlock(object):
+class ItemsListBlock(ABC):
     def __init__(self, model, width=220, font=None, color=None, **kwargs):
         self.model = model
         self.width = width
@@ -823,12 +835,13 @@ class ItemsListBlock(object):
             self.height = 0
 
     # Override this in your derived class
-    def get_items(self):
-        raise RuntimeError("ItemsListBlock.get_items not overridden!")
+    @abstractmethod
+    def get_items(self) -> list:
+        raise NotImplementedError("ItemsListBlock.get_items not overridden!")
 
     def render(self, x, y):
         if self.height > 0:
-            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+            _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))  # pyright: ignore[reportArgumentType]
 
 
 class WeaponAttributesBlock(ItemsListBlock):

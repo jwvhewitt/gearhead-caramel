@@ -48,9 +48,9 @@ class Invocation:
             return self.used_in_exploration and self.fx
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
-    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None) -> dict:
         """ Invoke this effect using the provided target points. Animations
             will be stored in the provided list and displayed afterward.
             camp: The campaign.

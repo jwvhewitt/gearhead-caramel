@@ -130,7 +130,7 @@ class PlaceableThing(KeyObject):
     sort_priority = 0
     IMMOVABLE = False
 
-    def get_sprite(self):
+    def get_sprite(self) -> image.Image:
         """Generate the sprite for this thing."""
         return image.Image(self.imagename, self.imagewidth, self.imageheight, self.colors)
 
