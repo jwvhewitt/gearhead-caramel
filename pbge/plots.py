@@ -245,12 +245,12 @@ class Plot(object):
                 self.subplots[ident] = sp
         return sp
 
-    def add_first_locale_sub_plot(self, nart, locale_type="CITY_SCENE", ident=None):
+    def add_first_locale_sub_plot(self, nart: "NarrativeRequest", locale_type="CITY_SCENE", ident=None):
         # Utility function for a frequently used special case.
         sp = self.add_sub_plot(nart, locale_type, ident=ident)
         if sp:
             self.register_element("LOCALE", sp.elements.get("LOCALE"))
-            self.elements[ENTRANCE] = sp.elements.get("ENTRANCE")
+            nart.entry_point = sp.elements.get("ENTRANCE")
         return sp
 
     def place_element(self, ele, dest):
@@ -523,6 +523,7 @@ class NarrativeRequest(object):
         self.generators = list()
         self.errors = list()
         self.plot_list = plot_list
+        self.entry_point = None
         # Add the seed plot.
         if pstate:
             self.story = self.generate_sub_plot(pstate, adv_type)

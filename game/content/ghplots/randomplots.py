@@ -87,7 +87,7 @@ class CollectMedicinalHerbs(Plot):
             ))
 
             if self._rumor_memo_delivered:
-                ghdialogue.SkillBasedPartyReply(Offer(
+                _=ghdialogue.SkillBasedPartyReply(Offer(
                     "[GOOD] The sooner you can get the herbs to me, the sooner I can start brewing the medicine.",
                     context=ContextTag([context.CUSTOM]), effect=self.activate_mission,
                     dead_end=True, data={"reply": "I know where to find {HERB}.".format(**self.elements)}
@@ -109,7 +109,7 @@ class CollectMedicinalHerbs(Plot):
                     ))
 
             else:
-                ghdialogue.SkillBasedPartyReply(Offer(
+                _=ghdialogue.SkillBasedPartyReply(Offer(
                     "[THATS_GOOD] We really need this medicine, and that herb is the only way to produce it.",
                     context=ContextTag([context.CUSTOM]), effect=self.activate_mission, subject=self.elements["HERB"],
                     dead_end=True, data={"reply": "I know exactly where to find some.".format(**self.elements)}
@@ -139,7 +139,7 @@ class CollectMedicinalHerbs(Plot):
     def activate_mission(self, camp):
         self.mission_active = True
         self.expiration = None
-        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
     def MISSION_GATE_menu(self, camp, thingmenu):
         if self.mission_seed and self.mission_active:

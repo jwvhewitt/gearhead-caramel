@@ -374,6 +374,7 @@ class Widget(frects.Frect):
 
     def pop(self):
         self.close()
+        self.snapshot = None
         FrozenUIState.pop(self)
 
     TAGS_TO_DEACTIVATE = set()

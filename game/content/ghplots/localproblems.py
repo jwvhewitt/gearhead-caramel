@@ -651,7 +651,7 @@ class SregorThrunet(Plot):
                     data={"reply": "[I_DONT_KNOW]"}
                 ))
 
-                ghdialogue.SkillBasedPartyReply(Offer(
+                _=ghdialogue.SkillBasedPartyReply(Offer(
                     "You know your stuff. Yeah, we don't even know where half the Thrunet nodes on Earth are- they date to PreZero times, and we lose more every year. We're building new ones but not fast enough. The node deep under this building has conked out, and I was hoping I could fix it from up here, but that doesn't seem likely.",
                     context=ContextTag([context.CUSTOMREPLY]), subject=self, effect=self._impress_npc,
                     data={"reply": "It's the Thrunet. Or the shadow Thrunet, at least."}
@@ -932,11 +932,14 @@ class ThePlague(Plot):
 
 
 class RabbleRouser(Plot):
-    LABEL = "LOCAL_PROBLEM"
+    LABEL = "zLOCAL_PROBLEM"
     scope = "METRO"
     UNIQUE = True
     QOL = gears.QualityOfLife(community=-3)
     active = True
+    # TODO: This quest is too much but also not enough. Feels unconnected to anything in the town. What we need is to
+    # split it up into multiple components, maybe? This plot should just be the existence of the rabble-rouser, while
+    # the narrative bits get handled by different plots.
 
     RUMOR = Rumor(
         "{NPC} has been spreading a baseless conspiracy theory",
@@ -1394,7 +1397,7 @@ class RabbleRouser(Plot):
         camp.freeze(self.elements["CULPRIT"])
         if self.elements["CULPRIT"] is self.elements["LEADER"]:
             self.elements["METRO"].city_leader = None
-        pbge.alerts.TextAlert(
+        _=pbge.alerts.TextAlert(
             "With {CULPRIT} out of the way, life soon returns to normal in {METROSCENE}.".format(**self.elements))
         camp.check_trigger("WIN", self)
         self.end_plot(camp, True)

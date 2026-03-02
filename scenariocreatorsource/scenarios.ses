@@ -281,7 +281,7 @@ class StartingPlot_{unique_id}_{_uid}( Plot ):
         if pc_tags.issuperset({needed_pc_tags}) and pc_tags.isdisjoint({forbidden_pc_tags}):
             +init_plot
             self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get({entrance})
-            nart.camp.go(self.elements["ENTRANACE"])
+            nart.entry_point = self.elements["ENTRANACE"]
 
             self.did_cutscene = False
 

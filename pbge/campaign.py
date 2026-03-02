@@ -45,7 +45,6 @@ class SessionMonitor(widgets.Widget):
         elif my_state.session_data.get(SDAT_GOT_QUIT, None):
             self.camp.save()
             my_state.session_data[SDAT_CAMPAIGN] = None
-            print("Quitting")
             self.pop()
         elif not self.camp.first_active_pc() and self.camp.home_base:
             # IMPORTANT: If home_base is defined, it MUST have some kind of code to deal with a defeated party!

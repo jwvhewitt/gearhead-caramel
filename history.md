@@ -1,3 +1,8 @@
+v1.004alpha February 27, 2026
+* Fixed and simplified campaign entry scene handling
+* Fixed crash when dropdown menu used twice
+* Delisted RabbleRouser local problem plot because it needs editing
+
 v1.003alpha February 27, 2026
 * Lowered default volume to 70%
 * Invoker displayed to-hit score now calculated from firing pos, not current pos

@@ -72,9 +72,9 @@ class StartCampaignWidget(pbge.widgetmenu.MenuWidget):
         if adv_type:
             self.pop()
             pbge.please_stand_by()
-            cs = content.narrative_convenience_function(self.egg,adv_type=adv_type.LABEL)
-            if cs:
-                camp, story = cs
+            cd = content.narrative_convenience_function(self.egg,adv_type=adv_type.LABEL)
+            if cd:
+                camp, dest = cd
                 camp.version = self.version
                 #camp._really_go()
                 camp.save()
@@ -83,7 +83,7 @@ class StartCampaignWidget(pbge.widgetmenu.MenuWidget):
                     self.egg.backup()
                     os.remove(pbge.util.user_dir(pbge.util.sanitize_filename("egg_{}.sav".format(self.egg.pc.name))))
 
-                camp.play(dest_wp=story.elements.get(pbge.plots.ENTRANCE))
+                camp.play(dest_wp=dest)
 
 
 

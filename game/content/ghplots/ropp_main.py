@@ -2823,7 +2823,7 @@ class StartingPlot_ropp_4(Plot):
 
             self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get(
                 '00000002')
-            nart.camp.go(self.elements["ENTRANACE"])
+            nart.entry_point = self.elements["ENTRANACE"]
             self.did_cutscene = False
             #: plot_init
             #: plot_actions
@@ -2853,7 +2853,7 @@ class StartingPlot_ropp_5(Plot):
 
             self.elements["ENTRANACE"] = nart.camp.campdata[THE_WORLD].get(
                 '00000004')
-            nart.camp.go(self.elements["ENTRANACE"])
+            nart.entry_point = self.elements["ENTRANACE"]
             self.did_cutscene = False
             #: plot_init
             #: plot_actions
