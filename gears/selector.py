@@ -325,7 +325,7 @@ class MechaShoppingList(object):
         if not backup_candidates:
             backup_candidates = self.backup_choices
         if candidates:
-            mek = max(random.sample(candidates, 5), key=lambda m: m.cost)
+            mek = max(random.sample(candidates, min(5, len(candidates))), key=lambda m: m.cost)
         else:
             mek = random.choice(backup_candidates)
         return mek
