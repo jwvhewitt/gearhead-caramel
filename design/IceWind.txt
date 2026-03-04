@@ -245,7 +245,7 @@ Mecha
     family = "IceWind"
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (TerranFederation, RegExCorporation, BioCorp, KettelIndustries, DeadzoneFederation)
-    role_list = (Support,Trooper)
+    role_list = (Support, Artillery)
     material = Advanced
 
     SUB

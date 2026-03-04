@@ -7,7 +7,7 @@ Mecha
     form = MT_Gerwalk
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Command, EWarSupport, Support)
+    role_list = (Command, EWarSupport, Support, Recon)
 
     material = Ceramic
 

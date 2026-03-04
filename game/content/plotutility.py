@@ -359,7 +359,10 @@ class AutoJoiner(object):
             level = max(npc.renown, 15)
             if hasattr(npc, "relationship") and npc.relationship:
                 level = max(level + npc.relationship.data.get("mecha_level_bonus", 0), 10)
-            mek = gears.selector.MechaShoppingList.generate_single_mecha(level, npc.faction, gears.tags.GroundEnv)
+            roles = gears.selector.MechaShoppingList.get_character_roles(npc)
+            if not roles:
+                roles = (gears.tags.Commander, gears.tags.Support)
+            mek = gears.selector.MechaShoppingList.generate_single_mecha(level, npc.faction, gears.tags.GroundEnv, roles=roles)
             npc.mecha_pref = mek.get_full_name()
         if npc.mecha_colors:
             mek.colors = npc.mecha_colors
@@ -441,6 +444,7 @@ class CharacterMover(object):
         if character.combatant and dest_scene.scale is gears.scale.MechaScale:
             mek = AutoJoiner.get_mecha_for_character(character)
             if mek:
+                #TODO: Make sure mecha suits the environment, choosing substitute if necessary
                 if upgrade_mek:
                     gears.champions.upgrade_to_champion(mek)
                 mek.load_pilot(character)

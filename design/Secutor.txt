@@ -5,7 +5,7 @@ Mecha
     portrait = "mecha_secutor.png"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper, Commander, Assault)
     desc = "Always a crowd favorite, the Secutor packs an impressive array of loud and destructive weapons."
     material = Advanced
 

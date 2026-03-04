@@ -100,6 +100,13 @@ class BasicAI(object):
     def __init__(self, npc):
         self.npc = npc
         self.target = None
+        self.minr, self.midr, self.maxr = 0,0,0
+        self.enemies = list()
+
+        # If the NPC is going to use a skill or skills, it will be at the start
+        # of their turn.
+        self.tried_skills = False
+        self.moved_to_firing_position = False
         if isinstance(npc, gears.base.Monster):
             self.targeter = MonsterTargeter(npc)
         else:
@@ -116,7 +123,7 @@ class BasicAI(object):
         myat = self.npc.get_primary_attack()
         if myat:
             dist = myat.get_first_working_invo(self.npc).area.get_reach()
-            if dist >= 15:
+            if dist >= 10:
                 return (dist // 3, (dist * 2) // 3, dist)
             else:
                 return (0, dist // 2, dist)
@@ -214,8 +221,7 @@ class BasicAI(object):
                 return None, None
 
     def attempt_move_to_better_position(self, camp):
-        if hasattr(self.npc, "get_current_speed") and self.npc.get_current_speed() > 10 and camp.fight.cstat[
-            self.npc].action_points > 1:
+        if camp.fight.cstat[self.npc].mp_remaining > 5:
             # Check for a better tile.
             mynav = pbge.scenes.pathfinding.NavigationGuide(camp.scene, self.npc.pos,
                                                             camp.fight.cstat[self.npc].mp_remaining, self.npc.mmode,
@@ -224,10 +230,7 @@ class BasicAI(object):
                                    max(len(mynav.cost_to_tile) // 2, min(5, len(mynav.cost_to_tile))))
             # sample = sample[:len(sample)//4]
             self.camp = camp
-            self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
             if self.target and sample:
-                self.enemies = [tar for tar in camp.scene.get_operational_actors() if
-                                camp.scene.are_hostile(self.npc, tar)]
                 best = max(sample, key=self._desirability)
                 if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
                     return actions.MoveModelToPos(self.camp, self.npc, mynav, best)
@@ -239,7 +242,6 @@ class BasicAI(object):
         self.camp = camp
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
         if self.target and sample:
-            self.enemies = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar)]
             best = max(sample, key=self._desirability)
             if best is not self.npc.pos and self._desirability(best) > self._desirability(self.npc.pos):
                 return actions.JumpModelToPos(self.camp, self.npc, best)
@@ -253,18 +255,6 @@ class BasicAI(object):
         # Attack if possible, which is should be, since we handled those calculations up there
 
         my_actions = list()
-        if (
-                hasattr(self.npc, "get_speed") and self.npc.get_speed(gears.tags.Jumping) > 10 and
-                camp.fight.cstat[self.npc].action_points > random.randint(1, 3) and
-                camp.scene.can_use_movemode(gears.tags.Jumping)
-        ):
-            move = self.attempt_jump_to_better_position(camp)
-            if move:
-                return [move,]
-        else:
-            move = self.attempt_move_to_better_position(camp)
-            if move:
-                return [move,]
 
         # We are now either in a good position, or so far out of the loop it isn't funny.
         if camp.fight.cstat[self.npc].can_act():
@@ -291,7 +281,6 @@ class BasicAI(object):
                 if dest and dest != self.npc.pos:
                     return [actions.MoveModelToPos(camp, self.npc, mynav, dest),]
                     
-
         return my_actions
 
     def try_to_use_a_skill(self, camp):
@@ -317,9 +306,12 @@ class BasicAI(object):
             my_actions = list()
             invo = random.choice(my_skills)
             tar = random.choice(my_targets[invo])
-            firing_pos = random.choice(list(camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos)))
-            if firing_pos != self.npc.pos:
+            legal_targets = invo.area.get_targets(camp, self.npc.pos)
+            if tar.pos not in legal_targets:
+                firing_pos = random.choice(list(camp.fight.can_move_and_invoke(self.npc, my_nav, invo, tar.pos)))
                 my_actions.append(actions.MoveModelToPos(camp, self.npc, camp.fight.get_action_nav(self.npc), firing_pos))
+            else:
+                firing_pos = self.npc.pos
             my_actions.append(actions.InvokeInvocation(camp, invo, firing_pos, self.npc, [tar.pos], data=None))
             return my_actions
 
@@ -350,6 +342,41 @@ class BasicAI(object):
             _=self.npc.free_pilots()
             return True
 
+    def start_turn(self, camp) -> list:
+        # Reset the per-turn properties
+        self.tried_skills = False
+        self.moved_to_firing_position = False
+        self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
+        self.enemies = [tar for tar in camp.scene.get_operational_actors() if camp.scene.are_hostile(self.npc, tar)]
+
+        # Maybe buy an extra action or two?
+        my_actions = list()
+        if camp.fight.cstat[self.npc].can_buy_bonus_action():
+            while random.randint(1,10) == 5 and (self.npc.get_current_stamina() - camp.fight.cstat[self.npc].bonus_action_cost()) > random.randint(10,20):
+                my_actions.append(actions.BuyBonusActions(camp, self.npc))
+        return my_actions
+
+    def move_to_firing_position(self, camp: gears.GearHeadCampaign):
+        # The range bands have been calculated at the beginning of the turn. See if we have a better place
+        # to go.
+        my_actions = list()
+
+        if (
+                hasattr(self.npc, "get_speed") and self.npc.get_speed(gears.tags.Jumping) > 10 and
+                camp.fight.cstat[self.npc].action_points > random.randint(1, 3) and
+                camp.scene.can_use_movemode(gears.tags.Jumping)
+        ):
+            move = self.attempt_jump_to_better_position(camp)
+            if move:
+                return [move,]
+        else:
+            move = self.attempt_move_to_better_position(camp)
+            if move:
+                return [move,]
+
+        return my_actions
+
+
     def act(self, camp: gears.GearHeadCampaign):
         # New rules in effect. The "act" method takes the camp and returns a list of actions to the
         # npc handler. If no actions are returned, this NPC's turn is over.
@@ -360,11 +387,10 @@ class BasicAI(object):
             if self.fail_ejection_check(camp):
                 return ()
 
-        self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
-
         # Attempt to use a skill.
-        if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1, 2) == 1:
+        if camp.fight.cstat[self.npc].action_points > 0 and random.randint(1, 2) == 1 and not self.tried_skills:
             actions = self.try_to_use_a_skill(camp)
+            self.tried_skills = True
             if actions:
                 return actions
 
@@ -372,6 +398,12 @@ class BasicAI(object):
             self.target = self.targeter.get_target(camp, self.midr)
         elif random.randint(1, 3) != 1:
             self.target = self.targeter.get_target(camp, self.midr)
+
+        if camp.fight.cstat[self.npc].mp_remaining > 0 and not self.moved_to_firing_position:
+            actions = self.move_to_firing_position(camp)
+            if actions:
+                self.moved_to_firing_position = True
+                return actions
 
         if self.target:
             return self.attempt_attack(camp)
@@ -392,10 +424,7 @@ class NonPlayerTurn(pbge.widgets.Widget):
         else:
             self.brain = camp.fight.ai_brains[pc]
 
-        # Maybe buy an extra action or two?
-        if camp.fight.cstat[self.pc].can_buy_bonus_action():
-            while random.randint(1,10) == 5 and (self.pc.get_current_stamina() - camp.fight.cstat[self.pc].bonus_action_cost()) > random.randint(10,20):
-                self.actions.append(actions.BuyBonusActions(camp, pc))
+        self.actions += self.brain.start_turn(camp)
 
     def update(self, delta):
         super().update(delta)

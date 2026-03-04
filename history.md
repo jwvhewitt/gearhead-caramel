@@ -1,3 +1,10 @@
+v1.005alpha February 27, 2026
+* NPC mecha selected based on the NPC's skills
+* Random mecha units now properly use roles
+* Fixed NPCs using repair skill on empty tile bug
+* Started reorganizing enemy AI unit to better pair with combat actions system
+* Fixed color editor channel selector
+
 v1.004alpha February 27, 2026
 * Fixed and simplified campaign entry scene handling
 * Fixed crash when dropdown menu used twice

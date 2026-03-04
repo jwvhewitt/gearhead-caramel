@@ -8,7 +8,7 @@ Mecha
     family = "Biometrics"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
     faction_list = (TerranFederation,TerranDefenseForce,ClanIronwind,BioCorp)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper,Commander, Assault)
     material = Advanced
 
     SUB

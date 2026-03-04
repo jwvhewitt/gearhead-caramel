@@ -7,7 +7,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (TerranDefenseForce, TerranFederation, ProDuelistAssociation, RegExCorporation)
-    role_list = (Support,Commander)
+    role_list = (Support, Commander, Artillery, Security)
 
     SUB
         Torso

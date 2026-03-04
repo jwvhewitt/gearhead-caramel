@@ -142,7 +142,7 @@ Mecha
     family = "Chameleon"
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (AegisOverlord,)
-    role_list = (Support,)
+    role_list = (Support, Artillery)
 
     SUB
         Head

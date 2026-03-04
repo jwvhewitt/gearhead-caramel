@@ -6,7 +6,7 @@ Mecha
     family = "Haiho"
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (None,)
-    role_list = (Trooper,)
+    role_list = (Trooper, Assault)
     desc = "A compact asteroid mining battroid from MUGL Enterprises."
 
     SUB

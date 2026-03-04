@@ -8,7 +8,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (TerranFederation,TerranDefenseForce,BoneDevils,DeadzoneFederation,ClanIronwind,Ravagers)
-    role_list = (Support,Trooper)
+    role_list = (Trooper, Recon)
 
     SUB
         Head
@@ -113,7 +113,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (DeadzoneFederation,ClanIronwind)
-    role_list = (Support,Trooper)
+    role_list = (Support, Trooper, Recon)
 
     SUB
         Head
@@ -212,7 +212,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv)
     faction_list = (TerranFederation,TerranDefenseForce)
-    role_list = (Support,Trooper)
+    role_list = (Support, Trooper, Recon)
 
     SUB
         Head

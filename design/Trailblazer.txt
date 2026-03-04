@@ -7,7 +7,7 @@ Mecha
 
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
     faction_list = (None,)
-    role_list = (Support,)
+    role_list = (EWarSupport, Recon)
 
     SUB
         Head

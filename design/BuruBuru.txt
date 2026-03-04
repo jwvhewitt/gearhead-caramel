@@ -6,7 +6,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (Ravagers, DeadzoneFederation, )
-    role_list = (Trooper,Commander)
+    role_list = (Trooper,)
     desc = "An older variant of the Buru Buru mecha that sacrifices maneuverability for increased speed. The SAN-X8f is still used by regional defense forces."
 
     SUB
@@ -130,7 +130,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (BladesOfCrihna,)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper, Commander)
     desc = "This variant of the ubiquitous Buru Buru is favored by pirates in the L5 region."
 
     SUB
@@ -265,7 +265,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper, )
     desc = "One of the oldest mecha designs still in common use, the BuruBuru is the dependable workhorse of the mecha world."
 
     SUB
@@ -372,7 +372,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper, Security)
     desc = "A variant on the BuruBuru design. This version features a shield and improved short range weapons for close quarters city fighting."
 
     SUB
@@ -514,7 +514,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Support)
+    role_list = (Support, Artillery)
     desc = "A variant on the BuruBuru design. This version is equipped with a powerful gauss cannon."
 
     SUB
@@ -635,7 +635,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (TerranFederation,Guardians)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper, Commander, Security)
     desc = "A variant on the BuruBuru design. This version features a heavy body shield."
 
     SUB
@@ -869,7 +869,7 @@ Mecha
     family = "Buru Buru"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Trooper,Commander)
+    role_list = (Trooper,)
     desc = "An updated BuruBuru with advanced engines and armor integrated into its hull."
 
     SUB

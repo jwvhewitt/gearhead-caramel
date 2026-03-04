@@ -271,7 +271,9 @@ class MechaShoppingList(object):
         self.fac = fac
         self.env = env
         self.best_choices = list()
+        self.best_roles = collections.defaultdict(list)
         self.backup_choices = list()
+        self.backup_roles = collections.defaultdict(list)
         self._go_shopping()
 
     def matches_criteria(self, mek):
@@ -286,18 +288,50 @@ class MechaShoppingList(object):
                 if mek.cost < self.hi_price:
                     if mek.cost > self.hi_price // 3:
                         self.best_choices.append(mek)
+                        for role in mek.role_list:
+                            self.best_roles[role].append(mek)
                     else:
                         self.backup_choices.append(mek)
+                        for role in mek.role_list:
+                            self.backup_roles[role].append(mek)
 
     def get_best_mecha(self):
         if self.best_choices:
-            protomek = max([random.choice(self.best_choices) for t in range(5)], key=lambda m: m.cost)
+            protomek = max([random.choice(self.best_choices) for _ in range(5)], key=lambda m: m.cost)
         else:
             protomek = random.choice(self.backup_choices)
         return copy.deepcopy(protomek)
 
+    @staticmethod
+    def get_character_roles(npc: base.Character, default_role=None):
+        my_roles = list()
+        if default_role:
+            my_roles.append(default_role)
+        for sk in stats.NONCOMBAT_SKILLS:
+            if npc.has_skill(sk) and sk.mecha_tags:
+                my_roles += list(sk.mecha_tags)
+        if not my_roles:
+            my_roles.append(tags.Support)
+        return my_roles
+
+    def choose_mecha_by_role(self, roles=(tags.Trooper, tags.Support, tags.Commander)):
+        candidates = list()
+        backup_candidates = list()
+        for r in roles:
+            candidates += self.best_roles[r]
+            backup_candidates += self.backup_roles[r]
+        if not candidates:
+            candidates = self.best_choices
+        if not backup_candidates:
+            backup_candidates = self.backup_choices
+        if candidates:
+            mek = max(random.sample(candidates, 5), key=lambda m: m.cost)
+        else:
+            mek = random.choice(backup_candidates)
+        return mek
+
     @classmethod
-    def generate_single_mecha(cls, level, fac, env=tags.GroundEnv):
+    def generate_single_mecha(cls, level, fac, env=tags.GroundEnv, roles=(tags.Trooper, tags.Support, tags.Commander)):
         shopping_list = cls(
             max(calc_threat_points(level + 20), 350000),
             fac, env)
@@ -332,13 +366,12 @@ class RandomMechaUnit(object):
         self.points = strength
         self.mecha_list = list()
         if self.shopping_list.best_choices or self.shopping_list.backup_choices:
-            self.buy_mecha()
             if add_commander:
-                mek = self.choose_mecha()
                 self.commander = self.generate_pilot(level, tag=tags.Commander)
+                mek = self.choose_mecha(self.shopping_list.get_character_roles(self.commander, tags.Commander))
                 mek.load_pilot(self.commander)
                 self.mecha_list.append(mek)
-
+            self.buy_troops()
         else:
             print("No mecha to buy for {} {} {}".format(level, self.shopping_list.fac, env))
 
@@ -364,29 +397,44 @@ class RandomMechaUnit(object):
         mycost = mek.cost
         return int(mycost * 15 / self.ideal_cost) + 10
 
-    def choose_mecha(self):
-        if self.shopping_list.best_choices:
-            mek = self.prep_mecha(random.choice(self.shopping_list.best_choices))
-            if self.mecha_strength_cost(mek) > self.points and self.shopping_list.backup_choices:
-                mek = self.prep_mecha(random.choice(self.shopping_list.backup_choices))
+    def choose_mecha(self, roles=(tags.Trooper,)):
+        candidates = list()
+        backup_candidates = list()
+        for r in roles:
+            candidates += self.shopping_list.best_roles[r]
+            backup_candidates += self.shopping_list.backup_roles[r]
+        if not candidates:
+            candidates = self.shopping_list.best_choices
+            backup_candidates = self.shopping_list.backup_choices
+        if candidates:
+            mek = self.prep_mecha(random.choice(candidates))
+            if self.mecha_strength_cost(mek) > self.points and backup_candidates:
+                mek = self.prep_mecha(random.choice(backup_candidates))
         else:
-            mek = self.prep_mecha(random.choice(self.shopping_list.backup_choices))
+            mek = self.prep_mecha(random.choice(backup_candidates))
         return mek
 
-    def buy_mecha(self):
+    def buy_troops(self):
         quit_at = 9
+        # As long as the NTC > 0, add another generic trooper.
+        # Once the NTC = 0, add a specialist pilot with an appropriate mek. Then reset the counter.
+        normal_troops_counter = random.randint(1,4)
         if quit_at >= self.points:
             quit_at = 0
         while self.points > quit_at:
-            mek = self.choose_mecha()
             pilot_level = self.level - 20
+            if normal_troops_counter > 0:
+                pilot = self.generate_pilot(pilot_level, tag=tags.Trooper)
+                normal_troops_counter -= 1
+                mek = self.choose_mecha()
+            else:
+                pilot = self.generate_pilot(pilot_level, tag=tags.Support)
+                normal_troops_counter = random.randint(2,8)
+                mek = self.choose_mecha(self.shopping_list.get_character_roles(pilot))
+
             mycost = self.mecha_strength_cost(mek)
-            if mycost > self.points:
-                pilot_level -= 10
-            elif mycost < 20:
-                pilot_level += 25 - mycost
+
             self.points -= mycost
-            pilot = self.generate_pilot(pilot_level)
             mek.load_pilot(pilot)
             self.mecha_list.append(mek)
 

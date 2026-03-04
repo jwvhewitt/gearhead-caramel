@@ -64,10 +64,10 @@ class ColorEditor(pbge.widgets.Widget):
         self.channel_menus = dict()
         for t in range(5):
             chanmenu = self.create_menu(channel_filters[t])
-            chanmenu.active = False
+            chanmenu.visible = False
             self.channel_menus[t] = chanmenu
         self.active_menu = 0
-        self.channel_menus[0].active = True
+        self.channel_menus[0].visible = True
         self.radio_pages = pbge.widgets.RadioButtonWidget(
             0,0,200,20,sprite=pbge.image.Image("sys_color_editor_tabs.png",40,20),buttons=(
                 dict(on_frame=0, off_frame=1, on_click=self.click_radio, tooltip="Red Channel"),
@@ -103,9 +103,9 @@ class ColorEditor(pbge.widgets.Widget):
     def click_radio(self,button,ev):
         # A radio button has been clicked. Switch the page.
         nu_menu = self.channel_menus[button.on_frame // 2]
-        self.channel_menus[self.active_menu].active = False
+        self.channel_menus[self.active_menu].visible = False
         self.active_menu = button.on_frame // 2
-        nu_menu.active = True
+        nu_menu.visible = True
 
     def recolor_sprite(self):
         # Copy proto_sprite to display_sprite

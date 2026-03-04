@@ -5,7 +5,7 @@ Mecha
     portrait = "mecha_phoenix.png"
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv,AquaticEnv)
     faction_list = (None,)
-    role_list = (Support,Commander)
+    role_list = (Support,Commander, Artillery)
     desc = "A general purpose battroid from Ceres Robotics. It rose to prominence during the Martian civil war."
     material = Advanced
 

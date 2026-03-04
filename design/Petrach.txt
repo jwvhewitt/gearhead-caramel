@@ -5,7 +5,7 @@ Mecha
     portrait = "mecha_petrach.png"
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (TerranFederation,TerranDefenseForce,)
-    role_list = (Trooper,Support)
+    role_list = (Support, Artillery)
     desc = "The Petrach is a light missile platform that provides fire support with volleys of Swarm missiles and an Intercept cannon."
 
     SUB
@@ -93,7 +93,7 @@ Mecha
     portrait = "mecha_petrach.png"
     environment_list = (GroundEnv,UrbanEnv,)
     faction_list = (TerranFederation,TerranDefenseForce,)
-    role_list = (Trooper,Support)
+    role_list = (Support, Artillery)
     desc = "A variant on the Petrach design. This version is equipped with more powerful Leveler missiles, allowing it more destructive capability but lowering its ammunition reserves."
 
     SUB

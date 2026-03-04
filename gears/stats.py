@@ -4,7 +4,7 @@ import pbge
 import random
 from . import materials
 from . import aitargeters
-from . import listentomysong, enchantments, personality
+from . import listentomysong, enchantments, personality, tags
 
 DIFFICULTY_TRIVIAL = -50
 DIFFICULTY_EASY = -25
@@ -106,6 +106,7 @@ PRIMARY_STATS = (Reflexes, Body, Speed, Perception, Craft, Ego, Knowledge, Charm
 class Skill(Singleton):
     name = ''
     desc = ''
+    mecha_tags = ()
 
     SKILL_COST = (100, 100, 200, 300, 400,
                   500, 800, 1300, 2100, 3400,
@@ -149,6 +150,7 @@ class Dodge(Skill):
 class Repair(Skill):
     name = 'Repair'
     desc = "This skill allows you to repair damage to mecha and equipment. Use of this skill costs MP."
+    mecha_tags = (tags.Engineering,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -182,6 +184,7 @@ class Repair(Skill):
 class Medicine(Skill):
     name = 'Medicine'
     desc = "This skill allows you to heal wounded lancemates. Use of this skill costs MP."
+    mecha_tags = (tags.Security,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -235,6 +238,7 @@ class Medicine(Skill):
 class Biotechnology(Skill):
     name = 'Biotechnology'
     desc = "This skill allows you to repair biotechnological constructs. Use of this skill requires MP."
+    mecha_tags = (tags.Engineering, tags.Security)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -267,6 +271,8 @@ class Biotechnology(Skill):
 class Stealth(Skill):
     name = 'Stealth'
     desc = "This skill allows you to hide during combat. Stealth attacks get bonuses."
+
+    mecha_tags = (tags.Recon,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -323,6 +329,7 @@ class Science(Skill):
 class Computers(Skill):
     name = 'Computers'
     desc = "This skill allows you to hack computers and use electronic warfare systems."
+    mecha_tags = (tags.EWarSupport,)
 
     PROGRAMS_SHELF = "Hacking"
 
@@ -365,6 +372,7 @@ class Computers(Skill):
 class Performance(Skill):
     name = 'Performance'
     desc = "This skill enables you to play music. Do it well enough and you might even inspire allies and demoralize enemies during combat."
+    mecha_tags = (tags.Comms,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -379,6 +387,7 @@ class Performance(Skill):
 class Negotiation(Skill):
     name = 'Negotiation'
     desc = "This skill is used to verbally influence other characters."
+    mecha_tags = (tags.Comms,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -404,6 +413,7 @@ class Negotiation(Skill):
 class Scouting(Skill):
     name = 'Scouting'
     desc = "This skill is used to spot hidden things, and see enemies hiding behind cover."
+    mecha_tags = (tags.Recon,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):
@@ -440,6 +450,7 @@ class Scouting(Skill):
 class Wildcraft(Skill):
     name = 'Wildcraft'
     desc = "This skill is used for wilderness survival and to train animals."
+    mecha_tags = (tags.Recon,)
 
     @classmethod
     def add_invocations(cls, pc, invodict):

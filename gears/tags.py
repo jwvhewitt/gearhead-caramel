@@ -1,3 +1,4 @@
+from tokenize import Single
 from pbge import Singleton
 from pbge.scenes import movement
 
@@ -93,6 +94,9 @@ class Commander(Singleton):
 
 
 class Support(Singleton):
+    # Any mecha that is fielded as a supplement to troopers
+    # Trooper, Commander, and Support are the three tags used in factions. Other roles may
+    # be selected by the unit generator based on that faction's job's special skills.
     name = "Support"
 
 
@@ -100,7 +104,34 @@ class EWarSupport(Singleton):
     name = "EWar Support"
 
 
-ALL_ROLES = (Trooper, Commander, Support, EWarSupport)
+class Engineering(Singleton):
+    name = "Engineering"
+
+
+class Recon(Singleton):
+    name = "Recon"
+
+
+class Security(Singleton):
+    # A mecha built to hold ground rather than capture it; mecha with high defense capability
+    name = "Security"
+
+
+class Artillery(Singleton):
+    # A mecha with big guns.
+    name = "Artillery"
+
+
+class Assault(Singleton):
+    # A mecha designed for close combat.
+    name = "Assault"
+
+
+class Comms(Singleton):
+    name = "Comms"
+
+
+ALL_ROLES = (Trooper, Commander, Support, EWarSupport, Engineering, Recon)
 
 
 # Job tags

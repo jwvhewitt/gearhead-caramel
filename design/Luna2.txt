@@ -7,7 +7,7 @@ Mecha
     desc = "This is Aegis Overlord's elite commando mecha."
     environment_list = (GroundEnv,UrbanEnv,SpaceEnv)
     faction_list = (AegisOverlord,)
-    role_list = (Trooper,)
+    role_list = (Trooper, Recon, Assault)
     material = Ceramic
 
     SUB

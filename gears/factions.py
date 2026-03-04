@@ -67,7 +67,7 @@ class AegisOverlord(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot", "Soldier"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Recon Pilot", "Field Medic"),
+        tags.Support: ("Recon Pilot", "Field Medic", "Mecha Pilot"),
     }
     LOCATIONS = (personality.Luna,)
     ADJECTIVES = ("Expedition", "Strike Force")
@@ -83,7 +83,7 @@ class BladesOfCrihna(Faction):
     CAREERS = {
         tags.Trooper: ("Pirate", "Thief"),
         tags.Commander: ("Pirate Captain",),
-        tags.Support: ("Mecha Pilot", "Hacker"),
+        tags.Support: ("Mecha Pilot", "Hacker", "Pirate"),
     }
     ADJECTIVES = ("Pirate",)
     NOUNS = ("Blades", "Fleet")
@@ -97,7 +97,7 @@ class BoneDevils(Faction):
     CAREERS = {
         tags.Trooper: ("Bandit", "Thief"),
         tags.Commander: ("Commander", "Scavenger", "Crimelord", "Kingpin"),
-        tags.Support: ("Mecha Pilot", "Tekno"),
+        tags.Support: ("Mecha Pilot", "Tekno", "Thief"),
     }
     LOCATIONS = (personality.DeadZone,)
     ADJECTIVES = ("Devil", "Bone", "Death")
@@ -112,7 +112,7 @@ class TreasureHunters(Faction):
     CAREERS = {
         tags.Trooper: ("Mercenary", "Thief", "Explorer"),
         tags.Commander: ("Smuggler", "Kingpin", "Crimelord"),
-        tags.Support: ("Hacker", "Scavenger", "Assassin"),
+        tags.Support: ("Hacker", "Scavenger", "Assassin", "Mecha Pilot"),
     }
     LOCATIONS = (personality.DeadZone, personality.GreenZone)
     ADJECTIVES = ("Treasure", "Secret", "Thieves")
@@ -142,7 +142,7 @@ class TerranDefenseForce(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot", "Soldier"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Recon Pilot", "Field Medic"),
+        tags.Support: ("Recon Pilot", "Field Medic", "Mecha Pilot"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Terran",)
@@ -157,7 +157,7 @@ class Guardians(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot", "Police Officer"),
         tags.Commander: ("Detective",),
-        tags.Support: ("Bounty Hunter",),
+        tags.Support: ("Bounty Hunter", "Mecha Pilot"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Investigation", "Peacekeeping")
@@ -172,7 +172,7 @@ class RegExCorporation(Faction):
     CAREERS = {
         tags.Trooper: ("Test Pilot", "Trucker", "Factory Worker"),
         tags.Commander: ("Corporate Executive", "Dispatcher"),
-        tags.Support: ("Construction Worker", "Researcher"),
+        tags.Support: ("Construction Worker", "Researcher", "Arena Pilot"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("RegEx", "Corporate")
@@ -187,7 +187,7 @@ class BioCorp(Faction):
     CAREERS = {
         tags.Trooper: ("Arena Pilot", "Test Pilot"),
         tags.Commander: ("Corporate Executive", "Scientist"),
-        tags.Support: ("Field Medic", "Researcher"),
+        tags.Support: ("Field Medic", "Researcher", "Mecha Designer"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("BioCorp", "Research")
@@ -247,7 +247,7 @@ class TheSilverKnights(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot", "Knight"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Recon Pilot", "Field Medic"),
+        tags.Support: ("Recon Pilot", "Field Medic", "Knight"),
     }
     LOCATIONS = (personality.L5Spinners,)
     ADJECTIVES = ("Silver",)
@@ -262,7 +262,7 @@ class TheSolarNavy(Faction):
     CAREERS = {
         tags.Trooper: ("Mecha Pilot", "Soldier"),
         tags.Commander: ("Commander",),
-        tags.Support: ("Recon Pilot", "Field Medic"),
+        tags.Support: ("Recon Pilot", "Field Medic", "Mecha Pilot"),
     }
     LOCATIONS = (personality.GreenZone,)
     ADJECTIVES = ("Terran", "Solar")
@@ -276,8 +276,8 @@ class ProDuelistAssociation(Faction):
     mecha_colors = (color.PlasmaBlue, color.GunRed, color.Malachite, color.SteelBlue, color.FreedomBlue)
     CAREERS = {
         tags.Trooper: ("Arena Pilot",),
-        tags.Commander: ("Arena Pilot",),
-        tags.Support: ("Gladiator", "Singer"),
+        tags.Commander: ("Arena Pilot", "Mecha Pilot", "Gladiator", "Singer", "Athlete", "Hacker", "Warrior Monk", "Artist", "Dancer", "Martial Artist"),
+        tags.Support: ("Gladiator", "Singer", "Athlete", "Hacker", "Warrior Monk", "Artist", "Dancer", "Martial Artist"),
     }
     LOCATIONS = (
     personality.GreenZone, personality.DeadZone, personality.L5Spinners, personality.L5DustyRing, personality.Mars)
@@ -292,7 +292,7 @@ class Ravagers(Faction):
     CAREERS = {
         tags.Trooper: ("Bandit", "Scavenger", "Mercenary"),
         tags.Commander: ("Gladiator", "Assassin", "Warlord"),
-        tags.Support: ("Explorer", "Technoshaman", "Neodruid"),
+        tags.Support: ("Explorer", "Technoshaman", "Neodruid", "Mecha Pilot"),
     }
     LOCATIONS = (personality.DeadZone,)
     ADJECTIVES = ("Ashen", "Forsaken", "Apocalypse")

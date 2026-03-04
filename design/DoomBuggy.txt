@@ -9,7 +9,7 @@ Mecha
   name = 'Doom Buggy'
   family = 'None'
   desc = ""
-  role_list = [Trooper]
+  role_list = [Trooper, Recon]
   faction_list = [BoneDevils, DeadzoneFederation, Ravagers]
   desig = TP0-X1
   SUB
