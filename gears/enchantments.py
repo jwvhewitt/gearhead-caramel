@@ -42,7 +42,7 @@ class EnchantmentList(list):
             if hasattr( thing, "dispel" ) and find_this in thing.dispel:
                 return True
 
-    def update(self,camp,owner):
+    def update(self,camp,owner) -> None:
         for thing in list(self):
             if hasattr(thing,"update"):
                 thing.update(camp,owner)
@@ -67,6 +67,7 @@ class EnchantmentList(list):
                 elif v < 0:
                     n_max = min( v , n_max )
         return p_max + n_max
+
     def get_tags(self,tag_id):
         return [getattr(thing,tag_id) for thing in self if hasattr(thing,tag_id)]
 

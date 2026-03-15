@@ -44,8 +44,8 @@ class AdventureModuleData:
 class TeamRetreatAlert(pbge.alerts.AnimAlert):
     def __init__(self, camp, team_to_remove, **kwargs):
         anims = list()
-        for npc in list(camp.scene.contents):
-            if camp.scene.local_teams.get(npc, None) == self:
+        for npc in camp.scene.contents:
+            if camp.scene.local_teams.get(npc, None) is team_to_remove:
                 anims.append(gears.geffects.FleeAnim(pos=npc.pos, children=[pbge.scenes.animobs.RemoveModel(npc)]))
 
         super().__init__(*anims, **kwargs)

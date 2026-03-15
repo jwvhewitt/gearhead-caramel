@@ -95,7 +95,7 @@ class BumpWaypoint:
 
     def __call__(self):
         if self._are_adjacent(self.chara.pos, self.wpoint.pos):
-            self.wpoint.combat_bump(self.camp, self.mover)
+            self.wpoint.combat_bump(self.camp, self.chara)
             self.camp.fight.cstat[self.chara].spend_ap(1)
 
 
@@ -107,3 +107,20 @@ class BuyBonusActions:
 
     def __call__(self):
         self.camp.fight.cstat[self.chara].buy_bonus_action()
+
+
+class Faff:
+    # This should only get called for NPCs, right now.
+    def __init__(self, camp, chara, anim_class):
+        self.camp = camp
+        self.chara = chara
+        self.anim_class = anim_class
+
+    def __call__(self):
+        pbge.my_state.view.play_anims(
+            self.anim_class(
+                pos=self.chara.pos
+            )
+        )
+        self.camp.fight.cstat[self.chara].spend_ap(1)
+

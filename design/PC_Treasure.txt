@@ -410,3 +410,59 @@ Shield
     material = Ceramic
     size = 4
     bonus = 2
+
+Treasure
+    name = "Optics Module"
+    desc = "A biomonster eyeball. These parts are valuable for scientific and medical research."
+    scale = HumanScale
+    material = Biotech
+    value = 5000
+    weight = 3
+
+PowerSource
+    name = "Organic Generator"
+    desc = "A biomonster power source. These parts are valuable for scientific and medical research."
+    size = 3
+    material = Biotech
+    scale = HumanScale
+
+Treasure
+    name = "Somatic Module"
+    desc = "A biomonster self-repair unit. These parts are valuable for scientific and medical research."
+    scale = HumanScale
+    material = Biotech
+    value = 125000
+    weight = 9
+
+Treasure
+    name = "Neural Module"
+    desc = "A biomonster neural processor. These parts are valuable for scientific and medical research."
+    scale = HumanScale
+    material = Biotech
+    value = 500000
+    weight = 7
+
+Treasure
+    name = "Vascular Module"
+    desc = "A biomonster heart. These parts are valuable for scientific and medical research."
+    scale = HumanScale
+    material = Biotech
+    value = 2500000
+    weight = 12
+
+Consumable
+    name = "Bionite Serum"
+    effect = QuickFixPill
+    quantity = 1
+    desc = "A fluid containing biotech nanomachines which can heal organic damage at an accelerated rate."
+    weight = 2
+
+Consumable
+    name = "Regeneration Serum"
+    effect = MiracleCure
+    quantity = 1
+    desc = "A fluid containing biotech nanomachines which can instantly restore organic systems to full operation."
+    shop_tags = ("LOSTECH",)
+    weight = 3
+
+

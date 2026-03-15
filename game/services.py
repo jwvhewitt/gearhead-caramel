@@ -174,7 +174,6 @@ class Shop(object):
         """The sale price of an item depends on friendliness. Min price = 70%"""
         # If this item is in your inventory already, return 0. Needed for cyberdoc unit.
         if item.parent:
-            print(item.parent)
             return 0
         it = item.cost
         if self.npc:

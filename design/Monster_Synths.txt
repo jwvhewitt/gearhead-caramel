@@ -12,6 +12,7 @@ Monster
     type_tags = ("SYNTH","FACTORY","GUARD")
     families = ("SYNTH","GUARD")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Biotechnology, treasures=("Optics Module", "Organic Generator", "Bionite Serum")}
 
 	SUB
         Head
@@ -125,6 +126,7 @@ Monster
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Biotechnology, treasures=("Optics Module", "Somatic Module", "Bionite Serum")}
 
 	SUB
         Head
@@ -189,6 +191,7 @@ Monster
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Biotechnology, treasures=("Optics Module", "Organic Generator", "Somatic Module")}
 
 	SUB
         Head
@@ -252,6 +255,7 @@ Monster
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Biotechnology, treasures=("Bionite Serum", "Somatic Module", "Neural Module")}
 
 	SUB
         Head
@@ -326,6 +330,7 @@ Monster
     type_tags = ("SYNTH","HUNTER-X","DARK")
     families = ("SYNTH","HUNTER-X")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Biotechnology, treasures=("Neural Module", "Vascular Module", "Regeneration Serum")}
 
 	SUB
         Head
@@ -405,6 +410,7 @@ Monster
     type_tags = ("SYNTH")
     families = ("SYNTH")
     environment_list = (GroundEnv,UrbanEnv)
+    treasure_type = {skill=Biotechnology, treasures=("Bionite Serum", "Regeneration Serum")}
 
 	SUB
         Torso

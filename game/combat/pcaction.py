@@ -450,7 +450,7 @@ class PlayerTurn(pbge.widgets.Widget):
                     if not act():
                         self.actions.pop(0)
             else:
-                if not (self.camp.fight.cstat[self.pc].can_act() and self.camp.fight.still_fighting()):
+                if not (self.camp.fight.cstat[self.pc].can_act() and self.camp.fight.still_fighting() and self.pc in self.camp.scene.contents):
                     pbge.my_state.view.overlays.clear()
                     self.pop()
                     self.visible = False

@@ -1148,7 +1148,7 @@ class WOTHCBM_HomeDespot(Plot):
 
         # Now for the challenges! There is a mostly normal peace challenge that can be unlocked...
         self.peace_challenge_started = False
-        self.register_element("PEACE_CHALLENGE", Challenge(
+        _=self.register_element("PEACE_CHALLENGE", Challenge(
             "Negotiate peace in {}".format(self.elements["THIS_CITY"]),
             ghchallenges.DIPLOMACY_CHALLENGE, [self.elements["THIS_CITY"].faction, self.elements["THAT_CITY"].faction],
             involvement=ghchallenges.InvolvedMetroResidentNPCs(self.elements["THIS_CITY"]), active=False,
@@ -1369,7 +1369,7 @@ class WOTHCBM_HomeDespot(Plot):
         mychallenge: Challenge = self.elements["DETHRONE_CHALLENGE"]
         mychallenge.activate(camp)
         mychallenge.involvement.exclude.add(npc)
-        mychallenge.memo = pbge.challenges.ChallengeMemo("{DETHRONE_NPC} is attempting to remove {NPC} as ruler of {THIS_CITY}.", challenge=mychallenge)
+        mychallenge.memo = pbge.challenges.ChallengeMemo("{DETHRONE_NPC} is attempting to remove {NPC} as ruler of {THIS_CITY}.".format(**self.elements), challenge=mychallenge)
 
     def _start_peace_challenge(self, camp: gears.GearHeadCampaign):
         self.elements["PEACE_CHALLENGE"].activate(camp)

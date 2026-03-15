@@ -196,11 +196,14 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if not self.call_win_loss_funs_after_card:
             if self.on_win and self.is_won():
                 self.on_win(camp)
+                self.on_win = None
             elif self.on_loss and not self.is_won():
                 self.on_loss(camp)
+                self.on_loss = None
         if self.is_won() and self.enemy_faction:
             if self.defeat_trigger_on:
                 camp.check_trigger("DEFEAT", self.enemy_faction)
+                self.defeat_trigger_on = False
             if self.make_enemies:
                 camp.set_faction_as_pc_enemy(self.enemy_faction)
         super().end_adventure(camp)
@@ -212,8 +215,10 @@ class BuildAMissionSeed(adventureseed.AdventureSeed):
         if self.call_win_loss_funs_after_card:
             if self.on_win and self.is_won():
                 self.on_win(camp)
+                self.on_win = None
             elif self.on_loss and not self.is_won():
                 self.on_loss(camp)
+                self.on_loss = None
 
     def can_do_mission(self, camp: gears.GearHeadCampaign):
         return bool(camp.get_usable_party(self.scale, self.solo_mission, just_checking=True, enviro=self.environment))
@@ -336,8 +341,8 @@ class BuildAMissionPlot(Plot):
     def _generate_entrance_room(self):
         # Set ENTRANCE_ANCHOR, ENTRANCE_ROOM, and _ENTRANCE
         myanchor = self.elements.setdefault("ENTRANCE_ANCHOR", random.choice(pbge.randmaps.anchors.EDGES))
-        self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=myanchor), dident="LOCALE")
-        self.register_element("_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
+        _=self.register_element("ENTRANCE_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=myanchor), dident="LOCALE")
+        _=self.register_element("_ENTRANCE", game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle,
                                                                          plot_locked=True),
                               dident="ENTRANCE_ROOM")
 
@@ -349,7 +354,7 @@ class BuildAMissionPlot(Plot):
     def t_START(self, camp):
         if camp.scene is self.elements["LOCALE"] and not self.gave_mission_reminder:
             mydisplay = adventureseed.CombatMissionDisplay(title=self.adv.name, mission_seed=self.adv, width=400)
-            pbge.alerts.FunAlert(mydisplay.show)
+            _=pbge.alerts.FunAlert(mydisplay.show)
             if self.elements.get("ENEMY_FACTION"):
                 camp.add_faction_score(self.elements.get("ENEMY_FACTION"), -5)
             self.gave_mission_reminder = True

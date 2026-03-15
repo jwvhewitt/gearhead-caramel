@@ -1,3 +1,9 @@
+* Combat won't start before START trigger checked
+* Synth monsters now have treasure recoverable with Biotechnology skill
+* TeamRetreatAlert is working now
+* Mission on_win, on_loss methods will not be called more than once each
+* Color editor uses correct channels for mecha
+
 v1.005alpha February 27, 2026
 * NPC mecha selected based on the NPC's skills
 * Random mecha units now properly use roles

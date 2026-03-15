@@ -1726,7 +1726,7 @@ class PureBiznessRelationship(LMMissionPlot):
     def _accept_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY
         self.mission_active = True
-        missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
+        _=missionbuilder.NewMissionNotification(self.mission_seed.name, self.elements["MISSION_GATE"])
 
     def _reject_offer(self, camp):
         self.elements["NPC"].relationship.expectation = relationships.E_MERCENARY

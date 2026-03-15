@@ -356,14 +356,10 @@ class MechaInfoWidget(widgets.Widget):
         backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
 
     def change_colors(self, _wid, _ev):
-        if self.pc.portrait_gen:
-            cchan = self.pc.portrait_gen.color_channels
-        else:
-            cchan = gears.color.CHARACTER_COLOR_CHANNELS
         cosplay.ColorEditor.push_state_and_instantiate(
             self.fhq,
             proto_sprite=self.pc.get_portrait(add_color=False), sprite_frame=0,
-            channel_filters=cchan, colors=self.pc.colors, on_done=self._color_done
+            channel_filters=gears.color.MECHA_COLOR_CHANNELS, colors=self.pc.colors, on_done=self._color_done
         )
 
     def on_activate(self):

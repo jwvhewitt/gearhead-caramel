@@ -441,6 +441,8 @@ class NonPlayerTurn(pbge.widgets.Widget):
                 self.pop()
             elif not self.camp.fight.cstat[self.pc].can_act():
                 self.pop()
+            elif not self.pc in self.camp.scene.contents:
+                self.pop()
             else:
                 actions = self.brain.act(self.camp)
                 if actions:

@@ -158,22 +158,25 @@ class CombatControlWidget(pbge.widgets.Widget):
             self._current_combatant.renew_power()
 
     def do_combat_turn(self, chara):
+        self._current_combatant = chara
+        if chara in self.camp.party and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
+            # Outsource the turn-taking.
+            turn_widget = pcaction.PlayerTurn(pc=chara, camp=self.camp)
+        else:
+            turn_widget = aibrain.NonPlayerTurn(pc=chara, camp=self.camp)
+
         if not self.camp.fight.cstat[chara].has_started_turn:
             self.camp.fight.cstat[chara].start_turn(chara)
-            # if hasattr(chara, 'ench_list'):
-            #     chara.ench_list.update(self.camp, chara)
-            #     alt_ais = chara.ench_list.get_tags('ALT_AI')
-            #     if alt_ais:
-            #         current_ai = random.choice(alt_ais)
-            #         if current_ai in ALT_AIS:COMBATLOOP
-            #             ALT_AIS[current_ai](chara, self.camp)
+            if hasattr(chara, 'ench_list'):
+                chara.ench_list.update(self.camp, chara)  # pyright: ignore[reportUnusedCallResult]
+                alt_ais = chara.ench_list.get_tags('ALT_AI')
+                if alt_ais:
+                    current_ai = random.choice(alt_ais)
+                    if current_ai in ALT_AIS:
+                        turn_widget.actions += ALT_AIS[current_ai](chara, self.camp).get_actions()
+
         if chara.is_operational():
-            self._current_combatant = chara
-            if chara in self.camp.party and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
-                # Outsource the turn-taking.
-                pcaction.PlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
-            else:
-                aibrain.NonPlayerTurn.push_state_and_instantiate(self, pc=chara, camp=self.camp)
+            turn_widget.push_and_deploy(self)
         else:
             self.camp.fight.cstat[chara].end_turn()
 

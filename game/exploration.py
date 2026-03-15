@@ -371,7 +371,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
         self.threat_tiles = set()
         self.threat_viewer = pbge.scenes.areaindicator.AreaIndicator("sys_threatarea.png")
 
-        self.update_npcs()
+        self.completed_initialization = False
 
     def pick_up_item(self):
         pc = self.camp.pc.get_root()
@@ -393,7 +393,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
     CASUAL_SEARCH_CHECK = geffects.OpposedSkillRoll(stats.Perception, stats.Scouting, stats.Speed, stats.Stealth,
                                                     on_success=[True], on_failure=[], min_chance=10, max_chance=90)
 
-    def update_npcs(self):
+    def update_npcs(self, move_npcs=True):
         my_actors = self.scene.get_operational_actors()
         self.threat_tiles.clear()
         for npc in my_actors:
@@ -403,7 +403,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
                 npteam = self.scene.local_teams.get(npc)
 
                 # First handle movement.
-                if hasattr(npc, "get_max_speed") and random.randint(1, 100) < npc.get_max_speed():
+                if move_npcs and hasattr(npc, "get_max_speed") and random.randint(1, 100) < npc.get_max_speed():
                     dir = random.choice(self.scene.ANGDIR)
                     dest = (npc.pos[0] + dir[0], npc.pos[1] + dir[1])
                     if self.scene.on_the_map(*dest) and not self.scene.tile_blocks_movement(dest[0], dest[1],
@@ -461,6 +461,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
     def update(self, delta):
         super().update(delta)
+        if not self.completed_initialization:
+            self.update_npcs()
+            self.completed_initialization = True
+
         if self.active and self.visible and pbge.my_state.widgets_active:
             if self.camp.fight:
                 # If there's a combat going on, switch this widget out for the combat
@@ -537,10 +541,11 @@ class ExploCommandWidget(pbge.widgets.Widget):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
             pbge.my_state.start_music(self.scene.exploration_music)
         pbge.my_state.view.cursor.frame = invoker.InvocationUI.SC_VOIDCURSOR
+        self.update_npcs(False)
 
 
 class Explorer(pbge.campaign.ExploPrototype):
-    # The object which is exploration of a scene. OO just got existential.
+    # The widget| which is exploration of a scene. OO just got existential.
     # Note that this does not get saved to disk, but instead gets created
     # anew when the game is loaded.
     HEADLINER = False
