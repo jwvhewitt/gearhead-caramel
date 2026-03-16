@@ -4,6 +4,8 @@ import gears
 from gears import base
 #from gears.cyberinstaller import CyberwareSource, ListedSalesCyberwareSource, AllCyberwareSource, CyberwareInstaller
 import pygame
+
+from pbge import widgetmenu
 from . import shopui
 import copy
 
@@ -187,7 +189,8 @@ class SurgeryUI(pbge.widgets.Widget):
         self.children.append(installed_label)
         self._installed_listwidget = pbge.widgetmenu.MenuWidget(
             INSTALLED_LIST_FRECT.dx, INSTALLED_LIST_FRECT.dy, INSTALLED_LIST_FRECT.w, INSTALLED_LIST_FRECT.h,
-            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel, font=pbge.MEDIUM_DISPLAY_FONT
+            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel, font=pbge.MEDIUM_DISPLAY_FONT,
+            style=widgetmenu.WIDE_ARROW_STYLE
         )
         self.children.append(self._installed_listwidget)
         available_label = pbge.widgets.LabelWidget( AVAILABLE_LABEL_FRECT.dx, AVAILABLE_LABEL_FRECT.dy
@@ -198,7 +201,8 @@ class SurgeryUI(pbge.widgets.Widget):
         self.children.append(available_label)
         self._available_listwidget = pbge.widgetmenu.MenuWidget(
             AVAILABLE_LIST_FRECT.dx, AVAILABLE_LIST_FRECT.dy, AVAILABLE_LIST_FRECT.w, AVAILABLE_LIST_FRECT.h,
-            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel, font=pbge.MEDIUM_DISPLAY_FONT
+            activate_child_on_enter=True, on_activate_item=self._try_set_info_panel, font=pbge.MEDIUM_DISPLAY_FONT,
+            style=widgetmenu.WIDE_ARROW_STYLE
         )
         self.children.append(self._available_listwidget)
 

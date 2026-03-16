@@ -61,7 +61,7 @@ class MiracleCure(Singleton):
             used_in_combat = True, used_in_exploration=True,
             ai_tar = aitargeters.GenericTargeter(impulse_score=50,conditions=[aitargeters.TargetIsAlly(),aitargeters.TargetIsOperational(),aitargeters.TargetIsDamaged(materials.RT_MEDICINE)],targetable_types=pbge.scenes.PlaceableThing),
             shot_anim=None,
-            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),0),
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),30),
             price=[],
             targets=1
         ))

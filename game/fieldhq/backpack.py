@@ -184,14 +184,16 @@ class BackpackWidget(widgets.Widget):
 
         self.equipment_selector = widgetmenu.MenuWidget(
             EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h,
-            on_activate_item=self._activate_item, item_class=InvItemWidget
+            on_activate_item=self._activate_item, item_class=InvItemWidget,
+            style=widgetmenu.WIDE_ARROW_STYLE
         )
 
         self.children.append(self.equipment_selector)
 
         self.inventory_selector = widgetmenu.MenuWidget(
             INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h,
-            on_activate_item=self._activate_item, item_class=InvItemWidget
+            on_activate_item=self._activate_item, item_class=InvItemWidget,
+            style=widgetmenu.WIDE_ARROW_STYLE
         )
 
         self.children.append(self.inventory_selector)
@@ -414,14 +416,16 @@ class ItemExchangeWidget(widgets.Widget):
 
         self.crate_selector = widgetmenu.MenuWidget(
             EQUIPMENT_COLUMN.dx, EQUIPMENT_COLUMN.dy, EQUIPMENT_COLUMN.w, EQUIPMENT_COLUMN.h,
-            on_activate_item=self._activate_item, item_class=InvItemWidget
+            on_activate_item=self._activate_item, item_class=InvItemWidget,
+            style=widgetmenu.WIDE_ARROW_STYLE
         )
 
         self.children.append(self.crate_selector)
 
         self.inventory_selector = widgetmenu.MenuWidget(
             INVENTORY_COLUMN.dx, INVENTORY_COLUMN.dy, INVENTORY_COLUMN.w, INVENTORY_COLUMN.h,
-            on_activate_item=self._activate_item, item_class=InvItemWidget
+            on_activate_item=self._activate_item, item_class=InvItemWidget,
+            style=widgetmenu.WIDE_ARROW_STYLE
         )
 
         self.children.append(self.inventory_selector)

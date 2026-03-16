@@ -6,8 +6,6 @@ import pygame
 from collections.abc import Callable
 
 
-DEFAULT_UPDOWN_IMAGE_W_H = ("sys_updownbuttons.png", 128, 16)
-
 widget_menu_border_off = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge1.png",
                            tex_name="sys_defbackground.png", tl=0, tr=3, bl=4, br=5, t=1, b=1, l=2, r=2, padding=16)
 widget_menu_border_on = Border(border_width=8, tex_width=16, border_name="sys_widbor_edge2.png",
@@ -15,6 +13,58 @@ widget_menu_border_on = Border(border_width=8, tex_width=16, border_name="sys_wi
 
 MENU_ITEM_COLOR = pygame.Color(150,145,130)
 MENU_SELECT_COLOR = pygame.Color(128,250,230)
+
+
+class MenuStyle:
+    def __init__(
+        self, arrow_image_name="sys_updownbuttons.png", arrow_image_w=128, arrow_image_h=16,
+        up_arrow_on_frame=0, up_arrow_off_frame=1, down_arrow_on_frame=2, down_arrow_off_frame=3,
+        corner_arrows=False
+    ):
+        self.arrow_image_name = arrow_image_name
+        self.arrow_image_w = arrow_image_w
+        self.arrow_image_h = arrow_image_h
+        self.up_arrow_on_frame = up_arrow_on_frame
+        self.up_arrow_off_frame = up_arrow_off_frame
+        self.down_arrow_on_frame = down_arrow_on_frame
+        self.down_arrow_off_frame = down_arrow_off_frame
+        self.corner_arrows = corner_arrows
+
+    def get_up_down_widgets(self):
+        updown = image.Image(self.arrow_image_name, self.arrow_image_w, self.arrow_image_h)
+        up_arrow = widgets.ButtonWidget(
+            0, 0, self.arrow_image_w, self.arrow_image_h, sprite = updown, 
+            on_frame = self.up_arrow_on_frame, off_frame = self.up_arrow_off_frame
+        )
+        down_arrow = widgets.ButtonWidget(
+            0, 0, self.arrow_image_w, self.arrow_image_h, sprite = updown, 
+            on_frame = self.down_arrow_on_frame, off_frame = self.down_arrow_off_frame
+        )
+        return (up_arrow, down_arrow)
+
+    def arrange_widgets(self, menu: "MenuWidget", scroll_column, up_arrow, down_arrow):
+        if self.corner_arrows:
+            menu.children.append(up_arrow)
+            menu.super_add_interior(scroll_column)
+            menu.children.append(down_arrow)
+            up_arrow.parent = menu
+            up_arrow.dx, up_arrow.dy = -up_arrow.w//2, -up_arrow.h//2
+            up_arrow.anchor = frects.ANCHOR_UPPERRIGHT
+            down_arrow.parent = menu
+            down_arrow.dx, down_arrow.dy = -down_arrow.w//2, -down_arrow.h//2
+            down_arrow.anchor = frects.ANCHOR_LOWERRIGHT
+
+        else:
+            menu.super_add_interior(up_arrow)
+            scroll_column.h = scroll_column.h - up_arrow.h * 2
+            menu.super_add_interior(scroll_column)
+            menu.super_add_interior(down_arrow)
+
+
+DEFAULT_STYLE = MenuStyle(
+    "sys_updownboxes.png", 24, 24, 0, 1, 3, 4, True
+)
+WIDE_ARROW_STYLE = MenuStyle()
 
 
 class MenuWidget(widgets.ColumnWidget):
@@ -26,7 +76,7 @@ class MenuWidget(widgets.ColumnWidget):
         font=None, item_class: type[widgets.Widget]=widgets.LabelWidget, item_data=None, 
         on_click_child: widgets.On_Click=None, pop_when_clicked=False,
         on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
-        auto_escape=False,
+        auto_escape=False, style=DEFAULT_STYLE,
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
@@ -41,23 +91,17 @@ class MenuWidget(widgets.ColumnWidget):
                          **kwargs)
         self.off_border = off_border
 
-        image_name, image_w, image_h = DEFAULT_UPDOWN_IMAGE_W_H
-        updown = image.Image(image_name, image_w, image_h)
-        self.up_arrow = widgets.ButtonWidget(
-            0, 0, image_w, image_h, sprite = updown, on_frame = 0, off_frame = 1
-        )
-        self.down_arrow = widgets.ButtonWidget(
-            0, 0, image_w, image_h, sprite = updown, on_frame = 2, off_frame = 3
-        )
+        self.up_arrow, self.down_arrow = style.get_up_down_widgets()
+
         self.scroll_column = widgets.ScrollColumnWidget(
-            0, 0, w, h - 32, self.up_arrow, self.down_arrow, padding = padding,
+            0, 0, w, h, self.up_arrow, self.down_arrow, padding = padding,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
             on_activate_child=on_activate_item, on_click_child=self._click_child_wrapper,
             immediately_on_click=self._immediately_on_click
         )
-        super().add_interior(self.up_arrow)
-        super().add_interior(self.scroll_column)
-        super().add_interior(self.down_arrow)
+
+        style.arrange_widgets(self, self.scroll_column, self.up_arrow, self.down_arrow)
+
         self.item_data = dict()
         if font:
             self.item_data["font"] = font
@@ -104,6 +148,10 @@ class MenuWidget(widgets.ColumnWidget):
             or self.up_arrow is my_state.focused_widget
             or self.down_arrow is my_state.focused_widget
         )
+
+    # Utility function to access the menu's column contents
+    def super_add_interior(self, other_w):
+        super().add_interior(other_w)
 
     # Some utility functions to access the scroll column's contents directly.
     def add_interior(self, other_w, pos=None):

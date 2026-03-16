@@ -990,6 +990,7 @@ class EditExistingMechaMenu(pbge.widgetmenu.MenuWidget):
         super().__init__(
             *MAIN_MENU_DXYWH,font=pbge.my_state.medium_font, on_escape=self._exit_menu,
             tags={WTAG_GEFRONTEND,}, on_click_child=self._choose_chassis,
+            style=pbge.widgetmenu.WIDE_ARROW_STYLE
         )
         self.children.append(pbge.widgetmenu.DescBoxWidget(*DESC_BOX_DXYWH, menu=self, font=pbge.MEDIUMFONT))
         self.championify = championify
@@ -1020,6 +1021,7 @@ class CreateNewMechaMenu(pbge.widgetmenu.MenuWidget):
         super().__init__(
             *MAIN_MENU_DXYWH,font=pbge.my_state.huge_font, on_escape=self._exit_menu,
             tags={WTAG_GEFRONTEND,}, on_click_child=self._choose_form,
+            style=pbge.widgetmenu.WIDE_ARROW_STYLE
         )
         self.children.append(pbge.widgetmenu.DescBoxWidget(*DESC_BOX_DXYWH, menu=self, font=pbge.MEDIUMFONT))
 
