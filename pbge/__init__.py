@@ -705,7 +705,7 @@ def render_text(font, text, width, color=TEXT_COLOR, justify=-1, antialias=True)
     imgs = [font.render(l, antialias, color) for l in lines]
     h = sum(i.get_height() for i in imgs)
     s = pygame.surface.Surface((width, h))
-    s.fill((0, 0, 0))
+    _=s.fill((0, 0, 0))
     o = 0
     for i in imgs:
         if justify == 0:
@@ -714,7 +714,7 @@ def render_text(font, text, width, color=TEXT_COLOR, justify=-1, antialias=True)
             x = width - i.get_width()
         else:
             x = 0
-        s.blit(i, (x, o))
+        _=s.blit(i, (x, o))
         o += i.get_height()
     s.set_colorkey((0, 0, 0), pygame.RLEACCEL)
     return s

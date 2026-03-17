@@ -1,3 +1,4 @@
+* ItemStatsBlock will now deal correctly with linewrap
 * Added styles for MenuWidget; new default style
 * Haywire status working again
 * Combat won't start before START trigger checked

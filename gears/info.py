@@ -789,20 +789,39 @@ class ItemStatsBlock(object):
         self.width = width
         self.font = font or pbge.MEDIUMFONT
         self.linesize = self.font.get_linesize()
-        if hasattr(model, "get_item_stats"):
-            self.height = self.font.get_linesize() * len(self.model.get_item_stats())
-        else:
-            self.height = 0
+        self.height = 0
+        self.image = self.create_image()
+
+    def update(self):
+        self.image = self.create_image()
+
+    def create_image(self):
+        lines = list()
+        height = 0
+        if hasattr(self.model, "get_item_stats"):
+            for k, v in self.model.get_item_stats():
+                a = pbge.render_text(self.font, "{}:".format(k), self.width//2, pbge.INFO_GREEN, justify=1)
+                b = pbge.render_text(self.font, v, self.width//2 - 16, pbge.INFO_HILIGHT, justify=-1)
+                h = max(a.get_height(), b.get_height())
+                lines.append((a, b, h))
+                height += h
+
+        my_image = pygame.Surface((self.width, height))
+        _=my_image.fill((0, 0, 0))
+
+        self.height = height
+        mydest_a = pygame.Rect(0,0,self.width//2, self.height)
+        mydest_b = pygame.Rect(self.width//2 + 16,0,self.width//2-16, self.height)
+        for a, b, h in lines:
+            _=my_image.blit(a, mydest_a)
+            _=my_image.blit(b, mydest_b)
+            mydest_a.y += h
+            mydest_b.y += h
+        my_image.set_colorkey((0, 0, 0), pygame.RLEACCEL)
+        return my_image
 
     def render(self, x, y):
-        if hasattr(self.model, "get_item_stats"):
-            mydest_k = pygame.Rect(x, y, self.width // 2, self.height)
-            mydest_v = pygame.Rect(x + self.width // 2 + 16, y, self.width // 2 - 16, self.height)
-            for k, v in self.model.get_item_stats():
-                pbge.draw_text(self.font, "{}:".format(k), mydest_k, pbge.INFO_GREEN, justify=1)
-                pbge.draw_text(self.font, v, mydest_v, pbge.INFO_HILIGHT, justify=-1)
-                mydest_k.y += self.linesize
-                mydest_v.y += self.linesize
+        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
 
 
 class WeaponSkillBlock(object):
