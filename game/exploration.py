@@ -534,6 +534,12 @@ class ExploCommandWidget(pbge.widgets.Widget):
                     #print(self, ev, id(ev))
                     configedit.PopupGameMenu.push_state_and_instantiate()
 
+                elif ev.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                    for pc in self.camp.get_active_party():
+                        if hasattr(pc, "relationship") and pc.relationship and hasattr(pc, "renown"):
+                            print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
+                                                            pc.relationship.can_do_development()))
+
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
 

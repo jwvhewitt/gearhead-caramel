@@ -61,7 +61,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v1.005alpha"
+VERSION = "v1.006alpha"
 STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
