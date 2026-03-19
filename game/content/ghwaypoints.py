@@ -75,6 +75,7 @@ class Crate( Waypoint ):
 
     def unlocked_use( self, camp: gears.GearHeadCampaign ):
         # Perform this waypoint's special action.
+        camp.sort_party()
         fieldhq.backpack.ItemExchangeWidget.push_state_and_instantiate(
             camp=camp, pc=camp.first_active_pc(), conlist=self.contents
         )

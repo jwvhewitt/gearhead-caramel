@@ -318,15 +318,17 @@ class ConversationWidget(widgets.Widget):
         self.visualizer = visualizer
 
         self.menu = widgetmenu.MenuWidget(
-            **self.visualizer.get_menu_frect().get_dict(), on_escape=self.end_the_converation,
+            **self.visualizer.get_menu_frect().get_dict(), on_escape=self.end_the_conversation,
             on_click_child=self.on_reply, activate_child_on_enter=True,
             **kwargs
         )
         self.children.append(self.menu)
         self.update_menu()
 
-    def end_the_converation(self, _wid, _ev):
+    def end_the_conversation(self, _wid=None, _ev=None):
         self.pop()
+        if self.conversation.root.effect:
+            self.conversation.root.effect(self.conversation.camp)
 
     def on_reply(self, item, ev):
         if item and item.data:
@@ -336,15 +338,13 @@ class ConversationWidget(widgets.Widget):
             self.conversation.root = item.data
             self.update_menu()
         else:
-            self.pop()
-            if self.conversation.root.effect:
-                self.conversation.root.effect(self.conversation.camp)
+            self.end_the_conversation()
 
     def update_menu(self):
         self.menu.clear()
         coff = self.conversation.root
         if not coff:
-            self.pop()
+            self.end_the_conversation()
             return
         if coff.prefx:
             coff.prefx(self.conversation.camp)

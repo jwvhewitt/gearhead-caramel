@@ -2628,7 +2628,7 @@ class TownHall_ropp_38(Plot):
                 Offer(
                     "Your mission will be to move troops into unguarded territories, and take back any territory captured by our enemies. Capturing an enemy's home base will remove them from the battle. But be careful- if the uptown district gets captured, we'll be the ones who lose.",
                     context=ContextTag(["INFO"]),
-                    data={'subject': "the defence of Pirate's Point"},
+                    data={'subject': "the defense of Pirate's Point"},
                     subject='',
                     subject_start=True,
                     effect=self._offer166.get_effect(

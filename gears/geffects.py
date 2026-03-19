@@ -43,6 +43,25 @@ class ItemInvocation(effects.Invocation):
         return super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
 
 
+class SkillInvocation(effects.Invocation):
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
+        if originator:
+            anim_list.append(animobs.WatchMeWiggle(originator))
+        return super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
+
+
+class HackingInvocation(effects.Invocation):
+    def __init__(self, hack_name, *args, **kwargs):
+        self.hack_name = hack_name
+        super().__init__(*args, **kwargs)
+
+    def invoke(self, camp, originator, target_points, anim_list, fx_record=None, data=None):
+        if originator:
+            anim_list.append(animobs.WatchMeWiggle(originator))
+            anim_list.append(animobs.Caption(self.hack_name, pos=originator.pos))
+        return super().invoke(camp, originator, target_points, anim_list, fx_record=fx_record, data=data)
+
+
 class InvoLibraryShelf(object):
     def __init__(self, source, invo_list):
         self.source = source
@@ -381,6 +400,16 @@ class SearchAnim(animobs.AnimOb):
     DEFAULT_END_FRAME = 7
 
 
+class LockOnAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = 'anim_lockon.png'
+    DEFAULT_END_FRAME = 15
+
+
+class SpotWeaknessAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = 'anim_spotweakness.png'
+    DEFAULT_END_FRAME = 29
+
+
 class DeepProbeAnim(animobs.Caption):
     DEFAULT_TEXT = 'Deep Probe!'
 
@@ -420,6 +449,34 @@ class ResistAnim(animobs.Caption):
 
 class SearchTextAnim(animobs.Caption):
     DEFAULT_TEXT = 'Search!'
+
+
+class RepairTextAnim(animobs.Caption):
+    DEFAULT_TEXT = 'Repair!'
+
+
+class FirstAidTextAnim(animobs.Caption):
+    DEFAULT_TEXT = "First Aid!"
+
+
+class BioRepairTextAnim(animobs.Caption):
+    DEFAULT_TEXT = "Bio Repair!"
+
+
+class AntidoteTextAnim(animobs.Caption):
+    DEFAULT_TEXT = "Antidote!"
+
+
+class SpotWeaknessTextAnim(animobs.Caption):
+    DEFAULT_TEXT = "Spot Weakness!"
+
+
+class TechSupportTextAnim(animobs.Caption):
+    DEFAULT_TEXT = "Tech support!"
+
+
+class HackingTextAnim(animobs.Caption):
+    DEFAULT_TEXT = "Hacking!"
 
 
 class InflictDisintegrationAnim(animobs.Caption):
@@ -963,7 +1020,7 @@ class AttackRoll(effects.NoEffect):
         odds = 1.0
         for defense in list(self.defenses.values()):
             if defense and defense.can_attempt(originator, target):
-                odds *= defense.get_odds(self, originator, target, att_bonus)
+                odds *= defense.get_defense_odds(self, originator, target, att_bonus)
         return odds, modifiers
 
 
@@ -1131,7 +1188,7 @@ class MultiAttackRoll(effects.NoEffect):
         odds = 1.0
         for defense in list(self.defenses.values()):
             if defense and defense.can_attempt(originator, target):
-                odds *= defense.get_odds(self, originator, target, att_bonus)
+                odds *= defense.get_defense_odds(self, originator, target, att_bonus)
         return odds, modifiers
 
 
@@ -1165,7 +1222,7 @@ class SkillRoll(effects.NoEffect):
         else:
             return self.on_failure
 
-    def get_odds(self, camp, originator, target):
+    def get_odds(self, camp, originator, _firing_pos, _target):
         # Return the percent chance that this attack will hit and the list of
         # modifiers in (value,name) form.
         modifiers = [(self.roll_mod, 'Base Modifier')]
@@ -1220,7 +1277,7 @@ class OpposedSkillRoll(effects.NoEffect):
         else:
             return self.on_no_target
 
-    def get_odds(self, camp, originator, target):
+    def get_odds(self, camp, originator, _firing_pos, target):
         # Return the percent chance that this attack will hit and the list of
         # modifiers in (value,name) form.
         modifiers = [(self.roll_mod, 'Base Modifier')]
@@ -1282,7 +1339,7 @@ class ResistanceRoll(effects.NoEffect):
         else:
             return self.on_no_target
 
-    def get_odds(self, camp, originator, target):
+    def get_odds(self, camp, originator, _firing_pos, target):
         # Return the percent chance that this attack will hit and the list of
         # modifiers in (value,name) form.
         modifiers = [(self.roll_mod, 'Base Modifier')]
@@ -2103,7 +2160,7 @@ class DodgeRoll(object):
     def can_attempt(self, attacker, defender):
         return True
 
-    def get_odds(self, atroller, attacker, defender, att_bonus):
+    def get_defense_odds(self, atroller, attacker, defender, att_bonus):
         # Return the odds as a float.
         def_target = defender.get_dodge_score()
         if defender.get_current_stamina() < 1:
@@ -2134,7 +2191,7 @@ class ReflexSaveRoll(object):
     def can_attempt(self, attacker, defender):
         return True
 
-    def get_odds(self, atroller, attacker, defender, att_bonus):
+    def get_defense_odds(self, atroller, attacker, defender, att_bonus):
         return 1.0
 
 
@@ -2177,7 +2234,7 @@ class BlockRoll(object):
     def can_attempt(self, attacker, defender):
         return self.get_shield(defender) and (defender.get_current_stamina() > 0)
 
-    def get_odds(self, atroller, attacker, defender, att_bonus):
+    def get_defense_odds(self, atroller, attacker, defender, att_bonus):
         # Return the odds as a float.
         shield = self.get_shield(defender)
         if shield:
@@ -2230,7 +2287,7 @@ class ParryRoll(object):
     def can_attempt(self, attacker, defender):
         return self.get_parrier(defender) and (defender.get_current_stamina() > 0)
 
-    def get_odds(self, atroller, attacker, defender, att_bonus):
+    def get_defense_odds(self, atroller, attacker, defender, att_bonus):
         # Return the odds as a float.
         parrier = self.get_parrier(defender)
         if parrier:
@@ -2294,7 +2351,7 @@ class InterceptRoll(object):
     def can_attempt(self, attacker, defender):
         return len(self.get_interceptors(defender)) > 0 and (defender.get_current_stamina() > 0)
 
-    def get_odds(self, atroller, attacker, defender, att_bonus):
+    def get_defense_odds(self, atroller, attacker, defender, att_bonus):
         # Return the odds as a float.
         interceptors = self.get_interceptors(defender)
         base = 1.0

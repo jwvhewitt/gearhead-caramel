@@ -521,7 +521,7 @@
 								"context": "INFO",
 								"dialogue_text": "Your mission will be to move troops into unguarded territories, and take back any territory captured by our enemies. Capturing an enemy's home base will remove them from the battle. But be careful- if the uptown district gets captured, we'll be the ones who lose.",
 								"dialogue_data": {
-									"subject": "the defence of Pirate's Point"
+									"subject": "the defense of Pirate's Point"
 								},
 								"single_use": false,
 								"subject": "",

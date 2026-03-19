@@ -52,15 +52,15 @@ class TrainingMenu(pbge.widgetmenu.MenuWidget):
             wid.text = self._menu_text_fun(choice)
 
     def _render(self, delta):
-        if self.active_pc not in self.infoz:
-            self.infoz[self.active_pc] = fhqinfo.CharaFHQIP(model=self.active_pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=self.camp)
-        mydest = fhqinfo.CENTER_COLUMN.get_rect()
-        self.infoz[self.active_pc].render(mydest.x,mydest.y)
-
         if self.active_pc not in self.portraitz:
             self.portraitz[self.active_pc] = self.active_pc.get_portrait()
         self.portrait_view.portrait = self.portraitz[self.active_pc]
         self.portrait_view.render()
+
+        if self.active_pc not in self.infoz:
+            self.infoz[self.active_pc] = fhqinfo.CharaFHQIP(model=self.active_pc, width=fhqinfo.CENTER_COLUMN.w, font=pbge.SMALLFONT, camp=self.camp)
+        mydest = fhqinfo.CENTER_COLUMN.get_rect()
+        self.infoz[self.active_pc].render(mydest.x,mydest.y)
 
         super()._render(delta)
 

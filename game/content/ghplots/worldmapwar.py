@@ -358,7 +358,7 @@ class WorldMapBattleAlert(WorldMapAlert):
     def __init__(
         self, message, visualizer, target_node, on_close: pbge.widgets.On_Click,
         num_attackers, num_defenders, attacker_casulties=0, defender_casulties=0,
-        attack_frame=1, defence_frame=0, **kwargs
+        attack_frame=1, defense_frame=0, **kwargs
     ):
         # If casulties are given, the battle will be animated over however many seconds it takes.
         super().__init__(message, visualizer, target_node.entrance, on_close, **kwargs)
@@ -368,7 +368,7 @@ class WorldMapBattleAlert(WorldMapAlert):
         self.attacker_casulties = attacker_casulties
         self.defender_casulties = defender_casulties
         self.attack_frame = attack_frame
-        self.defence_frame = defence_frame
+        self.defense_frame = defense_frame
         self.kill_counter = 0
         self.defender_positions = self.DEFENDER_POSITIONS.copy()
         random.shuffle(self.defender_positions)
@@ -404,7 +404,7 @@ class WorldMapBattleAlert(WorldMapAlert):
             self.mecha_sprite.render_c((self.visualizer.calc_map_x(self.target_node.pos[0], map_rect) + x +
                                         self.MECHA_WIGGLE[(pbge.my_state.anim_phase + n * 3) % 10],
                                         self.visualizer.calc_map_y(self.target_node.pos[1], map_rect) + y),
-                                       self.defence_frame)
+                                       self.defense_frame)
 
         if self.kill_counter != 0:
             if self.kill_counter < 0:
@@ -470,19 +470,19 @@ class WorldMapWarTurn:
             desirability = self.world_map_war.get_defense_strength(target_node) + 12
         return desirability
 
-    DEFENCE_OBJECTIVES = (
+    DEFENSE_OBJECTIVES = (
         missionbuilder.BAMO_DEFEAT_COMMANDER, missionbuilder.BAMO_AID_ALLIED_FORCES,
         missionbuilder.BAMO_LOCATE_ENEMY_FORCES, missionbuilder.BAMO_DESTROY_ARTILLERY,
         missionbuilder.BAMO_EXTRACT_ALLIED_FORCES
     )
 
-    def get_defence_missionseed(self, target_node):
+    def get_defense_missionseed(self, target_node):
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(target_node.destination)
         my_adv = missionbuilder.BuildAMissionSeed(
             self.camp, "Defend {}".format(target_node), target_node.destination, target_node.entrance,
             self.fac, target_node.destination.faction,
             self.world_map_war.rank + self.num_attackers * 3 - self.num_defenders * 3,
-            objectives=random.sample(self.DEFENCE_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
+            objectives=random.sample(self.DEFENSE_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
             on_win=DefenderWinsEffect(self.fac, target_node, self.world_map_war,
                                       False),
             on_loss=AttackerWinsEffect(self.fac, target_node,
@@ -510,10 +510,10 @@ class WorldMapWarTurn:
 
         attack_frame = self.world_map_war.legend.get_mecha_frame(self.world_map_war.war_teams[self.fac].color)
         if self.target_node.destination.faction:
-            defence_frame = self.world_map_war.legend.get_mecha_frame(
+            defense_frame = self.world_map_war.legend.get_mecha_frame(
                 self.world_map_war.war_teams[self.target_node.destination.faction].color)
         else:
-            defence_frame = self.world_map_war.legend.get_mecha_frame(0)
+            defense_frame = self.world_map_war.legend.get_mecha_frame(0)
 
         if not target_node.destination.faction:
             msg = "{} occupies {}.".format(self.fac, target_node)
@@ -528,35 +528,35 @@ class WorldMapWarTurn:
         # Set the initial alert.
         _=WorldMapBattleAlert(
             msg, self.visualizer, target_node, self.war_phase_two,
-            num_attackers, 0, data=(target_node, num_attackers, num_defenders, spend_boost, attack_frame, defence_frame),
-            attack_frame=attack_frame, defence_frame=defence_frame
+            num_attackers, 0, data=(target_node, num_attackers, num_defenders, spend_boost, attack_frame, defense_frame),
+            attack_frame=attack_frame, defense_frame=defense_frame
         )
 
     def _start_player_mission(self, wid, _ev):
-        target_node, _num_attackers, _num_defenders, _spend_boost, _attack_frame, _defence_frame = wid.data
-        self.callback(self.camp, self.get_defence_missionseed(target_node))
+        target_node, _num_attackers, _num_defenders, _spend_boost, _attack_frame, _defense_frame = wid.data
+        self.callback(self.camp, self.get_defense_missionseed(target_node))
 
     def war_phase_two(self, wid, _ev):
-        target_node, num_attackers, num_defenders, spend_boost, attack_frame, defence_frame = wid.data
+        target_node, num_attackers, num_defenders, spend_boost, attack_frame, defense_frame = wid.data
 
         # Next, we branch depending on whether the PC gets to defend or not.
         pc_metro_scene = self.camp.scene.get_metro_scene()
         if pc_metro_scene is target_node.destination:
             if self.world_map_war.player_team and self.world_map_war.player_team is target_node.destination.faction:
-                self.callback(self.camp, self.get_defence_missionseed(target_node))
+                self.callback(self.camp, self.get_defense_missionseed(target_node))
                 return
             elif self.fac != self.world_map_war.player_team:
                 mymenu = campfeatures.WorldMapMenu(
                     self.camp, target_node.entrance
                 )
-                _=mymenu.add_item("Aid the defence of {}.".format(target_node), self._start_player_mission)
+                _=mymenu.add_item("Aid the defense of {}.".format(target_node), self._start_player_mission)
                 _=mymenu.add_item("Don't get involved in the fighting.", self._do_war_auto_fighting, data=wid.data)
                 mymenu.push_and_deploy()
                 return
         self._do_war_auto_fighting(wid, None)
 
     def _do_war_auto_fighting(self, wid, _ev):
-        target_node, num_attackers, num_defenders, spend_boost, attack_frame, defence_frame = wid.data
+        target_node, num_attackers, num_defenders, spend_boost, attack_frame, defense_frame = wid.data
         # Show the results of the fighting.
         if num_defenders > 0:
             self.casulties.clear()
@@ -571,7 +571,7 @@ class WorldMapWarTurn:
             _=WorldMapBattleAlert(
                 "The fighting begins...", self.visualizer, target_node, None,
                 num_attackers, num_defenders, attacker_casulties=attacker_casulties, defender_casulties=defender_casulties,
-                attack_frame=attack_frame, defence_frame=defence_frame
+                attack_frame=attack_frame, defense_frame=defense_frame
             )
         else:
             attacker_won = True
@@ -584,14 +584,14 @@ class WorldMapWarTurn:
                 "{} has captured {}.".format(self.fac, target_node),
                 self.visualizer, target_node, self._close_turn_alert,
                 num_attackers - attacker_casulties, 0,
-                attack_frame=attack_frame, defence_frame=defence_frame
+                attack_frame=attack_frame, defense_frame=defense_frame
             )
         else:
             _=WorldMapBattleAlert(
                 "{} have been defeated.".format(self.fac),
                 self.visualizer, target_node, self._close_turn_alert,
                 0, num_defenders - defender_casulties,
-                attack_frame=attack_frame, defence_frame=defence_frame
+                attack_frame=attack_frame, defense_frame=defense_frame
             )
 
         if spend_boost:

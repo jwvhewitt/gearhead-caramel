@@ -572,6 +572,8 @@ class FieldHQ(widgets.Widget):
         for v in self.member_widgets.values():
             self.children.remove(v)
         self.member_widgets.clear()
+        self.camp.sort_party()
+
         for pc in self.camp.party:
             self.member_selector.add_interior(PartyMemberButton(self.camp, pc, fhq=self, on_click=self.click_member))
             if isinstance(pc, gears.base.Character):
@@ -586,7 +588,7 @@ class FieldHQ(widgets.Widget):
             else:
                 self.member_widgets[pc] = ItemInfoWidget(self.camp, pc, self, visible=False)
                 self.children.append(self.member_widgets[pc])
-        self.member_selector.sort(key=self._get_sort_order)
+        #self.member_selector.sort(key=self._get_sort_order)
         self.active_info = return_to
         
     def _get_sort_order(self,  wid):

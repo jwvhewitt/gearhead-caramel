@@ -492,9 +492,9 @@ class RandomMonsterUnit(object):
     def monster_cost(self, mon):
         delta = mon.threat - self.level
         if delta > 0:
-            return 25 + delta * 3
+            return 25 + delta * 5
         else:
-            return max(delta + 25, 10)
+            return max(delta + 25, 15)
 
 
 def generate_boss_monster(level, env, type_tags, scale):

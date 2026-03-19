@@ -261,6 +261,7 @@ class GearHeadConversationWidget(dialogue.ConversationWidget):
         realnpc = npc.get_pilot()
         if realnpc and not realnpc.relationship:
             realnpc.relationship = camp.get_relationship(realnpc)
+        self.realnpc = realnpc
         if not cue:
             npcteam = camp.scene.local_teams.get(npc)
             if npcteam and camp.scene.player_team.is_enemy(npcteam):
@@ -279,11 +280,18 @@ class GearHeadConversationWidget(dialogue.ConversationWidget):
         self.menu.visible = False
         self.waiting_on_rollout = True
 
+    def end_the_conversation(self, wid=None, ev=None):
+        super().end_the_conversation(wid, ev)
+        if self.realnpc:
+            self.realnpc.relationship.met_before = True
+
     def _render(self, delta):
         super()._render(delta)
         if self.waiting_on_rollout and not self.visualizer.is_rolling_out:
             self.menu.visible = True
             self.waiting_on_rollout = False
+
+
 
 
 def start_conversation(camp: gears.GearHeadCampaign, pc, npc, cue=None):

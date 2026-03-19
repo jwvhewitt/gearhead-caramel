@@ -1,14 +1,14 @@
 Monster
     name = "Biosentry"
     statline = {Reflexes = 10, Body=10, Speed=10, Perception=10, Craft=10, Knowledge=10, Ego=10, Charm = 10,
-			RangedCombat = 3, Dodge = 3, Vitality = 3
+			RangedCombat = 3, Dodge = 3
 	}
 	scale = HumanScale
 	imagename = 'mon_synth.png'
 	frame = 0
     material = Biotech
     colors = (RoyalPink,CardinalRed,Turquoise,Black,Black)
-    threat = 5
+    threat = 10
     type_tags = ("SYNTH","FACTORY","GUARD")
     families = ("SYNTH","GUARD")
     environment_list = (GroundEnv,UrbanEnv)

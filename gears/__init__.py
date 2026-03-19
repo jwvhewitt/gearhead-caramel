@@ -592,6 +592,28 @@ class GearHeadCampaign(pbge.campaign.Campaign):
                 for p in ob.metrodat.scripts:
                     yield p
 
+    def sort_party(self):
+        self.party.sort(key=self._party_sort_order)
+
+    def _party_sort_order(self, pc):
+        if pc is self.pc:
+            return (0,  str(pc))
+        elif isinstance(pc,  base.Character):
+            return (100,  str(pc))
+        elif isinstance(pc,  base.Being):
+            return (200,  str(pc))
+        elif isinstance(pc,  base.Mecha):
+            if pc.pilot:
+                if pc.pilot is self.pc:
+                    return (300,  str(pc.pilot))
+                else:
+                    return (400,  str(pc.pilot))
+            else:
+                return (500, str(pc))
+        else:
+            return (600,  str(pc))
+
+
     def first_active_pc(self):
         # The first active PC is the first PC in the party list who is
         # both operational and on the map.

@@ -42,7 +42,7 @@ class Perception(Stat):
     @classmethod
     def add_invocations(cls, pc, invodict):
         _pc_skill = pc.get_skill_score(cls, Scouting)
-        ba = pbge.effects.Invocation(
+        ba = geffects.SkillInvocation(
             name='Search',
             fx=geffects.CheckConditions([aitargeters.TargetIsEnemy(), aitargeters.TargetIsHidden()],
                                         anim=geffects.SearchAnim, on_success=[
@@ -159,7 +159,7 @@ class Repair(Skill):
         if random.randint(1, 6) <= extra:
             n += 1
         n = max(n, 1)
-        ba = pbge.effects.Invocation(
+        ba = geffects.SkillInvocation(
             name='Repair',
             fx=geffects.DoHealing(
                 n, 6, repair_type=materials.RT_REPAIR,
@@ -172,7 +172,7 @@ class Repair(Skill):
                                                                              aitargeters.TargetIsDamaged(
                                                                                  materials.RT_REPAIR)],
                                                targetable_types=pbge.scenes.PlaceableThing),
-            shot_anim=None,
+            shot_anim=geffects.OriginSpotShotFactory(geffects.RepairTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 0),
             price=[geffects.MentalPrice(5)],
             targets=1,
@@ -192,7 +192,7 @@ class Medicine(Skill):
         n, extra = divmod(pc_skill, 6)
         if random.randint(1, 6) <= extra:
             n += 1
-        ba = pbge.effects.Invocation(
+        ba = geffects.SkillInvocation(
             name='Heal',
             fx=geffects.DoHealing(
                 max(n, 1), 6, repair_type=materials.RT_MEDICINE,
@@ -205,7 +205,7 @@ class Medicine(Skill):
                                                                              aitargeters.TargetIsDamaged(
                                                                                  materials.RT_MEDICINE)],
                                                targetable_types=pbge.scenes.PlaceableThing),
-            shot_anim=None,
+            shot_anim=geffects.OriginSpotShotFactory(geffects.FirstAidTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 0),
             price=[geffects.MentalPrice(5)],
             targets=1,
@@ -213,7 +213,7 @@ class Medicine(Skill):
         )
         invodict[cls].append(ba)
 
-        antidote = pbge.effects.Invocation(
+        antidote = geffects.SkillInvocation(
             name='Cure Poison',
             fx=geffects.DispelEnchantments(
                 dispel_this=enchantments.USE_ANTIDOTE,
@@ -226,7 +226,7 @@ class Medicine(Skill):
                                                                              aitargeters.TargetHasEnchantment(
                                                                                  geffects.Poisoned)],
                                                targetable_types=pbge.scenes.PlaceableThing),
-            shot_anim=None,
+            shot_anim=geffects.OriginSpotShotFactory(geffects.AntidoteTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 15),
             price=[geffects.MentalPrice(5), geffects.StatValuePrice(cls, 5)],
             targets=1,
@@ -246,7 +246,7 @@ class Biotechnology(Skill):
         n, extra = divmod(pc_skill, 6)
         if random.randint(1, 6) <= extra:
             n += 1
-        ba = pbge.effects.Invocation(
+        ba = geffects.SkillInvocation(
             name='Repair',
             fx=geffects.DoHealing(
                 max(n, 1), 6, repair_type=materials.RT_BIOTECHNOLOGY,
@@ -259,7 +259,7 @@ class Biotechnology(Skill):
                                                                              aitargeters.TargetIsDamaged(
                                                                                  materials.RT_BIOTECHNOLOGY)],
                                                targetable_types=pbge.scenes.PlaceableThing),
-            shot_anim=None,
+            shot_anim=geffects.OriginSpotShotFactory(geffects.BioRepairTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 0),
             price=[geffects.MentalPrice(5)],
             targets=1,
@@ -276,7 +276,7 @@ class Stealth(Skill):
 
     @classmethod
     def add_invocations(cls, pc, invodict):
-        ba = pbge.effects.Invocation(
+        ba = geffects.SkillInvocation(
             name='Hide',
             fx=geffects.StealthSkillRoll(
                 on_success=[geffects.SetHidden(anim=geffects.SmokePoof), ],
@@ -303,12 +303,12 @@ class Science(Skill):
 
     @classmethod
     def add_invocations(cls, pc, invodict):
-        ba = pbge.effects.Invocation(
+        ba = geffects.SkillInvocation(
             name='Spot Weakness',
             fx=geffects.OpposedSkillRoll(Perception, cls, Ego, Vitality,
                                          roll_mod=50, min_chance=25,
                                          on_success=[
-                                             geffects.AddEnchantment(geffects.WeakPoint, anim=geffects.SearchAnim, )],
+                                             geffects.AddEnchantment(geffects.WeakPoint, anim=geffects.SpotWeaknessAnim, )],
                                          on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim), ],
                                          ),
             area=pbge.scenes.targetarea.SingleTarget(reach=15),
@@ -318,6 +318,7 @@ class Science(Skill):
                                                            aitargeters.TargetIsEnemy(), aitargeters.TargetIsNotHidden(),
                                                            aitargeters.TargetDoesNotHaveEnchantment(
                                                                geffects.WeakPoint)]),
+            shot_anim=geffects.OriginSpotShotFactory(geffects.SpotWeaknessTextAnim),
             data=geffects.AttackData(pbge.image.Image('sys_skillicons.png', 32, 32), 9),
             price=[geffects.MentalPrice(2), ],
             targets=1,
@@ -335,7 +336,7 @@ class Computers(Skill):
 
     @classmethod
     def add_program_invocations(cls, pc, invodict):
-        invodict[cls.PROGRAMS_SHELF].append(pbge.effects.Invocation(
+        invodict[cls.PROGRAMS_SHELF].append(geffects.SkillInvocation(
             name = 'Reboot',
             fx= geffects.DispelEnchantments(
                 dispel_this=enchantments.DISPEL_NEGATIVE_ELECTRONIC,
@@ -347,10 +348,12 @@ class Computers(Skill):
             data=geffects.AttackData(pbge.image.Image('sys_programicons.png',32,32),0,thrill_power=25),
             price=[geffects.MentalPrice(1), geffects.StatValuePrice(cls, 3)],
             targets=1,
+            shot_anim=geffects.OriginSpotShotFactory(geffects.TechSupportTextAnim),
             help_text="Clears negative EW effects like Haywire, Sensor Lock, and Overload from one ally within 10 tiles."
         ))
 
-        invodict[cls.PROGRAMS_SHELF].append(pbge.effects.Invocation(
+        invodict[cls.PROGRAMS_SHELF].append(geffects.HackingInvocation(
+            "Hacking!",
             name = 'Virus Injection',
             fx= geffects.OpposedSkillRoll(
                 Knowledge,cls,Ego,cls,
@@ -365,6 +368,7 @@ class Computers(Skill):
             data=geffects.AttackData(pbge.image.Image('sys_programicons.png',32,32),3,thrill_power=50),
             price=[geffects.MentalPrice(4), geffects.StatValuePrice(cls, 5)],
             targets=1,
+            shot_anim=None,
             help_text="Bombards one enemy mecha within 10 tiles with junk data and malicious code, quickly exhausting the pilot's stamina."
         ))
 
@@ -391,7 +395,7 @@ class Negotiation(Skill):
 
     @classmethod
     def add_invocations(cls, pc, invodict):
-        encourage = pbge.effects.Invocation(
+        encourage = geffects.SkillInvocation(
             name="Encourage",
             fx=geffects.DoEncourage(Charm, cls),
             area=pbge.scenes.targetarea.SingleTarget(reach=10),
@@ -421,7 +425,7 @@ class Scouting(Skill):
             rng = pc.get_sensor_range(pc.scale)
         else:
             rng = 10
-        ba2 = pbge.effects.Invocation(
+        ba2 = geffects.SkillInvocation(
             name='Spot Behind Cover',
             fx=geffects.CheckConditions([aitargeters.TargetIsEnemy()],
                                         on_success=[geffects.OpposedSkillRoll(Perception, cls, Speed, Stealth,
@@ -457,7 +461,7 @@ class Wildcraft(Skill):
         take_cover_skill = cls
         take_cover_stat = Speed
         take_cover_bonus = min(max(pc.get_skill_score(take_cover_stat, take_cover_skill) * 2 - 50, 25), 100)
-        take_cover = pbge.effects.Invocation(
+        take_cover = geffects.SkillInvocation(
             name='Stalk Prey',
             fx=geffects.AddEnchantment(geffects.TakingCover,
                                        anim=geffects.TakeCoverAnim),
@@ -477,7 +481,7 @@ class Wildcraft(Skill):
         )
         invodict[cls].append(take_cover)
 
-        call_animal_companion = pbge.effects.Invocation(
+        call_animal_companion = geffects.SkillInvocation(
             name="Call Animal Companion",
             fx=geffects.CallAnimalCompanion(
                 Charm, cls, cls.get_pet_tags(pc)

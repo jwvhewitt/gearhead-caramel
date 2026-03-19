@@ -167,7 +167,7 @@ class CombatControlWidget(pbge.widgets.Widget):
 
         if not self.camp.fight.cstat[chara].has_started_turn:
             self.camp.fight.cstat[chara].start_turn(chara)
-            if hasattr(chara, 'ench_list'):
+            if hasattr(chara, 'ench_list') and chara.ench_list and chara.is_operational():
                 chara.ench_list.update(self.camp, chara)  # pyright: ignore[reportUnusedCallResult]
                 alt_ais = chara.ench_list.get_tags('ALT_AI')
                 if alt_ais:

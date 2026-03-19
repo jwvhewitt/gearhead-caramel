@@ -233,6 +233,7 @@ class Shop(object):
         return mylist
 
     def enter_shop(self, camp):
+        camp.sort_party()
         self.customer = camp.pc
         shopui.ShopUI.instantiate_and_schedule(camp=camp, shop=self)
         
@@ -253,6 +254,7 @@ class Shop(object):
 
     def enter_surgery(self, camp):
         self.update_shop(camp)
+        camp.sort_party()
         cyberdoc.SurgeryWaitingRoomWidget.instantiate_and_schedule(camp=camp, shop=self)
 
 
@@ -326,6 +328,7 @@ class SkillTrainerWidget(pbge.widgets.ColumnWidget):
         super().__init__(-175,-200,350,400, draw_border=True, center_interior=True)
         self.skill_list = skill_list
         self.camp = camp
+        camp.sort_party()
 
         myswitch = PlayerCharacterSwitchPlusSkillTrainingInfo(camp, camp.pc, self._set_pc, self)
         self.pc: gears.base.Character = camp.pc

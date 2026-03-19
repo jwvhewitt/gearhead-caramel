@@ -378,6 +378,8 @@ class InvocationUI(pbge.widgets.Widget):
         self.legal_tiles = set()
         self.num_targets = 0
         self.targets = list()
+        self.locked_targets = list()
+        self.locked_invo = None
 
 
         self.my_widget: InvocationLibraryWidget = self.LIBRARY_WIDGET(
@@ -513,6 +515,8 @@ class InvocationUI(pbge.widgets.Widget):
         # both inside and outside of combat. I'm gonna think about that.
         self.ready_to_invoke = True
         self.data.clear()
+        self.locked_targets = self.targets.copy()
+        self.locked_invo = self.invo
 
         if self.invo.data_gatherers:
             DataGatheringWidget.push_state_and_instantiate(
@@ -536,7 +540,9 @@ class InvocationUI(pbge.widgets.Widget):
         if self.auto_escape:
             self.pop()
         self.tidy()
-        self.on_invoke(self.invo, self.get_firing_pos(), self.targets, self.data)
+        self.targets = self.locked_targets.copy()
+        self.invo = self.locked_invo
+        self.on_invoke(self.invo, self.get_firing_pos(), self.locked_targets, self.data)
         if not self.auto_escape:
             self.targets = list()
             self.my_widget.update_buttons()

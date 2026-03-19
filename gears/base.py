@@ -1287,7 +1287,7 @@ class Engine(Component, StandardDamageHandler, MakesPower):
                 3, self.size // 200 + 2, anim=geffects.SuperBoom, scale=self.scale, is_brutal=True,
                 children=[geffects.SceneryChewing(23, scale=self.scale)]
             ), area=pbge.scenes.targetarea.SelfCentered(radius=self.size // 600 + 1, delay_from=-1),)
-        my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
+        _=my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
     def is_operational(self):
         """ To be operational, an engine must be in an operational module.
@@ -2338,7 +2338,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                             ),
                         )), shot_anim=geffects.AmmoExplosionAnim,
                     area=pbge.scenes.targetarea.SingleTarget())
-            my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
+            _=my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
     def get_attributes(self):
         # Kinda pointless method to maintain compatibility with the weapon attribute infopanel.
@@ -2765,7 +2765,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
                 area=pbge.scenes.targetarea.SelfCentered(radius=min(random.randint(1, 2), random.randint(1, 2))),
                 shot_anim=geffects.AmmoExplosionAnim
             )
-            my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
+            _=my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
 
 class Launcher(BaseGear, ContainerDamageHandler):
@@ -2776,6 +2776,9 @@ class Launcher(BaseGear, ContainerDamageHandler):
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.03
+
+    ACCURACY_MULTIPLIER = 15
+    PENETRATION_MULTIPLIER = 15
 
     def __init__(self, size=5, attack_stat=stats.Perception, **keywords):
         # Check the range of all parameters before applying.
@@ -2841,7 +2844,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 fx=geffects.AttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL,
                     children=(geffects.DoDamage(2 * ammo.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=ammo.scale),),
-                    accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
+                    accuracy=(ammo.accuracy + 1) * Launcher.ACCURACY_MULTIPLIER, 
+                    penetration=ammo.penetration * Launcher.PENETRATION_MULTIPLIER,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo),
                     terrain_effects=[geffects.SceneryChewing(ammo.damage * 5, scale=self.scale)]
@@ -2874,7 +2878,8 @@ class Launcher(BaseGear, ContainerDamageHandler):
                 fx=geffects.MultiAttackRoll(
                     self.attack_stat, self.scale.RANGED_SKILL, num_attacks=num_missiles,
                     children=(geffects.DoDamage(2 * ammo.damage, self.scale.DEFAULT_DAMAGE_DIE, scale=ammo.scale),),
-                    accuracy=(ammo.accuracy + 1) * 10, penetration=ammo.penetration * 10,
+                    accuracy=(ammo.accuracy + 1) * Launcher.ACCURACY_MULTIPLIER, 
+                    penetration=ammo.penetration * Launcher.PENETRATION_MULTIPLIER,
                     defenses=self.get_defenses(),
                     modifiers=self.get_modifiers(ammo),
                     overwhelm=self.get_overwhelm_score(num_missiles),
@@ -3019,7 +3024,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                     radius=min(3, random.randint(1, max((self.quantity - self.spent) // 50, 2)))),
                 shot_anim=geffects.AmmoExplosionAnim
             )
-            my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
+            _=my_invo.invoke(camp, None, [my_root.pos, ], anim_list)
 
 
 class ChemThrower(Weapon):

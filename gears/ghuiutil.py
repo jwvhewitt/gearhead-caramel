@@ -14,15 +14,17 @@ class GearMenuDesc( pbge.widgets.Widget ):
     def _render(self, _delta):
         super()._render(_delta)
 
-        mygear = self.menu.current_data
-    
-        # Just print this weapon's stats in the provided area.
-        if mygear not in self.library:
-            self.library[mygear] = info.get_longform_display(
-                mygear,width=self.w,font=pbge.MEDIUMFONT
-            )
-        myrect = self.get_rect()
-        self.library[mygear].render(myrect.x,myrect.y)
+        current_data = self.menu.current_data
+
+        if current_data:
+            _, mygear = current_data
+            # Just print this weapon's stats in the provided area.
+            if mygear not in self.library:
+                self.library[mygear] = info.get_longform_display(
+                    mygear,width=self.w,font=pbge.MEDIUMFONT
+                )
+            myrect = self.get_rect()
+            self.library[mygear].render(myrect.x,myrect.y)
 
 # Data gatherers should have gather(data: dict) and confirm(data: dict) methods.
 

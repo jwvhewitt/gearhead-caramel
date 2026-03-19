@@ -734,9 +734,9 @@ def draw_text(font, text, rect, color=TEXT_COLOR, justify=-1, antialias=True, de
         myrect.centery = rect.centery
     elif vjustify > 0:
         myrect.bottom = rect.bottom
-    dest_surface.set_clip(rect)
-    dest_surface.blit(myimage, myrect)
-    dest_surface.set_clip(None)
+    _=dest_surface.set_clip(rect)
+    _=dest_surface.blit(myimage, myrect)
+    _=dest_surface.set_clip(None)
 
 
 def please_stand_by(caption=None):

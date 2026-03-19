@@ -360,7 +360,7 @@ class DZDRoadMapMenu(pbge.widgetmenu.MenuWidget):
     WIDTH = 640
     HEIGHT = 320
     MAP_AREA = pbge.frects.Frect(-320, -210, 640, 320)
-    MENU_AREA = pbge.frects.Frect(-200, 130, 400, 80)
+    MENU_AREA = pbge.frects.Frect(-200, 130, 400, 90)
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_WIDGET,}
     ACTIVATE_IMMEDIATELY = True
 
