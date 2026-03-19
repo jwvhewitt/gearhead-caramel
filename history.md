@@ -1,3 +1,5 @@
+* WidgetMenu corner buttons moved slightly to the right
+* Fixed missing reward in OddJobsBiotechnology plot
 * Fixed combat reload crash
 * Relationship met_before property now set correctly
 * Portrait will appear behind info box in skill trainer

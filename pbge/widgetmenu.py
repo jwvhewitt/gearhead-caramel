@@ -48,10 +48,10 @@ class MenuStyle:
             menu.super_add_interior(scroll_column)
             menu.children.append(down_arrow)
             up_arrow.parent = menu
-            up_arrow.dx, up_arrow.dy = -up_arrow.w//2, -up_arrow.h//2
+            up_arrow.dx, up_arrow.dy = -5, -up_arrow.h//2
             up_arrow.anchor = frects.ANCHOR_UPPERRIGHT
             down_arrow.parent = menu
-            down_arrow.dx, down_arrow.dy = -down_arrow.w//2, -down_arrow.h//2
+            down_arrow.dx, down_arrow.dy = -5, -down_arrow.h//2
             down_arrow.anchor = frects.ANCHOR_LOWERRIGHT
 
         else:

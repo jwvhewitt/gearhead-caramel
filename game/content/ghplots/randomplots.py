@@ -562,7 +562,7 @@ class OddJobsBiotechnology(Plot):
 
     def _attempt_analysis(self, camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
-        pbge.alerts.TextAlert("You begin to analyze {NPC}'s {MATERIAL}.".format(**self.elements))
+        _=pbge.alerts.TextAlert("You begin to analyze {NPC}'s {MATERIAL}.".format(**self.elements))
 
         truey_or_fake = random.choice([True, True, True, False])
 
@@ -576,7 +576,7 @@ class OddJobsBiotechnology(Plot):
                         **self.elements))
                 _=ghcutscene.SimpleMonologueDisplay(
                     "[THATS_INTERESTING] Here is a reward for helping with my research.",
-                    npc, camp
+                    npc, camp, data=camp, on_close=self._give_reward
                 )
             else:
                 _=pbge.alerts.TextAlert(
