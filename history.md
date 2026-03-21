@@ -1,3 +1,5 @@
+* NPC stats are influenced by their job
+* Fixed learning new skills through DirectSkillXP bug
 * WidgetMenu corner buttons moved slightly to the right
 * Fixed missing reward in OddJobsBiotechnology plot
 * Fixed combat reload crash

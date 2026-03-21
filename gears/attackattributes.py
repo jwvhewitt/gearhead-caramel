@@ -87,6 +87,8 @@ class Blast1(Singleton):
     POWER_MODIFIER = 2.0
     BLAST_RADIUS = 1
 
+    FAMILY = "AREA_EFFECT"
+
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Change the area to blast.
@@ -188,6 +190,8 @@ class BurstFire2(Singleton):
     POWER_MODIFIER = 1.0
     BURST_VALUE = 2
 
+    FAMILY = "BURST_FIRE"
+
     @classmethod
     def replace_primary_attack(cls, weapon, attacker):
         base = weapon.get_basic_attack(
@@ -272,6 +276,8 @@ class ConeAttack(Singleton):
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 4.0
     POWER_MODIFIER = 3.0
+
+    FAMILY = "AREA_EFFECT"
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -437,12 +443,6 @@ class DrainsPower(Singleton):
         attack.fx.children[0].children.append(geffects.DoDrainPower())
 
 
-class IgnitesAmmo(BurnAttack):
-    # Ammo now explodes, so this attack attribute is being phased out. Should be safe to remove this entirely
-    # by v1.000 or so.
-    pass
-
-
 class Intercept(Singleton):
     name = "Intercept"
     MASS_MODIFIER = 1.0
@@ -461,6 +461,8 @@ class LineAttack(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.5
     POWER_MODIFIER = 2.0
+
+    FAMILY = "AREA_EFFECT"
 
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
@@ -603,6 +605,8 @@ class Scatter(Singleton):
     COST_MODIFIER = 1.2
     POWER_MODIFIER = 1.0
 
+    FAMILY = "AREA_EFFECT"
+
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Change the damage type to scatter. That was easy.
@@ -661,6 +665,8 @@ class VariableFire2(Singleton):
     COST_MODIFIER = 2.0
     POWER_MODIFIER = 1.0
 
+    FAMILY = "BURST_FIRE"
+
     @classmethod
     def get_aa_attacks(cls, weapon, attacker):
         base = BurstFire2.replace_primary_attack(weapon, attacker)[0]
@@ -674,6 +680,8 @@ class VariableFire3(Singleton):
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 2.5
     POWER_MODIFIER = 1.0
+
+    FAMILY = "BURST_FIRE"
 
     @classmethod
     def get_aa_attacks(cls, weapon, attacker):
@@ -689,6 +697,8 @@ class VariableFire4(Singleton):
     COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
 
+    FAMILY = "BURST_FIRE"
+
     @classmethod
     def get_aa_attacks(cls, weapon, attacker):
         base = BurstFire4.replace_primary_attack(weapon, attacker)[0]
@@ -702,6 +712,8 @@ class VariableFire5(Singleton):
     VOLUME_MODIFIER = 1.1
     COST_MODIFIER = 3.5
     POWER_MODIFIER = 1.0
+
+    FAMILY = "BURST_FIRE"
 
     @classmethod
     def get_aa_attacks(cls, weapon, attacker):

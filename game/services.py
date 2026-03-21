@@ -90,7 +90,8 @@ class Shop(object):
                 if isinstance(it, gears.base.Mecha):
                     champions.upgrade_to_champion(it)
                 elif it.scale == gears.scale.MechaScale and isinstance(it, (gears.base.Component, gears.base.Shield, gears.base.Launcher)):
-                    _=champions.upgrade_item_to_champion(it)
+                    #_=champions.upgrade_item_to_champion(it)
+                    pass
 
             return it
 

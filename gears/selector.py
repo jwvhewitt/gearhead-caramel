@@ -102,7 +102,7 @@ def random_age():
         age -= random.randint(1, 6)
     if random.randint(1, 20) == 17:
         age += random.randint(1, 30)
-    return age
+    return max(age, 19)
 
 
 def random_install_cyberware(pc, rank):
@@ -230,9 +230,10 @@ def random_character(rank=25, needed_tags=(), local_tags=(), current_year=158, c
         current_year = camp.year
     if not age:
         age = random_age()
-    meanstatpts = max(rank // 5 + 90, 90)
     combatant = random.choice([True, False, False, False, False, False]) or job.always_combatant
-    creation_matrix = dict(statline=base.Being.random_stats(points=random.randint(meanstatpts - 5, meanstatpts + 5)),
+    min_stats = job.get_minimum_statline()
+    meanstatpts = max(rank // 5 + 90, 90) - sum(min_stats.values(), 10)
+    creation_matrix = dict(statline=base.Being.random_stats(points=random.randint(meanstatpts - 5, meanstatpts + 5), base_stats=min_stats),
                            portrait_gen=portraits.Portrait(), job=job, combatant=combatant,
                            personality=random_personality(possible_origins), gender=genderobj.Gender.random_gender(),
                            birth_year=current_year - age, renown=rank)

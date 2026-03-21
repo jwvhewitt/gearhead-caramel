@@ -1,1018 +1,306 @@
 import random
 import math
 import copy
-
+import pbge
 import gears
 from . import attackattributes
 from . import base
-from . import materials
+from . import materials, tags
 
-class UpgradeTheme( object ):
-    ''' Base class for an upgrade theme.
-    For example an upgrade theme might put more movesystems.
-    '''
-    name = "???"
 
-    def pre_upgrade(self, mek, items):
-        # Called after the driver has gotten all items that could be
-        # upgraded, but before sorting the list or doing any upgrading.
-        # mek = the mecha being upgraded.
-        # items = the items that would be upgraded.
-        # Return nothing.
-        return
+class UpgradeTheme(pbge.Singleton):
+    name = "Default Theme"
+    ADJECTIVES = ("Great", "Ultimate", "Boosted", "Wonder", "Super", "Brave", "Custom", "Bespoke", "Special")
+    NOUNS = ("Champion", "Mecha", "Contender", "Hero", "Machine", "Battler", "Striker", )
+    WEAPON_DESIGNATIONS = ("Mk.2", "Mk.3", "Enhanced", "Mk.4", "Mk.5", "Strike")
 
-    def upgrade_sort_index(self, item):
-        # Given the item, determine priority of what the theme
-        # should process for upgrading first.
-        # For example, a theme which sacrifices armor for move
-        # systems might prioritize armors for upgrading
-        # (really downgrading).
-        # Lower-valued number is higher priority.
+    FAVORED_UPGRADES = (base.Engine, base.Armor, base.MovementSystem,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Agonize, attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Blast2, attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
+        attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.Defender, attackattributes.Designator,
+        attackattributes.DisintegrateAttack, attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.HaywireAttack, attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.Plasma,
+        attackattributes.Smash, attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
 
-        # By default, delay armor upgrades.
-        # This lets installed items in the same module be upgraded first.
-        if isinstance(item, base.Armor):
-            return 1
-        else:
-            return 0
+    THEME_TAG = tags.ST_MECHA_WEAPON
 
-    def attempt_upgrade(self, holder, item, is_installed):
-        # holder = the gear containing the item.
-        # item = the item being upgraded.
-        # If the item is installed, the theme must ensure that the
-        # modifications do not violate the size limits!
-        # Only the specific item is allowed to be modified.
-        # is_installed = convenience argument: True if item is
-        # in holder.sub_com, False if item is in holder.inv_com.
-        #
-        # This function returns True if it did any modification to
-        # the item, False otherwise.
-        #
-        # Default action is that torso armor is upgraded by at least 1.
-        if isinstance(holder, base.Torso) and isinstance(item, base.Armor) and is_installed:
-            was_integral = item.integral
-            upgrade_limit = holder.free_volume
-            if not was_integral:
-                upgrade_limit += 1
-
-            if upgrade_limit == 0:
-                # No scope for upgrading it anyway.
-                return False
-
-            # Randomly upgrade.
-            to_upgrade = random.randint(1, upgrade_limit)
- 
-            if not was_integral and to_upgrade == upgrade_limit:
-                item.integral = True
-            item.size += to_upgrade
-
+    @staticmethod
+    def change_is_okay(old_part, new_part):
+        # old_part is a gear that is currently installed in the mecha
+        # new_part is a gear that is going to replace it
+        parent = old_part.parent
+        if not parent:
             return True
-
+        if old_part in parent.sub_com:
+            if parent.can_install(new_part, False):
+                delta_v = new_part.volume - old_part.volume
+                return delta_v <= parent.free_volume
         else:
-            return False
+            return parent.can_equip(new_part, False)
+    
+    @staticmethod
+    def upgrade_material(part):
+        if part.material is materials.Metal:
+            part.material = materials.Ceramic
+            return True
+        if part.material is materials.Ceramic:
+            part.material = materials.Advanced
+            return True
+        return False
 
-    def install_sort_index(self, module):
-        # Like upgrade_sort_index, except modules that are
-        # candidates for insertion of things.
-        #
-        # By default, prioritize turrets, then tails, then
-        # arms, then everything else, because the most common
-        # thing to install is new weaponry.
-        if isinstance(module, base.Turret):
-            return 0
-        elif isinstance(module, base.Tail):
-            return 1
-        elif isinstance(module, base.Arm):
-            return 2
+    @staticmethod
+    def replace_part(old_part, new_part):
+        slot = old_part.container
+        if slot:
+            slot.remove(old_part)
+            slot.append(new_part)
+
+    #   **************************************
+    #   ***   WEAPON  UPGRADE  FUNCTIONS   ***
+    #   **************************************
+
+    @classmethod
+    def random_weapon_designation(cls, weapon: base.Weapon):
+        adjectives = list(cls.ADJECTIVES) * 2
+        for aa in weapon.attributes:
+            if hasattr(aa, "ADJECTIVES"):
+                adjectives += list(aa.ADJECTIVES)
+        if random.randint(1,3) == 2:
+            return random.choice(adjectives)
         else:
-            return 3
+            return "{} {}".format(random.choice(adjectives), random.choice(cls.WEAPON_DESIGNATIONS))
 
-    def attempt_install_item(self, module):
-        # Called once for each module with non-zero free volume.
-        # Do NOT insert the item in the module.sub_com!
-        # Instead, return the item you are adding.
-        # Make sure the returned item fits in the module!
-        return None
+    @classmethod
+    def random_missiles_name(cls, weapon: base.Weapon):
+        adjectives = list(cls.ADJECTIVES) * 2
+        for aa in weapon.attributes:
+            if hasattr(aa, "ADJECTIVES"):
+                adjectives += list(aa.ADJECTIVES)
+        if weapon.penetration > weapon.accuracy:
+            base_name = "Rockets"
+        else:
+            base_name = "Missiles"
+        return "{} {}".format(random.choice(adjectives), base_name)
 
-class RandomTheme( UpgradeTheme ):
-    def __init__(self):
-        self._delegate = random.choice(THEMES)()
+    @classmethod
+    def get_legal_attack_attributes(cls, part):
+        candidates = list()
+        for aa in cls.ATTACK_ATTRIBUTES:
+            if aa not in part.LEGAL_ATTRIBUTES:
+                continue
+            if aa in part.attributes:
+                continue
+            if hasattr(aa, "FAMILY") and aa.FAMILY and any([(getattr(wa, "FAMILY", None)==aa.FAMILY and wa.COST_MODIFIER >= aa.COST_MODIFIER) for wa in part.attributes]):
+                continue
+            candidates.append(aa)
+        return candidates
 
-    @property
-    def name(self):
-        return self._delegate.name
+    @staticmethod
+    def gain_attack_attribute(weapon, nu_aa):
+        if hasattr(nu_aa, "FAMILY") and nu_aa.FAMILY:
+            for old_aa in list(weapon.attributes):
+                if hasattr(old_aa, "FAMILY") and old_aa.FAMILY == nu_aa.FAMILY:
+                    weapon.attributes.remove(old_aa)
+        weapon.attributes.append(nu_aa)
 
-    def pre_upgrade(self, mek, items):
-        return self._delegate.pre_upgrade(mek, items)
+    @classmethod
+    def upgrade_ammo(cls, part):
+        protoammo = copy.deepcopy(part)
+        candidate_attributes = cls.get_legal_attack_attributes(protoammo)
+        if candidate_attributes:
+            cls.gain_attack_attribute(protoammo, random.choice(candidate_attributes))
+            while not cls.change_is_okay(part, protoammo) and protoammo.quantity > 0:
+                protoammo.quantity -= 1
+            if protoammo.quantity > 0 and cls.change_is_okay(part, protoammo):
+                if isinstance(protoammo, base.Missile):
+                    protoammo.name = cls.random_missiles_name(protoammo)
+                cls.replace_part(part, protoammo)
+                return protoammo
 
-    def upgrade_sort_index(self, item):
-        return self._delegate.upgrade_sort_index(item)
+    @classmethod
+    def create_upgraded_weapon(cls, weapon):
+        protoweapon = copy.deepcopy(weapon)
+        candidate_attributes = cls.get_legal_attack_attributes(protoweapon)
+        if candidate_attributes:
+            cls.gain_attack_attribute(protoweapon, random.choice(candidate_attributes))
+        if hasattr(protoweapon, "get_ammo") and (random.randint(1,3)==2 or not candidate_attributes):
+            protoammo = protoweapon.get_ammo()
+            if protoammo:
+                cls.upgrade_ammo(protoammo)
+        protoweapon.desig = cls.random_weapon_designation(protoweapon)
+        return protoweapon
 
-    def attempt_upgrade(self, holder, item, is_installed):
-        return self._delegate.attempt_upgrade(holder, item, is_installed)
+    MELEE_WEAPONS = (base.MeleeWeapon, base.EnergyWeapon)
+    MISSILE_WEAPONS = (base.BallisticWeapon, base.BeamWeapon, base.ChemThrower, base.Launcher)
 
-    def install_sort_index(self, item):
-        return self._delegate.install_sort_index(item)
+    @classmethod
+    def get_new_weapon(cls, weapon):
+        needed_class = (base.Weapon, base.Launcher)
+        if weapon:
+            old_cost = weapon.cost + min(random.randint(1,100000), random.randint(1,100000))
+            if isinstance(weapon, cls.MELEE_WEAPONS):
+                needed_class = cls.MELEE_WEAPONS
+            elif isinstance(weapon, cls.MISSILE_WEAPONS):
+                needed_class = cls.MISSILE_WEAPONS
+        else:
+            old_cost = random.randint(1,100000)
+        candidate_weapon = None
+        for w in gears.selector.DESIGN_LIST:
+            if isinstance(w, needed_class) and cls.THEME_TAG in w.shop_tags:
+                if w.cost > old_cost and (not candidate_weapon or w.cost < candidate_weapon.cost):
+                    candidate_weapon = w
+        return candidate_weapon
 
-    def attempt_install_item(self, module):
-        return self._delegate.attempt_install_item(module)
+    @classmethod
+    def upgrade_weapon(cls, weapon):
+        # Attempt to upgrade the provided weapon. If an upgrade is possible, return new weapon.
+        if random.randint(1,3) == 2:
+            nu_weapon = cls.get_new_weapon(weapon)
+            if nu_weapon and cls.change_is_okay(weapon, nu_weapon):
+                cls.replace_part(weapon, nu_weapon)
+                return nu_weapon
+        nu_weapon = cls.create_upgraded_weapon(weapon)
+        if nu_weapon and cls.change_is_okay(weapon, nu_weapon):
+            cls.replace_part(weapon, nu_weapon)
+            return nu_weapon
+
+    #   ************************************
+    #   ***   GEAR  UPGRADE  FUNCTIONS   ***
+    #   ************************************
+
+    @classmethod
+    def upgrade_engine(cls, part):
+        if random.randint(1,10) == 5 and cls.upgrade_material(part):
+            return part
+        elif part.__class__ is base.Engine and random.randint(1,5) == 3:
+            if random.randint(1,3) != 2:
+                nupart = base.HighPerformanceEngine(size=part.size, scale=part.scale, material=part.material)
+            else:
+                nupart = base.HighOutputEngine(size=part.size, scale=part.scale, material=part.material)
+            cls.replace_part(part, nupart)
+            return nupart
+        new_size = min(part.size + random.randint(1,4) * 50, part.MAX_SIZE)
+        nupart = part.__class__(size=new_size, scale=part.scale, material=part.material)
+        if new_size > part.size and cls.change_is_okay(part, nupart):
+            cls.replace_part(part, nupart)
+            return nupart
+
+    @classmethod
+    def upgrade_armor(cls, part):
+        if random.randint(1,3) != 2 and cls.upgrade_material(part):
+            return part
+        if part.size < part.MAX_SIZE:
+            nupart = base.Armor(size=part.size + 1, scale=part.scale, material=part.material)
+            if cls.change_is_okay(part, nupart):
+                cls.replace_part(part, nupart)
+                return nupart
+
+    @classmethod
+    def upgrade_movesys(cls, part):
+        if random.randint(1,5) == 5 and cls.upgrade_material(part):
+            return part
+        elif isinstance(part, (base.HoverJets, base.FlightJets)) and random.randint(1,10) == 5:
+            nupart = base.ArcJets(size=part.size, scale=part.scale, material=part.material)
+            cls.replace_part(part, nupart)
+            return nupart
+        nupart = part.__class__(size=part.size + 1, scale=part.scale, material=part.material)
+        if cls.change_is_okay(part, nupart):
+            cls.replace_part(part, nupart)
+            return nupart
+
+    #   *********************************
+    #   ***   TOP  LEVEL  FUNCTIONS   ***
+    #   *********************************
+
+    @classmethod
+    def upgrade_mecha(cls, mecha: base.Mecha, points=5):
+        mecha.desig = "{} {}".format(random.choice(cls.ADJECTIVES), random.choice(cls.NOUNS))
+
+        candidates = list()
+        empty_holders = list()
+        for part in mecha.get_all_parts():
+            if isinstance(part, (base.Weapon, base.Missile)) and not (hasattr(part, "integral") and part.integral):
+                candidates.append(part)
+            elif isinstance(part, cls.FAVORED_UPGRADES) and not part.integral:
+                candidates.append(part)
+            elif isinstance(part, (base.Hand, base.Mount)) and not part.inv_com:
+                empty_holders.append(part)
+
+        random.shuffle(candidates)
+        while points > 0 and (candidates or empty_holders):
+            if candidates:
+                part = candidates.pop()
+
+                if isinstance(part, base.Engine):
+                    nupart = cls.upgrade_engine(part)
+                    if nupart:
+                        points -= 1
+                        candidates.append(nupart)
+                        random.shuffle(candidates)
+                elif isinstance(part, base.Armor):
+                    nupart = cls.upgrade_armor(part)
+                    if nupart:
+                        points -= 1
+                        candidates.append(nupart)
+                        random.shuffle(candidates)
+                elif isinstance(part, base.MovementSystem):
+                    nupart = cls.upgrade_movesys(part)
+                    if nupart:
+                        points -= 1
+                        candidates.append(nupart)
+                        random.shuffle(candidates)
+                elif isinstance(part, base.Weapon):
+                    nupart = cls.upgrade_weapon(part)
+                    if nupart:
+                        points -= 1
+                        candidates.append(nupart)
+                        random.shuffle(candidates)
+                elif isinstance(part, base.Missile):
+                    nupart = cls.upgrade_ammo(part)
+                    if nupart:
+                        points -= 1
+                        candidates.append(nupart)
+                        random.shuffle(candidates)
+
+            if empty_holders and random.randint(1,23)==5 or not candidates:
+                part = empty_holders.pop()
+                nupart = cls.get_new_weapon(None)
+                if nupart:
+                    points -= 1
+                    part.inv_com.append(nupart)
+                    candidates.append(nupart)
+                    random.shuffle(candidates)
+
+
+class PyromaniacTheme(UpgradeTheme):
+    name = "Pyromaniac"
+    NOUNS = ("Pyromaniac", "Firestarter", "Volcano", "Salamander","Burninator")
+    ADJECTIVES = ("Flash", "Fire", "Blazing", "Hot", "Burning")
+
+    FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Agonize, attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
+        attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.ChargeAttack, 
+        attackattributes.Defender, attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.Plasma, attackattributes.Smash, attackattributes.ConeAttack, attackattributes.LineAttack,
+        attackattributes.Scatter
+    )
+
+
+THEMES = [ t for t in UpgradeTheme.__subclasses__() ]
 
 ###############################################################################
 
-class DragonTheme(UpgradeTheme):
-    name = "Dragon"
-    def __init__(self):
-        if attackattributes.BurnAttack.VOLUME_MODIFIER != 1.0:
-            raise RuntimeError('Need to update DragonTheme to check volume after upgrading.')
 
-        self._upgraded_weapons = False
-        self._has_flamethrower = False
-
-    def pre_upgrade(self, mek, items):
-        self._has_flamethrower = any([self._is_flamethrower(i) for i in items])
-
-    def _is_flamethrower(self, item):
-        return( isinstance(item, base.ChemThrower)
-            and item.get_ammo()
-            and (attackattributes.BurnAttack in item.get_ammo().attributes)
-              )
-
-    def attempt_upgrade(self, holder, item, is_installed):
-        if isinstance(item, (base.MeleeWeapon, base.EnergyWeapon)):
-            if attackattributes.BurnAttack in item.attributes:
-                return False
-            item.attributes.append(attackattributes.BurnAttack)
-            self._minor_upgrade_weapon(holder, item, is_installed)
-
-            self._upgraded_weapons = True
-            return True
-
-        elif isinstance(item, (base.BallisticWeapon, base.Launcher)):
-            ammo = item.get_ammo()
-            if not ammo or attackattributes.BurnAttack in ammo.attributes:
-                return False
-            ammo.attributes.append(attackattributes.BurnAttack)
-            self._minor_upgrade_weapon(holder, item, is_installed)
-
-            self._upgraded_weapons = True
-            return True
-
-        # The default behavior is to upgrade Torso armor.
-        # But if we didn't upgrade any weapons, then don't
-        # upgrade the torso armor, so that the driving function
-        # falls back to the generic Champion.
-        # Note that the default sorting of items to upgrade
-        # is to upgrade non-armor before armor.
-        if self._upgraded_weapons:
-            return super().attempt_upgrade(holder, item, is_installed)
-
-        return False
-
-    def _minor_upgrade_weapon(self, holder, item, is_installed):
-        # Avoid issues with installed weapons growing in volume.
-        if is_installed:
-            return
-        # Increase the weapon penetration if possible.
-        weap = _get_statted_weapon(item)
-        orig_penetration = weap.penetration
-        if weap.penetration < weap.MAX_PENETRATION:
-            weap.penetration += 1
-        # Launchers may need to be upgraded.
-        if isinstance(item, base.Launcher) and item.size < weap.volume:
-            if weap.volume > item.MAX_SIZE:
-                # Revert it, it will not fit the largest Launcher.
-                weap.penetration = orig_penetration
-            else:
-                item.size = weap.volume
-
-    def _make_flamethrower(self, reach, damage, napalm, integral = False):
-        return base.ChemThrower( name = 'Maw'
-                               , reach = reach, damage = damage
-                               , accuracy = 1, penetration = 1
-                               , attributes = (attackattributes.ConeAttack,)
-                               , material = materials.Metal
-                               , sub_com = [napalm]
-                               , integral = integral
-                               )
-    def _make_napalm(self, size):
-        return base.Chem( name = 'Napalm'
-                        , attributes = (attackattributes.BurnAttack,)
-                        , quantity = size * 10
-                        , material = materials.Metal
-                        )
-
-    def attempt_install_item(self, module):
-        if self._has_flamethrower:
-            return None
-        if not self._upgraded_weapons:
-            return None
-        if module.free_volume < 5:
-            return None
-
-        self._has_flamethrower = True
-        if module.free_volume >= 9:
-            return self._make_flamethrower(5, 5, self._make_napalm(9))
-        elif module.free_volume == 8:
-            return self._make_flamethrower(5, 4, self._make_napalm(8))
-        elif module.free_volume == 7:
-            return self._make_flamethrower(4, 4, self._make_napalm(7))
-        elif module.free_volume == 6:
-            return self._make_flamethrower(3, 4, self._make_napalm(6))
+def upgrade_to_champion(mek, theme: None|type[UpgradeTheme] = None):
+    if not theme:
+        if random.randint(1,5) == 5:
+            theme = random.choice(THEMES)
         else:
-            return self._make_flamethrower(3, 4, self._make_napalm(5), integral = True)
-            
-
-class RaiderTheme(UpgradeTheme):
-    name = "Raider"
-    def __init__(self):
-        self._movesys = ()
-        self._largest = 0
-        self._weapon_upgraded = False
-
-    def pre_upgrade(self, mek, items):
-        # Determine what the mek's main movement is.
-        walk_speed = mek.calc_walking()
-        skim_speed = mek.calc_skimming()
-        roll_speed = mek.calc_rolling()
-        if walk_speed > skim_speed and walk_speed > roll_speed:
-            self._movesys = (base.HeavyActuators,)
-        elif roll_speed > skim_speed and roll_speed > walk_speed:
-            self._movesys = (base.Wheels, base.Tracks)
-        else:
-            self._movesys = (base.HoverJets,)
-
-    def upgrade_sort_index(self, item):
-        # Sort armor before everything else: we might actually *downgrade*
-        # armor to increase or insert movement systems.
-        # Also, sort sensors after everything else: only upgrade sensors
-        # if at least one weapon got upgraded.
-        if isinstance(item, base.Armor):
-            return 0
-        elif isinstance(item, base.Sensor):
-            return 999
-        else:
-            return 1
-
-    def _is_movesys(self, item):
-        ''' Determine if the item is the appropriate
-        movement system.
-        '''
-        return isinstance(item, self._movesys)
-
-    def _upgrade_weapon(self, item):
-        weap = _get_statted_weapon(item);
-
-        upgraded = False
-        orig_reach = weap.reach
-        orig_accuracy = weap.accuracy
-        # Increase reach if not a melee weapon.
-        if not isinstance(weap, (base.MeleeWeapon, base.EnergyWeapon)):
-            if weap.reach < weap.MAX_REACH:
-                weap.reach += 1
-                upgraded = True
-        # Increase accuracy.
-        if weap.accuracy < weap.MAX_ACCURACY:
-            weap.accuracy += 1
-            upgraded = True
-
-        # Launchers may need to be upgraded.
-        if isinstance(item, base.Launcher) and item.size < weap.volume:
-            # If it does not fit largest Launcher, revert the upgrade.
-            if weap.volume > item.MAX_SIZE:
-                weap.reach = orig_reach
-                weap.accuracy = orig_accuracy
-                upgraded = False
-            else:
-                item.size = weap.volume
-
-        return upgraded
-
-    def attempt_upgrade(self, holder, item, is_installed):
-        if isinstance(item, base.Armor):
-            assert is_installed
-            # If the holder has any movement system of the correct
-            # type, and the holder has no free volume, have to
-            # downgrade!
-            if holder.free_volume == 0 and any([self._is_movesys(i) for i in holder.sub_com]):
-                # Need to give one extra space to the movement system.
-                if not item.integral:
-                    item.integral = True
-                    _improve_material(item)
-                    return True
-                else:
-                    # Already integral, so make it one size smaller.
-                    # Force it to be Advanced material.
-                    item.size -= 1
-                    item.material = materials.Advanced
-                    return True
-            else:
-                # Improving the material usually lightens it.
-                return _improve_material(item)
-
-        if self._is_movesys(item):
-            assert is_installed
-
-            self._largest = max(self._largest, item.size)
-
-            upgraded = False
-            # Increase the size of the movesys and make it advanced.
-            if holder.free_volume > 0:
-                item.size += 1
-                upgraded = True
-            if not item.material is materials.Advanced:
-                item.material = materials.Advanced
-                upgraded = True
-
-            return upgraded
-
-        # Upgrade weapons.
-        weap = _get_statted_weapon(item)
-        if weap:
-            upgraded = _try_upgrade(holder, item, is_installed, self._upgrade_weapon)
-            if upgraded:
-                self._weapon_upgraded = True
-            return upgraded
-
-        # Upgrade sensors, if at least one weapon was upgraded.
-        if self._weapon_upgraded and isinstance(item, base.Sensor):
-            # Sensors are always installed.
-            if holder.free_volume == 0:
-                if item.integral:
-                    # cannot upgrade.
-                    return False
-                item.integral = True
-            item.size += 1
-            return True
-
-        return False
-
-    def _new_movesys(self, size):
-        ''' Construct a new movement system.
-        '''
-        ctor = self._movesys[0]
-        return ctor(size = size, material = materials.Advanced)
-
-    def _attempt_install_movesys(self, module):
-        # Install only if module has no movesys
-        if any([isinstance(i, base.MovementSystem) for i in module.sub_com]):
-            return None
-        # At least size 2.
-        if module.free_volume < 2:
-            return None
-        if self._largest < 2:
-            self._largest = 2
-
-        return self._new_movesys(min(module.free_volume, self._largest))
-
-    def attempt_install_item(self, module):
-        # Install a movesys if no movesys.
-        item = self._attempt_install_movesys(module)
-        if item:
-            return item
-
-        # Install overchargers if not exist yet.
-        if any([isinstance(i, base.Overchargers) for i in module.sub_com]):
-            return None
-        return base.Overchargers( material = materials.Advanced
-                                , size = min(3, module.free_volume)
-                                )
-
-class GunslingerTheme(UpgradeTheme):
-    ''' More Dakka '''
-    name = "Gunslinger"
-
-    def __init__(self):
-        self._upgraded_weapons = False
-
-    def _upgrade_burst(self, item):
-        # If maxed, cannot upgrade.
-        if attackattributes.BurstFire5 in item.attributes:
-            return False
-        if attackattributes.VariableFire5 in item.attributes:
-            return False
-        if attackattributes.SwarmFire3 in item.attributes:
-            return False
-        if attackattributes.Automatic in item.attributes:
-            return False
-
-        if attackattributes.BurstFire2 in item.attributes:
-            self._replace_attrib(item, attackattributes.BurstFire2, attackattributes.BurstFire3)
-        elif attackattributes.BurstFire3 in item.attributes:
-            self._replace_attrib(item, attackattributes.BurstFire3, attackattributes.BurstFire4)
-        elif attackattributes.BurstFire4 in item.attributes:
-            self._replace_attrib(item, attackattributes.BurstFire4, attackattributes.BurstFire5)
-        elif attackattributes.VariableFire2 in item.attributes:
-            self._replace_attrib(item, attackattributes.VariableFire2, attackattributes.VariableFire3)
-        elif attackattributes.VariableFire3 in item.attributes:
-            self._replace_attrib(item, attackattributes.VariableFire3, attackattributes.VariableFire4)
-        elif attackattributes.VariableFire4 in item.attributes:
-            self._replace_attrib(item, attackattributes.VariableFire4, attackattributes.VariableFire5)
-        elif attackattributes.SwarmFire2 in item.attributes:
-            self._replace_attrib(item, attackattributes.SwarmFire2, attackattributes.SwarmFire3)
-        else:
-            item.attributes.append(attackattributes.BurstFire2)
-
-        self._upgrade_ammo(item)
-        return True
-
-    def _replace_attrib(self, item, old, new):
-        item.attributes.remove(old)
-        item.attributes.append(new)
-
-    def _upgrade_ammo(self, item):
-        if not isinstance(item, base.BallisticWeapon):
-            return
-        magazine = item.magazine
-        magazine = math.ceil(magazine * 1.5)
-        item.magazine = magazine
-        ammo = item.get_ammo()
-        if ammo:
-            ammo.quantity = magazine
-
-    def _upgrade_quantity(self, item):
-        ammo = item.get_ammo()
-        if not ammo:
-            return False
-
-        # Upgrade quantity but not too much.
-        orig_quantity = ammo.quantity
-        new_quantity = min(60, orig_quantity * 2)
-        if new_quantity <= orig_quantity:
-            return False
-
-        ammo.quantity = new_quantity
-        # If it will not fit largest Launcher, revert it.
-        if ammo.volume > item.MAX_SIZE:
-            ammo.quantity = orig_quantity
-            return False;
-        item.size = ammo.volume
-        return True
-
-    def _do_upgrade(self, item):
-        if isinstance(item, base.Launcher):
-            return self._upgrade_quantity(item)
-        else:
-            return self._upgrade_burst(item)
-
-    def attempt_upgrade(self, holder, item, is_installed):
-        if isinstance(item, (base.BallisticWeapon, base.BeamWeapon, base.Launcher)):
-            if _try_upgrade(holder, item, is_installed, self._do_upgrade):
-                self._upgraded_weapons = True
-                return True
-            else:
-                return False
-
-        # Do default upgrades if appropriate.
-        if self._upgraded_weapons:
-            return super().attempt_upgrade(holder, item, is_installed)
-
-        return False
-
-class SlasherTheme(UpgradeTheme):
-    name = 'Slasher'
-
-    def __init__(self):
-        self._num_melee = 0
-        self._has_charge = False
-        self._upgraded_specific = False
-
-    def pre_upgrade(self, mek, items):
-        self._num_melee = len([0 for i in items if isinstance(i, (base.MeleeWeapon, base.EnergyWeapon))])
-        self._has_charge = any([isinstance(i, (base.MeleeWeapon, base.EnergyWeapon)) and attackattributes.ChargeAttack in i.attributes for i in items])
-
-    def upgrade_sort_index(self, item):
-        # Prioritize weapons and shields.
-        if isinstance(item, (base.MeleeWeapon, base.EnergyWeapon, base.Shield)):
-            return 0
-        else:
-            return 1
-
-    def _upgrade_weapon(self, item):
-        upgraded = False
-        # Do not upgrade multiwielded to chargeattack, as we will only
-        # upgrade one weapon to have charge.
-        if not self._has_charge and attackattributes.MultiWielded not in item.attributes:
-            item.attributes.append(attackattributes.ChargeAttack)
-            item.name = 'Halberd'
-            upgraded = True
-        if item.damage < item.MAX_DAMAGE:
-            item.damage += 1
-            upgraded = True
-        return upgraded
-
-    def _upgrade_shield(self, item):
-        # Do not upgrade if not enough space.
-        if len(item.sub_com) != 0 and item.free_volume < 3:
-            return False
-        # Increase bonus by 2.
-        if item.bonus == item.MAX_BONUS:
-            return False
-        item.bonus = min(item.bonus + 2, item.MAX_BONUS)
-        # Reduce size by 1.
-        if item.size > item.MIN_SIZE:
-            item.size -= 1
-        # Shield is upgraded to beam shield but only if it does
-        # not contain an item.
-        # Beam shields are not allowed to contains items!
-        if not isinstance(item, base.BeamShield) and not list(item.sub_com):
-            # This is borderline dangerous.
-            # It works because base.BeamShield derives from
-            # base.Shield, and base.BeamShield has no additional
-            # properties on top of base.Shield, just different
-            # behavior ("Just like a shield, but beamier"), thus
-            # safe for this case.
-            # In general you should avoid this.
-            # If we add more properties to BeamShield that are
-            # not on Shield, we should add those properties here
-            # as well.
-            item.__class__ = base.BeamShield
-            item.name = "Beam " + item.name
-        return True
-
-    def attempt_upgrade(self, holder, item, is_installed):
-        if isinstance(item, (base.MeleeWeapon, base.EnergyWeapon)):
-            if _try_upgrade(holder, item, is_installed, self._upgrade_weapon):
-                self._upgraded_specific = True
-                if not self._has_charge and attackattributes.ChargeAttack in item.attributes:
-                    self._has_charge = True
-                return True
-            return False
-        elif isinstance(item, base.Shield):
-            if _try_upgrade(holder, item, is_installed, self._upgrade_shield):
-                self._upgraded_specific = True
-                return True
-            return False
-
-        if self._upgraded_specific:
-            upgraded = False
-            upgraded = super().attempt_upgrade(holder, item, is_installed)
-            # Lighten armor.
-            if isinstance(item, base.Armor):
-                if _improve_material(item):
-                    upgraded = True
-            return upgraded
-        else:
-            return False
-
-    def _create_weapon(self, name, damage, accuracy, penetration, attrib):
-        return base.EnergyWeapon( name = name, reach = 1
-                                , damage = damage
-                                , accuracy = accuracy
-                                , penetration = penetration
-                                , attributes = [attrib]
-                                , material = materials.Advanced
-                                )
-
-    def attempt_install_item(self, module):
-        if not self._upgraded_specific:
-            return None
-        if self._num_melee >= 2:
-            return None
-
-        item = None
-        if self._has_charge:
-            if module.free_volume >= 5:
-                item = self._create_weapon('Blade', 5, 5, 1, attackattributes.FastAttack)
-            elif module.free_volume == 4:
-                item = self._create_weapon('Blade', 4, 4, 1, attackattributes.FastAttack)
-            elif module.free_volume == 3:
-                item = self._create_weapon('Blade', 3, 3, 1, attackattributes.FastAttack)
-            elif module.free_volume == 2:
-                item = self._create_weapon('Blade', 2, 2, 1, attackattributes.FastAttack)
-        else:
-            if module.free_volume >= 5:
-                item = self._create_weapon('Pike', 4, 1, 4, attackattributes.ChargeAttack)
-            elif module.free_volume == 4:
-                item = self._create_weapon('Pike', 3, 1, 3, attackattributes.ChargeAttack)
-            elif module.free_volume == 3:
-                item = self._create_weapon('Pike', 3, 1, 2, attackattributes.ChargeAttack)
-            elif module.free_volume == 2:
-                item = self._create_weapon('Pike', 2, 1, 1, attackattributes.ChargeAttack)
-
-        if item:
-            if not self._has_charge and attackattributes.ChargeAttack in item.attributes:
-                self._has_charge = True
-            self._num_melee +=1
-
-        return item
-
-class FulminateTheme(UpgradeTheme):
-    name = 'Fulminate'
-
-    def __init__(self):
-        self._upgraded_weapons = False
-        self._have_ew = False
-
-        self._candidate_programs = [ p for p in gears.programs.ALL_PROGRAMS
-                                  if not p.UNIQUE
-                                   ]
-
-    def pre_upgrade(self, mek, items):
-        self._have_ew = any([isinstance(i, base.EWSystem) for i in items])
-
-    def _upgrade_ew(self, item):
-        if item.size == len(self._candidate_programs):
-            return False
-        # Get what program we can add.
-        candidates = [p for p in self._candidate_programs if not p in item.programs]
-        item.size += 1
-        item.programs.append(random.choice(candidates))
-        return True
-
-    def _upgrade_eweapon(self, item):
-        # EnergyWeapon and BeamWeapon.
-        if attackattributes.OverloadAttack in item.attributes:
-            return False
-
-        if len(item.attributes) == 0:
-            item.attributes.append(attackattributes.Accurate)
-        item.attributes.append(attackattributes.OverloadAttack)
-
-        return True
-
-    def _upgrade_weapon(self, item):
-        # MeleeWeapon and BallisticWeapon
-        if isinstance(item, base.BallisticWeapon):
-            to_upgrade = item.get_ammo()
-        else:
-            to_upgrade = item
-
-        if attackattributes.HaywireAttack in to_upgrade.attributes:
-            return False
-
-        if len(item.attributes) == 0:
-            item.attributes.append(attackattributes.Accurate)
-
-        if attackattributes.OverloadAttack in to_upgrade.attributes:
-            to_upgrade.attributes.remove(attackattributes.OverloadAttack)
-            to_upgrade.attributes.append(attackattributes.HaywireAttack)
-        else:
-            to_upgrade.attributes.append(attackattributes.OverloadAttack)
-
-        return True
-
-    def _do_upgrade(self, item):
-        if isinstance(item, base.EWSystem):
-            return self._upgrade_ew(item)
-        elif isinstance(item, (base.EnergyWeapon, base.BeamWeapon)):
-            return self._upgrade_eweapon(item)
-        elif isinstance(item, (base.MeleeWeapon, base.BallisticWeapon)):
-            return self._upgrade_weapon(item)
-        return False
-
-    def attempt_upgrade(self, holder, item, is_installed):
-        if isinstance(item, (base.EWSystem, base.Weapon)):
-            if _try_upgrade(holder, item, is_installed, self._do_upgrade):
-                self._upgraded_weapons = True
-                return True
-            return False
-
-        if self._upgraded_weapons:
-            return super().attempt_upgrade(holder, item, is_installed)
-
-        return False
-
-    # Prioritize installing an EW in torso.
-    def install_sort_index(self, module):
-        if isinstance(module, base.Torso):
-            return 0
-        else:
-            return 1
-
-    def attempt_install_item(self, module):
-        if not self._upgraded_weapons:
-            return None
-        # We are only installing an EW.
-        if self._have_ew:
-            return None
-
-        size = min(4, module.free_volume, len(self._candidate_programs))
-        programs = self._candidate_programs.copy()
-        random.shuffle(programs)
-        item = base.EWSystem( name = 'Disruptor'
-                            , size = size
-                            , programs = programs
-                            )
-
-        self._have_ew = True
-
-        return item
-
-
-class ExplodiumTheme(UpgradeTheme):
-    '''Head go asplode'''
-    name = "Explodium"
-
-    def __init__(self):
-        self._upgraded_specific = False
-        self._added_grenade = False
-
-    def _upgrade_weapon(self, item):
-        to_upgrade = item.get_ammo()
-        orig_attributes = list(to_upgrade.attributes)
-        if attackattributes.Blast2 in to_upgrade.attributes:
-            if attackattributes.BurnAttack in to_upgrade.attributes:
-                # Cannot upgrade further.
-                return False
-            to_upgrade.attributes.append(attackattributes.BurnAttack)
-        elif attackattributes.Blast1 in to_upgrade.attributes:
-            to_upgrade.attributes.remove(attackattributes.Blast1)
-            to_upgrade.attributes.append(attackattributes.Blast2)
-        else:
-            to_upgrade.attributes.append(attackattributes.Blast1)
-
-        # Add at least one more quantity, or 10%.
-        orig_quantity = to_upgrade.quantity
-        to_upgrade.quantity += max(1, to_upgrade.quantity // 10)
-
-        # Adjust actual item size/magazine if not fit.
-        if isinstance(item, base.Launcher) and item.size < to_upgrade.volume:
-            # If it will not fit in the largest Launcher, revert it.
-            if to_upgrade.volume > item.MAX_SIZE:
-                to_upgrade.attributes = orig_attributes
-                to_upgrade.quantity = orig_quantity
-                return False
-            else:
-                item.size = to_upgrade.volume
-        elif isinstance(item, base.BallisticWeapon) and item.magazine < to_upgrade.quantity:
-            item.magazine = to_upgrade.quantity
-
-        return True
-
-    def attempt_upgrade(self, holder, item, is_installed):
-        if isinstance(item, (base.Launcher, base.BallisticWeapon)):
-            if _try_upgrade(holder, item, is_installed, self._upgrade_weapon):
-                self._upgraded_specific = True
-                return True
-            return False
-
-        # Increase armor size to protect against our own explodium.
-        # Only increase armor if we actually upgraded weapons.
-        if self._upgraded_specific and isinstance(item, base.Armor) and is_installed and holder.free_volume > 0:
-            item.size += 1
-            return True
-
-        return False
-
-    # The grenade makes most sense in the Arms.
-    def install_sort_index(self, module):
-        if isinstance(module, base.Arm):
-            return 0
-        elif isinstance(module, base.Tail):
-            return 1
-        elif isinstance(module, base.Turret):
-            return 2
-        else:
-            return 3
-
-    def attempt_install_item(self, module):
-        if self._added_grenade:
-            return None
-        if not self._upgraded_specific:
-            return None
-        self._added_grenade = True
-
-        # "God slayer" grenade
-        grenade = base.Missile( name = 'Kamigoroshi'
-                              , reach = 6
-                              , damage = 5
-                              , accuracy = 1
-                              , penetration = 1
-                              , attributes = ( attackattributes.Blast2
-                                             , attackattributes.BurnAttack
-                                             )
-                              , quantity = 1
-                              , material = materials.Metal
-                              )
-        return base.Launcher( size = 1
-                            , sub_com = [grenade]
-                            , name = "Grenade Launcher"
-                            )
-
-
-THEMES = [ t for t in UpgradeTheme.__subclasses__()
-        if not t is RandomTheme
-         ]
-
-###############################################################################
-
-def _in_mek(mek):
-    for s in mek.sub_com:
-        yield s
-        for i in s.ok_descendants():
-            yield i
-
-# Append the theme name to the gear designation.
-def _expand_desig(gear, name):
-    if isinstance(gear, base.Launcher):
-        ammo = gear.get_ammo()
-        if ammo:
-            _expand_desig(ammo, name)
-            return
-    if not gear.desig or gear.desig == '':
-        gear.desig = name
-    else:
-        gear.desig = gear.desig + ' ' + name
-
-# Look for items of the specific type.
-def _find_item(mek, cls):
-    for i in _in_mek(mek):
-        if isinstance(i, cls):
-            return i
-    return None
-
-# Expand the designation for the mek, its engine, and its gyro.
-def _expand_core_desigs(mek, name):
-    _expand_desig(mek, name)
-
-    engine = _find_item(mek, base.Engine)
-    if engine:
-        _expand_desig(engine, name)
-
-    gyro = _find_item(mek, base.Gyroscope)
-    if gyro:
-        _expand_desig(gyro, name)
-
-# Get the item that has the weapon stats.
-def _get_statted_weapon(item):
-    if isinstance(item, base.Launcher):
-        return item.get_ammo()
-    elif isinstance(item, base.Weapon):
-        return item
-    return None
-
-# Upgrade the material, return True if modified.
-def _improve_material(gear):
-    if gear.material is materials.Metal:
-        gear.material = materials.Ceramic
-        return True
-    if gear.material is materials.Ceramic:
-        gear.material = materials.Advanced
-        return True
-    return False
-
-# Attempt the given upgrade function on the item.
-# The upgrade function must be deterministic.
-# It should return false if it cannot upgrade
-# the item, true if it did.
-# This cancels the upgrade if the resulting item
-# would not fit in the holder.
-def _try_upgrade(holder, item, is_installed, func):
-    if is_installed:
-        sample = copy.deepcopy(item)
-        if not func(sample):
-            return False
-        if holder.free_volume < sample.volume - item.volume:
-            return False
-        func(item)
-        return True
-    else:
-        return func(item)
-
-###############################################################################
-
-def _upgrade_engine(mek):
-    engine = _find_item(mek, base.Engine)
-    if not engine:
-        return
-
-    holder = engine.parent
-    is_installed = holder and (engine in holder.sub_com)
-
-    # Figure out how much to upgrade.
-    to_increase = int(engine.size * 0.25)
-    # Round up to nearest multiple of 5.
-    to_increase = ((to_increase + 4) // 5) * 5
-    # Upgrade by at least 175.
-    to_increase = max(175, to_increase)
-
-    # Create a copy of the engine.
-    sample_engine = copy.deepcopy(engine)
-    # Upgrade the engine
-    sample_engine.size += to_increase
-    if is_installed:
-        while holder.free_volume < sample_engine.volume - engine.volume:
-            # The new size won't fit!
-            if not sample_engine.integral and random.randint(1, 5) == 1:
-                sample_engine.integral = True
-            else:
-                sample_engine.size = max(sample_engine.size - 25, engine.size)
-
-    engine.size = sample_engine.size
-    engine.integral = sample_engine.integral
-
-def _generic_upgrade(items):
-    ''' Fallback in case a theme could not do any upgrades,
-    such as a Dragon theme being fed a Nova Storm Buru Buru;
-    e.g. Dragon makes everything BurnAttack, but Nova Storm
-    has no weapos that can BurnAttack.
-    '''
-    # Make every installed non-integral SizeClassedComponent
-    # an integral item one size higher.
-    for item in items:
-        holder = item.parent
-        # If not installed SizeClassedComponent that is nonintegral, skip
-        if not (holder and (item in holder.sub_com)):
-            continue
-        if not isinstance(item, base.SizeClassedComponent):
-            continue
-        if item.integral:
-            continue
-        item.integral = True
-        item.size += 1
-        _expand_desig(item, 'Champion')
-
-###############################################################################
-
-def upgrade_to_champion(mek, ThemeClass = RandomTheme):
+            theme = UpgradeTheme
     # First upgrade the engines.
-    _upgrade_engine(mek);
-    # Make the gyro integral for extra space.
-    # Also makes the torso slightly more valuable.
-    gyro = _find_item(mek, base.Gyroscope)
-    if gyro:
-        if gyro.free_volume >= 1:
-            gyro.integral = True
-
-    # Build the theme.
-    theme = ThemeClass()
-    # Gather the items.
-    to_upgrade = list([ it for it in _in_mek(mek)
-                     if isinstance(it, (base.Component, base.Shield, base.Launcher))
-                    and not isinstance(it, (base.Engine, base.Cockpit, base.Gyroscope))
-                      ])
-    theme.pre_upgrade(mek, to_upgrade)
-
-    # Sort items according to priority that the theme wants.
-    to_upgrade.sort(key = theme.upgrade_sort_index)
-
-    # Now upgrade the items.
-    did_upgrade = False
-    for item in to_upgrade:
-        holder = item.parent
-        is_installed = holder and (item in holder.sub_com)
-        if theme.attempt_upgrade(holder, item, is_installed):
-            _expand_desig(item, theme.name)
-            did_upgrade = True
-
-    # Try to install items in modules.
-    mods = [ mod for mod in _in_mek(mek)
-          if isinstance(mod, base.Module)
-         and mod.free_volume > 0
-           ]
-    mods.sort(key = theme.install_sort_index)
-    for mod in mods:
-        item = theme.attempt_install_item(mod)
-        if item and mod.can_install(item):
-            _expand_desig(item, theme.name)
-            mod.sub_com.append(item)
-            did_upgrade = True
-
-    if not did_upgrade:
-        # The theme could not upgrade.
-        # Do a generic upgrade of items.
-        _generic_upgrade(to_upgrade)
-        _expand_core_desigs(mek, 'Champion')
-        mek.is_champion = True
-        return
-
-    # Finally: change the desingation.
-    _expand_core_desigs(mek, theme.name)
-
-    mek.is_champion = True
-
-
-def upgrade_item_to_champion_core_(item):
-    curr_desig = str(item.desig)
-
-    mek = base.Mecha()
-    if isinstance(item, base.Shield):
-        # Item needs to be inv-commed onto an arm.
-        arm = base.Arm()
-        # Umm.  Shouldn't happen?
-        if not arm.can_equip(item):
-            # Tell outer loop to exit.
-            return True
-        arm.inv_com.append(item)
-        mek.sub_com.append(arm)
-    else:
-        # Should be big enough for anything!
-        torso = base.Torso(size=20)
-        # Umm.  Shouldn't happen?
-        if not torso.can_install(item):
-            # Tell outer loop to exit.
-            return True
-        torso.sub_com.append(item)
-        mek.sub_com.append(torso)
-    upgrade_to_champion(mek, RandomTheme)
-    return item.desig != curr_desig
-
-def upgrade_item_to_champion(item):
-    # Some themes just do not operate on particular items, so
-    # just retry them until we get a random theme that does.
-    tries = 0
-    while tries < 10:
-        if upgrade_item_to_champion_core_(item):
-            return item
-        tries = tries + 1
-    return item
+    theme.upgrade_mecha(mek, 5)

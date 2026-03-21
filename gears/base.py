@@ -472,7 +472,7 @@ class Combatant(KeyObject):
                 break
         return has_it
 
-    def get_action_points(self):
+    def get_action_points(self) -> int:
         return 3
 
     def get_pilot(self):
@@ -754,7 +754,7 @@ class BaseGear(scenes.PlaceableThing):
                 m = m + part.cost
         return m
 
-    def is_legal_sub_com(self, part):
+    def is_legal_sub_com(self, _part) -> bool:
         return False
 
     MULTIPLICITY_LIMITS = {}
@@ -769,7 +769,7 @@ class BaseGear(scenes.PlaceableThing):
 
     # Called by the gear editor if the gear can be removed in the
     # normal in-game Mecha Engineering Terminal.
-    def can_normally_remove(self):
+    def can_normally_remove(self) -> bool:
         return True
 
     def can_install(self, part, check_volume=True):
@@ -781,7 +781,7 @@ class BaseGear(scenes.PlaceableThing):
         else:
             return self.is_legal_sub_com(part) and part.scale.SIZE_FACTOR <= self.scale.SIZE_FACTOR
 
-    def is_legal_inv_com(self, part):
+    def is_legal_inv_com(self, _part) -> bool:
         return False
 
     def can_equip(self, part, check_slots=True):
@@ -2084,12 +2084,6 @@ class MeleeWeapon(Weapon):
     def _get_reach_cost_factor(self, reach):
         return ((int(pow(reach, 2.5)) - reach) // 2 + 1)
 
-    def __setstate__(self, state):
-        # For saves from V0.810 or earlier, convert IgnitesAmmo to BurnAttack.
-        if "attributes" in state and attackattributes.IgnitesAmmo in state["attributes"]:
-            state["attributes"].remove(attackattributes.IgnitesAmmo)
-            state["attributes"].append(attackattributes.BurnAttack)
-        self.__dict__.update(state)
 
 
 class EnergyWeapon(Weapon):
@@ -2233,13 +2227,6 @@ class EnergyWeapon(Weapon):
     def is_legal_inv_com(self, part):
         if not self.is_sub_com():
             return isinstance(part, PowerSource)
-
-    def __setstate__(self, state):
-        # For saves from V0.810 or earlier, convert IgnitesAmmo to BurnAttack.
-        if "attributes" in state and attackattributes.IgnitesAmmo in state["attributes"]:
-            state["attributes"].remove(attackattributes.IgnitesAmmo)
-            state["attributes"].append(attackattributes.BurnAttack)
-        self.__dict__.update(state)
 
 
 class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
@@ -3201,7 +3188,7 @@ class ChemThrower(Weapon):
 
 class Hand(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Hand"
-    base_mass = 5
+    base_mass = 5  # pyright: ignore[reportIncompatibleMethodOverride]
 
     def is_legal_inv_com(self, part):
         return isinstance(part, (Weapon, Launcher))
@@ -3216,7 +3203,7 @@ class Hand(BaseGear, StandardDamageHandler):
 
 class Mount(BaseGear, StandardDamageHandler):
     DEFAULT_NAME = "Weapon Mount"
-    base_mass = 5
+    base_mass = 5  # pyright: ignore[reportIncompatibleMethodOverride]
 
     def is_legal_inv_com(self, part):
         return isinstance(part, (Weapon, Launcher))
@@ -3556,7 +3543,7 @@ class Module(BaseGear, StandardDamageHandler):
     SAVE_PARAMETERS = ('form', 'size', 'info_tier')
     REPORT_DESTRUCTION = True
 
-    def __init__(self, form=MF_Storage, size=1, info_tier=None, **keywords):
+    def __init__(self, form: type[ModuleForm]=MF_Storage, size=1, info_tier=None, **keywords):
         keywords["name"] = keywords.pop("name", form.name)
         # Check the range of all parameters before applying.
         if size < 1:
@@ -4649,9 +4636,13 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             return 1
 
     @staticmethod
-    def random_stats(points=80, base_stats={}):
+    def random_stats(points=80, base_stats: None|dict =None):
         statline = dict()
-        minstat = max((points - 10) // 24, 0)
+        if not base_stats:
+            base_stats = dict()
+            minstat = max((points - 10) // 24, 0)
+        else:
+            minstat = 0
         leftovers = points - minstat * 8
         for s in stats.PRIMARY_STATS:
             statline[s] = minstat
@@ -4660,6 +4651,10 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             if (statline[stat_to_improve] + base_stats.get(stat_to_improve, 0)) >= 15 and random.randint(1, 5) != 5:
                 stat_to_improve = random.choice(stats.PRIMARY_STATS)
             statline[stat_to_improve] += 1
+        # Copy over the base stats.
+        for s in stats.PRIMARY_STATS:
+            statline[s] += base_stats.get(s, 0)
+
         return statline
 
     def roll_stats(self, points=80, clear_first=True):
@@ -4668,8 +4663,6 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
             self.statline.update(nu_stats)
         else:
             nu_stats = self.random_stats(points, self.statline)
-            for s in stats.PRIMARY_STATS:
-                self.statline[s] += nu_stats[s]
 
     def get_armor(self):
         return self
@@ -4694,14 +4687,16 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
         self.sp_spent = 0
         return super(Being, self).restore()
 
-    def dole_experience(self, xp, xp_type=TOTAL_XP):
+    def dole_experience(self, xp, xp_type: str|type[Singleton]=TOTAL_XP):
+        if xp_type in stats.ALL_SKILLS and not self.has_skill(xp_type):
+            return
         self.experience[xp_type or self.TOTAL_XP] = int(self.experience[xp_type or self.TOTAL_XP] + xp)
-        if xp_type in stats.ALL_SKILLS and xp_type in self.statline:
+        if xp_type in stats.ALL_SKILLS and self.has_skill(xp_type):
             while xp_type.improvement_cost(self, self.statline[xp_type]) <= self.experience[xp_type]:
                 self.experience[xp_type] -= xp_type.improvement_cost(self, self.statline[xp_type])
                 self.statline[xp_type] += 1
 
-    def get_melee_damage_bonus(self, weapon):
+    def get_melee_damage_bonus(self, _weapon):
         return (self.get_stat(stats.Body) - 10) // 2
 
 
