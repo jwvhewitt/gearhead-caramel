@@ -1,3 +1,6 @@
+* Added phase, armorpiercing attack attributes
+* Normalized all music
+* Rewrote champions unit
 * NPC stats are influenced by their job
 * Fixed learning new skills through DirectSkillXP bug
 * WidgetMenu corner buttons moved slightly to the right
@@ -9,7 +12,7 @@
 * Fixed Spot Weakness crash
 * get_odds defense method renamed to get_defense_odds
 * Missiles more likely to hit and penetrate
-* Added anim for Spot Weakness
+* Added anim for Spot Weakness, phase attacks
 
 v1.006alpha March 4, 2026
 * ItemStatsBlock will now deal correctly with linewrap

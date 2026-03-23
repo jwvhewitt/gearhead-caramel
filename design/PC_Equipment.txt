@@ -230,6 +230,8 @@ MeleeWeapon
     attack_stat = Body
     shop_tags= ("WEAPON","MELEE WEAPON")
     faction_list = (DeadzoneFederation,ClanIronwind,BoneDevils)
+    shot_anim = ReturningSpikeball
+
 
 MeleeWeapon
     name="Immolator"
@@ -244,6 +246,7 @@ MeleeWeapon
     attack_stat = Body
     shop_tags= ("CONTRABAND","MELEE WEAPON")
     faction_list = (None,)
+    shot_anim = ReturningSpikeball
 
 MeleeWeapon
     name="Combat Axe"
@@ -283,6 +286,7 @@ MeleeWeapon
     attack_stat = Body
     shop_tags= ("WEAPON","MELEE WEAPON",)
     faction_list = (None,)
+    shot_anim = ReturningSpikeball
 
 MeleeWeapon
     name="Solar Spear"

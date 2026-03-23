@@ -64,6 +64,21 @@ class Agonize(Singleton):
             geffects.DoDrainStamina(1, 6)
         )
 
+class Armorpiercing(Singleton):
+    name = "Armorpiercing"
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 10.0
+    POWER_MODIFIER = 5.0
+
+    ADJECTIVES = ("Armorpiercing",)
+    CAPABILITIES = ("easily pierce the toughest armor",)
+
+    @classmethod
+    def modify_basic_attack(cls, weapon, attack):
+        # Add hot_knife to the damage.
+        attack.fx.children[0].hot_knife = True
+
 
 class Automatic(Singleton):
     # This weapon has two extra modes: x5 ammo for 2 shots, or x10 ammo for 3 shots
@@ -110,6 +125,14 @@ class Blast2(Blast1):
     COST_MODIFIER = 3.5
     POWER_MODIFIER = 3.0
     BLAST_RADIUS = 2
+
+class Blast3(Blast1):
+    name = "Blast 3"
+    MASS_MODIFIER = 2.5
+    VOLUME_MODIFIER = 4.0
+    COST_MODIFIER = 5.0
+    POWER_MODIFIER = 4.0
+    BLAST_RADIUS = 3
 
 
 class BonusStrike1(Singleton):
@@ -337,8 +360,8 @@ class Designator(Singleton):
 class DisintegrateAttack(Singleton):
     name = "Disintegrate"
     MASS_MODIFIER = 1.0
-    VOLUME_MODIFIER = 2.0
-    COST_MODIFIER = 3.0
+    VOLUME_MODIFIER = 1.5
+    COST_MODIFIER = 3.5
     POWER_MODIFIER = 2.0
 
     @classmethod
@@ -557,6 +580,21 @@ class OverloadAttack(Singleton):
                 geffects.AddEnchantment(geffects.OverloadStatus, dur_n=2, dur_d=4, anim=geffects.OverloadAnim),),
             )
         )
+
+class Phase(Singleton):
+    name = "Phase"
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 3.0
+    POWER_MODIFIER = 5.0
+
+    ADJECTIVES = ("Phase",)
+    CAPABILITIES = ("easily cut through the strongest armor",)
+
+    @classmethod
+    def modify_basic_attack(cls, weapon, attack):
+        # Add brutality to the damage.
+        attack.fx.children[0].hot_knife = True
 
 
 class Plasma(Singleton):

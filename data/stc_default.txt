@@ -39,6 +39,71 @@ BallisticWeapon
             quantity=120
     END
 
+BallisticWeapon
+    name = "Machine Cannon"
+    desig = "MAC-4"
+    reach = 6
+    damage = 2
+    accuracy = 3
+    penetration = 2
+    ammo_type = Caseless_45mm
+    attributes = (BurstFire3)
+    magazine = 60
+    SUB
+        Ammo
+            ammo_type=Caseless_45mm
+            quantity=60
+    END
+
+BallisticWeapon
+    name = "Vulcan Cannon"
+    desig = "VC-5"
+    reach = 3
+    damage = 2
+    accuracy = 0
+    penetration = 2
+    ammo_type = Caseless_45mm
+    attributes = (BurstFire3,Intercept)
+    shot_anim = SmallBullet
+    magazine = 80
+    SUB
+        Ammo
+            ammo_type=Caseless_45mm
+            quantity=80
+    END
+
+BallisticWeapon
+    name = "Railgun"
+    desig = "RG-8"
+    reach = 6
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    ammo_type = Ferrous_30mm
+    attributes = (BurstFire3)
+    magazine = 90
+    SUB
+        Ammo
+            ammo_type=Ferrous_30mm
+            quantity=90
+    END
+
+BallisticWeapon
+    name = "Heavy Railgun"
+    desig = "RG-16"
+    reach = 7
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    ammo_type = Ferrous_60mm
+    attributes = (BurstFire3)
+    magazine = 60
+    SUB
+        Ammo
+            ammo_type=Ferrous_60mm
+            quantity=60
+    END
+
 
 BallisticWeapon
     name = "Shaka Cannon"
@@ -53,6 +118,21 @@ BallisticWeapon
             ammo_type=Shells_150mm
             quantity=15
     END
+
+BallisticWeapon
+    name = "Mecha Blunderbuss"
+    reach = 4
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    ammo_type = Ferrous_Frag
+    SUB
+        Ammo
+            ammo_type=Ferrous_Frag
+            quantity=25
+            attributes = (Scatter)
+    END
+
 
 BallisticWeapon
     name = "Gauss Rifle"
@@ -83,6 +163,21 @@ BallisticWeapon
         Ammo
             ammo_type=Ferrous_120mm
             quantity=16
+    END
+
+BallisticWeapon
+    name = "Mech Rifle"
+    desig = "MRIF-5"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    ammo_type = Caseless_65mm
+    attributes = (Accurate, Automatic)
+    SUB
+        Ammo
+            ammo_type=Caseless_65mm
+            quantity=120
     END
 
 BallisticWeapon
@@ -172,23 +267,23 @@ BeamWeapon
 BeamWeapon
     desig = "PHS-8"
     name = "Phase Cannon"
-    reach = 8
+    reach = 7
     damage = 3
     accuracy = 3
-    penetration = 5
+    penetration = 3
     scale = MechaScale
-    shot_anim = SmallBeam
-    attributes = (Accurate, LinkedFire)
+    shot_anim = SmallPhaseBlast
+    attributes = (Phase, LinkedFire)
     attack_stat = Perception
 
 BeamWeapon
     desig = "PHS-25"
     name = "Heavy Phase Cannon"
-    reach = 6
-    damage = 4
+    reach = 8
+    damage = 5
     accuracy = 2
-    penetration = 5
+    penetration = 4
     scale = MechaScale
-    shot_anim = GunBeam
-    attributes = (Accurate)
+    shot_anim = LargePhaseBlast
+    attributes = (Phase)
     attack_stat = Perception

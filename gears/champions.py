@@ -17,7 +17,8 @@ class UpgradeTheme(pbge.Singleton):
     FAVORED_UPGRADES = (base.Engine, base.Armor, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
         attackattributes.Accurate, attackattributes.Agonize, attackattributes.Automatic, attackattributes.Blast1,
-        attackattributes.Blast2, attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
+        attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
+        attackattributes.BonusStrike2, attackattributes.Brutal,
         attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
         attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.Defender, attackattributes.Designator,
         attackattributes.DisintegrateAttack, attackattributes.DrainsPower, attackattributes.FastAttack, 
@@ -275,6 +276,23 @@ class UpgradeTheme(pbge.Singleton):
                     candidates.append(nupart)
                     random.shuffle(candidates)
 
+    @classmethod
+    def test_weapon_lists(cls):
+        melee = list()
+        missile = list()
+        for w in gears.selector.DESIGN_LIST:
+            if cls.THEME_TAG in w.shop_tags:
+                if isinstance(w, cls.MELEE_WEAPONS):
+                    melee.append(w)
+                elif isinstance(w, cls.MISSILE_WEAPONS):
+                    missile.append(w)
+        melee.sort(key=lambda w: w.cost)
+        missile.sort(key=lambda w: w.cost)
+        for part in melee:
+            print("{}: ${:,}, rank {}".format(part, part.cost, part.shop_rank()))
+        for part in missile:
+            print("{}: ${:,}, rank {}".format(part, part.cost, part.shop_rank()))
+
 
 class PyromaniacTheme(UpgradeTheme):
     name = "Pyromaniac"
@@ -289,6 +307,102 @@ class PyromaniacTheme(UpgradeTheme):
         attackattributes.Plasma, attackattributes.Smash, attackattributes.ConeAttack, attackattributes.LineAttack,
         attackattributes.Scatter
     )
+
+    THEME_TAG = "THEME_PYROMANIAC"
+
+
+class SoldierTheme(UpgradeTheme):
+    name = "Soldier"
+    NOUNS = ("Assault", "War", "Battle", "Blitz", "Strike")
+    ADJECTIVES = ("Soldier", "Trooper", "Jaeger", "Fighter", "Marine")
+
+    FAVORED_UPGRADES = (base.Engine, base.Armor,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Blast2, attackattributes.BonusStrike1, attackattributes.BonusStrike2,
+        attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.Defender,
+        attackattributes.Plasma, attackattributes.Smash, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_SOLDIER"
+
+
+class SophisticatedTheme(UpgradeTheme):
+    name = "Sophisticated"
+    NOUNS = ("Advanced", "Clever", "Rapier", "Sharp", "Royal")
+    ADJECTIVES = ("Duelist", "Blade", "Baron", "Pride", "Skill")
+
+    FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Agonize, attackattributes.BonusStrike1, attackattributes.BonusStrike2,
+        attackattributes.Armorpiercing,
+        attackattributes.ChargeAttack, attackattributes.Defender, attackattributes.Designator,
+        attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.HaywireAttack, attackattributes.OverloadAttack,
+        attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
+    )
+
+    THEME_TAG = "THEME_SOPHISTICATED"
+
+
+class IndustrialTheme(UpgradeTheme):
+    name = "Industrial"
+    NOUNS = ("Iron", "Steel", "Heavy Duty", "Rusty", "Industrial")
+    ADJECTIVES = ("Foreman", "Mechanism", "Engine", "Scrap", "Tool", "Motor")
+
+    FAVORED_UPGRADES = (base.Engine, base.Armor,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Armorpiercing,
+        attackattributes.Blast2, attackattributes.Brutal,
+        attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3,
+        attackattributes.ChargeAttack, attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.HaywireAttack, attackattributes.OverloadAttack,
+        attackattributes.Smash, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_INDUSTRIAL"
+
+
+class PirateTheme(UpgradeTheme):
+    name = "Pirate"
+    NOUNS = ("Jolly", "Dread", "Scurvy", "Bloody", "Black", "Cunning", "Ruthless", "Daring")
+    ADJECTIVES = ("Scourge", "Roger", "Plunder", "Cutlass", "Buccaneer", "Raider", "Freebooter")
+
+    FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Agonize, attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Armorpiercing,
+        attackattributes.Blast2, attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
+        attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.ChargeAttack,
+        attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.HaywireAttack, attackattributes.Smash, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_PIRATE"
+
+class MadScienceTheme(UpgradeTheme):
+    name = "Mad Science"
+    NOUNS = ("Atomic", "Quantic", "Neutronic", "Molecular", "Analytical")
+    ADJECTIVES = ("Hypothesis", "Apparatus", "Knowledge", "Proof", "Theory")
+
+    FAVORED_UPGRADES = (base.Engine, base.Armor,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Agonize, attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
+        attackattributes.BonusStrike2, attackattributes.Brutal, attackattributes.Designator,
+        attackattributes.DisintegrateAttack, attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.HaywireAttack, attackattributes.OverloadAttack,
+        attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_MADSCIENCE"
 
 
 THEMES = [ t for t in UpgradeTheme.__subclasses__() ]

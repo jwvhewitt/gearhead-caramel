@@ -358,6 +358,11 @@ class DeathWaveAnim(animobs.AnimOb):
     DEFAULT_END_FRAME = 15
 
 
+class LasertrailAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_lasertrail.png"
+    DEFAULT_END_FRAME = 7
+
+
 class InvokeDeathWaveAnim(animobs.Caption):
     DEFAULT_TEXT = 'Death Wave!'
 
@@ -602,6 +607,16 @@ class SmallBeam(animobs.ShotAnim):
     DEFAULT_SOUND_FX = "alienshoot1.ogg"
 
 
+class SmallPhaseBlast(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_phase_small.png"
+    DEFAULT_SOUND_FX = "a_rayattack_sm2.ogg"
+
+
+class LargePhaseBlast(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_phase_large.png"
+    DEFAULT_SOUND_FX = "a_rayattack_lg2.ogg"
+
+
 class PlasmaBall(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_plasma.png"
     DEFAULT_SOUND_FX = "Spell1.ogg"
@@ -828,6 +843,17 @@ class ReturningDeathwing(ReturnAnim):
     BASE_ANIM = FlyingDeathwing
 
 
+class FlyingSpikeball(animobs.AnimatedShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_spikeball.png"
+    DEFAULT_END_FRAME = 15
+    DEFAULT_LOOP = 99999
+    DEFAULT_SOUND_FX = "chain.ogg"
+
+
+class ReturningSpikeball(ReturnAnim):
+    BASE_ANIM = FlyingSpikeball
+
+
 class ChainClawShot(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_chainclaw.png"
 
@@ -926,9 +952,13 @@ class JumpModel(object):
 
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
-              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBolt, SlashShot, BeamSlashShot)
+              ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBolt, SlashShot, BeamSlashShot,
+              ReturningChainClaw, ReturningSpikeball, SmallPhaseBlast, LargePhaseBlast
+              )
 AREA_ANIMS = (
-    BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim)
+    BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim,
+    LasertrailAnim,
+    )
 
 
 #  *******************

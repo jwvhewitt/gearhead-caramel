@@ -182,10 +182,11 @@ Monster
             SUB
                 Armor
                     size = 5
+                    integral = True
                 MeleeWeapon
                     name="Tendril Talon"
                     reach=2
-                    damage=3
+                    damage=1
                     accuracy=3
                     penetration=2
                     attributes = (Defender, HaywireAttack, DisintegrateAttack, MultiWielded)
@@ -196,10 +197,11 @@ Monster
             SUB
                 Armor
                     size = 5
+                    integral = True
                 MeleeWeapon
                     name="Tendril Talon"
                     reach=2
-                    damage=3
+                    damage=1
                     accuracy=3
                     penetration=2
                     attributes = (Defender, HaywireAttack, DisintegrateAttack, MultiWielded)
@@ -210,10 +212,11 @@ Monster
             SUB
                 Armor
                     size = 5
+                    integral = True
                 MeleeWeapon
                     name="Tendril Talon"
                     reach=2
-                    damage=3
+                    damage=1
                     accuracy=3
                     penetration=2
                     attributes = (Defender, HaywireAttack, DisintegrateAttack, MultiWielded)

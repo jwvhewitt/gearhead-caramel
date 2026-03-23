@@ -198,19 +198,7 @@ Mecha
                 Hand
                     name = "Right Hand"
                     INV
-                        BallisticWeapon
-                            name = "Mecha Blunderbuss"
-                            reach = 4
-                            damage = 4
-                            accuracy = 2
-                            penetration = 2
-                            ammo_type = Ferrous_Frag
-                            attributes = (Scatter)
-                            SUB
-                                Ammo
-                                    ammo_type=Ferrous_Frag
-                                    quantity=25
-                            END
+                        STC Mecha Blunderbuss
                     END
             END
         Arm

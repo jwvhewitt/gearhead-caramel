@@ -1,23 +1,47 @@
 # Weapons
 
+STC MAC-4 Machine Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
+    faction_list = (None,)
+
+STC VC-5 Vulcan Cannon
+    shop_tags= ("MEXTRA","MECHA_WEAPON",)
+    faction_list = (None,)
+
 STC Shaka Cannon
     shop_tags= ("MEXTRA","MECHA_WEAPON")
     faction_list = (None,)
 
+STC Mecha Blunderbuss
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_PIRATE")
+    faction_list = (BladesOfCrihna, TreasureHunters)
+
+STC RG-8 Railgun
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
+    faction_list = (None,)
+
+STC RG-16 Heavy Railgun
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
+    faction_list = (None,)
+
 STC Gauss Rifle
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC Heavy Gauss Rifle
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC MBAZ-17 Mecha Bazooka
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
     faction_list = (None,)
 
 STC Light Autocannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
+    faction_list = (None,)
+
+STC MRIF-5 Mech Rifle
+    shop_tags= ("MECHA_WEAPON", "THEME_SOLDIER")
     faction_list = (None,)
 
 STC LAS-5 Intercept Laser
@@ -29,27 +53,27 @@ STC Intercept Cannon
     faction_list = (None,)
 
 STC LAS-5 Combat Laser
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC LAS-10 Laser Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
     faction_list = (None,)
 
 STC PAR-2 Particle Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC PAR-6 Heavy Particle Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC PAR-13 Superheavy Particle Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC PHS-8 Phase Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
 
 STC PHS-25 Heavy Phase Cannon
@@ -65,11 +89,11 @@ MeleeWeapon
     penetration=2
     scale = MechaScale
     attributes = (Accurate,FastAttack)
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
     faction_list = (None,)
 
 STC Mecha Sword
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
     faction_list = (None,)
 
 MeleeWeapon
@@ -93,7 +117,7 @@ MeleeWeapon
     penetration = 5
     scale = MechaScale
     attributes = (ChargeAttack,)
-    shop_tags = ("MEXTRA","MECHA_WEAPON")
+    shop_tags = ("MEXTRA","MECHA_WEAPON", "THEME_INDUSTRIAL")
     faction_list = (None,)
 
 MeleeWeapon
@@ -105,8 +129,9 @@ MeleeWeapon
     penetration=3
     scale = MechaScale
     attributes = (Flail,Smash)
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_INDUSTRIAL")
     faction_list = (None,)
+    shot_anim = ReturningSpikeball
 
 MeleeWeapon
     name="Heat Axe"
@@ -118,7 +143,7 @@ MeleeWeapon
     scale = MechaScale
     material = Ceramic
     attributes = (BurnAttack,)
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_PYROMANIAC")
     faction_list = (None,)
 
 MeleeWeapon
@@ -131,7 +156,7 @@ MeleeWeapon
     material = Ceramic
     scale = MechaScale
     attributes = (Flail,BurnAttack)
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA", "MECHA_WEAPON", "THEME_PYROMANIAC")
     faction_list = (None,)
 
 MeleeWeapon
@@ -143,8 +168,9 @@ MeleeWeapon
     penetration = 1
     scale = MechaScale
     attributes = (Flail, DrainsPower)
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOPHISTICATED")
     faction_list = (None,)
+    attack_stat = Speed
 
 EnergyWeapon
     name = "Beam Scourge"
@@ -155,8 +181,9 @@ EnergyWeapon
     penetration = 4
     scale = MechaScale
     attributes = (Flail,FastAttack,Intercept)
-    shop_tags= ("MEXTRA","MECHA_WEAPON")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_PIRATE")
     faction_list = (None,)
+    attack_stat = Speed
 
 
 Shield

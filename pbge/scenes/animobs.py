@@ -54,7 +54,7 @@ def get_fline(p1, p2, speed):
     return points
 
 
-class AnimOb(object):
+class AnimOb:
     """An animation for the map."""
 
     def __init__(self, sprite_name=None, width=64, height=64, pos=(0, 0), start_frame=0, end_frame=0, ticks_per_frame=0,

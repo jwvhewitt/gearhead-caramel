@@ -540,6 +540,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
                             print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
                                                             pc.relationship.can_do_development()))
 
+                # elif ev.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                #     self.camp.party.append(gears.selector.get_design_by_full_name("Neutrino Beam"))
+                #     self.camp.party.append(gears.selector.get_design_by_full_name("Wrecking Ball"))
+
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
 

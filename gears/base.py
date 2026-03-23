@@ -1823,7 +1823,13 @@ class Weapon(Component, StandardDamageHandler):
 
         self.attack_stat = attack_stat
         self.shot_anim = shot_anim or self.DEFAULT_SHOT_ANIM
+        if self.shot_anim and not issubclass(self.shot_anim, pbge.scenes.animobs.AnimOb):
+            print("Warning - shot_anim set to {}".format(self.shot_anim))
+            #self.shot_anim = None
         self.area_anim = area_anim or self.DEFAULT_AREA_ANIM
+        if self.area_anim and not issubclass(self.area_anim, pbge.scenes.animobs.AnimOb):
+            print("Warning - area_anim set to {}".format(self.area_anim))
+            #self.area_anim = None
         self.attributes = list()
         for a in attributes:
             if a in self.LEGAL_ATTRIBUTES:
@@ -1988,13 +1994,13 @@ class MeleeWeapon(Weapon):
                         attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.ChargeAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
-                        attackattributes.HaywireAttack,
+                        attackattributes.HaywireAttack, attackattributes.DisintegrateAttack,
                         attackattributes.OverloadAttack, attackattributes.PoisonAttack, attackattributes.Smash,
-                        attackattributes.DrainsPower,
+                        attackattributes.DrainsPower, attackattributes.Designator,
                         attackattributes.MultiWielded)
 
-    SHOP_RANK_LOG_RESULT_MULTIPLIER = 12
-    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.02
 
     DEFAULT_SHOT_ANIM = geffects.SlashShot
 
@@ -2101,13 +2107,13 @@ class EnergyWeapon(Weapon):
     DAMAGE_EXPONENT = 3.5
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
                         attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.BurnAttack,
-                        attackattributes.ChargeAttack,
+                        attackattributes.ChargeAttack, attackattributes.Designator,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower,
                         attackattributes.MultiWielded)
 
-    SHOP_RANK_LOG_RESULT_MULTIPLIER = 15
-    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 12
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.02
 
     DEFAULT_SHOT_ANIM = geffects.BeamSlashShot
 
@@ -2233,7 +2239,8 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Ammo"
     STACK_CRITERIA = ("ammo_type", 'attributes')
     SAVE_PARAMETERS = ('ammo_type', 'quantity', 'area_anim', 'attributes')
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
+    LEGAL_ATTRIBUTES = (attackattributes.Armorpiercing,
+                        attackattributes.Blast1, attackattributes.Blast2, attackattributes.Blast3, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.PoisonAttack,
                         attackattributes.OverloadAttack, attackattributes.Scatter,
                         )
@@ -2348,10 +2355,11 @@ class BallisticWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5,
-                        attackattributes.Intercept, attackattributes.LinkedFire
+                        attackattributes.Intercept, attackattributes.LinkedFire, attackattributes.SwarmFire2,
+                        attackattributes.SwarmFire3,
                         )
-    SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
-    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 30
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0002
 
     def __init__(self, ammo_type=None, magazine=None, **keywords):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
@@ -2552,13 +2560,13 @@ class BeamWeapon(Weapon):
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
                         attackattributes.Designator,
                         attackattributes.OverloadAttack, attackattributes.Plasma,
-                        attackattributes.LinkedFire, attackattributes.LineAttack,
+                        attackattributes.LinkedFire, attackattributes.LineAttack, attackattributes.Phase,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
                         attackattributes.VariableFire5,
                         attackattributes.Intercept, attackattributes.SwarmFire2, attackattributes.SwarmFire3
                         )
-    SHOP_RANK_LOG_RESULT_MULTIPLIER = 40
-    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0002
 
     def get_weapon_desc(self):
         return 'Damage: {0.damage}\n Accuracy: {0.accuracy}\n Penetration: {0.penetration}\n Reach: {1}'.format(self,
@@ -2637,12 +2645,14 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
     MIN_PENETRATION = 0
     MAX_PENETRATION = 5
     STACK_CRITERIA = ("reach", "damage", "accuracy", "penetration")
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Brutal,
-                        attackattributes.BurnAttack, attackattributes.DisintegrateAttack,
-                        attackattributes.Designator,
-                        attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.PoisonAttack,
-                        attackattributes.Scatter,
-                        )
+    LEGAL_ATTRIBUTES = (
+        attackattributes.Armorpiercing,
+        attackattributes.Blast1, attackattributes.Blast2, attackattributes.Blast3, attackattributes.Brutal,
+        attackattributes.BurnAttack, attackattributes.DisintegrateAttack,
+        attackattributes.Designator,
+        attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.PoisonAttack,
+        attackattributes.Scatter,
+    )
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.0003
@@ -3026,7 +3036,7 @@ class ChemThrower(Weapon):
     COST_FACTOR = 8
     DEFAULT_SHOT_ANIM = geffects.BigBullet
     DEFAULT_AREA_ANIM = geffects.Fireball
-    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.LineAttack,
+    LEGAL_ATTRIBUTES = (attackattributes.Blast1, attackattributes.Blast2, attackattributes.Blast3, attackattributes.LineAttack,
                         attackattributes.ConeAttack, attackattributes.LinkedFire, attackattributes.Scatter,
                         attackattributes.SwarmFire2, attackattributes.SwarmFire3
                         )

@@ -1,0 +1,1402 @@
+#  **********************
+#  ***   Pyromaniac   ***
+#  **********************
+
+EnergyWeapon
+    name = "Plasma Torch"
+    reach = 1
+    damage = 1
+    accuracy = 1
+    penetration = 2
+    scale = MechaScale
+    attributes = (Agonize)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Flamberge"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (BurnAttack, Defender)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Prometheus Torch"
+    reach = 1
+    damage = 3
+    accuracy = 2
+    penetration = 3
+    scale = MechaScale
+    attributes = (BurnAttack)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Fire Staff"
+    desc = "A large staff with plasma flames at each end."
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (BurnAttack, Defender, FastAttack)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Fire Chain"
+    desc = "A powerful flail which dispenses Napalm-X when it hits."
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 1
+    scale = MechaScale
+    attributes = (BurnAttack, Flail, Brutal)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Prometheus Sword"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (BurnAttack, Defender)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Vulcan's Hammer"
+    reach = 3
+    damage = 3
+    accuracy = 3
+    penetration = 4
+    scale = MechaScale
+    attributes = (BurnAttack, Brutal, Smash)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+    shot_anim = ReturningHammer
+
+MeleeWeapon
+    name = "Fire Star"
+    reach = 3
+    damage = 4
+    accuracy = 4
+    penetration = 4
+    scale = MechaScale
+    attributes = (BurnAttack, )
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+    shot_anim = FireBolt
+
+EnergyWeapon
+    name = "Inferno Lance"
+    reach = 2
+    damage = 4
+    accuracy = 2
+    penetration = 3
+    scale = MechaScale
+    attributes = (BurnAttack, ChargeAttack)
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None,)
+
+BallisticWeapon
+    name = "Fire Bomber"
+    reach = 5
+    damage = 4
+    accuracy = 1
+    penetration = 3
+    ammo_type = SelfPropelled_40cm
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    magazine = 12
+    attack_stat = Perception
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_40cm
+            quantity=12
+            attributes = (Blast1,)
+    END
+
+ChemThrower
+    name = "Firespitter"
+    reach = 4
+    damage = 4
+    accuracy = 3
+    penetration = 2
+    attributes = (Scatter)
+    shot_anim = FireBolt
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 50
+            attributes = (BurnAttack)
+    END
+
+BeamWeapon
+    name = "Plasma Thrower"
+    reach = 5
+    damage = 3
+    accuracy = 3
+    penetration = 0
+    scale = MechaScale
+    attributes = (Plasma, Brutal)
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    shot_anim = PlasmaBall
+
+BallisticWeapon
+    name = "Flare Gun"
+    reach = 5
+    damage = 1
+    accuracy = 2
+    penetration = 3
+    ammo_type = Caseless_30mm
+    attributes = (BurstFire4)
+    shot_anim = SmallBullet
+    magazine = 80
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=Caseless_30mm
+            quantity=80
+            attributes = (BurnAttack)
+    END
+
+ChemThrower
+    name = "Flamethrower"
+    reach = 4
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    attributes = (ConeAttack)
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 80
+            attributes = (BurnAttack)
+    END
+
+ChemThrower
+    name = "Dragon Rifle"
+    reach = 5
+    damage = 4
+    accuracy = 4
+    penetration = 2
+    attributes = (LineAttack)
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 60
+            attributes = (BurnAttack, Brutal)
+    END
+
+ChemThrower
+    name = "Heavy Flamethrower"
+    reach = 4
+    damage = 4
+    accuracy = 2
+    penetration = 3
+    attributes = (ConeAttack)
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 90
+            attributes = (BurnAttack)
+    END
+
+
+BallisticWeapon
+    name = "Volcano Cannon"
+    reach = 7
+    damage = 5
+    accuracy = 2
+    penetration = 4
+    ammo_type = SelfPropelled_80cm
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    magazine = 24
+    attack_stat = Perception
+    shot_anim = FireBolt
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_80cm
+            quantity=24
+            attributes = (Blast3, BurnAttack)
+    END
+
+BallisticWeapon
+    name = "Meteor Cannon"
+    reach = 6
+    damage = 4
+    accuracy = 2
+    penetration = 4
+    attributes = (SwarmFire3)
+    ammo_type = SelfPropelled_70cm
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    magazine = 24
+    attack_stat = Perception
+    shot_anim = Missile1
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_70cm
+            quantity=24
+            attributes = (Blast2, BurnAttack, Brutal)
+    END
+
+ChemThrower
+    name = "Ultimate Incinerator"
+    reach = 5
+    damage = 4
+    accuracy = 4
+    penetration = 4
+    attributes = (LineAttack)
+    shot_anim = FireBolt
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_PYROMANIAC")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 60
+            attributes = (BurnAttack, Brutal)
+    END
+
+
+#  *******************
+#  ***   SOLDIER   ***
+#  *******************
+
+MeleeWeapon
+    name = "Mecha Cutlass"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (FastAttack, Defender, Accurate)
+    shop_tags= ("THEME_SOLDIER", "THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Trench Axe"
+    reach = 1
+    damage = 4
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (Brutal)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Mecha Claymore"
+    reach = 1
+    damage = 4
+    accuracy = 3
+    penetration = 4
+    scale = MechaScale
+    attributes = (Brutal, Defender)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Plasma Sabre"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (FastAttack, Defender, Accurate)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Command Sabre"
+    reach = 1
+    damage = 4
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (HaywireAttack, Defender, Accurate)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Mecha Pike"
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (ChargeAttack, Defender)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Plasma Pike"
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (ChargeAttack, Defender)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Hyper Chain"
+    reach = 3
+    damage = 4
+    accuracy = 2
+    penetration = 4
+    scale = MechaScale
+    attributes = (Flail, Brutal, Smash)
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None,)
+    shot_anim = ReturningSpikeball
+
+BallisticWeapon
+    name = "Skybolt Rifle"
+    desc = "This light railgun fires electrically charged needles, potentially disabling the target's control system."
+    reach = 6
+    damage = 2
+    accuracy = 3
+    penetration = 1
+    ammo_type = FerrousNeedle_15mm
+    scale = MechaScale
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None)
+    attributes = (Accurate)
+    magazine = 20
+    shot_anim = SmallBullet
+    SUB
+        Ammo
+            ammo_type=FerrousNeedle_15mm
+            quantity=20
+            attributes = (HaywireAttack)
+    END
+
+BallisticWeapon
+    name = "Mech Assault Rifle"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    ammo_type = Caseless_65mm
+    scale = MechaScale
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None)
+    attributes = (Accurate, VariableFire3)
+    magazine = 60
+    SUB
+        Ammo
+            ammo_type=Caseless_65mm
+            quantity=60
+    END
+
+BallisticWeapon
+    name = "Barracas Cannon"
+    reach = 5
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    ammo_type = Ferrous_50mm
+    attributes = (VariableFire5)
+    magazine = 60
+    scale = MechaScale
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=Ferrous_50mm
+            quantity=60
+    END
+
+BallisticWeapon
+    name = "Howitzer"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 5
+    ammo_type = Ferrous_120mm
+    attributes = (Automatic)
+    attack_stat = Perception
+    magazine = 60
+    scale = MechaScale
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=Ferrous_120mm
+            quantity=60
+            attributes = (Brutal)
+    END
+
+BallisticWeapon
+    name = "Ultra Bazooka"
+    reach = 9
+    damage = 5
+    accuracy = 2
+    penetration = 5
+    ammo_type = SelfPropelled_100cm
+    attack_stat = Perception
+    magazine = 12
+    shot_anim = Missile1
+    scale = MechaScale
+    shop_tags= ("THEME_SOLDIER")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_100cm
+            quantity=12
+            attributes = (Blast3, Brutal)
+    END
+
+
+#  *************************
+#  ***   SOPHISTICATED   ***
+#  *************************
+
+BallisticWeapon
+    name = "Trophy Rifle"
+    reach = 6
+    damage = 3
+    accuracy = 2
+    penetration = 3
+    ammo_type = Caseless_105mm
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None)
+    attributes = (Accurate,)
+    magazine = 60
+    SUB
+        Ammo
+            ammo_type=Caseless_105mm
+            quantity=60
+    END
+
+BallisticWeapon
+    name = "Apollo Rifle"
+    reach = 6
+    damage = 4
+    accuracy = 3
+    penetration = 2
+    ammo_type = SelfPropelled_90mm
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None)
+    attributes = (Accurate,)
+    magazine = 30
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_90mm
+            quantity=30
+            attributes = (Armorpiercing,)
+    END
+
+BeamWeapon
+    name = "Emerald Laser Cannon"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (Accurate)
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None)
+
+
+BallisticWeapon
+    name = "Zeus Rifle"
+    reach = 6
+    damage = 5
+    accuracy = 5
+    penetration = 2
+    ammo_type = SelfPropelled_100mm
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None)
+    attributes = (Accurate,)
+    magazine = 25
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_100mm
+            quantity=25
+            attributes = (Armorpiercing, OverloadAttack)
+    END
+
+MeleeWeapon
+    name = "Mecha Foil"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (Defender, FastAttack)
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Ion Blade"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (Defender, FastAttack, OverloadAttack)
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Mecha Rapier"
+    desc = "A pointed flexible sword. In the hands of an expert, this is a versatile and deadly weapon."
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Defender, Accurate, FastAttack)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+MeleeWeapon
+    name="Dynamo Rapier"
+    desc = "A pointed flexible sword. In the hands of an expert, this is a versatile and deadly weapon."
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Defender, Accurate, FastAttack, HaywireAttack)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+
+MeleeWeapon
+    name="Gun Rapier"
+    desc = "A pointed flexible sword with a gun built into its hilt."
+    reach=1
+    damage=4
+    accuracy=4
+    penetration=3
+    attributes = (Defender, Accurate, FastAttack)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+    SUB
+        BallisticWeapon
+            name = "Rapier Gun"
+            reach = 4
+            damage = 2
+            accuracy = 3
+            penetration = 2
+            ammo_type = Caseless_45mm
+            attributes = (BurstFire3)
+            magazine = 30
+            integral = True
+            SUB
+                Ammo
+                    ammo_type=Caseless_45mm
+                    quantity=30
+                    attributes = (Armorpiercing,)
+            END
+    END
+
+MeleeWeapon
+    name="Virtuoso Rapier"
+    desc = "A pointed flexible sword. In the hands of an expert, this is a versatile and deadly weapon."
+    reach=1
+    damage=4
+    accuracy=4
+    penetration=3
+    attributes = (Defender, Accurate, OverloadAttack, BonusStrike1)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+
+MeleeWeapon
+    name="Electro-Whip"
+    reach=2
+    damage=3
+    accuracy=4
+    penetration=2
+    attributes = (OverloadAttack, HaywireAttack, Flail)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+
+EnergyWeapon
+    name="Beam Rapier"
+    desc = "A pointed flexible beamsword."
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Defender, Accurate, FastAttack, HaywireAttack)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+EnergyWeapon
+    name="Beam Javelin"
+    reach=3
+    damage=3
+    accuracy=3
+    penetration=2
+    attributes = (ChargeAttack)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_SOPHISTICATED")
+    faction_list = (None,)
+
+
+#  ********************
+#  ***  INDUSTRIAL  ***
+#  ********************
+
+MeleeWeapon
+    name = "Steel Girder"
+    reach = 1
+    damage = 3
+    accuracy = 1
+    penetration = 2
+    attack_stat = Body
+    scale = MechaScale
+    attributes = (Smash, Brutal)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Mecha Hammer"
+    reach = 1
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    attack_stat = Body
+    scale = MechaScale
+    attributes = (Smash, Brutal)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Tow Chain"
+    reach = 2
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    scale = MechaScale
+    attributes = (Flail,)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Buzzsaw"
+    reach = 1
+    damage = 5
+    accuracy = 3
+    penetration = 4
+    scale = MechaScale
+    attributes = (Brutal,)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+EnergyWeapon
+    name="Plasma Cutter"
+    reach=1
+    damage=3
+    accuracy=2
+    penetration=5
+    attributes = ()
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Impervium Pickaxe"
+    desc = "A nigh-indestructable long-hafted pickaxe made of impervium."
+    reach = 1
+    damage = 5
+    accuracy = 2
+    penetration = 5
+    attack_stat = Body
+    scale = MechaScale
+    attributes = (Smash, Brutal)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+EnergyWeapon
+    name="Laser Saw"
+    reach=1
+    damage=4
+    accuracy=2
+    penetration=4
+    attributes = ()
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Powered Hammer"
+    reach = 2
+    damage = 5
+    accuracy = 2
+    penetration = 3
+    attack_stat = Body
+    scale = MechaScale
+    attributes = (Smash, Brutal, BonusStrike1)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Mega Cutter"
+    desc = "An enormous powered cutting tool. The multiple blades and grinding surfaces can rip through anything."
+    reach = 2
+    damage = 4
+    accuracy = 2
+    penetration = 5
+    attack_stat = Body
+    scale = MechaScale
+    attributes = (Brutal, BonusStrike2)
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+BeamWeapon
+    name = "Mining Laser"
+    reach = 4
+    damage = 2
+    accuracy = 1
+    penetration = 3
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+BallisticWeapon
+    name = "Industrial Nail Gun"
+    reach = 4
+    damage = 1
+    accuracy = 3
+    penetration = 2
+    ammo_type = FerrousNeedle_15mm
+    attributes = (BurstFire5)
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    magazine = 200
+    shot_anim = SmallBullet
+    SUB
+        Ammo
+            ammo_type=FerrousNeedle_15mm
+            quantity=200
+    END
+
+ChemThrower
+    name = "Industrial Burner"
+    reach = 3
+    damage = 3
+    accuracy = 2
+    penetration = 2
+    attributes = (ConeAttack)
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 60
+            attributes = (BurnAttack)
+    END
+
+BallisticWeapon
+    name = "Heavy Loader"
+    reach = 5
+    damage = 5
+    accuracy = 2
+    penetration = 3
+    ammo_type = ConstructionGirder
+    magazine = 20
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=ConstructionGirder
+            quantity=20
+    END
+
+BallisticWeapon
+    name = "Shred Cannon"
+    reach = 4
+    damage = 4
+    accuracy = 3
+    penetration = 2
+    ammo_type = Ferrous_Frag
+    magazine = 40
+    attributes = (BurstFire4,)
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=Ferrous_Frag
+            quantity=40
+            attributes = (Scatter, Brutal)
+    END
+
+ChemThrower
+    name = "Solvent Gun"
+    reach = 5
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    attributes = (Blast1,)
+    shot_anim = AcidSpray
+    area_anim = MiasmaAnim
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 50
+            attributes = (DisintegrateAttack,)
+    END
+
+BallisticWeapon
+    name = "Magnetic Catapult"
+    reach = 6
+    damage = 4
+    accuracy = 2
+    penetration = 3
+    ammo_type = ConstructionGirder
+    attributes = (BurstFire3)
+    magazine = 30
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=ConstructionGirder
+            quantity=30
+    END
+
+BallisticWeapon
+    name = "Demolition Cannon"
+    reach = 6
+    damage = 5
+    accuracy = 2
+    penetration = 4
+    ammo_type = SelfPropelled_80cm
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    magazine = 24
+    attack_stat = Perception
+    shot_anim = Missile1
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_80cm
+            quantity=24
+            attributes = (Blast3, Brutal)
+    END
+
+BeamWeapon
+    name = "Shipbreaking Laser"
+    reach = 5
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    attributes = (VariableFire3,)
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None,)
+
+BallisticWeapon
+    name = "Buzzsaw Catapult"
+    reach = 6
+    damage = 4
+    accuracy = 3
+    penetration = 4
+    ammo_type = FerrousSawblade
+    attributes = (VariableFire3,)
+    magazine = 30
+    scale = MechaScale
+    shop_tags= ("THEME_INDUSTRIAL")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=FerrousSawblade
+            quantity=30
+            attributes = (Armorpiercing,)
+    END
+
+
+#  ****************
+#  ***  PIRATE  ***
+#  ****************
+
+MeleeWeapon
+    name = "Boarding Sabre"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (ChargeAttack, Defender)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Pulse Cutlass"
+    reach = 1
+    damage = 4
+    accuracy = 4
+    penetration = 3
+    scale = MechaScale
+    attributes = (HaywireAttack, Defender)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Boarding Hook"
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (Brutal, Flail)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Kaizoku Blade"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (DrainsPower, ChargeAttack, Defender)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Electro Boarding Hook"
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (Brutal, Flail, HaywireAttack)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Poseidon's Trident"
+    reach = 2
+    damage = 5
+    accuracy = 4
+    penetration = 4
+    scale = MechaScale
+    attributes = (OverloadAttack,)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Plasma Cutlass"
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    attributes = (ChargeAttack,)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Mug of Grog"
+    desc = "This mecha-sized tankard does not actually contain grog, but instead a highly corrosive acid. It is favored by the more theatrical pirates."
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 4
+    attack_stat = Ego
+    scale = MechaScale
+    attributes = (Smash, Brutal, DisintegrateAttack, BonusStrike2)
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+BeamWeapon
+    name = "Ion Musket"
+    reach = 5
+    damage = 2
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    shot_anim = LightningBolt
+    attributes = (OverloadAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+BallisticWeapon
+    name = "Carronade"
+    reach = 4
+    damage = 4
+    accuracy = 1
+    penetration = 4
+    ammo_type = Cannonball
+    magazine = 20
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+    SUB
+        Ammo
+            ammo_type=Cannonball
+            quantity=20
+    END
+
+BallisticWeapon
+    name = "Chase Gun"
+    reach = 6
+    damage = 3
+    accuracy = 4
+    penetration = 2
+    ammo_type = SelfPropelled_75mm
+    attributes = (Accurate)
+    magazine = 40
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_75mm
+            quantity=40
+    END
+
+BallisticWeapon
+    name = "Roundshot Cannon"
+    reach = 7
+    damage = 5
+    accuracy = 1
+    penetration = 4
+    ammo_type = Cannonball
+    magazine = 15
+    attributes = (Accurate)
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+    attack_stat = Perception
+    SUB
+        Ammo
+            ammo_type=Cannonball
+            quantity=15
+    END
+
+BallisticWeapon
+    name = "Dynamite Gun"
+    reach = 6
+    damage = 4
+    accuracy = 2
+    penetration = 3
+    ammo_type = SelfPropelled_40cm
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None)
+    magazine = 20
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_40cm
+            quantity=20
+            attributes = (Blast1, Brutal)
+    END
+
+BallisticWeapon
+    name = "Keelhauler"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    ammo_type = Ferrous_30mm
+    attributes = (BurstFire5)
+    magazine = 120
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=Ferrous_30mm
+            quantity=120
+            attributes = (Scatter, OverloadAttack)
+    END
+
+
+BeamWeapon
+    name = "Phase Musket"
+    reach = 4
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    shot_anim = SmallPhaseBlast
+    attributes = (Phase, Plasma)
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+
+BallisticWeapon
+    name = "Triple Cannon"
+    reach = 7
+    damage = 4
+    accuracy = 1
+    penetration = 5
+    ammo_type = Cannonball
+    magazine = 30
+    attributes = (Accurate, VariableFire3)
+    scale = MechaScale
+    shop_tags= ("THEME_PIRATE")
+    faction_list = (None,)
+    attack_stat = Perception
+    SUB
+        Ammo
+            ammo_type=Cannonball
+            quantity=30
+    END
+
+
+#   ************************
+#   ***   MAD  SCIENCE   ***
+#   ************************
+
+EnergyWeapon
+    name = "Shock Sphere"
+    desc = "A powerful electric generator, also usable as a weapon."
+    reach = 1
+    damage = 2
+    accuracy = 3
+    penetration = 2
+    shot_anim = LightningBolt
+    attributes = (OverloadAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Mecha Syringe"
+    desc = "A mecha-sized syringe loaded with acid."
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    attributes = (DisintegrateAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Laser Scanner"
+    desc = "Research equipment which doubles as a weapon."
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Quantum Scalpel"
+    desc = "An experimental mecha weapon."
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    attributes = (FastAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Cosmic Key"
+    desc = "A special tuning fork which can match the resonant frequency of opposing mecha."
+    reach = 1
+    damage = 4
+    accuracy = 3
+    penetration = 5
+    attributes = (DisintegrateAttack,)
+    attack_stat = Knowledge
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Neutron Lash"
+    desc = "An experimental mecha weapon."
+    reach = 2
+    damage = 2
+    accuracy = 3
+    penetration = 3
+    attributes = (Flail,OverloadAttack)
+    attack_stat = Speed
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Triumvirate Blade"
+    desc = "A living weapon cloned from the wreckage of Typhon."
+    reach = 1
+    damage = 4
+    accuracy = 3
+    penetration = 3
+    material = Biotech
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Quasar Staff"
+    desc = "This staff releases a powerful electromagnetic pulse upon contact with its target."
+    reach = 2
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    attributes = (OverloadAttack, HaywireAttack, Defender, FastAttack)
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+MeleeWeapon
+    name = "Tendril Probe"
+    desc = "A set of robotic tendrils which will gather information about the target in the most destructive way possible."
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    attributes = (Flail, Designator, DrainsPower, Agonize, BonusStrike1)
+    attack_stat = Knowledge
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+EnergyWeapon
+    name = "Phase Rod"
+    desc = The tip of this rod generates a time/space distortion, capable of inflicting great damage."
+    reach = 1
+    damage = 3
+    accuracy = 3
+    penetration = 4
+    attributes = (Agonize,)
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+BeamWeapon
+    name = "X-Ray Laser"
+    reach = 5
+    damage = 1
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    shot_anim = SmallBeam
+    area_anim = LasertrailAnim
+    attributes = (LineAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+BallisticWeapon
+    name = "Ballistic Thagomizer"
+    reach = 4
+    damage = 3
+    accuracy = 2
+    penetration = 3
+    ammo_type = Shells_150mm
+    attributes = (VariableFire2,)
+    magazine = 24
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+    SUB
+        Ammo
+            ammo_type=Shells_150mm
+            quantity=24
+    END
+
+BeamWeapon
+    name = "Neutrino Beam"
+    desc = "Neutrinos are supposed to be harmless, aren't they?"
+    reach = 5
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    shot_anim = SmallBeam
+    area_anim = LasertrailAnim
+    attributes = (LineAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)
+
+ChemThrower
+    name = "Glop Dispenser"
+    reach = 5
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    attributes = (Blast2,)
+    shot_anim = AcidSpray
+    area_anim = MiasmaAnim
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 50
+            attributes = (BurnAttack, OverloadAttack)
+    END
+
+BeamWeapon
+    name = "Disintegration Ray"
+    reach = 5
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    scale = MechaScale
+    shot_anim = LargePhaseBlast
+    attributes = (DisintegrateAttack, Phase)
+    attack_stat = Knowledge
+    scale = MechaScale
+    shop_tags= ("THEME_MADSCIENCE")
+    faction_list = (None,)

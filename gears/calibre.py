@@ -78,11 +78,26 @@ class Shells_150mm(BaseCalibre):
     scale = scale.MechaScale
 
 
+class Caseless_30mm(BaseCalibre):
+    name = "30mm Caseless"
+    bang = 3
+    scale = scale.MechaScale
+
+
 class Caseless_45mm(BaseCalibre):
     name = "45mm Caseless"
     bang = 4
     scale = scale.MechaScale
 
+class Caseless_65mm(BaseCalibre):
+    name = "65mm Caseless"
+    bang = 6
+    scale = scale.MechaScale
+
+class Caseless_105mm(BaseCalibre):
+    name = "105mm Caseless"
+    bang = 9
+    scale = scale.MechaScale
 
 class Caseless_165mm(BaseCalibre):
     name = "165mm Caseless"
@@ -97,9 +112,23 @@ class Ferrous_10mm(BaseCalibre):
     risk = RISK_INERT
 
 
+class FerrousNeedle_15mm(BaseCalibre):
+    name = "15mm Ferrous Needle"
+    bang = 2
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+
 class Ferrous_25mm(BaseCalibre):
     name = "25mm Ferrous"
     bang = 5
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+
+class Ferrous_30mm(BaseCalibre):
+    name = "30mm Ferrous"
+    bang = 6
     scale = scale.MechaScale
     risk = RISK_INERT
 
@@ -110,6 +139,11 @@ class Ferrous_50mm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_INERT
 
+class Ferrous_60mm(BaseCalibre):
+    name = "60mm Ferrous"
+    bang = 8
+    scale = scale.MechaScale
+    risk = RISK_INERT
 
 class Ferrous_70mm(BaseCalibre):
     name = "70mm Ferrous"
@@ -131,6 +165,35 @@ class Ferrous_120mm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_INERT
 
+class FerrousSawblade(BaseCalibre):
+    name = "Ferrous Sawblade"
+    bang = 16
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+class Cannonball(BaseCalibre):
+    name = "Cannonball"
+    bang = 20
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+class SelfPropelled_75mm(BaseCalibre):
+    name = "75mm Self Propelled"
+    bang = 6
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
+class SelfPropelled_90mm(BaseCalibre):
+    name = "90mm Self Propelled"
+    bang = 8
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
+class SelfPropelled_100mm(BaseCalibre):
+    name = "100mm Self Propelled"
+    bang = 10
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
 
 class SelfPropelled_130mm(BaseCalibre):
     name = "130mm Self Propelled"
@@ -138,6 +201,17 @@ class SelfPropelled_130mm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 
+class SelfPropelled_160mm(BaseCalibre):
+    name = "160mm Self Propelled"
+    bang = 15
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
+class SelfPropelled_40cm(BaseCalibre):
+    name = "40cm Self Propelled"
+    bang = 12
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
 
 class SelfPropelled_70cm(BaseCalibre):
     name = "70cm Self Propelled"
@@ -145,17 +219,27 @@ class SelfPropelled_70cm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 
-
-class SelfPropelled_160mm(BaseCalibre):
-    name = "160mm Self Propelled"
-    bang = 15
+class SelfPropelled_80cm(BaseCalibre):
+    name = "80cm Self Propelled"
+    bang = 20
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 
+class SelfPropelled_100cm(BaseCalibre):
+    name = "100cm Self Propelled"
+    bang = 25
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
 
 class Ferrous_Frag(BaseCalibre):
     name = "Ferrous Frag"
     bang = 8
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+class ConstructionGirder(BaseCalibre):
+    name = "Construction Girder"
+    bang = 15
     scale = scale.MechaScale
     risk = RISK_INERT
 
