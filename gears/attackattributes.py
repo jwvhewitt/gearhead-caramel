@@ -350,7 +350,7 @@ class Designator(Singleton):
                         stats.Ego, weapon.get_attack_skill(), stats.Ego, stats.Computers, roll_mod=25,
                         min_chance=10,
                         on_success=(
-                        geffects.AddEnchantment(geffects.SensorLock, dur_n=3, dur_d=3, anim=geffects.SensorLockAnim),)
+                        geffects.AddEnchantment(geffects.SensorLock, dur_n=3, dur_d=3, anim=geffects.LockOnAnim),)
                     ),
                 ),
             )
@@ -581,6 +581,27 @@ class OverloadAttack(Singleton):
             )
         )
 
+class OverloadBubble(Singleton):
+    name = "Overload"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 1.5
+
+    ADJECTIVES = ("Bubbly", "Soapy" )
+    CAPABILITIES = ("overwhelm an opponent's defense routines with soapy bubbles",)
+
+    @classmethod
+    def modify_basic_attack(cls, weapon, attack):
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.OverloadStatus,
+                on_success=(
+                geffects.AddEnchantment(geffects.OverloadStatus, dur_n=2, dur_d=4, anim=geffects.BubbleAnim),),
+            )
+        )
+
+
 class Phase(Singleton):
     name = "Phase"
     MASS_MODIFIER = 1.2
@@ -636,6 +657,28 @@ class PoisonAttack(Singleton):
         )
 
 
+class RustAttack(Singleton):
+    name = "Rust"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 2.0
+    POWER_MODIFIER = 1.5
+
+    ADJECTIVES = ("Corrosive", "Rusted" )
+    CAPABILITIES = ("rapidly degrade the target's armor",)
+
+    @classmethod
+    def modify_basic_attack(cls, weapon, attack):
+        # Add a rust status to the children.
+        attack.fx.children[0].children.append(
+            geffects.IfEnchantmentOK(
+                geffects.RustStatus,
+                on_success=(
+                geffects.AddEnchantment(geffects.RustStatus, dur_n=2, dur_d=4, anim=geffects.RustedAnim),),
+            )
+        )
+
+
 class Scatter(Singleton):
     name = "Scatter Shot"
     MASS_MODIFIER = 1.0
@@ -673,7 +716,7 @@ class SwarmFire2(Singleton):
     MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 1.2
     COST_MODIFIER = 2.5
-    POWER_MODIFIER = 2.5
+    POWER_MODIFIER = 3.0
     SWARM_VALUE = 2
 
     @classmethod
@@ -691,7 +734,7 @@ class SwarmFire3(SwarmFire2):
     MASS_MODIFIER = 2.0
     VOLUME_MODIFIER = 1.5
     COST_MODIFIER = 3.5
-    POWER_MODIFIER = 3.5
+    POWER_MODIFIER = 5.0
     SWARM_VALUE = 3
 
 

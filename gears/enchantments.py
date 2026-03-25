@@ -90,7 +90,7 @@ class Enchantment(object):
         self.duration = 0
 
     @classmethod
-    def can_affect(cls,target):
+    def can_affect(cls,target) -> bool:
         return True
 
 

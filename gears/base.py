@@ -1997,7 +1997,7 @@ class MeleeWeapon(Weapon):
                         attackattributes.HaywireAttack, attackattributes.DisintegrateAttack,
                         attackattributes.OverloadAttack, attackattributes.PoisonAttack, attackattributes.Smash,
                         attackattributes.DrainsPower, attackattributes.Designator,
-                        attackattributes.MultiWielded)
+                        attackattributes.MultiWielded, attackattributes.RustAttack)
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.02
@@ -2242,7 +2242,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     LEGAL_ATTRIBUTES = (attackattributes.Armorpiercing,
                         attackattributes.Blast1, attackattributes.Blast2, attackattributes.Blast3, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.PoisonAttack,
-                        attackattributes.OverloadAttack, attackattributes.Scatter,
+                        attackattributes.OverloadAttack, attackattributes.Scatter, attackattributes.RustAttack,
                         )
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
@@ -2651,7 +2651,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
         attackattributes.BurnAttack, attackattributes.DisintegrateAttack,
         attackattributes.Designator,
         attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.PoisonAttack,
-        attackattributes.Scatter,
+        attackattributes.RustAttack, attackattributes.Scatter,
     )
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 35
@@ -2954,8 +2954,11 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     DEFAULT_NAME = "Chem"
     STACK_CRITERIA = ('attributes',)
     SAVE_PARAMETERS = ('quantity', 'attributes', 'shot_anim', 'area_anim')
-    LEGAL_ATTRIBUTES = (attackattributes.Agonize, attackattributes.Brutal, attackattributes.BurnAttack,
-                        attackattributes.DisintegrateAttack, attackattributes.PoisonAttack)
+    LEGAL_ATTRIBUTES = (
+        attackattributes.Agonize, attackattributes.Brutal, attackattributes.BurnAttack,
+        attackattributes.DisintegrateAttack, attackattributes.PoisonAttack, attackattributes.OverloadBubble,
+        attackattributes.RustAttack,
+    )
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
 
@@ -3654,7 +3657,7 @@ class Module(BaseGear, StandardDamageHandler):
                     # geffects.CooldownPrice(geffects.CooldownPrice.gen_cooldown_key(attacker, self))
                 ],
                 ai_tar=aitargeters.AttackTargeter(targetable_types=(BaseGear,), ),
-                shot_anim=None,
+                shot_anim=geffects.ModuleSlashShot,
                 data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 0),
                 targets=1)
             my_invos.append(ba)

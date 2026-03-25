@@ -35,7 +35,8 @@ class EMBlaster(Program):
         def is_vulnerable(camp, pc, npc):
             return geffects.HaywireStatus.can_affect(npc)
 
-        myprog2 = pbge.effects.Invocation(
+        myprog2 = geffects.HackingInvocation(
+            "Remote Scramble",
             name = 'Remote Scramble',
             fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Computers,stats.Ego,stats.Computers,
                     roll_mod=25, min_chance=50,
@@ -47,12 +48,14 @@ class EMBlaster(Program):
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.HaywireStatus)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=30),
             price=[geffects.MentalPrice(3),],
+            shot_anim=geffects.HackingShot,
             targets=1,
             help_text="An electromagnetic beam will cause one target within five tiles to go haywire."
         )
         progs.append(myprog2)
 
-        myprog = pbge.effects.Invocation(
+        myprog = geffects.HackingInvocation(
+            "EMP",
             name = 'Localized EMP',
             fx = geffects.CheckConditions([is_vulnerable],
                      anim = geffects.DustCloud,
@@ -87,7 +90,8 @@ class TargetAnalysis(Program):
     def get_invocations(cls, pc):
         progs = list()
 
-        myprog = pbge.effects.Invocation(
+        myprog = geffects.HackingInvocation(
+            "Scan",
             name='Long Range Scan',
             fx=geffects.CheckConditions([aitargeters.TargetIsEnemy(), aitargeters.TargetIsHidden()],
                                         anim=geffects.SearchAnim, on_success=[
@@ -109,26 +113,29 @@ class TargetAnalysis(Program):
         )
         progs.append(myprog)
 
-        myprog2 = pbge.effects.Invocation(
+        myprog2 = geffects.HackingInvocation(
+            "Sensor Lock",
             name = 'Sensor Lock',
-            fx= geffects.AddEnchantment(geffects.SensorLock,anim=geffects.SearchAnim,),
+            fx= geffects.AddEnchantment(geffects.SensorLock,anim=geffects.LockOnAnim,),
             area=pbge.scenes.targetarea.SingleTarget(reach=15),
             used_in_combat = True, used_in_exploration=False,
             ai_tar=aitargeters.GenericTargeter(targetable_types=(pbge.scenes.PlaceableThing,),conditions=[aitargeters.TargetIsOperational(),aitargeters.TargetIsEnemy(),aitargeters.TargetIsNotHidden(),aitargeters.TargetDoesNotHaveEnchantment(geffects.SensorLock)]),
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12),
             price=[geffects.MentalPrice(2), geffects.StatValuePrice(stats.Computers, 3)],
             targets=1,
+            shot_anim=geffects.HackingShot,
             help_text="Targets one enemy within 15 tiles; the target gets a -25 penalty to mobility and no sensor range modifier for five rounds."
         )
         progs.append(myprog2)
 
-        progs.append(pbge.effects.Invocation(
+        progs.append(geffects.HackingInvocation(
+            "Deep Probe",
             name='Deep Probe',
             fx=geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
                                          roll_mod=25, min_chance=50,
                                          on_success=[
-                                             geffects.AddEnchantment(geffects.SensorLock, anim=geffects.SearchAnim, ),
-                                             geffects.AddEnchantment(geffects.WeakPoint, anim=geffects.DeepProbeAnim, )
+                                             geffects.AddEnchantment(geffects.SensorLock, anim=geffects.LockOnAnim, ),
+                                             geffects.AddEnchantment(geffects.WeakPoint, anim=geffects.SpotWeaknessAnim, )
                                          ],
                                          on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim), ],
                                          ),
@@ -142,10 +149,12 @@ class TargetAnalysis(Program):
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png', 32, 32), 12),
             price=[geffects.MentalPrice(2), geffects.StatValuePrice(stats.Computers, 5)],
             targets=1,
+            shot_anim=geffects.HackingShot,
             help_text="Targets one enemy within 15 tiles; if successful, the target is affected by both Sensor Lock and Spot weakness for a -25 penalty to Mobility and a -20 penalty to armor."
         ))
 
-        progs.append(pbge.effects.Invocation(
+        progs.append(geffects.HackingInvocation(
+            "Sensor Beam",
             name='Sensor Beam',
             fx=geffects.CheckConditions(
                 conditions=[aitargeters.TargetIsOperational(),
@@ -155,7 +164,7 @@ class TargetAnalysis(Program):
                     geffects.OpposedSkillRoll(stats.Knowledge, stats.Computers, stats.Ego, stats.Computers,
                                          roll_mod=25, min_chance=50,
                                          on_success=[
-                                             geffects.AddEnchantment(geffects.SensorLock, anim=geffects.SensorLockAnim, ),
+                                             geffects.AddEnchantment(geffects.SensorLock, anim=geffects.LockOnAnim, ),
                                          ],
                                          on_failure=[pbge.effects.NoEffect(anim=geffects.FailAnim), ]
                                          )
@@ -187,7 +196,8 @@ class Deflect(Program):
     def get_invocations(cls, pc):
         progs = list()
 
-        myprog = pbge.effects.Invocation(
+        myprog = geffects.HackingInvocation(
+            "Prescience",
             name='Prescience',
             fx=geffects.AddEnchantment(geffects.Prescience,anim=geffects.SearchAnim,),
             area=pbge.scenes.targetarea.SingleTarget(reach=15),
@@ -203,7 +213,8 @@ class Deflect(Program):
         )
         progs.append(myprog)
 
-        progs.append(pbge.effects.Invocation(
+        progs.append(geffects.HackingInvocation(
+            "Defense Net",
             name='Defense Net',
             fx=geffects.CheckConditions(
                 conditions=[
@@ -238,7 +249,7 @@ class AIAssistant(Program):
     def get_invocations(cls, pc):
         progs = list()
 
-        myprog = pbge.effects.Invocation(
+        myprog = geffects.SkillInvocation(
             name = 'AI Assistant',
             fx = geffects.AddEnchantment(geffects.AIAssisted,
                                          enchant_params = {'percent_prob': max(pc.get_skill_score(stats.Knowledge, stats.Computers) +25, 90)},
@@ -275,7 +286,8 @@ class Necromatix(Program):
         n, extra = divmod(pc_skill, 6)
         if random.randint(1, 6) <= extra:
             n += 1
-        myprog = pbge.effects.Invocation(
+        myprog = geffects.HackingInvocation(
+            "Self-Repair",
             name = 'Self Repair',
             fx=geffects.DoHealing(
                 max(n,2)+1,6, repair_type=materials.RT_REPAIR,
@@ -292,7 +304,8 @@ class Necromatix(Program):
         )
         progs.append(myprog)
 
-        myprog = pbge.effects.Invocation(
+        myprog = geffects.HackingInvocation(
+            "Repair Net",
             name = 'Repair Net',
             fx=geffects.CheckConditions(
                 conditions=[
@@ -315,7 +328,8 @@ class Necromatix(Program):
         )
         progs.append(myprog)
 
-        myprog2 = pbge.effects.Invocation(
+        myprog2 = geffects.HackingInvocation(
+            "Contagion",
             name = 'Contagion',
             fx= geffects.OpposedSkillRoll(stats.Knowledge,stats.Biotechnology,stats.Ego,stats.Computers,
                     roll_mod=25, min_chance=50,
@@ -328,6 +342,7 @@ class Necromatix(Program):
             data=geffects.AttackData(pbge.image.Image('sys_attackui_default.png',32,32),12,thrill_power=25),
             price=[geffects.MentalPrice(5),geffects.StatValuePrice(stats.Biotechnology,9)],
             targets=1,
+            shot_anim=geffects.HackingShot,
             help_text="You unleash the bionites infesting your mecha on a single enemy within 5 tiles; instead of repairing the enemy mecha, the bionites will disassemble it to its component atoms."
         )
         progs.append(myprog2)

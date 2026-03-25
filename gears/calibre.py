@@ -59,6 +59,12 @@ class Shells_80mm(BaseCalibre):
     scale = scale.MechaScale
 
 
+class Shells_90mm(BaseCalibre):
+    name = "90mm Shell"
+    bang = 6
+    scale = scale.MechaScale
+
+
 class Shells_100mm(BaseCalibre):
     name = "100mm Shell"
     bang = 7
@@ -99,6 +105,11 @@ class Caseless_105mm(BaseCalibre):
     bang = 9
     scale = scale.MechaScale
 
+class Caseless_120mm(BaseCalibre):
+    name = "120mm Caseless"
+    bang = 10
+    scale = scale.MechaScale
+
 class Caseless_165mm(BaseCalibre):
     name = "165mm Caseless"
     bang = 12
@@ -119,6 +130,13 @@ class FerrousNeedle_15mm(BaseCalibre):
     risk = RISK_INERT
 
 
+class FerrousBolt_20mm(BaseCalibre):
+    name = "20mm Ferrous Bolt"
+    bang = 8
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+
 class Ferrous_25mm(BaseCalibre):
     name = "25mm Ferrous"
     bang = 5
@@ -132,6 +150,11 @@ class Ferrous_30mm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_INERT
 
+class Ferrous_35mm(BaseCalibre):
+    name = "35mm Ferrous"
+    bang = 6
+    scale = scale.MechaScale
+    risk = RISK_INERT
 
 class Ferrous_50mm(BaseCalibre):
     name = "50mm Ferrous"
@@ -213,6 +236,12 @@ class SelfPropelled_40cm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 
+class SelfPropelled_50cm(BaseCalibre):
+    name = "50cm Self Propelled"
+    bang = 15
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
 class SelfPropelled_70cm(BaseCalibre):
     name = "70cm Self Propelled"
     bang = 16
@@ -231,6 +260,12 @@ class SelfPropelled_100cm(BaseCalibre):
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 
+class Ferrous_Foil(BaseCalibre):
+    name = "Ferrous Foil"
+    bang = 8
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
 class Ferrous_Frag(BaseCalibre):
     name = "Ferrous Frag"
     bang = 8
@@ -242,6 +277,18 @@ class ConstructionGirder(BaseCalibre):
     bang = 15
     scale = scale.MechaScale
     risk = RISK_INERT
+
+class DataCapsule(BaseCalibre):
+    name = "Data Capsule"
+    bang = 6
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+class Crystal_50mm(BaseCalibre):
+    name = "50mm Crystal"
+    bang = 16
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
 
 
 #   ******************************

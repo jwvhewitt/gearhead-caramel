@@ -368,7 +368,7 @@ class Computers(Skill):
             data=geffects.AttackData(pbge.image.Image('sys_programicons.png',32,32),3,thrill_power=50),
             price=[geffects.MentalPrice(4), geffects.StatValuePrice(cls, 5)],
             targets=1,
-            shot_anim=None,
+            shot_anim=geffects.HackingShot,
             help_text="Bombards one enemy mecha within 10 tiles with junk data and malicious code, quickly exhausting the pilot's stamina."
         ))
 

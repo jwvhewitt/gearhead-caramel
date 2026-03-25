@@ -195,6 +195,33 @@ class DashReach(pfov.PointOfView):
             self.tiles.add((x, y))
 
 
+class EnemiesInRadiusArea():
+    """A circle centered on originator."""
+    AUTOMATIC = True
+    def __init__( self, attacker, radius=6):
+        self.attacker = attacker
+        self.radius = radius
+        # This is going to require more work than I am currently willing to put in. Specifically,
+        # the shot_anim in pbge.effects needs to happen for each point in the area rather than for
+        # the target point.
+        raise NotImplementedError("EnemiesInRadiusArea not working yet")
+    def get_area( self, camp, origin, target ):
+        all_tiles = pfov.PointOfView( camp.scene, origin[0], origin[1], self.radius ).tiles
+        good_tiles = set()
+        for mek in camp.scene.contents:
+            if hasattr(mek, "pos") and mek.pos in all_tiles and camp.scene.are_hostile(mek, self.attacker):
+                good_tiles.add(mek.pos)
+        return good_tiles
+    def get_targets( self, camp, origin ):
+        return self.get_area(camp,origin,(0,0))
+    def get_delay_point( self, origin, target ):
+        return origin
+    def get_reach( self ):
+        return self.radius
+    def get_firing_points(self,camp,desired_target):
+        return self.get_area(camp,desired_target,None)
+
+
 class TerrainBreaker:
     # Attach this to a terrain object as the "breaker" property.
     def __init__(self, damage_threshold, breaks_into, terrain_value=1):
@@ -415,6 +442,15 @@ class SpotWeaknessAnim(animobs.AnimOb):
     DEFAULT_END_FRAME = 29
 
 
+class BubbleAnim(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = 'anim_gervais_bubble.png'
+    DEFAULT_END_FRAME = 19
+
+
+class RustedAnim(animobs.Caption):
+    DEFAULT_TEXT = "Rusted!"
+
+
 class DeepProbeAnim(animobs.Caption):
     DEFAULT_TEXT = 'Deep Probe!'
 
@@ -631,14 +667,56 @@ class FireBolt(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_fire.png"
     DEFAULT_SOUND_FX = "foom_0.ogg"
 
+
+class SparkleShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_sparkleshot.png"
+    DEFAULT_SOUND_FX = "kenney_upgrade2.ogg"
+
+
+class ShurikenShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_gervais_s_shuriken.png"
+    DEFAULT_SOUND_FX = "kenney_woosh5.ogg"
+
+
+class BubbleShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_gervais_s_bubble.png"
+    DEFAULT_SOUND_FX = "kenney_threetone1.ogg"
+    DEFAULT_SPEED = 0.3
+
+
+class RoundShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_gervais_s_roundshot.png"
+    DEFAULT_SOUND_FX = "cannon-shot-14799.ogg"
+
+
+class ArrowShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_gervais_s_arrow.png"
+    DEFAULT_SOUND_FX = "kenney_woosh5.ogg"
+
+
+class PetalShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_petals.png"
+    DEFAULT_SOUND_FX = "kenney_jingles-saxophone_10.ogg"
+    DEFAULT_SPEED = 0.4
+
+
 class SlashShot(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_slash.png"
     DEFAULT_SOUND_FX = "cqcmelee.ogg"
+
 
 class BeamSlashShot(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_beamslash.png"
     DEFAULT_SOUND_FX = "cqclaserswordhit.ogg"
 
+class ModuleSlashShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_slash2.png"
+    DEFAULT_SOUND_FX = "cqcmelee.ogg"
+
+
+class HackingShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_hacking.png"
+    DEFAULT_SOUND_FX = "a_hackin1.ogg"
 
 
 # For the v0.900 series; can probably cut after 1.000.
@@ -832,6 +910,21 @@ class ReturningHammer(ReturnAnim):
     BASE_ANIM = FlyingHammer
 
 
+class HeartShot(animobs.AnimatedShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_heart.png"
+    DEFAULT_END_FRAME = 3
+    DEFAULT_LOOP = 99999
+    DEFAULT_SOUND_FX = "kenney_pickup1.ogg"
+
+
+class ShimmerShot(animobs.AnimatedShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_shimmerball.png"
+    DEFAULT_END_FRAME = 15
+    DEFAULT_LOOP = 99999
+    DEFAULT_SOUND_FX = "kenney_pickup1.ogg"
+
+
+
 class FlyingDeathwing(animobs.AnimatedShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_deathwing.png"
     DEFAULT_END_FRAME = 2
@@ -953,7 +1046,8 @@ class JumpModel(object):
 # A curated list for the gear editor.
 SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, Missile2, Missile3, Missile4, Missile5,
               ReturningHammer, JawShot, FlyingDeathwing, AcidSpray, LightningBolt, FireBolt, SlashShot, BeamSlashShot,
-              ReturningChainClaw, ReturningSpikeball, SmallPhaseBlast, LargePhaseBlast
+              ReturningChainClaw, ReturningSpikeball, SmallPhaseBlast, LargePhaseBlast, ShurikenShot, BubbleShot, RoundShot,
+              SparkleShot, ArrowShot, PetalShot, ReturningHammer, ShimmerShot, HeartShot
               )
 AREA_ANIMS = (
     BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim,
@@ -2645,6 +2739,19 @@ class OverloadStatus(NegativeEnchantment):
     @classmethod
     def can_affect(cls, target):
         return isinstance(target, base.Mecha)
+
+
+class RustStatus(NegativeEnchantment):
+    name = 'Rusted'
+    DEFAULT_DISPEL = (END_COMBAT, materials.RT_REPAIR)
+    DEFAULT_DURATION = 5
+
+    def get_penetration_bonus(self, owner):
+        return (max(self.duration, 1) * 2) + 10
+
+    @classmethod
+    def can_affect(cls, target):
+        return target.material in (materials.Metal, materials.Advanced)
 
 
 class SensorLock(NegativeEnchantment):
