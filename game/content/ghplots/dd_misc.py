@@ -490,20 +490,7 @@ class RanMagnusMechaFactory(Plot):
                                                     room1=building, door1=building.waypoints["DOOR"],
                                                     move_door1=False)
 
-        npc = self.register_element("SHOPKEEPER",
-                                    gears.selector.random_character(
-                                        name="Ran Magnus",
-                                        rank=75, local_tags=(gears.personality.GreenZone,),
-                                        job=gears.jobs.ALL_JOBS["Mecha Designer"],
-                                        birth_year=106, combatant=False, faction=gears.factions.ProDuelistAssociation,
-                                        personality=[personality.Passionate, personality.Sociable,
-                                                     personality.Fellowship],
-                                        mnpcid="RAN_MAGNUS",
-                                        gender=gears.genderobj.Gender.get_default_female(),
-                                        portrait='card_f_ranmagnus.png',
-                                        colors=(gears.color.GriffinGreen, gears.color.DarkSkin, gears.color.Fuschia,
-                                                gears.color.PlasmaBlue, gears.color.CardinalRed),
-                                    ))
+        npc = self.register_element("SHOPKEEPER", nart.camp.get_major_npc("Ran Magnus"))
         npc.place(tplot.elements["LOCALE"], team=tplot.elements["CIVILIAN_TEAM"])
 
         self.shop = services.Shop(npc=npc, shop_faction=gears.factions.ProDuelistAssociation,

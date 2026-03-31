@@ -468,9 +468,39 @@ class DragonTheme(UpgradeTheme):
     THEME_TAG = "THEME_DRAGON"
 
 
+class NinjaTheme(UpgradeTheme):
+    name = "Ninja"
+    NOUNS = ("Real", "Shadow", "Iga", "Secret", "Koga", "Ultimate", "Mystery")
+    ADJECTIVES = ("Ninja", "Shinobi", "Power", "Assassin", "Kunoichi", "Master")
+
+    FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Blast1,
+        attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
+        attackattributes.BonusStrike2, attackattributes.Brutal,
+        attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.FastAttack, 
+        attackattributes.Smash, attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_NINJA"
+
+
 THEMES = [ t for t in UpgradeTheme.__subclasses__() ]
 
 ###############################################################################
+
+def upgrade_a_weapon(wep, theme: None|type[UpgradeTheme] = None):
+    if not theme:
+        if random.randint(1,5) != 5:
+            theme = random.choice(THEMES)
+        else:
+            theme = UpgradeTheme
+    if random.randint(1,23) == 5:
+        return theme.get_new_weapon(wep)
+    else:
+        return theme.create_upgraded_weapon(wep)
 
 
 def upgrade_to_champion(mek, theme: None|type[UpgradeTheme] = None):

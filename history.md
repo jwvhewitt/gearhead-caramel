@@ -1,4 +1,5 @@
-* Added phase, armorpiercing attack attributes
+v1.007beta March 31, 2026
+* Added phase, armorpiercing, InkAttack, OverloadBubble, Blast3, RustAttack attack attributes
 * Normalized all music
 * Rewrote champions unit
 * NPC stats are influenced by their job
@@ -12,7 +13,7 @@
 * Fixed Spot Weakness crash
 * get_odds defense method renamed to get_defense_odds
 * Missiles more likely to hit and penetrate
-* Added anim for Spot Weakness, phase attacks
+* Added anim for Spot Weakness, phase attacks, many attacks
 
 v1.006alpha March 4, 2026
 * ItemStatsBlock will now deal correctly with linewrap

@@ -1001,7 +1001,7 @@ class StudentConvoStudy(Plot):
                 effect=plotutility.SkillExperienceEffect(gears.stats.MechaGunnery, 200, self._no_more_convo)
             ))
 
-            ghdialogue.SkillBasedPartyReply(
+            _=ghdialogue.SkillBasedPartyReply(
                 Offer(
                     "[THANK_YOU] This all makes perfect sense now! Hopefully I'll get a chance to use these skills in the morning.",
                     context=ContextTag((context.CUSTOMREPLY,)), subject=self,
@@ -1154,7 +1154,11 @@ class SceneTwo(Plot):
                 self.elements["BEARBASTARD"], camp
             )
             _=ghcutscene.SimpleMonologueDisplay(
-                "There's a whole bunch of different things you can do in combat. Usually you get to do two actions on your turn, as shown by the clock. You can spend half an action on movement and still do something else, as long as that clock section stays white.",
+                "Combat is divided into turns. You get a turn, then somebody else gets a turn, then you get a turn again. During your turn you can move and/or do actions. Your movement allowance is shown in the round clocky bit. Your action points are the colored bars next to that.",
+                self.elements["BEARBASTARD"], camp, False
+            )
+            _=ghcutscene.SimpleMonologueDisplay(
+                "Normally you get two actions in a turn, but you can spend stamina to buy more actions. That's what the plus button next to the clock is for. Note that you also need stamina to defend yourself; once your stamina runs out, you'll be a sitting duck in a barrel.",
                 self.elements["BEARBASTARD"], camp, False
             )
             _=ghcutscene.SimpleMonologueDisplay(
@@ -1262,25 +1266,25 @@ class SceneOne(Plot):
 
         self.register_scene(nart, myscene, myscenegen, ident="LOCALE", )
 
-        self.register_element("STATUE", ghwaypoints.ParkStatueMan(
+        _=self.register_element("STATUE", ghwaypoints.ParkStatueMan(
             name="Bear Bastard Statue",
             desc="A magnificent statue of Bear Bastard, looking as heroic as possible given the subject matter. A golden plaque at the bottom of the statue reads \"In honor of Bear Bastard, Saviour of Last Hope, Master of the Impossible\".",
             anchor=pbge.randmaps.anchors.middle
         ), dident="STATUE_ROOM")
 
-        west_shrine_room = self.register_element(
+        _west_shrine_room = self.register_element(
             "_west_shrine_room", pbge.randmaps.rooms.Room(5, 15, anchor=pbge.randmaps.anchors.west), dident="LOCALE"
         )
 
-        east_shrine_room = self.register_element(
+        _east_shrine_room = self.register_element(
             "_east_shrine_room", pbge.randmaps.rooms.Room(5, 15, anchor=pbge.randmaps.anchors.east), dident="LOCALE"
         )
 
-        north_shrine_room = self.register_element(
+        _north_shrine_room = self.register_element(
             "_north_shrine_room", pbge.randmaps.rooms.Room(5, 5, anchor=pbge.randmaps.anchors.north), dident="LOCALE"
         )
 
-        self.register_element(
+        _=self.register_element(
             "DUTY_SHRINE", ghwaypoints.Shrine(
                 name="Shrine of Duty",
                 desc="The plaque on this shrine reads:\n\"Let me be honest and true at all times, and never fail to fulfil my responsibilites.\"",
@@ -1288,7 +1292,7 @@ class SceneOne(Plot):
             ), dident="_west_shrine_room"
         )
 
-        self.register_element(
+        _=self.register_element(
             "FELLOWSHIP_SHRINE", ghwaypoints.Shrine(
                 name="Shrine of Fellowship",
                 desc="The plaque on this shrine reads:\n\"Let me be considerate to all in everything I do, and do wrong by no one.\"",
@@ -1296,7 +1300,7 @@ class SceneOne(Plot):
             ), dident="_west_shrine_room"
         )
 
-        self.register_element(
+        _=self.register_element(
             "GLORY_SHRINE", ghwaypoints.Shrine(
                 name="Shrine of Glory",
                 desc="The plaque on this shrine reads:\n\"Let me strive every moment to make myself better and better, to the best of my ability, that all may profit by it.\"",
@@ -1304,7 +1308,7 @@ class SceneOne(Plot):
             ), dident="_north_shrine_room"
         )
 
-        self.register_element(
+        _=self.register_element(
             "JUSTICE_SHRINE", ghwaypoints.Shrine(
                 name="Shrine of Justice",
                 desc="The plaque on this shrine reads:\n\"Let me think of the right and lend all my assistance to those who need it, with no regard for anything but justice.\"",
@@ -1312,7 +1316,7 @@ class SceneOne(Plot):
             ), dident="_east_shrine_room"
         )
 
-        self.register_element(
+        _=self.register_element(
             "PEACE_SHRINE", ghwaypoints.Shrine(
                 name="Shrine of Peace",
                 desc="The plaque on this shrine reads:\n\"Let me act always with compassion, and wield my immense power only to protect life.\"",

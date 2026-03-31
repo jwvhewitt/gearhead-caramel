@@ -753,7 +753,7 @@ class DZDIntroMission( Plot ):
 
         player_a,enemy_a = random.choice(pbge.randmaps.anchors.OPPOSING_PAIRS)
 
-        self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
+        _=self.register_element("_EROOM",pbge.randmaps.rooms.OpenRoom(5,5,anchor=player_a),dident="LOCALE")
         myent = self.register_element( "ENTRANCE", pbge.scenes.waypoints.Waypoint(anchor=pbge.randmaps.anchors.middle), dident="_EROOM")
 
         enemy_room = self.register_element("ENEMY_ROOM",game.content.ghrooms.MSRuinsRoom(15,15,anchor=enemy_a),dident="LOCALE")
@@ -811,7 +811,7 @@ class DZDIntroMission( Plot ):
     def t_STARTCOMBAT(self,camp):
         if camp.scene is self.elements["LOCALE"] and self.tutorial_on and not self.combat_tutorial_done:
             _=SimpleMonologueDisplay(
-                "Combat has started. Each round you get to take two actions; you can move and attack, or attack twice, or anything else you want to do.",
+                "Combat has started. Each round you get to take two actions; you can buy more if you want, but keep a close eye on your stamina. You can move before or in between your actions.",
                 self.elements["SHERIFF"], camp
             )
             _=SimpleMonologueDisplay(

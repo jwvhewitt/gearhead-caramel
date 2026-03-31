@@ -158,6 +158,10 @@ class CombatControlWidget(pbge.widgets.Widget):
             self._current_combatant.renew_power()
 
     def do_combat_turn(self, chara):
+        if not chara.is_operational():
+            self.camp.fight.active.remove(chara)
+            return
+
         self._current_combatant = chara
         if chara in self.camp.party and not (isinstance(chara, gears.base.Monster) and not pbge.util.config.getboolean("DIFFICULTY", "directly_control_pets")):
             # Outsource the turn-taking.

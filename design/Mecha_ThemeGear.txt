@@ -2115,6 +2115,27 @@ MeleeWeapon
     shop_tags= ("THEME_DRAGON")
     faction_list = (None,)
 
+BallisticWeapon
+    name = "Flare Launcher"
+    reach = 4
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    ammo_type = Caseless_65mm
+    attributes = (Accurate,)
+    magazine = 30
+    shot_anim = FireBolt
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_DRAGON")
+    faction_list = (None,)
+    SUB
+        Ammo
+            ammo_type=Caseless_65mm
+            quantity=30
+            attributes = (BurnAttack,)
+    END
+
 ChemThrower
     name = "Dragon's Breath"
     reach = 3
@@ -2132,6 +2153,24 @@ ChemThrower
             attributes = (BurnAttack)
     END
 
+BallisticWeapon
+    name = "Flaming Doom"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 4
+    ammo_type = SelfPropelled_40cm
+    scale = MechaScale
+    shop_tags= ("THEME_DRAGON")
+    faction_list = (None)
+    magazine = 24
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_40cm
+            quantity=24
+            attributes = (Blast2, Brutal, BurnAttack)
+    END
+
 BeamWeapon
     name = "Lightning Cannon"
     reach = 6
@@ -2145,6 +2184,51 @@ BeamWeapon
     scale = MechaScale
     shop_tags= ("THEME_DRAGON")
     faction_list = (None,)
+
+BeamWeapon
+    name = "Dragon's Gaze"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 2
+    scale = MechaScale
+    shot_anim = PlasmaBall
+    attributes = (Plasma,)
+    attack_stat = Ego
+    scale = MechaScale
+    shop_tags= ("THEME_DRAGON")
+    faction_list = (None,)
+
+BeamWeapon
+    name = "Thermal Obliterator"
+    reach = 5
+    damage = 3
+    accuracy = 2
+    penetration = 3
+    scale = MechaScale
+    shot_anim = FireBolt
+    area_anim = Fireball
+    attributes = (BurstFire3,)
+    scale = MechaScale
+    shop_tags= ("THEME_DRAGON")
+    faction_list = (None,)
+
+ChemThrower
+    name = "Dragon Cannon"
+    reach = 5
+    damage = 4
+    accuracy = 2
+    penetration = 2
+    attributes = (ConeAttack)
+    area_anim = Fireball
+    scale = MechaScale
+    shop_tags= ("THEME_DRAGON")
+    faction_list = (None)
+    SUB
+        Chem
+            quantity = 100
+            attributes = (BurnAttack)
+    END
 
 
 BallisticWeapon
@@ -2166,4 +2250,258 @@ BallisticWeapon
             ammo_type=FerrousBolt_20mm
             quantity=100
             attributes = (Armorpiercing,)
+    END
+
+#   ***************
+#   ***  NINJA  ***
+#   ***************
+
+MeleeWeapon
+    name="Mecha Sai"
+    desc = "A pointed metal dagger with two sideguards that may be used for trapping and blocking. Designed to be wielded in pairs."
+    reach=1
+    damage=2
+    accuracy=3
+    penetration=3
+    attributes = (Defender,MultiWielded)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Mecha Kama"
+    desc = "A curved blade used for reaping enemy mecha."
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Accurate, MultiWielded,)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Shikoro Blade"
+    desc = "A saw-toothed short sword."
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Defender, Brutal,)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Mecha Shuriken"
+    reach=3
+    damage=3
+    accuracy=3
+    penetration=3
+    attributes = ()
+    shot_anim = ShurikenShot
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Mecha Nunchakus"
+    reach=1
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Flail, MultiWielded)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Raijin Shuriken"
+    reach=3
+    damage=3
+    accuracy=3
+    penetration=3
+    attributes = (HaywireAttack,)
+    shot_anim = ShurikenShot
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Mecha Ninjato"
+    desc = "A mecha sized short sword."
+    reach=1
+    damage=4
+    accuracy=3
+    penetration=4
+    attributes = (Agonize, Defender)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name = "Mecha Kusarigama"
+    desc = "A sickle attached to a weighted ball by a long chain."
+    reach=2
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Flail, BonusStrike1)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name="Raijin Ninjato"
+    desc = "A mecha sized short sword. This version incorporates a pulse generator to disorient opponents."
+    reach=1
+    damage=4
+    accuracy=3
+    penetration=4
+    attributes = (Agonize, Defender, HaywireAttack)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+MeleeWeapon
+    name = "Raijin Kusarigama"
+    desc = "A sickle attached to a weighted ball by a long chain. This version incorporates a pulse generator to disorient opponents."
+    reach=2
+    damage=3
+    accuracy=4
+    penetration=3
+    attributes = (Flail, BonusStrike1, HaywireAttack)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+EnergyWeapon
+    name="Beam Ninjato"
+    desc = "A mecha sized energy short sword."
+    reach=1
+    damage=4
+    accuracy=3
+    penetration=4
+    attributes = (Agonize, )
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+
+BallisticWeapon
+    name = "Mecha Dartgun"
+    desc = "This light railgun fires electrically charged needles, potentially disabling the target's control system."
+    reach = 7
+    damage = 2
+    accuracy = 3
+    penetration = 1
+    ammo_type = FerrousNeedle_15mm
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+    attributes = (Accurate)
+    magazine = 20
+    shot_anim = SmallBullet
+    SUB
+        Ammo
+            ammo_type=FerrousNeedle_15mm
+            quantity=20
+            attributes = (HaywireAttack)
+    END
+
+STC Ink Rifle
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+
+BallisticWeapon
+    name = "Strobe Bomber"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 3
+    ammo_type = SelfPropelled_30cm
+    area_anim = LasertrailAnim
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+    magazine = 20
+    attack_stat = Perception
+    SUB
+        Ammo
+            ammo_type=SelfPropelled_30cm
+            quantity=20
+            attributes = (Blast1, DazzleAttack)
+    END
+
+BeamWeapon
+    name = "Flash Cannon"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 1
+    attack_stat = Speed
+    attributes = (DazzleAttack,)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+    
+
+BallisticWeapon
+    name = "Shuriken Rifle"
+    reach = 6
+    damage = 3
+    accuracy = 3
+    penetration = 5
+    ammo_type = FerrousSawblade
+    shot_anim = ShurikenShot
+    magazine = 30
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=FerrousSawblade
+            quantity=30
+    END
+
+BallisticWeapon
+    name = "Shinobi Crossbow"
+    desc = "This railgun fires electrically charged needles, potentially disabling the target's control system."
+    reach = 7
+    damage = 2
+    accuracy = 3
+    penetration = 4
+    ammo_type = FerrousBolt_20mm
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+    attributes = (BurstFire3)
+    magazine = 60
+    shot_anim = ArrowShot
+    SUB
+        Ammo
+            ammo_type=FerrousBolt_20mm
+            quantity=60
+            attributes = (HaywireAttack)
+    END
+
+
+BallisticWeapon
+    name = "Shuriken Storm"
+    reach = 6
+    damage = 4
+    accuracy = 3
+    penetration = 4
+    ammo_type = FerrousSawblade
+    shot_anim = ShurikenShot
+    magazine = 60
+    attributes = (BurstFire3, Automatic)
+    scale = MechaScale
+    shop_tags= ("THEME_NINJA")
+    faction_list = (None)
+    SUB
+        Ammo
+            ammo_type=FerrousSawblade
+            quantity=60
     END

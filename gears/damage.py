@@ -11,7 +11,7 @@ class Damage(object):
     BOOM_SPRITES = list(range(7))
 
     def __init__(self, camp, hit_list, penetration, target, animlist, hot_knife=False, is_brutal=False,
-                 can_be_divided=True, affected_by_armor=True, critical_hit=False):
+                 can_be_divided=True, affected_by_armor=True, critical_hit=False, is_hyper=False):
         self.camp = camp
         self.hit_list = hit_list
         self.penetration = penetration
@@ -23,6 +23,7 @@ class Damage(object):
         self.can_be_divided = can_be_divided
         self.affected_by_armor = affected_by_armor
         self.critical_hit = critical_hit
+        self.is_hyper = is_hyper
         self.destroyed_parts = list()
         self.target_root = target.get_root()
         self.operational_at_start = self.target_root.is_operational()

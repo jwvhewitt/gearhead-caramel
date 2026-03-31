@@ -68,6 +68,17 @@ class EnchantmentList(list):
                     n_max = min( v , n_max )
         return p_max + n_max
 
+    def get_funlist(self, owner, funname):
+        # Call a method if it exists, and return a list of all returns.
+        #    get_attack_modifier
+        mylist = list()
+        for thing in self:
+            if hasattr( thing, funname ):
+                v = getattr(thing,funname)( owner )
+                if v:
+                    mylist.append(v)
+        return mylist        
+
     def get_tags(self,tag_id):
         return [getattr(thing,tag_id) for thing in self if hasattr(thing,tag_id)]
 

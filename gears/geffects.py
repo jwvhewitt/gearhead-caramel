@@ -375,6 +375,12 @@ class Fireball(animobs.AnimOb):
     DEFAULT_SOUND_FX = "foom_0.ogg"
 
 
+class Splat(animobs.AnimOb):
+    DEFAULT_SPRITE_NAME = "anim_splat.png"
+    DEFAULT_END_FRAME = 15
+    DEFAULT_SOUND_FX = "ezduzziteh_squish_01.ogg"
+
+
 class DisintegrationAnim(animobs.AnimOb):
     DEFAULT_SPRITE_NAME = "anim_disintegration.png"
     DEFAULT_END_FRAME = 15
@@ -656,6 +662,11 @@ class LargePhaseBlast(animobs.ShotAnim):
 class PlasmaBall(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_shot_plasma.png"
     DEFAULT_SOUND_FX = "Spell1.ogg"
+
+
+class DarkShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_dark.png"
+    DEFAULT_SOUND_FX = "weird_05.ogg"
 
 
 class PlasmaBeam(animobs.ShotAnim):
@@ -1095,6 +1106,7 @@ class AttackRoll(effects.NoEffect):
         for m in self.modifiers:
             att_bonus += m.calc_modifier(camp, originator, opos, pos)
 
+
         targets = camp.scene.get_operational_actors(pos)
         next_fx = []
         for target in targets:
@@ -1141,6 +1153,7 @@ class AttackRoll(effects.NoEffect):
             att_bonus += mval
             if mval != 0:
                 modifiers.append((mval, m.name))
+
         odds = 1.0
         for defense in list(self.defenses.values()):
             if defense and defense.can_attempt(originator, target):
@@ -1309,6 +1322,7 @@ class MultiAttackRoll(effects.NoEffect):
             att_bonus += mval
             if mval != 0:
                 modifiers.append((mval, m.name))
+
         odds = 1.0
         for defense in list(self.defenses.values()):
             if defense and defense.can_attempt(originator, target):
@@ -2700,6 +2714,15 @@ class Burning(NegativeEnchantment):
         burn.invoke(camp, None, [owner.pos, ], pbge.my_state.view.anim_list)
 
 
+class Dazed(NegativeEnchantment):
+    name = "Dazed"
+    DEFAULT_DURATION = 3
+    DEFAULT_DISPEL = (END_COMBAT, materials.RT_REPAIR, DISPEL_NEGATIVE_ELECTRONIC)
+
+    def get_attack_modifier(self, _owner):
+        return GenericBonus("Dazed", -20)
+
+
 class Disintegration(NegativeEnchantment):
     name = 'Disintegrating'
     DEFAULT_DURATION = 3
@@ -2726,6 +2749,15 @@ class HaywireStatus(NegativeEnchantment):
     @classmethod
     def can_affect(cls, target):
         return hasattr(target, "material") and target.material in (materials.Metal, materials.Ceramic, materials.Advanced)
+
+
+class Marked(NegativeEnchantment):
+    name = 'Marked'
+    DEFAULT_DISPEL = (END_COMBAT, materials.RT_REPAIR, DISPEL_NEGATIVE_ELECTRONIC)
+    DEFAULT_DURATION = 10
+
+    def get_mobility_bonus(self, _owner):
+        return -20
 
 
 class OverloadStatus(NegativeEnchantment):

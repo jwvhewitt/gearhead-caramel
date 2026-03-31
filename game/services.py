@@ -89,9 +89,8 @@ class Shop(object):
             if self.sell_champion_equipment and random.randint(1,3) == 1:
                 if isinstance(it, gears.base.Mecha):
                     champions.upgrade_to_champion(it)
-                elif it.scale == gears.scale.MechaScale and isinstance(it, (gears.base.Component, gears.base.Shield, gears.base.Launcher)):
-                    #_=champions.upgrade_item_to_champion(it)
-                    pass
+                elif it.scale == gears.scale.MechaScale and isinstance(it, gears.base.Weapon):
+                    it = champions.upgrade_a_weapon(it)
 
             return it
 

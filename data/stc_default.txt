@@ -287,3 +287,18 @@ BeamWeapon
     shot_anim = LargePhaseBlast
     attributes = (Phase)
     attack_stat = Perception
+
+ChemThrower
+    name = "Ink Rifle"
+    reach = 6
+    damage = 2
+    accuracy = 3
+    penetration = 3
+    attributes = (Scatter)
+    shot_anim = DarkShot
+    scale = MechaScale
+    SUB
+        Chem
+            quantity = 40
+            attributes = (InkAttack)
+    END

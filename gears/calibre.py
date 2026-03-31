@@ -90,6 +90,12 @@ class Caseless_30mm(BaseCalibre):
     scale = scale.MechaScale
 
 
+class Caseless_35mm(BaseCalibre):
+    name = "35mm Caseless"
+    bang = 4
+    scale = scale.MechaScale
+
+
 class Caseless_45mm(BaseCalibre):
     name = "45mm Caseless"
     bang = 4
@@ -227,6 +233,12 @@ class SelfPropelled_130mm(BaseCalibre):
 class SelfPropelled_160mm(BaseCalibre):
     name = "160mm Self Propelled"
     bang = 15
+    scale = scale.MechaScale
+    risk = RISK_VOLATILE
+
+class SelfPropelled_30cm(BaseCalibre):
+    name = "30cm Self Propelled"
+    bang = 10
     scale = scale.MechaScale
     risk = RISK_VOLATILE
 

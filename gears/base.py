@@ -650,7 +650,7 @@ class BaseGear(scenes.PlaceableThing):
         super(BaseGear, self).__init__(**keywords)
 
     @property
-    def pos(self):
+    def pos(self) -> None|tuple:
         return self.__base_gear_pos
 
     @pos.setter
@@ -675,7 +675,7 @@ class BaseGear(scenes.PlaceableThing):
         return 1
 
     @property
-    def self_mass(self):
+    def self_mass(self) -> int:
         """Returns the properly scaled mass of this gear, ignoring children."""
         return self.scale.scale_mass(self.base_mass, self.material)
 
@@ -969,7 +969,12 @@ class BaseGear(scenes.PlaceableThing):
     def get_common_modifiers(self, module):
         ''' Modifiers that we expect affect all things.
         '''
-        return [geffects.SensorModifier()
+        mylist = list()
+        root = self.get_root()
+        if root and hasattr(root, "ench_list"):
+            mylist += root.ench_list.get_funlist(root, 'get_attack_modifier')
+
+        return mylist + [geffects.SensorModifier()
             , geffects.OverwhelmModifier()
             , geffects.ModuleBonus(module)
             , geffects.SneakAttackBonus()
@@ -1992,7 +1997,7 @@ class MeleeWeapon(Weapon):
     DAMAGE_EXPONENT = 3
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
                         attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.Brutal,
-                        attackattributes.BurnAttack, attackattributes.ChargeAttack,
+                        attackattributes.BurnAttack, attackattributes.ChargeAttack, attackattributes.DazzleAttack,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.HaywireAttack, attackattributes.DisintegrateAttack,
                         attackattributes.OverloadAttack, attackattributes.PoisonAttack, attackattributes.Smash,
@@ -2107,7 +2112,7 @@ class EnergyWeapon(Weapon):
     DAMAGE_EXPONENT = 3.5
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Agonize,
                         attackattributes.BonusStrike1, attackattributes.BonusStrike2, attackattributes.BurnAttack,
-                        attackattributes.ChargeAttack, attackattributes.Designator,
+                        attackattributes.ChargeAttack, attackattributes.DazzleAttack, attackattributes.Designator,
                         attackattributes.Defender, attackattributes.FastAttack, attackattributes.Flail,
                         attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.DrainsPower,
                         attackattributes.MultiWielded)
@@ -2243,6 +2248,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
                         attackattributes.Blast1, attackattributes.Blast2, attackattributes.Blast3, attackattributes.Brutal,
                         attackattributes.BurnAttack, attackattributes.HaywireAttack, attackattributes.PoisonAttack,
                         attackattributes.OverloadAttack, attackattributes.Scatter, attackattributes.RustAttack,
+                        attackattributes.InkAttack, attackattributes.DazzleAttack,
                         )
 
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
@@ -2558,7 +2564,7 @@ class BeamWeapon(Weapon):
     LEGAL_ATTRIBUTES = (attackattributes.Accurate, attackattributes.Automatic,
                         attackattributes.Brutal, attackattributes.BurstFire2,
                         attackattributes.BurstFire3, attackattributes.BurstFire4, attackattributes.BurstFire5,
-                        attackattributes.Designator,
+                        attackattributes.DazzleAttack, attackattributes.Designator,
                         attackattributes.OverloadAttack, attackattributes.Plasma,
                         attackattributes.LinkedFire, attackattributes.LineAttack, attackattributes.Phase,
                         attackattributes.Scatter, attackattributes.VariableFire3, attackattributes.VariableFire4,
@@ -2648,7 +2654,7 @@ class Missile(BaseGear, StandardDamageHandler, Restoreable):
     LEGAL_ATTRIBUTES = (
         attackattributes.Armorpiercing,
         attackattributes.Blast1, attackattributes.Blast2, attackattributes.Blast3, attackattributes.Brutal,
-        attackattributes.BurnAttack, attackattributes.DisintegrateAttack,
+        attackattributes.BurnAttack, attackattributes.DazzleAttack, attackattributes.DisintegrateAttack,
         attackattributes.Designator,
         attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.PoisonAttack,
         attackattributes.RustAttack, attackattributes.Scatter,
@@ -2957,7 +2963,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
     LEGAL_ATTRIBUTES = (
         attackattributes.Agonize, attackattributes.Brutal, attackattributes.BurnAttack,
         attackattributes.DisintegrateAttack, attackattributes.PoisonAttack, attackattributes.OverloadBubble,
-        attackattributes.RustAttack,
+        attackattributes.RustAttack, attackattributes.InkAttack,
     )
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
     SHOP_RANK_LOG_COST_MULTIPLIER = 0.1
@@ -4770,11 +4776,11 @@ class Monster(Being, MakesPower):
 class Character(Being):
     SAVE_PARAMETERS = (
         'personality', 'gender', 'job', 'birth_year', 'renown', 'faction', 'badges', 'bio', 'relationship',
-        "mecha_colors", "mecha_pref", 'mnpcid')
+        "mecha_colors", "mecha_pref", 'mnpcid', 'mecha_theme')
     DEEP_COPY_PARAMS = {"add_body": False}
 
     def __init__(self, personality=(), gender=None, job=None, birth_year=138, faction=None, renown=0, badges=(), bio="",
-                 relationship=None, add_body=True, mecha_colors=None, mecha_pref=None, mnpcid=None, **keywords):
+                 relationship=None, add_body=True, mecha_colors=None, mecha_pref=None, mnpcid=None, mecha_theme=None, **keywords):
         self.personality = set(personality)
         if not gender:
             gender = genderobj.Gender.random_gender()
@@ -4790,6 +4796,7 @@ class Character(Being):
         self.relationship = relationship
         self.mecha_colors = mecha_colors
         self.mecha_pref = mecha_pref
+        self.mecha_theme = mecha_theme
         # Major NPC ID: unique identifier so NPC relationships get carried between scenarios.
         self.mnpcid = mnpcid
         super().__init__(**keywords)

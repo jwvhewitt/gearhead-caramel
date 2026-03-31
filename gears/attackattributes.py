@@ -317,6 +317,29 @@ class ConeAttack(Singleton):
         return '{}-{} cone'.format(weapon.reach, weapon.reach * 2)
 
 
+class DazzleAttack(Singleton):
+    name = "Dazzle"
+    MASS_MODIFIER = 1.0
+    VOLUME_MODIFIER = 1.0
+    COST_MODIFIER = 1.3
+    POWER_MODIFIER = 1.5
+
+    ADJECTIVES = ("Dazzling", )
+    CAPABILITIES = ("overload an enemy's sensors",)
+
+    @classmethod
+    def modify_basic_attack(cls, _weapon, attack):
+        # Add Dazed enchantment.
+        attack.fx.children[0].children.append(
+            geffects.ResistanceRoll(
+                stats.Ego, stats.Ego, min_chance=25, max_chance=75, roll_mod=35,
+                on_success=(
+                    geffects.AddEnchantment(geffects.Dazed, anim=geffects.SparkleRedAnim),
+                ),
+            )
+        )
+
+
 class Defender(Singleton):
     name = "Defender"
     MASS_MODIFIER = 1.0
@@ -380,6 +403,23 @@ class DisintegrateAttack(Singleton):
             )
         )
 
+class DrainsPower(Singleton):
+    name = "Drains Power"
+    MASS_MODIFIER = 1.2
+    VOLUME_MODIFIER = 1.2
+    COST_MODIFIER = 1.5
+    POWER_MODIFIER = 0.8
+
+    ADJECTIVES = ("Vampire", )
+    CAPABILITIES = ("deplete an enemy's power",)
+
+    @classmethod
+    def modify_basic_attack(cls, weapon, attack):
+        # Add a drain power effect to the children.
+        # Construct an invocation that is invoked after damage is dealt,
+        # otherwise the -100Pw caption will overlap with the damage caption.
+        attack.fx.children[0].children.append(geffects.DoDrainPower())
+
 
 class FastAttack(Singleton):
     # Extra fire action can hit twice.
@@ -438,32 +478,42 @@ class HaywireAttack(Singleton):
             geffects.IfEnchantmentOK(
                 geffects.HaywireStatus,
                 on_success=(
-                    geffects.ResistanceRoll(stats.Knowledge, stats.Ego, roll_mod=25, min_chance=25,
-                                            on_success=(
-                                            geffects.AddEnchantment(geffects.HaywireStatus, dur_n=2, dur_d=4,
-                                                                    anim=geffects.InflictHaywireAnim),)
-                                            ),
+                    geffects.ResistanceRoll(
+                        stats.Knowledge, stats.Ego, roll_mod=25, min_chance=25,
+                        on_success=(
+                            geffects.AddEnchantment(
+                                geffects.HaywireStatus, dur_n=2, dur_d=4,
+                                anim=geffects.InflictHaywireAnim
+                            ),
+                        )
+                    ),
                 ),
             )
         )
 
 
-class DrainsPower(Singleton):
-    name = "Drains Power"
-    MASS_MODIFIER = 1.2
+class InkAttack(Singleton):
+    name = "Ink"
+    MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.2
     COST_MODIFIER = 1.5
-    POWER_MODIFIER = 0.8
+    POWER_MODIFIER = 2.0
 
-    ADJECTIVES = ("Vampire", )
-    CAPABILITIES = ("deplete an enemy's power",)
+    ADJECTIVES = ("Inky", )
+    CAPABILITIES = ("mark an enemy for targeting",)
 
     @classmethod
-    def modify_basic_attack(cls, weapon, attack):
-        # Add a drain power effect to the children.
-        # Construct an invocation that is invoked after damage is dealt,
-        # otherwise the -100Pw caption will overlap with the damage caption.
-        attack.fx.children[0].children.append(geffects.DoDrainPower())
+    def modify_basic_attack(cls, _weapon, attack):
+        # Add Dazed and Marked enchantments to the target.
+        attack.fx.children[0].children.append(
+            geffects.ResistanceRoll(
+                stats.Ego, stats.Ego, min_chance=25, max_chance=75, roll_mod=20,
+                on_success=(
+                    geffects.AddEnchantment(geffects.Dazed, dur_n=2, dur_d=4, anim=geffects.Splat),
+                    geffects.AddEnchantment(geffects.Marked),
+                ),
+            )
+        )
 
 
 class Intercept(Singleton):
@@ -490,7 +540,7 @@ class LineAttack(Singleton):
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Change the area to cone.
-        attack.area = pbge.scenes.targetarea.Line(reach=weapon.reach * 2, delay_from=-1)
+        attack.area = pbge.scenes.targetarea.Line(reach=weapon.reach + 2, delay_from=-1)
         attack.shot_anim = None
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
         attack.fx.anim = weapon.get_area_anim()

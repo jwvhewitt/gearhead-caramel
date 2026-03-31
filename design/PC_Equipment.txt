@@ -1395,6 +1395,30 @@ LegMusclesCyberware
     shop_tags = ("CYBERWARE",)
     faction_list = (None,)
 
+SkeletalCyberware
+    name = "Reinforced Skeleton"
+    desc = "A structurally-strengthened skeleton."
+    statline = { Body = 7, Speed = -1 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+SkeletalCyberware
+    name = "Composite Skeleton"
+    desc = "Advanced materials are incorporated into the patient's bones, providing enhanced durability and flexibility."
+    statline = { Body = 3 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
+SkeletalCyberware
+    name = "Lightened Skeleton"
+    desc = "Does away with the weight caused by organically dense bones."
+    statline = { Body = -1, Speed = 4, Reflexes = 2 }
+    scale = HumanScale
+    shop_tags = ("CYBERWARE",)
+    faction_list = (None,)
+
 
 
 

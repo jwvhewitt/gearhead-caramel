@@ -669,22 +669,7 @@ class DZD_BronzeHorseInn(Plot):
 
         # Add the elevator to the guest rooms- this can be used by subplots to also visit lancemate rooms and other stuff.
 
-        osmund = gears.base.Character(name="Osmund", statline={gears.stats.Reflexes: 17,
-                                                               gears.stats.Body: 16, gears.stats.Speed: 14,
-                                                               gears.stats.Perception: 13,
-                                                               gears.stats.Knowledge: 13, gears.stats.Craft: 7,
-                                                               gears.stats.Ego: 9,
-                                                               gears.stats.Charm: 15, gears.stats.MechaPiloting: 7,
-                                                               gears.stats.MechaGunnery: 7,
-                                                               gears.stats.MechaFighting: 7,
-                                                               gears.stats.Negotiation: 8}, birth_year=102,
-                                      portrait='card_m_osmund.png',
-                                      personality=[personality.Sociable, personality.Passionate, personality.Fellowship,
-                                                   personality.DeadZone],
-                                      colors=(gears.color.Straw, gears.color.TannedSkin, gears.color.PlasmaBlue,
-                                              gears.color.Gold, gears.color.AceScarlet),
-                                      gender=gears.genderobj.Gender.get_default_male(),
-                                      job=gears.jobs.ALL_JOBS["Innkeeper"], renown=65, combatant=True)
+        osmund = nart.camp.get_major_npc("Osmund Eumann")
 
         team2.contents.append(osmund)
         self.register_element("INNKEEPER", osmund)
@@ -1270,7 +1255,7 @@ class DZD_AlliedArmor(Plot):
     def _use_bookshelf(self, wid, _ev):
         camp = wid.data
         _=pbge.alerts.TextAlert(
-            "Moving the white book activates a hidden staircase!",
+            "Moving the yellow book activates a hidden staircase!",
             on_close=self._go_downstairs, data=camp
         )
 

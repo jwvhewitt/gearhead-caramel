@@ -240,3 +240,29 @@ Character
     mecha_pref="SAN-D1 Daum"
     portrait = card_m_captainsegard.png
     
+Character
+    name = "Osmund"
+    mnpcid = "Osmund Eumann"
+    statline = {Reflexes=17, Body=16, Speed=14, Perception=13, Knowledge=13, Craft=7, Ego=9, Charm=15, MechaPiloting=7, MechaGunnery=7, MechaFighting=7, Negotiation=8}
+    colors = (Straw, TannedSkin, PlasmaBlue,Gold, AceScarlet)
+    personality = [Sociable, Passionate, Fellowship, DeadZone]
+    gender = Male
+    job = Innkeeper
+    renown = 65
+    combatant = True
+    portrait = 'card_m_osmund.png'
+    birth_year = 102
+
+Character
+    name = "Ran Magnus"
+    mnpcid = "Ran Magnus"
+    statline = {Reflexes=13, Body=12, Speed=13, Perception=17, Knowledge=16, Craft=17, Ego=14, Charm=10, Repair=15, Science=16}
+    colors = (GriffinGreen, DarkSkin, Fuschia, PlasmaBlue, CardinalRed)
+    personality = [Sociable, Passionate, Fellowship, GreenZone]
+    gender = Female
+    job = MechaDesigner
+    renown = 75
+    combatant = False
+    portrait = 'card_f_ranmagnus.png'
+    birth_year = 106
+

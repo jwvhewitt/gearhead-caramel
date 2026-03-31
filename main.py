@@ -61,7 +61,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v1.007alpha"
+VERSION = "v1.007beta"
 STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
@@ -562,12 +562,9 @@ def play_the_game():
     #    print(test.item.get_text_desc())
     #    print()
 
-    gears.champions.DragonTheme.test_weapon_lists()
+    #gears.champions.NinjaTheme.test_weapon_lists()
 
     try:
-        tsrd = DZDTitleScreenRedraw()
-        #pbge.my_state.view = tsrd
-
         mymenu = MainMenu()
         pbge.my_state.widgets.append(mymenu)
         mymenu.activate()
