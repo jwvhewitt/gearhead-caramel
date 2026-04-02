@@ -443,6 +443,8 @@ class NonPlayerTurn(pbge.widgets.Widget):
                 self.pop()
             elif not self.pc in self.camp.scene.contents:
                 self.pop()
+            elif not self.pc.is_operational():
+                self.pop()
             else:
                 actions = self.brain.act(self.camp)
                 if actions:

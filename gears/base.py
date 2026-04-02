@@ -3609,7 +3609,10 @@ class Module(BaseGear, StandardDamageHandler):
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this gear."""
-        return 1 + self.form.MASS_X * self.size
+        hp = 1 + self.form.MASS_X * self.size
+        if self.parent and isinstance(self.parent, Being):
+            hp += self.parent.get_stat(stats.Vitality)//2
+        return hp
 
     def get_armor(self, destroyed_ok=False):
         """Returns the armor protecting this gear."""
@@ -4556,7 +4559,7 @@ class Being(BaseGear, StandardDamageHandler, Mover, VisibleGear, HasPower, Comba
     @property
     def base_health(self):
         """Returns the unscaled maximum health of this character."""
-        return max(self.get_stat(stats.Body) + self.get_stat(stats.Vitality), 3)
+        return max(self.get_stat(stats.Body) + self.get_stat(stats.Vitality) * 2, 3)
 
     def carrying_capacity(self):
         return self.get_stat(stats.Body) * 25 + self.get_stat(stats.Athletics) * 10

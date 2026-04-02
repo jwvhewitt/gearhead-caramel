@@ -366,17 +366,19 @@ class Designator(Singleton):
     def modify_basic_attack(cls, weapon, attack):
         # Add a Sensor Lock status to the children.
         attack.fx.children[0].children.append(
-            geffects.IfEnchantmentOK(
-                geffects.SensorLock,
-                on_success=(
-                    geffects.OpposedSkillRoll(
-                        stats.Ego, weapon.get_attack_skill(), stats.Ego, stats.Computers, roll_mod=25,
-                        min_chance=10,
-                        on_success=(
-                        geffects.AddEnchantment(geffects.SensorLock, dur_n=3, dur_d=3, anim=geffects.LockOnAnim),)
+            geffects.IfEnemy(on_success=(
+                geffects.IfEnchantmentOK(
+                    geffects.SensorLock,
+                    on_success=(
+                        geffects.OpposedSkillRoll(
+                            stats.Ego, weapon.get_attack_skill(), stats.Ego, stats.Computers, roll_mod=25,
+                            min_chance=10,
+                            on_success=(
+                            geffects.AddEnchantment(geffects.SensorLock, dur_n=3, dur_d=3, anim=geffects.LockOnAnim),)
+                        ),
                     ),
                 ),
-            )
+            ))
         )
 
 

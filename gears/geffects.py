@@ -1944,6 +1944,25 @@ class IfEnchantmentOK(effects.NoEffect):
             return self.on_failure
 
 
+class IfEnemy(effects.NoEffect):
+    """
+    Go to either on_success or on_failure depending on whether the target is an enemy.
+    on_failure will also be called if no originator and/or no decision can be made
+    """
+
+    def __init__(self, on_success=(), on_failure=(), anim=None):
+        self.on_success = list(on_success)
+        self.on_failure = list(on_failure)
+        self.anim = anim
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
+        target = camp.scene.get_main_actor(pos)
+        if originator and target and camp.scene.are_hostile(originator, target):
+            return self.on_success
+        else:
+            return self.on_failure
+
+
 class AddEnchantment(effects.NoEffect):
     """ Apply an enchantment to the actor in this tile.
     """

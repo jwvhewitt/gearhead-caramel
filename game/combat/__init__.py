@@ -158,8 +158,8 @@ class CombatControlWidget(pbge.widgets.Widget):
             self._current_combatant.renew_power()
 
     def do_combat_turn(self, chara):
-        if not chara.is_operational():
-            self.camp.fight.active.remove(chara)
+        if not (chara.is_operational() and chara in self.camp.scene.contents):
+            self.camp.fight.cstat[chara].end_turn()
             return
 
         self._current_combatant = chara
