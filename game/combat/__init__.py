@@ -91,6 +91,7 @@ class CombatStat(object):
         self.extra_actions_taken = 0
 
     def end_turn(self):
+        self.has_started_turn = True
         if self._ap_remaining > 0:
             self._ap_remaining = 0
         self._mp_spent = 0
