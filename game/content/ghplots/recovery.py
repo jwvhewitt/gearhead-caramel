@@ -152,7 +152,7 @@ class BeBackAfterShopping( Plot ):
         npc = self.elements["NPC"]
         garage = self.elements["GARAGE"]
         if npc.relationship:
-            npc.relationship.reaction_mod -= random.randint(1,10)
+            npc.relationship.reaction_mod -= random.randint(1,10) + random.randint(1,10)
         _=SimpleMonologueDisplay(
             "[MY_MECHA_WAS_DESTROYED] I'm going to go to {} and get a new one.".format(garage),
             npc, camp, data=(camp, npc, garage), on_close=self._go_to_garage
@@ -171,7 +171,7 @@ class UseTheBackupMek( Plot ):
     def start_recovery(self,camp: gears.GearHeadCampaign):
         npc = self.elements["NPC"]
         npc.relationship = camp.get_relationship(npc)
-        npc.relationship.reaction_mod -= random.randint(5, 20)
+        npc.relationship.reaction_mod -= random.randint(1, 10) + random.randint(1, 10) + random.randint(1, 10)
         npc.relationship.data["mecha_level_bonus"] = max(npc.relationship.data.get("mecha_level_bonus",0)-10, -25)
         npc.mecha_pref = None
         mek = plotutility.AutoJoiner.get_mecha_for_character(npc, True)
@@ -204,6 +204,7 @@ class INeedAnUpgrade( Plot ):
             "[TIME_TO_UPGRADE_MECHA] I'm going to {} to see what they have.".format(garage),
             npc, camp, data=(camp, npc, garage), on_close=self._go_to_garage
         )
+        npc.relationship.reaction_mod -= random.randint(1, 10)
         npc.relationship.development_plots += 1
         npc.relationship.data["mecha_level_bonus"] = npc.relationship.data.get("mecha_level_bonus",0)+10
         npc.mecha_pref = None

@@ -1,3 +1,8 @@
+v1.009beta April 5, 2026
+* Fixed final battle of Dead Zone Drifter
+* Fixed Kerberos complex computer
+* Increased lancemate reaction loss after losing a battle, losing their mecha
+
 v1.008beta April 2, 2026
 * Retreating combat via stairs will not freeze game
 * Increased Vitality bonus to HP

@@ -2010,6 +2010,9 @@ DEFAULT_GRAMMAR = {
         tags.Craftsperson: [
             "every team needs a repairperson",
         ],
+        tags.Faithworker: [
+            "the legend is one-third half true",
+        ]
     },
 
     "[GIVE_PEACE_WITH_ENEMY_FACTION_A_CHANCE]": {

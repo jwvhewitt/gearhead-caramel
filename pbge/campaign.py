@@ -176,6 +176,9 @@ class Campaign(object):
     def check_trigger(self, trigger, thing=None) -> None:
         my_state.trigger_queue.append((trigger, thing))
 
+    def triggers_are_pending(self):
+        return bool(my_state.trigger_queue)
+
     def expand_puzzle_menu(self, thing, thingmenu: scenes.waypoints.PuzzleMenu):
         # Something is happened that plots may need to react to.
         for p in self.active_plots():

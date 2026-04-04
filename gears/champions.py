@@ -14,16 +14,18 @@ class UpgradeTheme(pbge.Singleton):
     NOUNS = ("Champion", "Mecha", "Contender", "Hero", "Machine", "Battler", "Striker", )
     WEAPON_DESIGNATIONS = ("Mk.2", "Mk.3", "Enhanced", "Mk.4", "Mk.5", "Strike")
 
+    NEED_ONE_OF_THESE_TAGS = {}
+    FAVORED_BY_THESE_TAGS = {}
+
     FAVORED_UPGRADES = (base.Engine, base.Armor, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
         attackattributes.Accurate, attackattributes.Agonize, attackattributes.Automatic, attackattributes.Blast1,
         attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
         attackattributes.BonusStrike2, attackattributes.Brutal,
         attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
-        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.Defender, attackattributes.Designator,
-        attackattributes.DisintegrateAttack, attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.Defender,
+        attackattributes.DrainsPower, attackattributes.FastAttack, 
         attackattributes.HaywireAttack, attackattributes.Intercept, attackattributes.OverloadAttack, attackattributes.Plasma,
-        attackattributes.RustAttack,
         attackattributes.Smash, attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
         attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
     )

@@ -163,7 +163,7 @@ class VictoryParty(Plot):
         mymenu= pbge.widgetmenu.AlertMenuWidget("How do you want to begin your speech?")
         _=mymenu.add_item("Start on a joke.", self._deliver_first_line, data=(camp, "[DZDC_VICTORY_PARTY:TRY_FUNNY]"))
         _=mymenu.add_item("Introduce yourself.", self._deliver_first_line, data=(camp, "[DZDC_VICTORY_PARTY:TRY_INTRODUCTION]"))
-
+        mymenu.push_and_deploy()
 
     def _deliver_first_line(self, wid, _ev):
         camp, answer = wid.data
@@ -174,6 +174,7 @@ class VictoryParty(Plot):
         mymenu= pbge.widgetmenu.AlertMenuWidget("What will you say next?")
         _=mymenu.add_item("Tell then about securing the highway.", self._deliver_second_line, data=(camp, "[DZDC_VICTORY_PARTY:TELL_HIGHWAY]"))
         _=mymenu.add_item("Tell them about the adventures you've had.", self._deliver_second_line, data=(camp, "[DZDC_VICTORY_PARTY:TELL_ADVENTURES]"))
+        mymenu.push_and_deploy()
 
     def _deliver_second_line(self, wid, _ev):
         camp, answer = wid.data
@@ -184,6 +185,7 @@ class VictoryParty(Plot):
         mymenu= pbge.widgetmenu.AlertMenuWidget("How will you conclude?")
         _=mymenu.add_item("Make a toast to {}.".format(self.elements["METROSCENE"]), self._deliver_third_line, data=(camp, "[DZDC_VICTORY_PARTY:TOAST_TOWN]"))
         _=mymenu.add_item("Thank {} for {} help.".format(self.elements["DZ_CONTACT"],self.elements["DZ_CONTACT"].gender.possessive_determiner), self._deliver_third_line, data=(camp, "[DZDC_VICTORY_PARTY:TOAST_SHERIFF]"))
+        mymenu.push_and_deploy()
 
     def _deliver_third_line(self, wid, _ev):
         camp, answer = wid.data

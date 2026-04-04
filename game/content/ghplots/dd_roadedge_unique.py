@@ -539,7 +539,8 @@ class KerberosBossFight(Plot):
 
         return True
 
-    def HOLO_BUMP(self, camp: gears.GearHeadCampaign):
+    def examine_holo(self, wid, _ev):
+        camp: gears.GearHeadCampaign = wid.data
         if not self.holo_unlocked:
             mypc = camp.do_skill_test(gears.stats.Knowledge, gears.stats.Biotechnology, self.rank, no_random=True)
             if mypc:
@@ -567,11 +568,20 @@ class KerberosBossFight(Plot):
                             _=SimpleMonologueDisplay("I can't believe it- this is a PreZero map of the area around {METROSCENE}! I've heard about holographic map projectors like this but this is my first time seeing one in the reals.".format(**self.elements), mypc, camp)
                             _=SimpleMonologueDisplay("If I'm reading this right, this red line should be where Kerberos is going, and you can see how it intersects with where the highway passes through now. I wonder if we can use this to send Kerberos somewhere else?", mypc, camp, False)
                         self.unlock_holo()
+        if not self.holo_unlocked:
+            if not (camp.party_has_skill(gears.stats.Biotechnology) or camp.party_has_skill(gears.stats.Wildcraft) or camp.party_has_skill(gears.stats.Scouting)):
+                _=pbge.alerts.TextAlert("There is something oddly familiar about this device, but you are not quite skilled enough to figure out what it is.")
+            else:
+                _=pbge.alerts.TextAlert("You have no idea what this device is.")
+        else:
+            _=pbge.alerts.TextAlert("You think you know how to use this device.")
 
     def HOLO_menu(self, camp: gears.GearHeadCampaign, thingmenu):
         if self.holo_unlocked:
             thingmenu.add_item("Do nothing.", None)
             thingmenu.add_item("Redirect Kerberos.", self.redirect_monster, data=camp)
+        else:
+            thingmenu.add_item("Examine Device", self.examine_holo, data=camp)
 
     def redirect_monster(self, wid, _ev):
         camp = wid.data
@@ -607,9 +617,9 @@ class KerberosBossFight(Plot):
         serv2: gears.base.Monster = self.elements["_serv2"]
 
         if mycompy.is_destroyed() and serv1.is_destroyed() and serv2.is_destroyed():
-            pbge.alerts.TextAlert("As the biocomputer dies, the chamber is shaken by a powerful rumble. The tremors last for a short time before fading into silence. Whatever just happened, you assume that Kerberos will no longer trouble travelers on the highway.")
+            _=pbge.alerts.TextAlert("As the biocomputer dies, the chamber is shaken by a powerful rumble. The tremors last for a short time before fading into silence. Whatever just happened, you assume that Kerberos will no longer trouble travelers on the highway.")
             camp.check_trigger("WIN", self)
-            BiotechDiscovery(
+            _=BiotechDiscovery(
                 camp, "There is a huge subterranean biotech complex near {}.".format(self.elements["METROSCENE"]),
                 "[THATS_INTERESTING] I'll get one of our hazmat recovery teams to check it out. Here is the {cash} you've earned.",
                 self.rank

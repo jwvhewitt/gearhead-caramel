@@ -663,10 +663,9 @@ class DDBAM_FightCetusNextTime(Plot):
             elif self.regen_count > 2:
                 if camp.campdata["DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED:
                     _=pbge.alerts.TextAlert(
-                        "As Cetus regenerates again, your allies from across the dead zone arrive at the battlefield.")
+                        "As Cetus regenerates again, your allies from across the dead zone arrive at the battlefield.", on_close=self.deploy_allies, data=camp)
+                    _=pbge.alerts.AnimAlert(*[gears.geffects.SmokePoof(pos=h.pos) for h in self.allied_mecha])
                     pc = camp.pc.get_root()
-                    camp.scene.deploy_team(self.allied_mecha, self.elements["_ateam"])
-                    pbge.my_state.view.play_anims(*[gears.geffects.SmokePoof(pos=h.pos) for h in self.allied_mecha])
                     _=SimpleMonologueDisplay(
                         "You can't win, Cetus. There are many of us, and only one of you. This is our home. Go back to the deep wasteland and find your own home.",
                         pc, camp)
@@ -674,17 +673,20 @@ class DDBAM_FightCetusNextTime(Plot):
                         "The biomonster appears to consider your words. Its titanic eye scans all of the mecha in attendance.")
                     _=pbge.alerts.TextAlert("Cetus rockets into the sky and flies to the northwest, away from {METROSCENE}.".format(
                         **self.elements))
-                    # TODO: AnimAlert here
                     _=pbge.alerts.AnimAlert(
                         gears.geffects.SmokePoof(pos=self.cetus.pos),
-                        pbge.scenes.animobs.BlastOffAnim(model=self.cetus, children=pbge.scenes.animobs.RemoveModel(self.cetus))
+                        pbge.scenes.animobs.BlastOffAnim(model=self.cetus, children=(pbge.scenes.animobs.RemoveModel(self.cetus),))
                     )
-                    _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team)
+                    _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team, data=camp, on_close=self.end_combat_from_widget)
                 else:
                     _=pbge.alerts.TextAlert(
                         "This last regeneration seems to have left Cetus dazed. You contact The Voice of Iijima with your current coordinates.")
                     _=pbge.alerts.TextAlert("Your lance makes a hasty withdrawl as hypervelocity missiles streak overhead.")
                     _=plotutility.TeamRetreatAlert(camp, camp.scene.player_team, on_close=self._go_nuclear, data=camp)
+
+    def deploy_allies(self, wid, _ev):
+        camp = wid.data
+        camp.scene.deploy_team(self.allied_mecha, self.elements["_ateam"])
 
     def _go_nuclear(self, wid, _ev):
         camp = wid.data
@@ -694,7 +696,7 @@ class DDBAM_FightCetusNextTime(Plot):
                                         is_brutal=True),
             area=pbge.scenes.targetarea.SelfCentered(radius=9, delay_from=-1))
         _=pbge.alerts.InvocationAlert(my_invo, camp, self.cetus, [self.cetus.pos, ])
-        camp.scene.contents.remove(self.cetus)
+        _=pbge.alerts.AnimAlert(pbge.scenes.animobs.RemoveModel(self.cetus), on_close=self.end_combat_from_widget, data=camp)
 
     def t_CHEATINGFUCKINGBASTARD(self, camp):
         self.cetus.hp_damage += 100000
@@ -703,6 +705,9 @@ class DDBAM_FightCetusNextTime(Plot):
         # Return True if the PC has obtained one of the advantages that will enable Cetus to be defeated.
         return camp.campdata.get("DZDCVAR_YES_TO_TDF") or camp.campdata[
             "DZDCVAR_NUM_ALLIANCES"] >= self.ALLIANCES_NEEDED
+
+    def end_combat_from_widget(self, wid, _ev):
+        self.t_ENDCOMBAT(wid.data)
 
     def t_ENDCOMBAT(self, camp):
         myteam = self.elements["_eteam"]
