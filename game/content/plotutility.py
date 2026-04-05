@@ -446,7 +446,9 @@ class CharacterMover(object):
             if mek:
                 #TODO: Make sure mecha suits the environment, choosing substitute if necessary
                 if upgrade_mek:
-                    gears.champions.upgrade_to_champion(mek)
+                    if not (character.mecha_theme and isinstance(character.mecha_theme, gears.champions.UpgradeTheme)):
+                        character.mecha_theme = gears.champions.choose_theme(character)
+                    gears.champions.upgrade_to_champion(mek, character.mecha_theme)
                 mek.load_pilot(character)
                 character = mek
 

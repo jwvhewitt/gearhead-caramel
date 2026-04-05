@@ -275,20 +275,18 @@ class ChargeAttack(Singleton):
     name = "Charge Attack"
     MASS_MODIFIER = 1.0
     VOLUME_MODIFIER = 1.5
-    COST_MODIFIER = 2.2
+    COST_MODIFIER = 3.0
     POWER_MODIFIER = 1.0
-
-    # Treat weapons with this modifier as having at least reach 3.
-    COST_EFFECTIVE_REACH_MIN = 3
 
     @classmethod
     def get_aa_attacks(cls, weapon, attacker):
-        aa = weapon.get_basic_attack(attacker, name='Charge', attack_icon=15)
+        aa: geffects.AttackInvocation = weapon.get_basic_attack(attacker, name='Charge', attack_icon=15)
+        aa.help_text = "Charge at least 3 tiles for hit and damage bonuses."
         replace_attack_roll(aa)
         aa.fx.modifiers.append(geffects.GenericBonus('Charge', 10))
-        aa.fx.children[0].damage_d = round(aa.fx.children[0].damage_d * 5 / 3)
+        aa.fx.children[0].damage_d = round(aa.fx.children[0].damage_d * 2)
         aa.area = geffects.DashTarget(weapon.get_root())
-        aa.data.thrill_power = aa.data.thrill_power + 15
+        aa.data.thrill_power = aa.data.thrill_power + 25
         aa.shot_anim = geffects.DashFactory(weapon.get_root())
         return [aa]
 
@@ -532,10 +530,10 @@ class Intercept(Singleton):
 
 class LineAttack(Singleton):
     name = "Line Area"
-    MASS_MODIFIER = 1.5
+    MASS_MODIFIER = 1.2
     VOLUME_MODIFIER = 1.0
     COST_MODIFIER = 1.5
-    POWER_MODIFIER = 2.0
+    POWER_MODIFIER = 1.5
 
     FAMILY = "AREA_EFFECT"
 

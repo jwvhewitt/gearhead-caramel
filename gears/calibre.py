@@ -76,6 +76,10 @@ class Shells_120mm(BaseCalibre):
     bang = 8
     scale = scale.MechaScale
 
+class Shells_140mm(BaseCalibre):
+    name = "140mm Shell"
+    bang = 9
+    scale = scale.MechaScale
 
 class Shells_150mm(BaseCalibre):
     name = "150mm Shell"
@@ -83,6 +87,11 @@ class Shells_150mm(BaseCalibre):
     bang = 9
     scale = scale.MechaScale
 
+
+class Cannister_20cm(BaseCalibre):
+    name = "20cm Cannister"
+    bang = 12
+    scale = scale.MechaScale
 
 class Caseless_30mm(BaseCalibre):
     name = "30mm Caseless"
@@ -157,6 +166,12 @@ class Ferrous_30mm(BaseCalibre):
     risk = RISK_INERT
 
 class Ferrous_35mm(BaseCalibre):
+    name = "35mm Ferrous"
+    bang = 6
+    scale = scale.MechaScale
+    risk = RISK_INERT
+
+class Ferrous_40mm(BaseCalibre):
     name = "35mm Ferrous"
     bang = 6
     scale = scale.MechaScale
@@ -301,6 +316,12 @@ class Crystal_50mm(BaseCalibre):
     bang = 16
     scale = scale.MechaScale
     risk = RISK_VOLATILE
+
+class GiantPuck(BaseCalibre):
+    name = "Giant Puck"
+    bang = 10
+    scale = scale.MechaScale
+    risk = RISK_INERT
 
 
 #   ******************************

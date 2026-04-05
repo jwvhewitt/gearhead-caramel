@@ -1,3 +1,7 @@
+* NPCs now select a theme based on their personality + background
+* Added Grizzly, Devil, Lightning themes
+* Character.get_tags can now list high stats
+
 v1.009beta April 5, 2026
 * Fixed final battle of Dead Zone Drifter
 * Fixed Kerberos complex computer

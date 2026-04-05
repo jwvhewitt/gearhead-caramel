@@ -5,7 +5,7 @@ import pbge
 import gears
 from . import attackattributes
 from . import base
-from . import materials, tags
+from . import materials, tags, personality, stats, factions
 
 
 class UpgradeTheme(pbge.Singleton):
@@ -14,8 +14,7 @@ class UpgradeTheme(pbge.Singleton):
     NOUNS = ("Champion", "Mecha", "Contender", "Hero", "Machine", "Battler", "Striker", )
     WEAPON_DESIGNATIONS = ("Mk.2", "Mk.3", "Enhanced", "Mk.4", "Mk.5", "Strike")
 
-    NEED_ONE_OF_THESE_TAGS = {}
-    FAVORED_BY_THESE_TAGS = {}
+    FAVORED_TAGS = {}
 
     FAVORED_UPGRADES = (base.Engine, base.Armor, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -299,8 +298,10 @@ class UpgradeTheme(pbge.Singleton):
 
 class PyromaniacTheme(UpgradeTheme):
     name = "Pyromaniac"
-    NOUNS = ("Pyromaniac", "Firestarter", "Volcano", "Salamander","Burninator")
     ADJECTIVES = ("Flash", "Fire", "Blazing", "Hot", "Burning", "Sizzling")
+    NOUNS = ("Pyromaniac", "Firestarter", "Volcano", "Salamander", "Burninator")
+
+    FAVORED_TAGS = {personality.Passionate, factions.ProDuelistAssociation, factions.ClanIronwind}
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -316,8 +317,10 @@ class PyromaniacTheme(UpgradeTheme):
 
 class SoldierTheme(UpgradeTheme):
     name = "Soldier"
-    NOUNS = ("Assault", "War", "Battle", "Blitz", "Strike", "Veteran")
-    ADJECTIVES = ("Soldier", "Trooper", "Jaeger", "Fighter", "Marine", "Ace", "Dragoon")
+    ADJECTIVES = ("Assault", "War", "Battle", "Blitz", "Strike", "Veteran")
+    NOUNS = ("Soldier", "Trooper", "Jaeger", "Fighter", "Marine", "Ace", "Dragoon")
+
+    FAVORED_TAGS = {tags.Military, personality.Duty, stats.Reflexes, factions.TerranDefenseForce}
 
     FAVORED_UPGRADES = (base.Engine, base.Armor,)
     ATTACK_ATTRIBUTES = (
@@ -334,8 +337,10 @@ class SoldierTheme(UpgradeTheme):
 
 class SophisticatedTheme(UpgradeTheme):
     name = "Sophisticated"
-    NOUNS = ("Advanced", "Clever", "Rapier", "Sharp", "Royal", "Flawless")
-    ADJECTIVES = ("Duelist", "Blade", "Baron", "Pride", "Skill", "Paragon", "Diamond")
+    ADJECTIVES = ("Advanced", "Clever", "Rapier", "Sharp", "Royal", "Flawless")
+    NOUNS = ("Duelist", "Blade", "Baron", "Pride", "Skill", "Paragon", "Diamond")
+
+    FAVORED_TAGS = {stats.Perception, tags.CorporateWorker, tags.Politician, personality.Glory, }
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -352,8 +357,10 @@ class SophisticatedTheme(UpgradeTheme):
 
 class IndustrialTheme(UpgradeTheme):
     name = "Industrial"
-    NOUNS = ("Iron", "Steel", "Heavy Duty", "Rusty", "Industrial")
-    ADJECTIVES = ("Foreman", "Mechanism", "Engine", "Scrap", "Tool", "Motor", "Labor")
+    ADJECTIVES = ("Iron", "Steel", "Heavy Duty", "Rusty", "Industrial")
+    NOUNS = ("Foreman", "Mechanism", "Engine", "Scrap", "Tool", "Motor", "Labor")
+
+    FAVORED_TAGS = {tags.Laborer, tags.Craftsperson, stats.Craft, }
 
     FAVORED_UPGRADES = (base.Engine, base.Armor,)
     ATTACK_ATTRIBUTES = (
@@ -373,8 +380,10 @@ class IndustrialTheme(UpgradeTheme):
 
 class PirateTheme(UpgradeTheme):
     name = "Pirate"
-    NOUNS = ("Jolly", "Dread", "Scurvy", "Bloody", "Black", "Cunning", "Ruthless", "Daring")
-    ADJECTIVES = ("Scourge", "Roger", "Plunder", "Cutlass", "Buccaneer", "Raider", "Freebooter")
+    ADJECTIVES = ("Jolly", "Dread", "Scurvy", "Bloody", "Black", "Cunning", "Ruthless", "Daring")
+    NOUNS = ("Scourge", "Roger", "Plunder", "Cutlass", "Buccaneer", "Raider", "Freebooter")
+
+    FAVORED_TAGS = {tags.Criminal, personality.Cheerful, factions.BladesOfCrihna}
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -393,8 +402,10 @@ class PirateTheme(UpgradeTheme):
 
 class MadScienceTheme(UpgradeTheme):
     name = "Mad Science"
-    NOUNS = ("Atomic", "Quantic", "Neutronic", "Molecular", "Analytical", "Photonic", "Binaric")
-    ADJECTIVES = ("Hypothesis", "Apparatus", "Knowledge", "Proof", "Theory", "Aether")
+    ADJECTIVES = ("Atomic", "Quantic", "Neutronic", "Molecular", "Analytical", "Photonic", "Binaric")
+    NOUNS = ("Hypothesis", "Apparatus", "Knowledge", "Proof", "Theory", "Aether")
+
+    FAVORED_TAGS = {tags.Academic, stats.Knowledge, factions.BioCorp}
 
     FAVORED_UPGRADES = (base.Engine, base.Armor,)
     ATTACK_ATTRIBUTES = (
@@ -412,9 +423,11 @@ class MadScienceTheme(UpgradeTheme):
 
 class BeautyTheme(UpgradeTheme):
     name = "Beauty"
-    NOUNS = ("Beautiful", "Lovely", "Charming", "Graceful", "Pretty", "Stunning", "Golden")
-    ADJECTIVES = ("Heart", "Rose", "Flower", "Lady", "Prince", "Dancer", "Darling", "Knockout")
+    ADJECTIVES = ("Beautiful", "Lovely", "Charming", "Graceful", "Pretty", "Stunning", "Golden")
+    NOUNS = ("Heart", "Rose", "Flower", "Lady", "Prince", "Dancer", "Darling", "Knockout")
     WEAPON_DESIGNATIONS = UpgradeTheme.WEAPON_DESIGNATIONS + ("Thorn", "Kiss")
+
+    FAVORED_TAGS = {tags.Media, stats.Charm}
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -432,8 +445,10 @@ class BeautyTheme(UpgradeTheme):
 
 class DarkTheme(UpgradeTheme):
     name = "Dark"
-    NOUNS = ("Dark", "Gothic", "Deadly", "Final", "Tragic", "Melancholy", "Doom")
-    ADJECTIVES = ("Reaper", "Sorrow", "Shade", "Night", "Death", "Vampire", "Tomb",)
+    ADJECTIVES = ("Dark", "Gothic", "Deadly", "Final", "Tragic", "Melancholy", "Doom")
+    NOUNS = ("Reaper", "Sorrow", "Shade", "Night", "Death", "Vampire", "Tomb",)
+
+    FAVORED_TAGS = {personality.Grim, }
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -452,9 +467,11 @@ class DarkTheme(UpgradeTheme):
 
 class DragonTheme(UpgradeTheme):
     name = "Dragon"
-    NOUNS = ("Ancient", "Fearsome", "Shaolin", "Emperor", "God", "Shining", "Rising")
-    ADJECTIVES = ("Dragon", "Sphinx", "Wyvern", "Serpent", "Kirin", "Master", "Griffin", "Falcon")
+    ADJECTIVES = ("Ancient", "Fearsome", "Shaolin", "Emperor", "God", "Shining", "Rising")
+    NOUNS = ("Dragon", "Sphinx", "Wyvern", "Serpent", "Kirin", "Master", "Griffin", "Falcon")
     WEAPON_DESIGNATIONS = UpgradeTheme.WEAPON_DESIGNATIONS + ("Fang", "Claw")
+
+    FAVORED_TAGS = {tags.Faithworker, stats.Ego, personality.Justice}
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -472,8 +489,10 @@ class DragonTheme(UpgradeTheme):
 
 class NinjaTheme(UpgradeTheme):
     name = "Ninja"
-    NOUNS = ("Real", "Shadow", "Iga", "Secret", "Koga", "Ultimate", "Mystery")
-    ADJECTIVES = ("Ninja", "Shinobi", "Power", "Assassin", "Kunoichi", "Master")
+    ADJECTIVES = ("Real", "Shadow", "Iga", "Secret", "Koga", "Ultimate", "Mystery")
+    NOUNS = ("Ninja", "Shinobi", "Power", "Assassin", "Kunoichi", "Master")
+
+    FAVORED_TAGS = {tags.Criminal, personality.Shy, factions.TreasureHunters}
 
     FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
     ATTACK_ATTRIBUTES = (
@@ -487,6 +506,75 @@ class NinjaTheme(UpgradeTheme):
     )
 
     THEME_TAG = "THEME_NINJA"
+
+
+class LightningTheme(UpgradeTheme):
+    name = "Lightning"
+    ADJECTIVES = ("Electric", "Shocking", "Lightning", "Gigavolt", "Ion", "Galvanic")
+    NOUNS = ("Thunder", "Eagle", "Sky", "Bolt", "Storm", "Flash", "Raider", "Dynamo" )
+    WEAPON_DESIGNATIONS = UpgradeTheme.WEAPON_DESIGNATIONS + ("Bolt", "Jolt")
+
+    FAVORED_TAGS = {tags.Adventurer, stats.Speed, factions.TheSolarNavy}
+
+    FAVORED_UPGRADES = (base.Engine, base.MovementSystem,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Accurate, attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
+        attackattributes.BonusStrike2,
+        attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.DazzleAttack,
+        attackattributes.DrainsPower, attackattributes.FastAttack, 
+        attackattributes.HaywireAttack, attackattributes.OverloadAttack, attackattributes.OverloadBubble,
+        attackattributes.Smash, attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_LIGHTNING"
+
+
+class DevilTheme(UpgradeTheme):
+    name = "Devil"
+    ADJECTIVES = ("Evil", "Cruel", "Wicked", "Diabolical", "Heartless", "Vicious")
+    NOUNS = ("Devil", "Satan", "Sin", "Hell", "Moloch", "Demon", "Nightmare", "Monster" )
+    WEAPON_DESIGNATIONS = UpgradeTheme.WEAPON_DESIGNATIONS + ("Fiend", "Curse")
+
+    FAVORED_TAGS = {personality.Corrupt, personality.Violent, personality.Heartless, factions.BoneDevils}
+
+    FAVORED_UPGRADES = (base.Engine, base.Armor,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Agonize, attackattributes.Automatic, attackattributes.Blast1,
+        attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
+        attackattributes.BonusStrike2, attackattributes.Brutal, attackattributes.InkAttack,
+        attackattributes.BurnAttack, attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.DrainsPower, attackattributes.InkAttack, 
+        attackattributes.HaywireAttack, attackattributes.DisintegrateAttack, attackattributes.RustAttack,
+        attackattributes.Smash, attackattributes.SwarmFire2, attackattributes.SwarmFire3,
+    )
+
+    THEME_TAG = "THEME_DEVIL"
+
+
+class GrizzlyTheme(UpgradeTheme):
+    name = "Grizzly"
+    ADJECTIVES = ("Grizzly", "Kodiak", "Arctic", "Lumber", "Macho", "Rough", "Rowdy")
+    NOUNS = ("Bear", "Jack", "Beast", "Galoot", "Bruiser", "Hulk", "Brute", "Palooka" )
+    WEAPON_DESIGNATIONS = UpgradeTheme.WEAPON_DESIGNATIONS + ("Paw", "Claw")
+
+    FAVORED_TAGS = {stats.Body, tags.Laborer, }
+
+    FAVORED_UPGRADES = (base.Engine, base.Armor,)
+    ATTACK_ATTRIBUTES = (
+        attackattributes.Automatic, attackattributes.Armorpiercing, attackattributes.Blast1,
+        attackattributes.Armorpiercing, attackattributes.Blast2, attackattributes.Blast3, attackattributes.BonusStrike1, 
+        attackattributes.BonusStrike2, attackattributes.Brutal, attackattributes.Scatter,
+        attackattributes.BurstFire2, attackattributes.BurstFire3, attackattributes.BurstFire4,
+        attackattributes.BurstFire5, attackattributes.ChargeAttack, attackattributes.FastAttack, 
+        attackattributes.Smash, attackattributes.SwarmFire2, attackattributes.SwarmFire3, attackattributes.VariableFire2,
+        attackattributes.VariableFire3, attackattributes.VariableFire4, attackattributes.VariableFire5
+    )
+
+    THEME_TAG = "THEME_GRIZZLY"
+
 
 
 THEMES = [ t for t in UpgradeTheme.__subclasses__() ]
@@ -513,3 +601,14 @@ def upgrade_to_champion(mek, theme: None|type[UpgradeTheme] = None):
             theme = UpgradeTheme
     # First upgrade the engines.
     theme.upgrade_mecha(mek, 5)
+
+
+def choose_theme(npc: base.Character) -> type[UpgradeTheme]:
+    candidates = list()
+    candidates.append(UpgradeTheme)
+    my_tags = npc.get_tags(True)
+    for t in THEMES:
+        n = len(my_tags.intersection(t.FAVORED_TAGS))
+        candidates += [t,t,t,t,t] * n
+    return random.choice(candidates)
+

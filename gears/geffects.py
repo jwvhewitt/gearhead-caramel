@@ -191,7 +191,7 @@ class DashReach(pfov.PointOfView):
         dist = round(math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2))
         intline = animobs.get_line(self.model.pos[0], self.model.pos[1], x, y)
 
-        if dist <= self.radius and dist > 1 and intline[-2] in self.nav.cost_to_tile:
+        if dist <= self.radius and dist > 2 and intline[-2] in self.nav.cost_to_tile:
             self.tiles.add((x, y))
 
 
@@ -279,7 +279,6 @@ INTERCEPT = 'INTERCEPT'
 #  *******************
 #  ***   AnimObs   ***
 #  *******************
-
 
 class SmallBoom(animobs.AnimOb):
     SPRITE_NAME = 'anim_smallboom.png'
@@ -629,6 +628,35 @@ class SmallBullet(animobs.ShotAnim):
     DEFAULT_SOUND_FX = "22-caliber-with-ricochet-39679.ogg"
 
 
+class ReturnAnim(animobs.AnimOb):
+    BASE_ANIM = SmallBullet
+    REVERSE_ON_RETURN = False
+
+    def __init__(self, start_pos, end_pos, delay=0):
+        self.going = self.BASE_ANIM(start_pos=start_pos, end_pos=end_pos, delay=0)
+        self.returning = self.BASE_ANIM(start_pos=end_pos, end_pos=start_pos, delay=0,
+                                        reverse_direction=self.REVERSE_ON_RETURN)
+        self.children = list()
+        self.delay = delay
+        self.needs_deletion = False
+
+    def update(self, view):
+        if self.delay > 0:
+            self.delay -= 1
+        elif self.going:
+            self.going.update(view)
+            if self.going.needs_deletion:
+                self.going = None
+                self.children.append(self.returning)
+                self.needs_deletion = True
+
+    def render(self, foot_pos, view):
+        if self.delay > 0:
+            return
+        elif self.going:
+            self.going.render(foot_pos, view)
+
+
 class BigBullet(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_bigbullet.png"
     DEFAULT_SOUND_FX = "desert-eagle-gunshot-14622.ogg"
@@ -672,6 +700,11 @@ class DarkShot(animobs.ShotAnim):
 class PlasmaBeam(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_s_plasmabeam.png"
     DEFAULT_SOUND_FX = "SpellShort.ogg"
+
+
+class PuckShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_puck.png"
+    DEFAULT_SOUND_FX = "324246__permagnuslindborg__hockey-ball.ogg"
 
 
 class FireBolt(animobs.ShotAnim):
@@ -741,6 +774,15 @@ class AcidSpray(animobs.ShotAnim):
 
 class LightningBolt(animobs.ShotAnim):
     DEFAULT_SPRITE_NAME = "anim_gervais_s_lightning.png"
+    DEFAULT_SOUND_FX = "hjm-tesla_sound_shot.ogg"
+
+
+class ReturningLightningBolt(ReturnAnim):
+    BASE_ANIM = LightningBolt
+
+
+class SparkShot(animobs.ShotAnim):
+    DEFAULT_SPRITE_NAME = "anim_s_spark.png"
     DEFAULT_SOUND_FX = "hjm-tesla_sound_shot.ogg"
 
 
@@ -847,35 +889,6 @@ class OriginSpotShotFactory(object):
         # Return the spot anim.
         return self.proto_spot(pos=start_pos, delay=delay)
 
-
-# A shot animation that also animates a return.
-class ReturnAnim(animobs.AnimOb):
-    BASE_ANIM = SmallBullet
-    REVERSE_ON_RETURN = False
-
-    def __init__(self, start_pos, end_pos, delay=0):
-        self.going = self.BASE_ANIM(start_pos=start_pos, end_pos=end_pos, delay=0)
-        self.returning = self.BASE_ANIM(start_pos=end_pos, end_pos=start_pos, delay=0,
-                                        reverse_direction=self.REVERSE_ON_RETURN)
-        self.children = list()
-        self.delay = delay
-        self.needs_deletion = False
-
-    def update(self, view):
-        if self.delay > 0:
-            self.delay -= 1
-        elif self.going:
-            self.going.update(view)
-            if self.going.needs_deletion:
-                self.going = None
-                self.children.append(self.returning)
-                self.needs_deletion = True
-
-    def render(self, foot_pos, view):
-        if self.delay > 0:
-            return
-        elif self.going:
-            self.going.render(foot_pos, view)
 
 
 class AnimBox(animobs.AnimOb):
@@ -1062,7 +1075,7 @@ SHOT_ANIMS = (SmallBullet, BigBullet, HugeBullet, SmallBeam, GunBeam, Missile1, 
               )
 AREA_ANIMS = (
     BigBoom, SuperBoom, SmallBoom, NoDamageBoom, SmokePoof, DustCloud, Fireball, BurnAnim, HaywireAnim, OverloadAnim,
-    LasertrailAnim,
+    LasertrailAnim, MiasmaAnim
     )
 
 

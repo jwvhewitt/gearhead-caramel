@@ -43,6 +43,7 @@ from .color import ALL_COLORS, CLOTHING_COLORS, SKIN_COLORS, HAIR_COLORS, MECHA_
 from . import eggs
 from . import relationships
 from . import artifacts
+from . import champions
 
 import pickle
 
@@ -76,6 +77,7 @@ harvest(programs, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(personality, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(usables, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
 harvest(mutations, pbge.Singleton, SINGLETON_TYPES, (pbge.Singleton,))
+harvest(champions, champions.UpgradeTheme, SINGLETON_TYPES, (champions.UpgradeTheme,))
 
 
 def harvest_color(dict_to_add_to):

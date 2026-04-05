@@ -2443,7 +2443,7 @@ BeamWeapon
     attack_stat = Speed
     attributes = (DazzleAttack,)
     scale = MechaScale
-    shop_tags= ("THEME_NINJA")
+    shop_tags= ("THEME_NINJA",)
     faction_list = (None)
     
 

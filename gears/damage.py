@@ -6,12 +6,14 @@ from . import geffects
 from pbge.scenes import animobs
 from . import base, stats
 
+DMG_RENDING = "TARGET_RENDING"
+DMG_HYPER = "TARGET_HYPER"
 
 class Damage(object):
     BOOM_SPRITES = list(range(7))
 
     def __init__(self, camp, hit_list, penetration, target, animlist, hot_knife=False, is_brutal=False,
-                 can_be_divided=True, affected_by_armor=True, critical_hit=False, is_hyper=False):
+                 can_be_divided=True, affected_by_armor=True, critical_hit=False, is_hyper=False, is_rending=False):
         self.camp = camp
         self.hit_list = hit_list
         self.penetration = penetration
@@ -154,6 +156,10 @@ class Damage(object):
         if self.damage_done > 0 and isinstance(self.target_root, base.Being):
             self.target_root.dole_experience(self.damage_done, stats.Vitality)
 
+        # Don't try to damage something that isn't on the map.
+        if not self.target_root.pos:
+            return
+
         # Record the animations.
         random.shuffle(self.BOOM_SPRITES)
         if self.damage_done > 0:
@@ -219,4 +225,4 @@ class Damage(object):
                     children=(geffects.DoDamage(*self._get_crash_damage(), scatter=True, is_brutal=True),)),
                 area=pbge.scenes.targetarea.SingleTarget()
             )
-            myinvo.invoke(self.camp, None, [self.target_root.pos, ], myanim.children)
+            _=myinvo.invoke(self.camp, None, [self.target_root.pos, ], myanim.children)

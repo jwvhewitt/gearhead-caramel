@@ -13,6 +13,7 @@ Character
     faction=TerranDefenseForce
     mecha_colors=(ShiningWhite, Olive, ElectricYellow, GullGrey, Terracotta)
     mecha_pref="THD-35 Thorshammer"
+    mecha_theme=SoldierTheme
 
 Character
     name="Skippy"
@@ -28,6 +29,7 @@ Character
     birth_year=135
     combatant=True
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=SoldierTheme
 
 Character
     name="Onawa"
@@ -45,6 +47,8 @@ Character
     faction=TerranDefenseForce
     mecha_colors=(ArmyDrab, DeepSeaBlue, ElectricYellow, GullGrey, Terracotta)
     mecha_pref="Onawa's Corsair"
+    mecha_theme=SoldierTheme
+
 
 Character
     name="Omega 1004"
@@ -62,6 +66,7 @@ Character
     combatant=True
     mecha_colors=(SteelBlue, ForestGreen, Saffron, GullGrey, ShiningWhite)
     mecha_pref="PL-912 Phoenix"
+    mecha_theme=SoldierTheme
 
 
 Character
@@ -93,6 +98,7 @@ Character
     birth_year = 121
     combatant = True
     mecha_pref="SDH-22 Corsair"
+    mecha_theme=SoldierTheme
 
 Character
     name="Bear Bastard"
@@ -109,6 +115,7 @@ Character
     combatant=True
     mecha_colors=(DarkBrown, SandyBrown, Gold, GhostGrey, Cream)
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=GrizzlyTheme
 
 Character
     name = "Admiral Charla"
@@ -159,6 +166,7 @@ Character
     combatant=True
     mecha_colors=(BlackRose, HotPink, Malachite, Black, PirateSunrise)
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=DarkTheme
 
 Character
     name = "Britaine"
@@ -175,6 +183,7 @@ Character
     faction=Guardians
     mecha_colors=(BattleshipGrey, PrussianBlue, BrightRed, WarmGrey, Black)
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=SoldierTheme
 
 Character
     name = "Jjang Bogo"
@@ -192,6 +201,7 @@ Character
     faction=TreasureHunters
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=DragonTheme
 
 Character
     name = "Buma Yolos"
@@ -208,6 +218,7 @@ Character
     faction=AegisOverlord
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=SophisticatedTheme
 
 Character
     name = "Carnelio"
@@ -223,6 +234,7 @@ Character
     combatant=True
     mecha_colors=(Charcoal, Saffron, OrangeRed, SlateGrey, HeavyPurple)
     mecha_pref="SAN-D1 Daum"
+    mecha_theme=NinjaTheme
 
 Character
     name = "Segard"
@@ -239,6 +251,7 @@ Character
     mecha_colors=(MidnightBlue, GriffinGreen, PirateSunrise, Black, StarViolet)
     mecha_pref="SAN-D1 Daum"
     portrait = card_m_captainsegard.png
+    mecha_theme=PirateTheme
     
 Character
     name = "Osmund"
@@ -252,6 +265,7 @@ Character
     combatant = True
     portrait = 'card_m_osmund.png'
     birth_year = 102
+    mecha_theme=LightningTheme
 
 Character
     name = "Ran Magnus"

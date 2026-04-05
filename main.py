@@ -562,7 +562,7 @@ def play_the_game():
     #    print(test.item.get_text_desc())
     #    print()
 
-    #gears.champions.NinjaTheme.test_weapon_lists()
+    gears.champions.GrizzlyTheme.test_weapon_lists()
 
     try:
         mymenu = MainMenu()

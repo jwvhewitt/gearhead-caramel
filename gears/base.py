@@ -4831,7 +4831,7 @@ class Character(Being):
                 faction = team.faction
         return faction
 
-    def get_tags(self, include_all=True):
+    def get_tags(self, include_all=True) -> set:
         # Return the character's personality, job, and faction tags.
         # If include_all is True, also include those tags the PC might not need to see.
         mytags = set(self.personality)
@@ -4858,6 +4858,9 @@ class Character(Being):
                 mytags.add(self.relationship.expectation)
             if self.relationship.role:
                 mytags.add(self.relationship.role)
+        for s in stats.PRIMARY_STATS:
+            if self.statline[s] > 12:
+                mytags.add(s)
         return mytags
 
     def get_reaction_score(self, pc, camp):

@@ -1,11 +1,11 @@
 # Weapons
 
 STC MAC-4 Machine Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER")
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_SOLDIER", "THEME_GRIZZLY")
     faction_list = (None,)
 
 STC VC-5 Vulcan Cannon
-    shop_tags= ("MEXTRA","MECHA_WEAPON",)
+    shop_tags= ("MEXTRA","MECHA_WEAPON", "THEME_GRIZZLY")
     faction_list = (None,)
 
 STC Shaka Cannon
