@@ -303,16 +303,19 @@ class ConeAttack(Singleton):
     @classmethod
     def modify_basic_attack(cls, weapon, attack):
         # Change the area to cone.
-        attack.area = pbge.scenes.targetarea.Cone(reach=weapon.reach * 2, delay_from=-1)
+        attack.area = pbge.scenes.targetarea.Cone(reach=weapon.reach + 2, delay_from=-1)
         attack.shot_anim = None
         attack.fx.anim = weapon.get_area_anim()
         attack.fx.defenses[geffects.DODGE] = geffects.ReflexSaveRoll()
         attack.fx.children[0].scatter = True
+        for m in list(attack.fx.modifiers):
+            if isinstance(m, geffects.RangeModifier):
+                attack.fx.modifiers.remove(m)
         attack.fx.can_crit = False
 
     @classmethod
     def get_reach_str(cls, weapon):
-        return '{}-{} cone'.format(weapon.reach, weapon.reach * 2)
+        return '{} cone'.format(weapon.reach + 2)
 
 
 class DazzleAttack(Singleton):

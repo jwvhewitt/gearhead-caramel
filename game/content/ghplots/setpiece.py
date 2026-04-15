@@ -440,7 +440,7 @@ class MWP_OfflineGenerator(Plot):
         self.elements["DUNGEON"] = sp.elements["LOCALE"]
 
         # Connect the dungeon level.
-        plotutility.StairsDownToStairsUpConnector(
+        _=plotutility.StairsDownToStairsUpConnector(
             nart, self, self.elements["LOCALE"], sp.elements["LOCALE"], room1=myroom,
         )
 
@@ -623,7 +623,7 @@ class MWM_BusinessOffice(Plot):
 
     def custom_init(self, nart):
         # Create an office.
-        self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="LOCALE")
+        _=self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.UlsaniteOfficeDecor()),dident="LOCALE")
         return True
 
 class MWM_StorageRoom(Plot):
@@ -633,86 +633,10 @@ class MWM_StorageRoom(Plot):
 
     def custom_init(self, nart):
         # Create a storage room.
-        self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="LOCALE")
+        _=self.register_element('_room', pbge.randmaps.rooms.ClosedRoom(decorate=gharchitecture.StorageRoomDecor()),dident="LOCALE")
         return True
 
 
-#   ******************
-#   ***   TAVERN   ***
-#   ******************
-#
-# Note: This subplot is being deprecated; use SHOP_TAVERN instead. v0.830
-#
-#  LOCALE: The tavern
-#  METROSCENE: The city the building is in
-#  METRO: The scope of the city
-
-
-class BasicTavern(Plot):
-    LABEL = "TAVERN"
-
-    active = True
-    scope = True
-
-    def custom_init(self, nart):
-        npc_name,building_name = self.generate_npc_and_building_name()
-
-        # Create a building within the town.
-        building = self.register_element("_EXTERIOR", ghterrain.ResidentialBuilding(
-            waypoints={"DOOR": ghwaypoints.GlassDoor(name=building_name)},
-            tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP, pbge.randmaps.IS_CITY_ROOM, pbge.randmaps.IS_CONNECTED_ROOM]),
-                                         dident="METROSCENE")
-
-        # Add the interior scene.
-        team1 = teams.Team(name="Player Team")
-        team2 = self.register_element("FOYER_TEAM", teams.Team(name="Civilian Team"))
-        intscene = gears.GearHeadScene(50, 35, building_name, player_team=team1, civilian_team=team2,
-                                       attributes=(gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING, gears.tags.SCENE_MEETING),
-                                       scale=gears.scale.HumanScale)
-
-        intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, gharchitecture.ResidentialBuilding())
-        self.register_scene(nart, intscene, intscenegen, ident="LOCALE", dident="METROSCENE")
-        foyer = self.register_element('_introom', pbge.randmaps.rooms.ClosedRoom(width=random.randint(20,25),
-                                                                                 height=random.randint(11,15),
-                                                                                 anchor=pbge.randmaps.anchors.south,),
-                                      dident="LOCALE")
-        foyer.contents.append(team2)
-
-        mybar = ghrooms.BarArea(random.randint(5,10), random.randint(2,3), anchor=pbge.randmaps.anchors.north)
-        foyer.contents.append(mybar)
-
-        barteam = self.register_element("BAR_TEAM", teams.Team(name="Bar Team", allies=[team2]))
-        mybar.contents.append(barteam)
-
-        npc = self.register_element("BARTENDER",
-                                    gears.selector.random_character(
-                                        self.rank, name=npc_name,
-                                        local_tags=self.elements["METROSCENE"].attributes,
-                                        job=gears.jobs.ALL_JOBS["Bartender"]
-                                    ))
-        npc.place(intscene, team=barteam)
-
-
-        mycon = plotutility.TownBuildingConnection(nart, self, self.elements["METROSCENE"], intscene,
-                                                                 room1=building,
-                                                                 room2=foyer, door1=building.waypoints["DOOR"],
-                                                                 move_door1=False)
-
-        return True
-
-    NAME_PATTERNS = ("{npc} Tavern", "{town} Tavern", "{npc}'s Pub", "The {monster1} and {monster2}")
-
-    def generate_npc_and_building_name(self):
-        npc_name = gears.selector.GENERIC_NAMES.gen_word()
-        if "BUILDING_NAME" in self.elements:
-            return npc_name, self.elements["BUILDING_NAME"]
-        if "OWNER_NAME" in self.elements:
-            owner_name = self.elements.get("OWNER_NAME") or gears.selector.GENERIC_NAMES.gen_word()
-        else:
-            owner_name = npc_name
-        monster1, monster2 = random.sample(gears.selector.MONSTER_LIST, 2)
-        building_name = random.choice(self.NAME_PATTERNS).format(npc=owner_name,town=str(self.elements["METROSCENE"]), monster1=monster1, monster2=monster2)
-        return npc_name, building_name
 
 
 #   ***********************

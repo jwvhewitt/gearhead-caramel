@@ -2301,6 +2301,10 @@ class HiddenModifier(object):
 # penetration if the attack hits.
 
 class DodgeRoll(object):
+    POINT_BLANK_MELEE_PENALTY = 25
+    def __init__(self, is_melee_attack=False):
+        self.is_melee_attack = is_melee_attack
+
     def make_roll(self, atroller, attacker, defender, att_bonus, att_roll, _fx_record):
         # If the attack roll + attack bonus + accuracy is higher than the
         # defender's defense bonus + maneuverability + 20, or if the attack roll
@@ -2308,6 +2312,12 @@ class DodgeRoll(object):
         def_target = defender.get_dodge_score() + 50
         if defender.get_current_stamina() < 1:
             def_target -= 25
+
+        if self.is_melee_attack and attacker and defender:
+            aroot = attacker.get_root()
+            droot = defender.get_root()
+            if aroot and droot and aroot.pos and droot.pos and abs(aroot.pos[0] - droot.pos[0]) <= 1 and abs(aroot.pos[1] - droot.pos[1]) <= 1:
+                def_target -= self.POINT_BLANK_MELEE_PENALTY
 
         if att_roll > 95:
             # A roll greater than 95 always hits.
@@ -2333,6 +2343,11 @@ class DodgeRoll(object):
     def get_defense_odds(self, atroller, attacker, defender, att_bonus):
         # Return the odds as a float.
         def_target = defender.get_dodge_score()
+        if self.is_melee_attack and attacker and defender:
+            aroot = attacker.get_root()
+            droot = defender.get_root()
+            if aroot and droot and aroot.pos and droot.pos and abs(aroot.pos[0] - droot.pos[0]) <= 1 and abs(aroot.pos[1] - droot.pos[1]) <= 1:
+                def_target -= self.POINT_BLANK_MELEE_PENALTY
         if defender.get_current_stamina() < 1:
             def_target -= 25
         # The chance to hit is clamped between 5% and 95%.

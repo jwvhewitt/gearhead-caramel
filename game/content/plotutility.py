@@ -8,7 +8,7 @@ from ..ghdialogue import context, ghgrammar
 
 
 class AdventureModuleData:
-    def __init__(self, name, desc, date, title_card, character_check_fun=None, convoborder=None):
+    def __init__(self, name, desc, date, title_card, character_check_fun=None, convoborder=None, pre_release=False, multi_use=False):
         # date is a tuple in (year, month, day) format. Day is optional. GH1 took place in 157, GH2 in 162.
         # character_check_fun is a function that takes the PC's Egg as a parameter and returns True if the PC can
         #    take part in this adventure.
@@ -18,8 +18,12 @@ class AdventureModuleData:
         self.title_card = title_card
         self.character_check_fun = character_check_fun
         self.convoborder = convoborder
+        self.pre_release = pre_release
+        self.multi_use = multi_use
 
     def can_play(self, egg: gears.eggs.Egg):
+        if self.pre_release and not pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+            return False
         base = pbge.util.config.getboolean("GENERAL", "can_replay_adventures") or self.name not in egg.past_adventures
         if self.character_check_fun:
             return base and self.character_check_fun(egg)
@@ -28,11 +32,8 @@ class AdventureModuleData:
 
     def apply(self, camp: gears.GearHeadCampaign):
         camp.year = self.date[0]
-        # Compatibility code for v0.600 and previous: past_adventures used to be a list, but we wanna make sure
-        # it's a set.
-        if not isinstance(camp.egg.past_adventures, set):
-            camp.egg.past_adventures = set()
-        camp.egg.past_adventures.add(self.name)
+        if not self.multi_use:
+            camp.egg.past_adventures.add(self.name)
         if self.convoborder:
             camp.convoborder = self.convoborder
 

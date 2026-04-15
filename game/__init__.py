@@ -54,6 +54,7 @@ class StartCampaignWidget(pbge.widgetmenu.MenuWidget):
         super()._render(delta)
 
     def build_menu(self):
+        print(self.egg.past_adventures)
         for p in content.UNSORTED_PLOT_LIST:
             if hasattr(p, "ADVENTURE_MODULE_DATA") and p.ADVENTURE_MODULE_DATA.can_play(self.egg):
                 _=self.add_item(

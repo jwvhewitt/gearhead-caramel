@@ -2055,7 +2055,7 @@ class MeleeWeapon(Weapon):
         return ba
 
     def get_defenses(self):
-        return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self),
+        return {geffects.DODGE: geffects.DodgeRoll(is_melee_attack=True), geffects.BLOCK: geffects.BlockRoll(self),
                 geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_weapon_desc(self):
@@ -2172,7 +2172,7 @@ class EnergyWeapon(Weapon):
         return ba
 
     def get_defenses(self):
-        return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self),
+        return {geffects.DODGE: geffects.DodgeRoll(is_melee_attack=True), geffects.BLOCK: geffects.BlockRoll(self),
                 geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_weapon_desc(self):
@@ -2295,7 +2295,7 @@ class Ammo(BaseGear, Stackable, StandardDamageHandler, Restoreable):
             mult *= 1.2
         elif self.ammo_type.risk == calibre.RISK_VOLATILE:
             mult *= 0.7
-        return int(mult * self.ammo_type.bang * self.quantity // 10)
+        return int(mult * self.ammo_type.bang * self.ammo_type.bang * self.quantity / 10)
 
     base_health = 1
 
@@ -2365,7 +2365,7 @@ class BallisticWeapon(Weapon):
                         attackattributes.SwarmFire3,
                         )
     SHOP_RANK_LOG_RESULT_MULTIPLIER = 30
-    SHOP_RANK_LOG_COST_MULTIPLIER = 0.0002
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.00025
 
     def __init__(self, ammo_type=None, magazine=None, **keywords):
         self.ammo_type = ammo_type or self.DEFAULT_CALIBRE
@@ -2384,6 +2384,10 @@ class BallisticWeapon(Weapon):
 
         # Finally, call the gear initializer.
         super().__init__(**keywords)
+
+    @property
+    def base_cost(self):
+        return max(int(super().base_cost * 0.8), 1)
 
     def is_legal_sub_com(self, part):
         if isinstance(part, Weapon):
@@ -3629,7 +3633,7 @@ class Module(BaseGear, StandardDamageHandler):
             return candidates[0]
 
     def get_defenses(self):
-        return {geffects.DODGE: geffects.DodgeRoll(), geffects.BLOCK: geffects.BlockRoll(self),
+        return {geffects.DODGE: geffects.DodgeRoll(is_melee_attack=True), geffects.BLOCK: geffects.BlockRoll(self),
                 geffects.PARRY: geffects.ParryRoll(self)}
 
     def get_modifiers(self):
@@ -4858,9 +4862,10 @@ class Character(Being):
                 mytags.add(self.relationship.expectation)
             if self.relationship.role:
                 mytags.add(self.relationship.role)
-        for s in stats.PRIMARY_STATS:
-            if self.statline[s] > 12:
-                mytags.add(s)
+        if include_all:
+            for s in stats.PRIMARY_STATS:
+                if self.statline[s] > 12:
+                    mytags.add(s)
         return mytags
 
     def get_reaction_score(self, pc, camp):

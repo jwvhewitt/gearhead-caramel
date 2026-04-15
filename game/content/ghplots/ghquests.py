@@ -776,7 +776,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
         my_npc = self.elements["CULPRIT"]
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         base_name = self.elements.get("_BASE_NAME", "Base")
-        pbge.BasicNotification(
+        _=pbge.BasicNotification(
             "You have learned that {} knows where {}'s {} is.".format(my_npc, self.elements["_ENEMY_FACTION"], base_name),
             count=150
         )
@@ -788,7 +788,7 @@ class BaseKnownByCollaborator(quests.QuestPlot):
     def win_da_task(self, camp):
         my_outcome: quests.QuestOutcome = self.elements[quests.OUTCOME_ELEMENT_ID]
         base_name = self.elements.get("_BASE_NAME", "Base")
-        pbge.BasicNotification("You have discovered the location of {}'s {}.".format(self.elements["_ENEMY_FACTION"], base_name),
+        _=pbge.BasicNotification("You have discovered the location of {}'s {}.".format(self.elements["_ENEMY_FACTION"], base_name),
                                count=150)
         self.quest_record.win_task(self, camp)
 

@@ -451,14 +451,17 @@ class PlayerTurn(pbge.widgets.Widget):
                     act = self.actions[0]
                     if not act():
                         self.actions.pop(0)
+                    self.camp.scene.update_party_position(self.camp)
             else:
                 if not (self.camp.fight.cstat[self.pc].can_act() and self.camp.fight.still_fighting() and self.pc in self.camp.scene.contents):
                     pbge.my_state.view.overlays.clear()
                     self.pop()
                     self.visible = False
+                    self.camp.scene.update_party_position(self.camp)
                 elif not self.visible:
                     self.visible = True
                     self.active_ui.activate()
+                    self.camp.scene.update_party_position(self.camp)
         super().update(delta)
 
 

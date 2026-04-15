@@ -61,7 +61,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v1.009beta"
+VERSION = "v1.010beta"
 STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
@@ -562,7 +562,7 @@ def play_the_game():
     #    print(test.item.get_text_desc())
     #    print()
 
-    gears.champions.GrizzlyTheme.test_weapon_lists()
+    #gears.champions.GrizzlyTheme.test_weapon_lists()
 
     try:
         mymenu = MainMenu()

@@ -706,7 +706,7 @@ BallisticWeapon
     faction_list = (None)
     SUB
         Ammo
-            ammo_type=Shells_90mm
+            ammo_type=Shells_60mm
             quantity=90
     END
 

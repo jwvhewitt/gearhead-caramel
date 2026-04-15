@@ -23,6 +23,7 @@ from . import dd_roadstops
 from . import dungeons
 from . import dungeon_extras
 from . import encounters
+from . import enro_main
 from . import ghquests
 from . import ghquest_objectives
 from . import ghstories
@@ -55,6 +56,7 @@ from . import setpiece
 from . import shops_extras
 from . import shops_plus
 from . import thingplacers
+from . import townbuilder
 from . import townhall
 from . import treasures
 from . import utility
@@ -98,6 +100,7 @@ harvest(dd_roadstops)
 harvest(dungeons)
 harvest(dungeon_extras)
 harvest(encounters)
+harvest(enro_main)
 harvest(ghquests)
 harvest(ghquest_objectives)
 harvest(ghstories)
@@ -130,6 +133,7 @@ harvest(setpiece)
 harvest(shops_extras)
 harvest(shops_plus)
 harvest(thingplacers)
+harvest(townbuilder)
 harvest(townhall)
 harvest(treasures)
 harvest(utility)

@@ -1,3 +1,7 @@
+* Cone attacks have generally lower range but no range penalty
+* Lowered cost of ballistic weapons, increased cost of ammo
+* It's harder to dodge melee attacks at range=1; other defenses unaffected
+* Map view updated after charging, performing other actions
 * NPCs now select a theme based on their personality + background
 * Added Grizzly, Devil, Lightning themes
 * Character.get_tags can now list high stats
