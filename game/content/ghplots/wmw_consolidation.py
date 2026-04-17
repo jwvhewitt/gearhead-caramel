@@ -102,7 +102,7 @@ class EliminateScoutsConsolidation(Plot):
         self.elements["WORLD_MAP_WAR"].player_can_act = True
         self.end_plot(camp)
 
-    def METROSCENE_ENTER(self, camp):
+    def WORLD_MAP_WAR_WARROUND(self, camp):
         if self.intro_ready:
             pbge.alerts.TextAlert("The next step is to consolidate your victory in {METROSCENE}. There have been reports of scouts from {ENEMY_FACTION} operating nearby.".format(**self.elements))
             self.elements["CHALLENGE"].activate(camp)
@@ -174,7 +174,7 @@ class SleeperCellConsolidation(Plot):
         if self.finished_challenge:
             thingmenu.add_item(self.mission_name, self.get_mission(camp), data=camp)
 
-    def METROSCENE_ENTER(self, camp):
+    def WORLD_MAP_WAR_WARROUND(self, camp):
         #mychallenge = self.elements["CHALLENGE"]
         #print(mychallenge.active)
         #print(self.elements["METROSCENE"])
@@ -255,7 +255,7 @@ class DiplomaticConsolidation(Plot):
     def _advance_challenge(self, camp):
         self.elements["CHALLENGE"].advance(camp, self.DEFAULT_CHALLENGE_STEP)
 
-    def METROSCENE_ENTER(self, camp):
+    def WORLD_MAP_WAR_WARROUND(self, camp):
         if self.intro_ready:
             pbge.alerts.TextAlert("The next step is to consolidate your victory in {METROSCENE}. Check the area for signs of potential insurgency.".format(**self.elements))
             self.elements["CHALLENGE"].activate(camp)

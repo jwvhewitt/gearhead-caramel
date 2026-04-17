@@ -43,11 +43,6 @@ else:
     #neargamedir = gamedir
     neargamedir = os.path.dirname(sys.argv[0])
 
-print(gamedir)
-print(neargamedir)
-
-pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
-pbge.please_stand_by()
 
 import game
 import pygame
@@ -578,6 +573,12 @@ def play_the_game():
         logging.critical("Please email this file to pyrrho12@yahoo.ca")
 
 if __name__ == "__main__":
+    print(gamedir)
+    print(neargamedir)
+
+    pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
+    pbge.please_stand_by()
+
     play_the_game()
     pygame.quit()
     # Been getting some problems with the program continuing to run sometimes after pygame.quit().

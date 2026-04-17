@@ -531,7 +531,6 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
                 elif ev.key == pygame.K_ESCAPE:
                     self.register_response()
-                    #print(self, ev, id(ev))
                     configedit.PopupGameMenu.push_state_and_instantiate()
 
                 elif ev.unicode == "L" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):

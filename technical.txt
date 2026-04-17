@@ -29,6 +29,7 @@ With-Element Triggers:
 "SEMIVICTORIOUS"    When a subplot is sorta won, kinda. Use this trigger if it makes sense in context.*
 "LOSE"		When a subplot is lost*
 "END"		When a subplot is ended*
+"WARROUND"       At the end of each war round, with the WorldMapWar as thing
 
 
 Method name:

@@ -857,7 +857,7 @@ class LeadingFont(pygame.font.Font):
 
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",
-         display_font="Atan.ttf"):
+         display_font="Atan.ttf", start_gfx=True):
     global INIT_DONE
     if not INIT_DONE:
         util.init(appname, gamedir)
@@ -867,70 +867,70 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         global POSTERS
         POSTERS += glob.glob(util.image_dir(poster_pattern))
 
-        pygame.init()
-        my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
-        if my_state.audio_enabled:
-            try:
-                pygame.mixer.init()
-            except pygame.error:
-                my_state.audio_enabled = False
-                print("Error: pygame.mixer failed to load.")
-        pygame.display.set_caption(winname, appname)
-        pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
-        # Set the screen size.
-        my_state.reset_screen()
+        if start_gfx:
+            pygame.init()
+            my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
+            if my_state.audio_enabled:
+                try:
+                    pygame.mixer.init()
+                except pygame.error:
+                    my_state.audio_enabled = False
+                    print("Error: pygame.mixer failed to load.")
+            pygame.display.set_caption(winname, appname)
+            pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
+            # Set the screen size.
+            my_state.reset_screen()
 
-        if my_state.audio_enabled:
-            pygame.mixer.set_reserved(2)
-            my_state.music_channels.append(pygame.mixer.Channel(0))
-            my_state.music_channels.append(pygame.mixer.Channel(1))
-            soundlib.init_sound(gamedir, util.music_dir(""))
+            if my_state.audio_enabled:
+                pygame.mixer.set_reserved(2)
+                my_state.music_channels.append(pygame.mixer.Channel(0))
+                my_state.music_channels.append(pygame.mixer.Channel(1))
+                soundlib.init_sound(gamedir, util.music_dir(""))
 
-        global INPUT_CURSOR
-        INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)
+            global INPUT_CURSOR
+            INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)
 
-        global SMALLFONT
-        SMALLFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
-        my_state.small_font = SMALLFONT
+            global SMALLFONT
+            SMALLFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
+            my_state.small_font = SMALLFONT
 
-        global TINYFONT
-        TINYFONT = pygame.font.Font(util.image_dir("SourceHanSans-Heavy.ttc"), 10)
-        my_state.tiny_font = TINYFONT
+            global TINYFONT
+            TINYFONT = pygame.font.Font(util.image_dir("SourceHanSans-Heavy.ttc"), 10)
+            my_state.tiny_font = TINYFONT
 
-        global ANIMFONT
-        ANIMFONT = LeadingFont(util.image_dir("SourceHanSans-Bold.ttc"), 16, -2)
-        my_state.anim_font = ANIMFONT
+            global ANIMFONT
+            ANIMFONT = LeadingFont(util.image_dir("SourceHanSans-Bold.ttc"), 16, -2)
+            my_state.anim_font = ANIMFONT
 
-        global MEDIUMFONT
-        MEDIUMFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
-        my_state.medium_font = MEDIUMFONT
+            global MEDIUMFONT
+            MEDIUMFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
+            my_state.medium_font = MEDIUMFONT
 
-        global ALTTEXTFONT
+            global ALTTEXTFONT
 
-        ALTTEXTFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
-        ALTTEXTFONT.set_italic(True)
-        my_state.alt_text_font = ALTTEXTFONT
+            ALTTEXTFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
+            ALTTEXTFONT.set_italic(True)
+            my_state.alt_text_font = ALTTEXTFONT
 
-        global ITALICFONT
-        ITALICFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
-        ITALICFONT.set_italic(True)
+            global ITALICFONT
+            ITALICFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
+            ITALICFONT.set_italic(True)
 
-        global MEDIUM_DISPLAY_FONT
-        MEDIUM_DISPLAY_FONT = pygame.font.Font(util.image_dir(display_font), 14)
+            global MEDIUM_DISPLAY_FONT
+            MEDIUM_DISPLAY_FONT = pygame.font.Font(util.image_dir(display_font), 14)
 
-        global BIGFONT
-        BIGFONT = pygame.font.Font(util.image_dir(display_font), 17)
-        my_state.big_font = BIGFONT
+            global BIGFONT
+            BIGFONT = pygame.font.Font(util.image_dir(display_font), 17)
+            my_state.big_font = BIGFONT
 
-        global HUGEFONT
-        my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
-        HUGEFONT = my_state.huge_font
+            global HUGEFONT
+            my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
+            HUGEFONT = my_state.huge_font
 
-        global FPS
-        FPS = util.config.getint("GENERAL", "frames_per_second")
-        #pygame.time.set_timer(TIMEREVENT, int(1000 / FPS))
+            global FPS
+            FPS = util.config.getint("GENERAL", "frames_per_second")
 
-        # Set key repeat.
-        pygame.key.set_repeat(300, 100)
+            # Set key repeat.
+            pygame.key.set_repeat(300, 100)
 
         INIT_DONE = True

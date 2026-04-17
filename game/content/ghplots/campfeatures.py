@@ -506,7 +506,7 @@ class WorldMapMenu(pbge.widgetmenu.MenuWidget):
     def __init__(self, camp, wp, pop_when_clicked=True):
         super().__init__(
             self.MENU_AREA.dx, self.MENU_AREA.dy, self.MENU_AREA.w, self.MENU_AREA.h,
-            draw_border=False, pop_when_clicked=pop_when_clicked
+            draw_border=False, pop_when_clicked=pop_when_clicked, auto_escape=True
         )
         self.desc = wp.desc
         self.waypoint = wp

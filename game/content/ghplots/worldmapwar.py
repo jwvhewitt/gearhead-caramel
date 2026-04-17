@@ -345,8 +345,6 @@ class WorldMapAlert(pbge.alerts.AbstractAlert):
         pbge.default_border.render(myrect)
         pbge.draw_text(pbge.MEDIUMFONT, self.message, myrect, justify=0)
 
-        super()._render(delta)
-
 
 class WorldMapBattleAlert(WorldMapAlert):
     DEFENDER_POSITIONS = [(-6, -16), (6, -16), (-12, -8), (-4, -8), (4, -8), (12, -8),
@@ -357,7 +355,8 @@ class WorldMapBattleAlert(WorldMapAlert):
 
     def __init__(
         self, message, visualizer, target_node, on_close: pbge.widgets.On_Click,
-        num_attackers, num_defenders, attacker_casulties=0, defender_casulties=0,
+        num_attackers, num_defenders, world_map_war, 
+        attacker_casulties=0, defender_casulties=0,
         attack_frame=1, defense_frame=0, **kwargs
     ):
         # If casulties are given, the battle will be animated over however many seconds it takes.
@@ -374,7 +373,7 @@ class WorldMapBattleAlert(WorldMapAlert):
         random.shuffle(self.defender_positions)
         self.attacker_positions = self.ATTACKER_POSITIONS.copy()
         random.shuffle(self.attacker_positions)
-        self.mecha_sprite = pbge.image.Image(self.world_map_war.legend.image_name, 20, 20)
+        self.mecha_sprite = pbge.image.Image(world_map_war.legend.image_name, 20, 20)
 
         # Make sure the last casualty is the losing team.
         if attacker_casulties >= num_attackers:
@@ -439,11 +438,6 @@ class WorldMapWarTurn:
         self.message = ""
         self.target_waypoint = None
         self.target_node = None
-        self.defender_positions = self.DEFENDER_POSITIONS.copy()
-        random.shuffle(self.defender_positions)
-        self.attacker_positions = self.ATTACKER_POSITIONS.copy()
-        random.shuffle(self.attacker_positions)
-        self.mecha_sprite = pbge.image.Image(self.world_map_war.legend.image_name, 20, 20)
         self.callback = callback
 
     def _close_turn_alert(self, _wid, _ev):
@@ -509,9 +503,9 @@ class WorldMapWarTurn:
         spend_boost = True
 
         attack_frame = self.world_map_war.legend.get_mecha_frame(self.world_map_war.war_teams[self.fac].color)
-        if self.target_node.destination.faction:
+        if target_node.destination.faction:
             defense_frame = self.world_map_war.legend.get_mecha_frame(
-                self.world_map_war.war_teams[self.target_node.destination.faction].color)
+                self.world_map_war.war_teams[target_node.destination.faction].color)
         else:
             defense_frame = self.world_map_war.legend.get_mecha_frame(0)
 
@@ -528,7 +522,8 @@ class WorldMapWarTurn:
         # Set the initial alert.
         _=WorldMapBattleAlert(
             msg, self.visualizer, target_node, self.war_phase_two,
-            num_attackers, 0, data=(target_node, num_attackers, num_defenders, spend_boost, attack_frame, defense_frame),
+            num_attackers, 0, self.world_map_war,
+            data=(target_node, num_attackers, num_defenders, spend_boost, attack_frame, defense_frame),
             attack_frame=attack_frame, defense_frame=defense_frame
         )
 
@@ -570,7 +565,8 @@ class WorldMapWarTurn:
             attacker_won = self.num_attackers - attacker_casulties > 0
             _=WorldMapBattleAlert(
                 "The fighting begins...", self.visualizer, target_node, None,
-                num_attackers, num_defenders, attacker_casulties=attacker_casulties, defender_casulties=defender_casulties,
+                num_attackers, num_defenders, self.world_map_war,
+                attacker_casulties=attacker_casulties, defender_casulties=defender_casulties,
                 attack_frame=attack_frame, defense_frame=defense_frame
             )
         else:
@@ -583,14 +579,14 @@ class WorldMapWarTurn:
             _=WorldMapBattleAlert(
                 "{} has captured {}.".format(self.fac, target_node),
                 self.visualizer, target_node, self._close_turn_alert,
-                num_attackers - attacker_casulties, 0,
+                num_attackers - attacker_casulties, 0, self.world_map_war,
                 attack_frame=attack_frame, defense_frame=defense_frame
             )
         else:
             _=WorldMapBattleAlert(
                 "{} have been defeated.".format(self.fac),
                 self.visualizer, target_node, self._close_turn_alert,
-                0, num_defenders - defender_casulties,
+                0, num_defenders - defender_casulties, self.world_map_war,
                 attack_frame=attack_frame, defense_frame=defense_frame
             )
 
@@ -691,12 +687,14 @@ class EdgeAttack:
         self.edge = edge
         self.start_point = start_point
         self.war = war
-        self.adv: missionbuilder.BuildAMissionSeed = None
+        self.adv = None
 
     def __call__(self, wid, _ev):
         camp = wid.data
-        self.adv = self.war.get_attack_missionseed(camp, self.war.player_team, self.start_point,
-                                              self.edge.get_link(self.start_point))
+        self.adv = self.war.get_attack_missionseed(
+            camp, self.war.player_team, self.start_point,
+            self.edge.get_link(self.start_point)  # pyright: ignore[reportArgumentType]
+        )
 
         dest_node = self.edge.get_link(self.start_point)
         if self.adv.can_do_mission(camp):
@@ -747,7 +745,7 @@ class WorldMapWarHandler(Plot):
             _=camp.check_trigger("LOSE", self)
             self.end_plot(camp)
 
-    def war_turn_callback(self, camp, adventure_seed):
+    def war_turn_callback(self, camp: gears.GearHeadCampaign, adventure_seed):
         self.adventure_seed = adventure_seed
         if self.adventure_seed:
             if self.adventure_seed.can_do_mission(camp):
@@ -759,9 +757,10 @@ class WorldMapWarHandler(Plot):
             self.check_war_status(camp)
         elif self.current_round.keep_going():
             self.handle_war_round(camp)
-        if not self.current_round.keep_going():
+        if self.current_round and not self.current_round.keep_going():
             self.current_round = None
             self.world_map_war.just_captured = None
+            camp.check_trigger("WARROUND", self.elements.get(WORLD_MAP_WAR))
 
     def handle_war_round(self, camp):
         if self.world_map_war.ready_for_next_round and not self.current_round:

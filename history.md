@@ -1,4 +1,6 @@
-* Cone attacks have generally lower range but no range penalty
+v1.010beta April 17, 2026
+* Fixed WorldMapWar capture territory crash
+* Cone attacks have lower range (usually) but no range penalty
 * Lowered cost of ballistic weapons, increased cost of ammo
 * It's harder to dodge melee attacks at range=1; other defenses unaffected
 * Map view updated after charging, performing other actions
