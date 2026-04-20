@@ -1,3 +1,7 @@
+* RoPP recruitment plots end if the faction in question is eliminated
+* Fixed MultiMission crash
+* Reduced power, mass cost of ConeAttack attribute
+
 v1.010beta April 17, 2026
 * Fixed WorldMapWar capture territory crash
 * Cone attacks have lower range (usually) but no range penalty

@@ -427,6 +427,10 @@ class SolarNavyJoinerPlot(Plot):
         self.did_cutscene = False
         return True
 
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if camp.scene.faction is not gears.factions.TheSolarNavy:
+            self.end_plot(camp, True)
+
     def NPC_SCENE_ENTER(self, camp):
         if self.elements["WORLD_MAP_WAR"].player_team:
             self.did_cutscene = True
@@ -664,6 +668,10 @@ class TreasureHuntersJoinerPlot(Plot):
         camp.pc.remove_badges_with_tag(gears.tags.Police)
         camp.campdata[ROPPCD_DEFECTION] = 1
 
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if camp.scene.faction is not gears.factions.TreasureHunters:
+            self.end_plot(camp, True)
+
     def NPC_SCENE_ENTER(self, camp):
         if self.elements["WORLD_MAP_WAR"].player_team:
             self.did_cutscene = True
@@ -729,6 +737,10 @@ class AegisJoinerPlot(Plot):
         self.did_cutscene = False
         self.can_try_to_join = True
         return True
+
+    def METROSCENE_ENTER(self, camp: gears.GearHeadCampaign):
+        if camp.scene.faction is not gears.factions.AegisOverlord:
+            self.end_plot(camp, True)
 
     def NPC_AEGIS_offers(self, camp: gears.GearHeadCampaign):
         mylist = list()

@@ -85,10 +85,10 @@ class MultiMissionNodePlot(Plot):
 
 class MultiMissionMenu(pbge.widgetmenu.MenuWidget):
     WIDTH = 350
-    HEIGHT = 250
-    MENU_HEIGHT = 75
+    HEIGHT = 325
+    MENU_HEIGHT = 150
 
-    FULL_RECT = pbge.frects.Frect(-175, -75, 350, 250)
+    FULL_RECT = pbge.frects.Frect(-175, -75, 350, 325)
     TEXT_RECT = pbge.frects.Frect(-175, -75, 350, 165)
     FRAME_WIDTH = 64
 
@@ -162,7 +162,7 @@ class MultiMissionStagePlot(Plot):
         raise NotImplementedError("No build stage method declared for {}".format(self.LABEL))
 
     def do_partial_restore(self, camp: gears.GearHeadCampaign):
-        myparty = [pc for pc in camp.party if not pc.is_destroyed()]
+        myparty = [pc for pc in camp.party if isinstance(pc, (gears.base.Mecha, gears.base.Being)) and not pc.is_destroyed()]
         repair_points = collections.defaultdict(int)
         needs_repair = collections.defaultdict(list)
         for pc in myparty:

@@ -168,7 +168,7 @@ class RWMO_TheGambler(Plot):
             mymenu = game.content.ghcutscene.AlertMonologueMenu("[I_PROPOSE_DUEL]", npc, camp)
 
             _=mymenu.add_item("Accept the challenge", None)
-            _=mymenu.add_item("Reject the challenge", self._cancel_the_adventure_from_widget)
+            _=mymenu.add_item("Reject the challenge", self._cancel_the_adventure_from_widget, data=camp)
 
     def _cancel_the_adventure_from_widget(self, wid, _ev):
         self.cancel_the_adventure(wid.data)

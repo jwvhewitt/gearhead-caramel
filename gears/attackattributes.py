@@ -293,10 +293,10 @@ class ChargeAttack(Singleton):
 
 class ConeAttack(Singleton):
     name = "Cone Area"
-    MASS_MODIFIER = 2.0
+    MASS_MODIFIER = 1.5
     VOLUME_MODIFIER = 2.0
     COST_MODIFIER = 4.0
-    POWER_MODIFIER = 3.0
+    POWER_MODIFIER = 2.5
 
     FAMILY = "AREA_EFFECT"
 

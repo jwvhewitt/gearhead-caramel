@@ -540,8 +540,8 @@ class ExploCommandWidget(pbge.widgets.Widget):
                                                             pc.relationship.can_do_development()))
 
                 elif ev.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    print(hasattr(self.camp.pc, "mecha_theme"))
-                    #self.camp.party.append(gears.selector.get_design_by_full_name("Ink Rifle"))
+                    #print(hasattr(self.camp.pc, "mecha_theme"))
+                    self.camp.pc.inv_com.append(gears.selector.get_design_by_full_name("DAK-92 Flamethrower"))
 
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
