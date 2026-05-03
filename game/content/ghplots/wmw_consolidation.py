@@ -1,18 +1,13 @@
 import random
-from game import content, services, teams, ghdialogue
 import gears
 import pbge
-from game.content import gharchitecture, plotutility, dungeonmaker, ghwaypoints, adventureseed, ghcutscene, ghterrain, \
-    ghchallenges, ghrooms
+from game.content import gharchitecture, ghchallenges
 from game.ghdialogue import context
-from pbge.dialogue import Offer, ContextTag
-from pbge.plots import Plot, Rumor, PlotState
-from pbge import stories, quests
+from pbge.dialogue import ContextTag
+from pbge.plots import Plot, PlotState
 from pbge.memos import Memo
-from . import missionbuilder, rwme_objectives, campfeatures, ghquests
+from . import missionbuilder
 from pbge.challenges import Challenge, AutoOffer
-from .shops_plus import get_building
-import collections
 
 
 WMW_CONSOLIDATION = "WMW_CONSOLIDATION"

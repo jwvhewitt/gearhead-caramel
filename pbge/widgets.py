@@ -410,6 +410,11 @@ class Widget(frects.Frect):
         #)
         self.deploy_to_main(*widgets_to_push)
 
+    def push_and_schedule(self, *widgets_to_push) -> None:
+        _=WidgetLauncher(
+           self, widgets_to_push
+        )
+
     def deploy_to_main(self, *widgets_to_push):
         if self.snapshot:
             raise WidgetException("Widget {} tried to deploy itself twice.".format(self))

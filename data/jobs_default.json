@@ -166,7 +166,7 @@
       "RangedCombat": -1,
       "Athletics": 1
     },
-    "local_requirements": ["NAUTICAL"]
+    "local_requirements": ["CITY_NAUTICAL"]
   },
   {
     "name": "Gladiator",

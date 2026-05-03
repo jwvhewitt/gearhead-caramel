@@ -84,7 +84,7 @@ class Waypoint( object ):
         if self.plot_locked:
             rpm = self.MENU_CLASS( camp, self )
             camp.expand_puzzle_menu( self, rpm )
-            rpm.push_and_deploy()
+            rpm.push_and_schedule()
         else:
             self.unlocked_use( camp )
 

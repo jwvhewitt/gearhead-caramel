@@ -23,7 +23,7 @@ class ElementDefinition(object):
 class PhysicalDefinition(object):
     def __init__(self, the_brick, element_key, parent=None, variable_keys=(), child_types=(), **kwargs):
         # the_brick = The brick that contains this physical object; used for error checking
-        # element_key = The element th is physical definition is based on; must be an element defined in this brick.
+        # element_key = The element this physical definition is based on; must be an element defined in this brick.
         # parent = The element this physical definition will be shown as a child of in the browser; if None or not
         #   found, this physical definition will be shown as a child of World.
         # variable_keys: Which PlotBrick variables are associated with this thing and can be edited in the thing view.
@@ -96,9 +96,9 @@ class PlotBrick(object):
         self.category = category
         self.data = kwargs.copy()
 
-        self._format_scripts()
+        self._initialize_scripts()
 
-    def _format_scripts(self):
+    def _initialize_scripts(self):
         if not self.is_new_branch and self.elements:
             if "plot_init" not in self.scripts:
                 self.scripts["plot_init"] = ""
