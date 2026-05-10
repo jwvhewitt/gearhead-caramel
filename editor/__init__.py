@@ -17,14 +17,6 @@ class ScrolledFrame(ttk.Frame):
 
         self.canvas.grid(row=0, column=0, sticky="nswe")
         self.scrollbar.grid(row=0, column=1, sticky="ns")
-    #     _=self.bind("<<gh_scroll>>", self._on_scroll)
-
-    # def _on_scroll(self, ev: tk.Event):
-    #     g = self.winfo_geometry()
-    #     x, y = ev.x, ev.y
-    #     print(g)
-    #     print("Virtual!")
-
 
 
 class PhysicalEditor(ttk.Frame):
@@ -47,6 +39,6 @@ class PhysicalEditor(ttk.Frame):
 
         for t in range(100):
             label = ttk.Button(self.tree_frame, text="Line {}".format(t+1))
-            label.grid()
+            label.grid(pady=5)
 
 

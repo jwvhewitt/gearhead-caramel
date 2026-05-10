@@ -31,9 +31,11 @@ class MegaProp(teams.Team):
 
         super().predeploy(gb, room)
 
-    def move(self, camp: gears.GearHeadCampaign, dx=0, dy=0):
+    def move(self, camp: gears.GearHeadCampaign, dx=0, dy=0, **kwargs):
+        # kwargs will get passed to the alert handling the movement.
         # Locate all the parts of this prop.
         prop_parts = [p for p in camp.scene.contents if camp.scene.local_teams.get(p) is self]
+        anim_list = list()
 
         # Locate all the positions where this prop is gonna be after the move.
         destination_positions = {(p.pos[0] + dx, p.pos[1] + dy) for p in prop_parts}
@@ -45,7 +47,7 @@ class MegaProp(teams.Team):
                 candidates = [vec for vec in camp.scene.ANGDIR if (actr.pos[0] + vec[0], actr.pos[1] + vec[1]) not in blocked_tiles]
                 if candidates:
                     push_vec = random.choice(candidates)
-                    pbge.my_state.view.anim_list.append(
+                    anim_list.append(
                         pbge.scenes.animobs.MoveModel(actr, dest=(actr.pos[0] + push_vec[0], actr.pos[1] + push_vec[1]))
                     )
                     blocked_tiles.add((actr.pos[0] + push_vec[0], actr.pos[1] + push_vec[1]))
@@ -56,13 +58,14 @@ class MegaProp(teams.Team):
 
         if move_ok:
             for p in prop_parts:
-                pbge.my_state.view.anim_list.append(pbge.scenes.animobs.MoveModel(p, dest=(p.pos[0] + dx, p.pos[1] + dy)))
+                anim_list.append(pbge.scenes.animobs.MoveModel(p, dest=(p.pos[0] + dx, p.pos[1] + dy)))
             #self.deal_with_collisions(camp, collisions)
+            _=pbge.alerts.AnimAlert(*anim_list, **kwargs)
         else:
-            pbge.my_state.view.anim_list.clear()
-            self.deal_with_collisions(camp, collisions)
+            self.deal_with_collisions(camp, collisions, **kwargs)
 
-    def deal_with_collisions(self, camp, collisions):
+    def deal_with_collisions(self, camp, collisions, **kwargs):
+        # As above kwargs to be passed to the alert
         invo = pbge.effects.Invocation(
             name="Crash!!!",
             fx=gears.geffects.DoDamage(
@@ -70,7 +73,7 @@ class MegaProp(teams.Team):
                 scatter=True, is_brutal=True, anim=gears.geffects.BigBoom
             ), area=pbge.scenes.targetarea.SingleTarget(),
         )
-        invo.invoke(camp, None, [c.pos for c in collisions], pbge.my_state.view.anim_list)
+        _=pbge.alerts.InvocationAlert(invo, camp, None, [c.pos for c in collisions], **kwargs)
 
 
 NORTHWARD = (0,-1)

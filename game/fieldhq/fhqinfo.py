@@ -10,8 +10,8 @@ RIGHT_COLUMN = pbge.frects.Frect(175, -215, 200, 430)
 UTIL_INFO = pbge.frects.Frect(-50, -200, 300, 200)
 UTIL_MENU = pbge.frects.Frect(-50, 50, 300, 150)
 
-RIGHT_INFO = pbge.frects.Frect(175, -200, 200, 150)
-RIGHT_MENU = pbge.frects.Frect(175, -20, 200, 170)
+RIGHT_INFO = pbge.frects.Frect(180, -200, 200, 150)
+RIGHT_MENU = pbge.frects.Frect(180, -20, 200, 220)
 
 
 class MechasPilotBlock(object):

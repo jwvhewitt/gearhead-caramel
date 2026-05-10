@@ -554,7 +554,6 @@ class WorldMapWarTurn:
         target_node, num_attackers, num_defenders, spend_boost, attack_frame, defense_frame = wid.data
         # Show the results of the fighting.
         if num_defenders > 0:
-            self.casulties.clear()
             attacker_casulties = 0
             defender_casulties = 0
             while num_attackers - attacker_casulties > 0 and num_defenders - defender_casulties > 0:
@@ -562,7 +561,7 @@ class WorldMapWarTurn:
                     attacker_casulties += 1
                 else:
                     defender_casulties += 1
-            attacker_won = self.num_attackers - attacker_casulties > 0
+            attacker_won = num_attackers - attacker_casulties > 0
             _=WorldMapBattleAlert(
                 "The fighting begins...", self.visualizer, target_node, None,
                 num_attackers, num_defenders, self.world_map_war,

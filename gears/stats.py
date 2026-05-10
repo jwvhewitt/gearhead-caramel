@@ -124,7 +124,7 @@ class MechaGunnery(Skill):
 
 class MechaFighting(Skill):
     name = 'Mecha Fighting'
-    desc = "Used when attacking with mecha scale close combat weapons and also when making unarmed attacks in a mecha."
+    desc = "Used when attacking with mecha scale close combat weapons and unarmed attacks in a mecha."
 
 
 class MechaPiloting(Skill):

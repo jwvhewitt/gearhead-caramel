@@ -404,14 +404,19 @@ class BAM_EscortShip(Plot):
             camp.check_trigger("FORCE_EXIT")
         else:
             facing = self.elements["_facing"]
-            for t in range(5):
-                myprop.move(camp, *facing)
-                if self._ship_has_escaped(camp, myprop, facing):
-                    _=pbge.alerts.TextAlert("Ship has escaped!")
-                    self.obj.win(camp)
-                    self.obj2.win(camp, sum([p.current_health for p in myprop.get_members_in_play(camp)]) * 100 // self.initial_health)
-                    camp.check_trigger("FORCE_EXIT")
-                    break
+            myprop.move(camp, *facing, on_close=self._check_escape, data=(camp, 5))
+
+    def _check_escape(self, wid, _ev):
+        camp, n = wid.data
+        facing = self.elements["_facing"]
+        myprop = self.elements["SHIP"]
+        if self._ship_has_escaped(camp, myprop, facing):
+            _=pbge.alerts.TextAlert("Ship has escaped!")
+            self.obj.win(camp)
+            self.obj2.win(camp, sum([p.current_health for p in myprop.get_members_in_play(camp)]) * 100 // self.initial_health)
+            camp.check_trigger("FORCE_EXIT")
+        elif n > 1:
+            myprop.move(camp, *facing, on_close=self._check_escape, data=(camp, n-1))
 
     def _ship_has_escaped(self, camp: gears.GearHeadCampaign, ship: megaprops.MegaProp, facing):
         troom = self.elements["TARGET_ROOM"]

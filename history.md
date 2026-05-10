@@ -1,3 +1,5 @@
+* Fixed WorldMapWar battle report crash
+* Fixed megaprop motion
 * Waypoint menus are queued instead of immediately deployed
 * RoPP recruitment plots end if the faction in question is eliminated
 * Fixed MultiMission crash

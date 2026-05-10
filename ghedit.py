@@ -49,26 +49,6 @@ class GearHeadEditor(tk.Tk):
         _=self.columnconfigure(0, weight=1)
         _=self.rowconfigure(0, weight=1)
 
-    #     _=self.bind_all("<MouseWheel>", self._on_mouse_scroll)
-    #     _=self.bind_all("<Button-4>", self._on_linux_scroll)
-    #     _=self.bind_all("<Button-5>", self._on_linux_scroll)
-
-    # def _on_mouse_scroll(self, ev: tk.Event):
-    #     print("Got rolling {}".format(ev.num))
-    #     if ev.num < 0:
-    #         n = -1
-    #     else:
-    #         n = 1
-    #     self.event_generate("<<gh_scroll>>", x=ev.x_root, y=ev.y_root, data=n)
-
-    # def _on_linux_scroll(self, ev: tk.Event):
-    #     print("Got linux {}".format(ev.num))
-    #     if ev.num == 4:
-    #         n = -1
-    #     else:
-    #         n = 1
-    #     self.event_generate("<<gh_scroll>>", data=(ev.x_root, ev.y_root, n))
-
 
 if __name__ == "__main__":
     root = GearHeadEditor()
