@@ -61,7 +61,7 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
         self.camp = camp
         self.pc = pc
         self.build_library = build_library_function
-        self.library = build_library_function()
+        self.library = build_library_function(bool(self.camp.fight))
         self.update_callback = update_callback
         self.top_shelf_fun = top_shelf_fun
         self.bottom_shelf_fun = bottom_shelf_fun
@@ -139,16 +139,16 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
             self.set_shelf_invo(self.shelf, usable_invos[new_i])
 
     def prev_shelf(self):
-        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc) or s is self.shelf]
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc, bool(self.camp.fight)) or s is self.shelf]
         old_i = usable_shelves.index(self.shelf)
         if old_i == 0 and self.top_shelf_fun:
             self.top_shelf_fun()
         elif len(usable_shelves) > 1:
             nu_shelf = usable_shelves[old_i - 1]
-            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
 
     def next_shelf(self):
-        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc) or s is self.shelf]
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc, bool(self.camp.fight)) or s is self.shelf]
         old_i = usable_shelves.index(self.shelf)
         if old_i == len(usable_shelves)-1 and self.bottom_shelf_fun:
             self.bottom_shelf_fun()
@@ -157,19 +157,19 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
             if new_i >= len(usable_shelves):
                 new_i = 0
             nu_shelf = usable_shelves[new_i]
-            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
 
     def set_top_shelf(self):
-        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc)]
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc, bool(self.camp.fight))]
         if usable_shelves:
             nu_shelf = usable_shelves[0]
-            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
 
     def set_bottom_shelf(self):
-        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc)]
+        usable_shelves = [s for s in self.library if s.has_at_least_one_working_invo(self.pc, bool(self.camp.fight))]
         if usable_shelves:
             nu_shelf = usable_shelves[-1]
-            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
 
     def click_button(self, button, _ev):
         target_invo = button.data + self.shelf_offset
@@ -194,15 +194,15 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
     def _click_invo_menu(self, wid, _ev):
         nu_shelf = wid.data
         if nu_shelf in self.library and nu_shelf != self.shelf:
-            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc))
+            self.set_shelf_invo(nu_shelf, nu_shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
 
     def maybe_select_shelf_with_this_source(self, this_source):
         if this_source:
-            self.library = self.build_library()
+            self.library = self.build_library(bool(self.camp.fight))
             shelf_to_use = None
             for shelf in self.library:
                 if this_source is shelf.source:
-                    if shelf.has_at_least_one_working_invo(self.pc):
+                    if shelf.has_at_least_one_working_invo(self.pc, bool(self.camp.fight)):
                         shelf_to_use = shelf
                     break
             if shelf_to_use:
@@ -213,11 +213,11 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
                 self.select_first_usable_invo()
 
     def select_shelf_with_this_source(self, this_source):
-        self.library = self.build_library()
+        self.library = self.build_library(bool(self.camp.fight))
         self.shelf = None
         for shelf in self.library:
             if this_source is shelf.source:
-                if shelf.has_at_least_one_working_invo(self.pc):
+                if shelf.has_at_least_one_working_invo(self.pc, self.camp.fight):
                     self.set_shelf_invo(shelf, shelf.get_first_working_invo(self.pc, self.camp.fight) or shelf.invo_list[0])
                     break
                 else:
@@ -225,7 +225,7 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
                     break
 
     def select_first_usable_invo(self):
-        self.library = self.build_library()
+        self.library = self.build_library(bool(self.camp.fight))
         self.shelf = None
         for shelf in self.library:
             invo = shelf.get_first_working_invo(self.pc, self.camp.fight)
@@ -300,9 +300,9 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
             return self.shelf.invo_list[self.invo]
 
     def update_buttons(self):
-        if not self.shelf.invo_list[self.invo].can_be_invoked(self.pc, True):
-            if self.shelf.has_at_least_one_working_invo(self.pc):
-                self.set_shelf_invo(self.shelf, self.shelf.get_first_working_invo(self.pc))
+        if not self.shelf.invo_list[self.invo].can_be_invoked(self.pc, bool(self.camp.fight)):
+            if self.shelf.has_at_least_one_working_invo(self.pc, bool(self.camp.fight)):
+                self.set_shelf_invo(self.shelf, self.shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
             else:
                 self.select_first_usable_invo()
         else:
@@ -347,6 +347,8 @@ class DataGatheringWidget(pbge.widgets.Widget):
 
 
 class InvocationUI(pbge.widgets.Widget):
+    # This is an invisible widget; it handles targeting with the currently selected invocation.
+    # The library widget is the visible part which lets the player choose an invocation to use.
     SC_ORIGIN = 4
     SC_AOE = 2
     SC_CURSOR = 3
@@ -383,7 +385,7 @@ class InvocationUI(pbge.widgets.Widget):
 
 
         self.my_widget: InvocationLibraryWidget = self.LIBRARY_WIDGET(
-            camp, pc, build_library_function, self.change_invo, start_source=source,
+            camp, pc, build_library_function, self._change_invo, start_source=source,
             top_shelf_fun=top_shelf_fun, bottom_shelf_fun=bottom_shelf_fun,
             auto_launch_fun=self.auto_launch
         )
@@ -409,7 +411,7 @@ class InvocationUI(pbge.widgets.Widget):
     def _get_target_count(self, *_args):
         return "{}/{} Targets".format(len(self.targets), self.num_targets)
 
-    def change_invo(self, new_invo):
+    def _change_invo(self, new_invo):
         self.invo = new_invo
         if new_invo:
             self.legal_tiles = new_invo.area.get_targets(self.camp, self.pc.pos)
@@ -542,14 +544,14 @@ class InvocationUI(pbge.widgets.Widget):
         self.tidy()
         self.targets = self.locked_targets.copy()
         self.invo = self.locked_invo
-        self.on_invoke(self.invo, self.get_firing_pos(), self.locked_targets, self.data)
+        self.on_invoke(self.invo, self._get_firing_pos(), self.locked_targets, self.data)
         if not self.auto_escape:
             self.targets = list()
             self.my_widget.update_buttons()
             self.record = False
             #self.activate()
 
-    def click_left(self):
+    def _click_left(self):
         if self.invo.can_be_invoked(self.pc, bool(self.camp.fight)):
             if pbge.my_state.view.mouse_tile in self.legal_tiles:
                 self.targets.append(pbge.my_state.view.mouse_tile)
@@ -568,11 +570,11 @@ class InvocationUI(pbge.widgets.Widget):
                 self.targets.append(self.pc.pos)
             self.launch()
         else:
-            self.click_left()
+            self._click_left()
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
-            self.click_left()
+            self._click_left()
 
         elif ev.type == pygame.KEYDOWN:
             if ev.unicode == "r":
@@ -586,7 +588,7 @@ class InvocationUI(pbge.widgets.Widget):
                 self.register_response()
 
             elif pbge.my_state.is_key_for_action(ev, "cursor_click"):
-                self.click_left()
+                self._click_left()
                 self.register_response()
 
             elif pbge.my_state.is_key_for_action(ev, "exit") and self.auto_escape:
@@ -611,7 +613,7 @@ class InvocationUI(pbge.widgets.Widget):
         if self.camp.fight:
             self.nav = self.camp.fight.get_action_nav(self.pc)
 
-    def get_firing_pos(self) -> tuple[int, int]:
+    def _get_firing_pos(self) -> tuple[int, int]:
         if self.targets[0] in self.legal_tiles:
             return self.pc.pos
         elif self.nav and self.camp.fight:
@@ -626,6 +628,7 @@ class InvocationUI(pbge.widgets.Widget):
                 return self.pc.pos
 
     def name_current_invo(self):
+        # Return the supposedly unique identifier for this invocation.
         my_invo = self.my_widget.get_invo()
         if my_invo and my_invo.name:
             return my_invo.name

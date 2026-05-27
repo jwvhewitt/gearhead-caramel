@@ -1,3 +1,5 @@
+from pbge import effects
+
 from . import materials
 from . import scale
 from . import calibre
@@ -399,7 +401,7 @@ class Combatant(KeyObject):
         self.ench_list = enchantments.EnchantmentList()
         super(Combatant, self).__init__(**keywords)
 
-    def get_attack_library(self):
+    def get_attack_library(self, _in_combat=True):
         my_invos = list()
         for p in self.descendants(include_pilot=False):
             if p.is_operational() and hasattr(p, 'get_attacks'):
@@ -482,10 +484,10 @@ class Combatant(KeyObject):
     def get_bonus_action_cost_mod(self):
         return 0
 
-    def get_current_stamina(self):
+    def get_current_stamina(self) -> int:
         return 0
 
-    def get_current_mental(self):
+    def get_current_mental(self) -> int:
         return 0
 
 
@@ -670,7 +672,7 @@ class BaseGear(scenes.PlaceableThing):
             return self.name
 
     @property
-    def base_mass(self):
+    def base_mass(self) -> int:
         """Returns the unscaled mass of this gear, ignoring children."""
         return 1
 
@@ -744,13 +746,13 @@ class BaseGear(scenes.PlaceableThing):
         return max(p._this_part_shop_rank() for p in self.get_all_parts())
 
     def battle_cost(self):
-        # Return the cost, ignoring treasure.
+        # Return the cost, ignoring treasure and skill manuals.
         m = self.self_cost
         for part in self.sub_com:
-            if not isinstance(part, Treasure):
+            if not isinstance(part, (Treasure, SkillManual)):
                 m = m + part.cost
         for part in self.inv_com:
-            if not isinstance(part, Treasure):
+            if not isinstance(part, (Treasure, SkillManual)):
                 m = m + part.cost
         return m
 
@@ -5037,16 +5039,16 @@ class Prop(BaseGear, StandardDamageHandler, HasInfinitePower, Combatant):
     def get_current_stamina(self):
         return self.get_max_stamina()
 
-    def spend_mental(self, amount):
+    def spend_mental(self, _amount):
         pass
 
-    def partially_restore_mental(self, amount):
+    def partially_restore_mental(self, _amount):
         pass
 
-    def spend_stamina(self, amount):
+    def spend_stamina(self, _amount):
         pass
 
-    def get_attack_library(self):
+    def get_attack_library(self, _in_combat=True):
         my_invos = list()
         for p in self.descendants(include_pilot=False):
             if hasattr(p, 'get_attacks') and p.is_not_destroyed():
@@ -5236,6 +5238,65 @@ class Treasure(BaseGear, StandardDamageHandler):
 #   ***   CONSUMABLE   ***
 #   **********************
 
+class SkillManual(BaseGear, InvulnerableDamageHandler):
+    DEFAULT_NAME = "Book"
+    SAVE_PARAMETERS = (
+        'skill_to_improve', 'weight')
+    DEFAULT_SCALE = scale.HumanScale
+
+    SHOP_RANK_LOG_RESULT_MULTIPLIER = 10
+    SHOP_RANK_LOG_COST_MULTIPLIER = 0.01
+
+    def __init__(self, skill_to_improve: type[stats.Skill]=stats.MechaPiloting, weight=0, **keywords):
+        self.skill_to_improve = skill_to_improve
+        self.weight = max(weight, random.randint(4,12))
+
+        # Finally, call the gear initializer.
+        super().__init__(**keywords)
+
+    @property
+    def base_mass(self):
+        """Returns the unscaled mass of this gear, ignoring children."""
+        return self.weight
+
+    base_volume = 1
+
+    def add_usable_invocations(self, _pc, invo_dict):
+        invo_dict["Use Item"].append( effects.Invocation(
+            "Read {}".format(self),
+            fx=geffects.ImproveSkill(
+                self.skill_to_improve, anim=geffects.SparkleBlueAnim
+            ), 
+            area=pbge.scenes.targetarea.SelfOnly(),
+            used_in_combat = False, used_in_exploration=True,
+            ai_tar = aitargeters.GenericTargeter(impulse_score=50,conditions=[aitargeters.TargetIsAlly(),aitargeters.TargetIsOperational(),aitargeters.TargetHasEnchantment(geffects.Poisoned)],targetable_types=pbge.scenes.PlaceableThing),
+            shot_anim=None,
+            data=geffects.AttackData(pbge.image.Image('sys_skillicons.png',32,32),15),
+            price=[geffects.SingleUseItemPrice(self), geffects.MentalPrice(10), geffects.StaminaPrice(10)],
+            targets=1
+
+        ))
+
+    @property
+    def base_cost(self):
+        if self.skill_to_improve in (stats.MechaPiloting, stats.Dodge):
+            return 2500000
+        elif self.skill_to_improve in stats.FUNDAMENTAL_COMBATANT_SKILLS:
+            return 1000000
+        else:
+            return 500000
+
+    def is_operational(self):
+        return True
+
+    def get_item_stats(self):
+        return ((str(self.skill_to_improve), "+1"),)
+
+# books = [SkillManual(stats.MechaPiloting, name="Mecha Piloting Manual"), SkillManual(stats.MechaGunnery, name="Mecha Gunnery Manual"), SkillManual(stats.Athletics, name="Athletics Manual")]
+# for b in books:
+#     print("{}: ${}, rank {}".format(b, b.cost, b.shop_rank()))
+
+
 class Consumable(BaseGear, InvulnerableDamageHandler):
     DEFAULT_NAME = "Consumable"
     SAVE_PARAMETERS = (
@@ -5280,6 +5341,7 @@ class Consumable(BaseGear, InvulnerableDamageHandler):
 
     def get_item_stats(self):
         return (("Quantity", str(self.quantity - self.spent)),)
+
 
 
 from . import ghuiutil

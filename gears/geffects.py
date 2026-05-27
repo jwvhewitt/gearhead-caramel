@@ -330,6 +330,7 @@ class SparkleBlueAnim(animobs.AnimOb):
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 1
     DEFAULT_SOUND_FX = "magical_1.ogg"
+    DEFAULT_TICKS_PER_FRAME = 2
 
 
 class SparkleRedAnim(animobs.AnimOb):
@@ -337,6 +338,7 @@ class SparkleRedAnim(animobs.AnimOb):
     DEFAULT_END_FRAME = 7
     DEFAULT_LOOP = 1
     DEFAULT_SOUND_FX = "magical_1.ogg"
+    DEFAULT_TICKS_PER_FRAME = 2
 
 
 class BonusActionAnim(animobs.AnimOb):
@@ -1898,6 +1900,34 @@ class SetVisible(effects.NoEffect):
         return self.children
 
 
+class ImproveSkill(effects.NoEffect):
+    """An effect that improves a character's skill."""
+    # NOTE: USE SPARINGLY!!!
+
+    def __init__(self, fx_skill, children=(), anim=None):
+        self.fx_skill = fx_skill
+        if children:
+            self.children = list(children)
+        else:
+            self.children = list()
+        self.anim = anim
+
+    def handle_effect(self, camp, fx_record, originator, pos, anims, delay=0, data=None):
+        """Do whatever is required of effect; return list of child effects."""
+        targets = camp.scene.get_operational_actors(pos)
+        for target in targets:
+            pc = target.get_pilot()
+            if pc and hasattr(pc, "statline"):
+                pc.statline[self.fx_skill] += 1
+            myanim = animobs.Caption("{} +1".format(self.fx_skill),
+                pos=target.pos,
+                delay=delay,
+                y_off=-camp.scene.model_altitude(target, *target.pos)
+            )
+            anims.append(myanim)
+        return self.children
+
+
 class CallAnimalCompanion(effects.NoEffect):
     """ Gonna do the ranger thing and summon a pet.
     """
@@ -2614,6 +2644,19 @@ class CooldownPrice:
         total = max(p.cooldown for p in prices)
         return 'Cooldown:{}'.format(total)
 
+
+class SingleUseItemPrice(object):
+    def __init__(self, item_source):
+        self.item_source = item_source
+
+    def pay(self, _chara):
+        if self.item_source in self.item_source.parent.inv_com:
+            self.item_source.parent.inv_com.remove(self.item_source)
+        elif self.item_source in self.item_source.parent.sub_com:
+            self.item_source.parent.sub_com.remove(self.item_source)
+
+    def can_pay(self, _chara):
+        return self.item_source in self.item_source.parent.inv_com or self.item_source in self.item_source.parent.sub_com
 
 
 class ItemPrice(object):

@@ -1,3 +1,5 @@
+* Fixed abilities that work only outside of combat
+* Added skill manuals
 * Fixed WorldMapWar battle report crash
 * Fixed megaprop motion
 * Waypoint menus are queued instead of immediately deployed

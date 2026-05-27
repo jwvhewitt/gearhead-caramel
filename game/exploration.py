@@ -315,11 +315,11 @@ class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
         self.pc = pc
 
         if self.pc and self.pc in self.explo.camp.party:
-            my_invos = self.pc.get_skill_library()
+            my_invos = self.pc.get_skill_library(False)
             for i in my_invos:
                 if i.has_at_least_one_working_invo(self.pc, False):
                     _=self.add_item(str(i), InvoMenuCall(self.explo, self.pc, i.source))
-            my_invos = self.pc.get_usable_library()
+            my_invos = self.pc.get_usable_library(False)
             for i in my_invos:
                 if i.has_at_least_one_working_invo(self.pc, False):
                     _=self.add_item(str(i), UsableMenuCall(self.explo, self.pc, i.source))
@@ -539,9 +539,9 @@ class ExploCommandWidget(pbge.widgets.Widget):
                             print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
                                                             pc.relationship.can_do_development()))
 
-                elif ev.unicode == "W" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                elif ev.unicode == "B" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     #print(hasattr(self.camp.pc, "mecha_theme"))
-                    self.camp.pc.inv_com.append(gears.selector.get_design_by_full_name("DAK-92 Flamethrower"))
+                    self.camp.pc.inv_com.append(gears.base.SkillManual(gears.stats.Athletics, name="Manual of Gainful Exercise"))
 
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])

@@ -32,7 +32,7 @@ class QuickFixPill(Singleton):
         mylist.append(pbge.effects.Invocation(
             name = 'Quick Fix',
             fx=geffects.DoHealing(
-                3,6,repair_type=materials.RT_MEDICINE,
+                3,8,repair_type=materials.RT_MEDICINE,
                 anim = geffects.MedicineAnim,
                 ),
             area=pbge.scenes.targetarea.SelfOnly(),
@@ -52,9 +52,9 @@ class MiracleCure(Singleton):
     def get_invocations(cls, _pc):
         mylist = list()
         mylist.append(pbge.effects.Invocation(
-            name = 'Quick Fix',
+            name = 'Miracle Cure',
             fx=geffects.DoHealing(
-                10,6,repair_type=materials.RT_MEDICINE,
+                10,10,repair_type=materials.RT_MEDICINE,
                 anim = geffects.MedicineAnim,
                 ),
             area=pbge.scenes.targetarea.SelfOnly(),
