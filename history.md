@@ -1,3 +1,6 @@
+* Random artifacts may now appear in dungeons
+* Info images preloaded correctly now
+* Can invoke usable items from inventory
 * Fixed abilities that work only outside of combat
 * Added skill manuals
 * Fixed WorldMapWar battle report crash

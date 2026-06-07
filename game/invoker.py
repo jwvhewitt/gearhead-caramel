@@ -15,16 +15,17 @@ from collections.abc import Callable
 # gathered or False if it was not.
 
 class DataGatherer:
-    def gather(self, _data: dict):
+    def gather(self, _data: dict) -> bool| None:
         raise(NotImplementedError("This data gatherer does nothing!"))
 
-    def confirm(self, _data: dict):
+    def confirm(self, _data: dict) -> bool|None:
         raise(NotImplementedError("This data gatherer cannot confirm the data it did not collect."))
 
 
-# The On_Invoke callable accepts the invocation being invoked, the "firing position",
-# the list of target points, and the invocation data.
-type On_Invoke = Callable[[pbge.effects.Invocation, tuple[int, int], list, dict], None]
+# The On_Invoke callable accepts:
+#   the invoker, the invocation being invoked, the "firing position",
+#   the list of target points, and the invocation data.
+type On_Invoke = Callable[[gears.base.Combatant|None, pbge.effects.Invocation|None, tuple[int, int], list, dict], None]
 
 
 class InvoMenuDesc(pbge.widgetmenu.DescBoxWidget):
@@ -544,7 +545,7 @@ class InvocationUI(pbge.widgets.Widget):
         self.tidy()
         self.targets = self.locked_targets.copy()
         self.invo = self.locked_invo
-        self.on_invoke(self.invo, self._get_firing_pos(), self.locked_targets, self.data)
+        self.on_invoke(self.pc, self.invo, self._get_firing_pos(), self.locked_targets, self.data)
         if not self.auto_escape:
             self.targets = list()
             self.my_widget.update_buttons()

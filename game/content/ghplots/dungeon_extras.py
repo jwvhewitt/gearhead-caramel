@@ -11,15 +11,48 @@ from pbge.dialogue import Offer, ContextTag
 from game.ghdialogue import context
 
 
+#   **************************
+#   ***  DUNGEON_ARTIFACT  ***
+#   **************************
+#
+# Random artifact. Better than regular treasure.
+
+class ArtifactInChest(Plot):
+    LABEL = "DUNGEON_ARTIFACT"
+
+    def custom_init(self, nart):
+        self.register_element("ROOM", self.elements[DG_ARCHITECTURE].get_a_room()(random.randint(5,10), random.randint(5,10)), dident="LOCALE")
+        mychest = self.register_element("GOAL", ghwaypoints.OldCrate(
+            treasure_rank=self.rank, anchor=pbge.randmaps.anchors.middle, treasure_amount=100,
+            treasure_type=(gears.tags.ST_ANTIQUE, gears.tags.ST_TREASURE, gears.tags.ST_LOSTECH)
+        ), dident="ROOM")
+
+        myart = gears.artifacts.ArtifactBuilder(self.rank, gears.scale.HumanScale)
+        mychest.contents.append(myart.item)
+
+        self.add_sub_plot(nart, "MONSTER_ENCOUNTER", elements={"TYPE_TAGS": self.elements[DG_MONSTER_TAGS]})
+        return True
+
+
 #   **********************
 #   ***  DUNGEON_GOAL  ***
 #   **********************
+#
+# Automatically added to the goal level. If you want anything else, add it yourself.
 
 class TreasureGoal(Plot):
     LABEL = "DUNGEON_GOAL"
+    COMMON = True
 
     def custom_init(self, nart):
         self.add_sub_plot(nart, "DUNGEON_TREASURE", rank=self.rank + 5)
+        return True
+
+class ArtifactGoal(Plot):
+    LABEL = "DUNGEON_GOAL"
+
+    def custom_init(self, nart):
+        self.add_sub_plot(nart, "DUNGEON_ARTIFACT")
         return True
 
 
@@ -374,11 +407,11 @@ class EternalGuardians(Plot):
     def _eteam_ACTIVATETEAM(self, camp):
         self.last_update = camp.time
         if self.fight_counter < 3:
-            pbge.alerts.TextAlert(self.INITIAL_ALERTS[self.fight_counter])
+            _=pbge.alerts.TextAlert(self.INITIAL_ALERTS[self.fight_counter])
         elif self.fight_counter == 3:
-            pbge.alerts.TextAlert(random.choice(self.GIVE_UP_ALERT))
+            _=pbge.alerts.TextAlert(random.choice(self.GIVE_UP_ALERT))
         else:
-            pbge.alerts.TextAlert(
+            _=pbge.alerts.TextAlert(
                 "As you approach, the ancient robot looks at you wearily. \"RESTRICTED AREA. TERMINATION. YOU KNOW THE DEAL.\"")
 
     def LOCALE_ENTER(self, camp: gears.GearHeadCampaign):

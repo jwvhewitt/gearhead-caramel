@@ -1214,7 +1214,8 @@ class DZD_AlliedArmor(Plot):
             decor=gharchitecture.StoneUndercityDecor()
         )
         self.elements["DUNGEON"] = mydungeon.entry_level
-        mycon2 = plotutility.TrapdoorToStairsUpConnector(nart, self, self.elements["OTHERSCENE"], mydungeon.entry_level)
+        _ = plotutility.TrapdoorToStairsUpConnector(nart, self, self.elements["OTHERSCENE"], mydungeon.entry_level)
+        self.add_sub_plot(nart, "DUNGEON_ARTIFACT", elements=mydungeon.get_dungeon_elements(LOCALE=mydungeon.goal_level))
 
         return True
 

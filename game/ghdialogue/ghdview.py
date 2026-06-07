@@ -47,13 +47,13 @@ class ConvoVisualizer(object):
         npc = npc.get_root()
         self.npc = pilot
         if hasattr(npc, "get_portrait"):
-            self.npc_sprite: gears.image.Image = npc.get_portrait()  # pyright: ignore[reportRedeclaration]
+            self.npc_sprite: pbge.image.Image|None = npc.get_portrait()  # pyright: ignore[reportRedeclaration]
         else:
-            self.npc_sprite: gears.image.Image = None
+            self.npc_sprite: pbge.image.Image|None = None
         if pilot is not npc and hasattr(pilot, "get_portrait"):
-            self.pilot_sprite: gears.image.Image = pilot.get_portrait()  # pyright: ignore[reportRedeclaration]
+            self.pilot_sprite: pbge.image.Image|None = pilot.get_portrait()  # pyright: ignore[reportRedeclaration]
         else:
-            self.pilot_sprite: gears.image.Image = None
+            self.pilot_sprite: pbge.image.Image|None = None
         self.npc_desc = self.npc.get_text_desc(camp)
         self.camp = camp
         self.bottom_sprite = pbge.image.Image(camp.convoborder)

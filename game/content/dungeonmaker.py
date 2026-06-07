@@ -53,6 +53,13 @@ class DungeonMaker(object):
         self.name = name
         self.architecture = architecture
         self.rank = rank
+        self.scene_tags = scene_tags
+        self.monster_tags = monster_tags
+        self.temporary = temporary
+        self.parent_scene = parent_scene
+        self.explo_music = explo_music
+        self.combat_music = combat_music
+        self.decor = decor
         self.connector = connector
         self.proto_levels = list()
         self.levels = list()
@@ -81,13 +88,25 @@ class DungeonMaker(object):
                 if proto.terminal:
                     sp.add_sub_plot(nart, "DUNGEON_GOAL", elements={DG_MONSTER_TAGS: monster_tags}, rank=proto.level_plot.rank)
                 if parent and parent is not parent_scene:
-                    connector(nart, parent_plot, parent, proto.real_scene, )
+                    _=connector(nart, parent_plot, parent, proto.real_scene, )
                 else:
                     self.entry_level = proto.real_scene
 
             self.goal_level = self.goal_proto_level.real_scene
             if goal_room:
                 self.goal_level.contents.append(goal_room)
+
+    def get_dungeon_elements(self, **kwargs):
+        # Return the set of elements that should be passed to dungeon subplots, if you plan to add a dungeon
+        # subplot manually.
+        my_elements = {
+            DG_NAME: self.name, DG_ARCHITECTURE: self.architecture, DG_SCENE_TAGS: self.scene_tags,
+            DG_MONSTER_TAGS: self.monster_tags, DG_TEMPORARY: self.temporary, DG_PARENT_SCENE: self.parent_scene,
+            DG_EXPLO_MUSIC: self.explo_music, DG_COMBAT_MUSIC: self.combat_music, DG_DECOR: self.decor
+        }
+        if kwargs:
+            my_elements.update(kwargs)
+        return my_elements
 
     def add_a_level(self, parent, depth, branch):
         mylevel = ProtoDLevel(parent, depth, branch)

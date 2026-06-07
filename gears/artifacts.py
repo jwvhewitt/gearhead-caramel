@@ -86,7 +86,10 @@ class ArtifactBuilder:
     GENERIC_GRAMMAR = {
         "[historical_era]": [
             "the Age of Superpowers", "the previous age", "the Exodus", "the Homecoming", "the settlement of [planet]",
-            "PreZero times"
+            "PreZero times", "the [decade]s",
+        ],
+        "[decade]": [
+            "90", "100", "110", "120", "130", "140",
         ],
         "[planet]": [
             "Luna", "Mars", "Venus", "the L5 system", "the L4 system",
@@ -109,6 +112,14 @@ class ArtifactBuilder:
             "Summer", "Autumn", "Winter", "Tacos", "Data", "Pain", "Pleasure", "Legend",
             "Gender"
         ],
+        "[job]": [
+            "pilot", "cavalier", "duelist", "gladiator", "soldier", "commander", "pirate", "aristo"
+        ],
+        "[color]": [
+            "red", "orange", "yellow", "green", "blue", "purple", "magenta", "turquoise", "pink",
+            "brown", "grey",
+        ],
+
     }
 
     MELEE_WEAPON_GRAMMAR = {
@@ -143,13 +154,122 @@ class ArtifactBuilder:
         "[owner]": [
             "[nationality] [job]", "[job]"
         ],
-        "[job]": [
-            "pilot", "cavalier", "duelist", "gladiator", "soldier", "commander", "pirate", "aristo"
-        ],
         "[owner_adjective]": [
             "famous", "infamous", "legendary", "ill-fated", "ambitious"
         ],
     }
+
+
+    def __init__(self, rank, target_scale=scale.MechaScale, auto_generate=True):
+        self.rank = max(rank + random.randint(1,10), 10, min(rank + random.randint(1,20), rank + random.randint(1,20)))
+        if random.randint(1,5) == 3:
+            self.rank += random.randint(-5, 10)
+        self.grammar = pbge.dialogue.grammar.Grammar()
+        self.grammar.absorb(self.GENERIC_GRAMMAR)
+        self.target_scale = target_scale
+        self.item = None
+
+        if auto_generate:
+            if random.randint(1,3) == 1:
+                # Generate a treasure.
+                self.generate_artwork()
+            elif random.randint(1,10) == 5:
+                # Generate a skill manual
+                self.generate_skill_manual()
+            else:
+                # Generate a weapon.
+                self.generate_melee_weapon()
+
+    MANUAL_GRAMMAR = {
+        "[adjective]": [
+            "useful", "artificial", "adorable", "uncomfortable", "comfortable", "good", "bad", "open",
+            "modern", "musty", "shiny", "bright", "sinful", "interesting", "surprising",
+            "bland", "coffee-stained", "handwritten", "arcane", "nigh incomprehensible", "easy to follow",
+            "sexy", "new", "important", "wonderful", "great", "fun", "beautiful", "pretty", "ugly",
+            "cool", "strange", "fast", "slow", "lucky", "big", "huge", "long", "small", "tiny", "exciting", "gigantic",
+            "cosmic", "natural", "unwanted", "delicate", "stormy", "fragile", "strong", "flexible", "rigid", "cold",
+            "hot", "irradiated", "poor", "living", "dead", "creamy", "delicious", "cool", "excellent", "boring",
+            "happy", "lavishly illustrated", "defaced", "annotated",
+            "sad", "confusing", "valuable", "old", "ancient", "bouncy", "magnetic", "smelly", "hard",
+            "easy", "serious", "kind", "gentle", "greedy", "lovely", "cute", "plain", "dangerous", "silly", "smart",
+            "fresh", "obsolete", "perfect", "ideal", "professional", "wise", "absurd",
+            "funny", "blind", "deaf", "creepy", "nice", "adequate", "expensive", "cheap", "fluffy", "rusted",
+            "green", "red", "blue", "yellow", "orange", 'purple', "grey", "brown", "pink", "black and white",
+            "dirty", "gothic", "metallic", "mutagenic", "outrageous", "incredible", "miraculous", "unlucky",
+            "hated", "beloved", "scary", "colorful", 
+        ],
+        "[book]": [
+            "tome", "book", "manual", "zine", "bookazine", "textbook", "treatise", "monograph",
+            "handbook", "guidebook", "folio", "graphic novel" 
+        ],
+        "[audience]": [
+            "Cavaliers", "Adventurers", "Beginners", "Experts", "Everybody", "Blockheads"
+        ],
+        "[name]": [
+            "[author]'s Guide to [skill]", "[theme] and [skill]", "The [concept] of [skill]",
+            "[skill] for [audience]", "The [audience] Book of [skill]", "[author]'s [skill] for [audience]"
+
+        ],
+        "[desc]": [
+            "[PHYSICAL_DESC] [DETAIL]",
+        ],
+        "[PHYSICAL_DESC]": [
+            "This [adjective] [book] explains a lot about [skill].",
+            "This [adjective] [book] can teach you about [skill].",
+            "This [book] about [skill] looks [adjective].",
+            "This [adjective] [book] claims to be a complete guide to [skill].",
+            "According to the cover blurb, this [book] contains all you need to know about [skill].",
+        ],
+
+        "[DETAIL]": [
+            "You suspect that it will fall apart upon reading.", "The cover is marred by [defacement].",
+            "Several interior pages are covered in [defacement].", 
+            "It has been slightly defaced by [defacement].",
+            "The author, [author], seems to have been a [nationality] [job].",
+            "It was written by a [job] named [author] during [historical_era].",
+            "According to the back cover it dates from [historical_era].",
+            "It was published [book_origin] by someone named [author].",
+            "Judging by the [defacement] and publishing date from [historical_era], this book has seen better days.",
+            "It was originally printed [book_origin] several years ago.",
+            "The cover shows author [author] [verbing].",
+            "The spine shows signs of [defacement] and the back cover photo of author [author] has been ripped out.",
+            "The cover is [color] and featureless; maybe it used to have a dust jacket.",
+            "It has obviously passed through many hands, as evidenced by the [defacement].",
+            "The graphic design dates this book firmly to [historical_era].",
+            "It feels like a holy relic.", "It feels like a holy relic, though one with [defacement].",
+            "It's in remarkably good condition for a book printed during [historical_era].",
+         ],
+         "[defacement]": [
+            "bite marks", "burn marks", "illegible notes", "obscene drawings from a previous reader",
+            "water damage", "[color] stains", "wear and tear", "spots of mildew", 
+         ],
+        "[book_origin]": [
+            "on Earth", "on Luna", "on Mars", "on Venus", "in the L5 system", "in the L4 system", "in deep space",
+            "in the Joseon Green Zone", "in the Scandi Green Zone", "on Athera Spinner", "in Novatlantis"
+        ],
+        "[verbing]": [
+            "smiling broadly", "practicing [skill]", "striking a serious pose", "holding a book about [skill]",
+            "staring directly at the reader", "demonstrating [skill]",
+        ],
+
+    }
+
+    def generate_skill_manual(self):
+        if random.randint(1,3) == 2:
+            myskill = random.choice(stats.COMBATANT_SKILLS)
+        else:
+            myskill = random.choice(stats.ALL_SKILLS)
+        self.grammar.absorb(self.MANUAL_GRAMMAR)
+        self.grammar["[author]"].append(random.choice((
+            selector.DEADZONE_NAMES.gen_word(), selector.EARTH_NAMES.gen_word(), selector.PREZERO_NAMES.gen_word(),
+            selector.LUNA_NAMES.gen_word(), selector.VENUS_NAMES.gen_word(), selector.GENERIC_NAMES.gen_word(),
+            selector.ORBITAL_NAMES.gen_word(), selector.MARS_NAMES.gen_word()
+        )))
+        self.grammar["[skill]"].append(str(myskill))
+        self.item = base.SkillManual(skill_to_improve=myskill)
+        self.item.name = pbge.dialogue.grammar.convert_tokens("[name]", self.grammar)
+        self.grammar["[final_name]"].append(str(self.item.name))
+        self.item.desc = pbge.dialogue.grammar.convert_tokens("[desc]", self.grammar)
 
     ARTWORK_GRAMMAR = {
         "[name]": [
@@ -228,26 +348,9 @@ class ArtifactBuilder:
         ]
     }
 
-    def __init__(self, rank, target_scale=scale.MechaScale, auto_generate=True):
-        self.rank = max(rank + random.randint(1,10), 10)
-        if random.randint(1,5) == 3:
-            self.rank += random.randint(-5, 10)
-        self.grammar = collections.defaultdict(list)
-        pbge.dialogue.grammar.Grammar.absorb(self.grammar, self.GENERIC_GRAMMAR)
-        self.target_scale = target_scale
-        self.item = None
-
-        if auto_generate:
-            if random.randint(1,3) == 1:
-                # Generate a treasure.
-                self.generate_artwork()
-            else:
-                # Generate a weapon.
-                self.generate_melee_weapon()
-
     def generate_artwork(self):
         # A treasure worth about as much as you'd expect.
-        pbge.dialogue.grammar.Grammar.absorb(self.grammar, self.ARTWORK_GRAMMAR)
+        self.grammar.absorb(self.ARTWORK_GRAMMAR)
         self.item = base.Treasure(value=selector.calc_mission_reward(self.rank, random.randint(200,500), round_it_off=True), weight=min(random.randint(5,50), random.randint(5,50)))
 
         self.item.name = pbge.dialogue.grammar.convert_tokens("[name]", self.grammar)
@@ -314,7 +417,7 @@ class ArtifactBuilder:
 
 
     def generate_melee_weapon(self):
-        pbge.dialogue.grammar.Grammar.absorb(self.grammar, self.MELEE_WEAPON_GRAMMAR)
+        self.grammar.absorb(self.MELEE_WEAPON_GRAMMAR)
         myclass = random.choice([mw for mw in MELEE_WEAPON_CLASSES if mw.min_rank <= self.rank])
         if random.randint(1,3) == 2 or self.rank > random.randint(25,120):
             self.item = myclass.generate_energy_weapon(self.target_scale)

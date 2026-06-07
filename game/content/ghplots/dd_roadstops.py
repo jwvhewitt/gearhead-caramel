@@ -1018,6 +1018,9 @@ class TreasureCave(Plot):
                                         dident="TREASURE_ROOM")
         mychest.contents += gears.selector.get_random_loot(self.rank + 15, 250, (
             gears.tags.ST_TREASURE, gears.tags.ST_LOSTECH, gears.tags.ST_WEAPON))
+        myart = gears.artifacts.ArtifactBuilder(self.rank, gears.scale.HumanScale)
+        mychest.contents.append(myart.item)
+
 
         myteam = self.register_element("_eteam", teams.Team(enemies=(mydungeon.goal_level.player_team,)),
                                        dident="TREASURE_ROOM")

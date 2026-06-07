@@ -1,4 +1,5 @@
 import random
+import collections
 
 """ The grammar/token expander takes generic tokens and expands them into
     appropriate words or sentences. With the exception of hard coded plot based
@@ -14,11 +15,12 @@ import random
 # A standard reply token is generally two offer tokens separated by a colon.
 #
 
-class Grammar( dict ):
+class Grammar( collections.defaultdict ):
+    def __init__(self):
+        super().__init__(list)
+
     def absorb( self, othergram ):
         for k,v in othergram.items():
-            if k not in self:
-                self[k] = list()
             self[k] += v
 
 

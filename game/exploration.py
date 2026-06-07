@@ -259,14 +259,10 @@ class InvoMenuCall(object):
         self.pc = pc
         self.source = source
 
-    def _on_invoke(self, invo, firing_pos, targets, data):
-        if invo:
-            self.explo.order = DoInvocation(self.explo, self.pc, firing_pos, invo, target_list=targets, data=data)
-
     def __call__(self, *args):
         invoker.InvocationUI.push_state_and_instantiate(
             camp=self.explo.camp, pc=self.pc, build_library_function=self.pc.get_skill_library,
-            source=self.source, on_invoke=self._on_invoke, auto_escape=True
+            source=self.source, on_invoke=self.explo.on_invoke, auto_escape=True
         )
 
 
@@ -278,25 +274,22 @@ class UsableMenuCall(object):
         self.pc = pc
         self.source = source
 
-    def _on_invoke(self, invo, firing_pos, targets, data):
-        if invo:
-            self.explo.order = DoInvocation(self.explo, self.pc, firing_pos, invo, target_list=targets, data=data)
-
     def __call__(self, *args):
         invoker.InvocationUI.push_state_and_instantiate(
             camp=self.explo.camp, pc=self.pc, build_library_function=self.pc.get_usable_library,
-            source=self.source, on_invoke=self._on_invoke, auto_escape=True
+            source=self.source, on_invoke=self.explo.on_invoke, auto_escape=True
         )
 
 
 class FieldHQCall(object):
-    def __init__(self, camp):
+    def __init__(self, explo):
         # Creates a callable that opens the invocation UI and handles
         # its effects.
-        self.camp = camp
+        self.camp = explo.camp
+        self.explo = explo
 
     def __call__(self, *args):
-        fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
+        fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp, on_invoke=self.explo.on_invoke)
 
 
 class BumpToCall(object):
@@ -335,7 +328,7 @@ class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
                 _=self.add_item('Use {}'.format(str(wayp)), BumpToCall(self.explo, wayp))
         # Add the standard options.
         _=self.add_item('Inventory', self.call_inventory)
-        _=self.add_item('Field HQ', FieldHQCall(self.explo.camp))
+        _=self.add_item('Field HQ', FieldHQCall(self.explo))
         _=self.add_item('View Memos',self._open_memo_browser)
         pc = self.explo.camp.first_active_pc()
         if pc:
@@ -345,7 +338,7 @@ class ExploMenu(pbge.widgetmenu.PopupMenuWidget):
         memos.MemoBrowser.push_state_and_instantiate(camp=self.explo.camp)
 
     def call_inventory(self, _wid, _ev):
-        fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.explo.camp, pc=self.pc or self.explo.camp.pc.get_root())
+        fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.explo.camp, pc=self.pc or self.explo.camp.pc.get_root(), on_invoke=self.explo.on_invoke)
 
     def center(self, _wid, _ev):
         # Center on the PC.
@@ -373,6 +366,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
         self.completed_initialization = False
 
+    def on_invoke(self, pc, invo, firing_pos, targets, data):
+        if invo:
+            self.order = DoInvocation(self, pc, firing_pos, invo, target_list=targets, data=data)
+
     def pick_up_item(self):
         pc = self.camp.pc.get_root()
         candidates = [i for i in self.scene.contents if
@@ -385,7 +382,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
     def open_inventory(self):
         pc = self.camp.pc.get_root()
-        fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.camp, pc=pc)
+        fieldhq.backpack.BackpackWidget.push_state_and_instantiate(camp=self.camp, pc=pc, on_invoke=self.on_invoke)
 
     def npc_inactive(self, mon):
         return mon not in self.camp.party and ((not self.camp.fight) or mon not in self.camp.fight.active)
@@ -523,7 +520,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
                 elif pbge.my_state.is_key_for_action(ev, "field_hq"):
                     self.register_response()
-                    fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp)
+                    fieldhq.FieldHQ.push_state_and_instantiate(camp=self.camp, on_invoke=self.on_invoke)
 
                 elif pbge.my_state.is_key_for_action(ev, "memo_browser"):
                     self.register_response()
@@ -541,7 +538,9 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
                 elif ev.unicode == "B" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                     #print(hasattr(self.camp.pc, "mecha_theme"))
-                    self.camp.pc.inv_com.append(gears.base.SkillManual(gears.stats.Athletics, name="Manual of Gainful Exercise"))
+                    myart = gears.artifacts.ArtifactBuilder(50, gears.scale.HumanScale, auto_generate=False)
+                    myart.generate_skill_manual()
+                    self.camp.pc.inv_com.append(myart.item)
 
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])

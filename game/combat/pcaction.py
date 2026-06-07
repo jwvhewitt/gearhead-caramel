@@ -147,7 +147,7 @@ class PlayerTurn(pbge.widgets.Widget):
             self.all_uis.append(self.skill_ui)
             self.all_funs[self.skill_ui] = self.switch_skill
 
-        has_programs = self.pc.get_program_library()
+        has_programs = self.pc.get_program_library(True)
         self.program_ui = programsui.ProgramsUI(
             self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
             on_invoke=self._on_invoke, visible=False,
@@ -161,7 +161,7 @@ class PlayerTurn(pbge.widgets.Widget):
             self.all_uis.append(self.program_ui)
             self.all_funs[self.program_ui] = self.switch_programs
 
-        has_usables = self.pc.get_usable_library()
+        has_usables = self.pc.get_usable_library(True)
         self.usable_ui = usableui.UsablesUI(
             self.camp, self.pc, top_shelf_fun=self.switch_top_shelf,
             on_invoke=self._on_invoke, visible=False,
@@ -208,7 +208,7 @@ class PlayerTurn(pbge.widgets.Widget):
         pbge.my_state.view.overlays.clear()
         self.actions += my_actions
 
-    def _on_invoke(self, invo, firing_pos, targets, data):
+    def _on_invoke(self, _pc, invo, firing_pos, targets, data):
         if firing_pos != self.pc.pos:
             self.actions.append(actions.MoveModelToPos(self.camp, self.pc, self.camp.fight.get_action_nav(self.pc), firing_pos))
         self.actions.append(actions.InvokeInvocation(self.camp, invo, firing_pos, self.pc, targets, data))
@@ -247,7 +247,7 @@ class PlayerTurn(pbge.widgets.Widget):
 
     def switch_programs(self, _button=None, _ev=None):
         if self.active_ui != self.program_ui:
-            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library():
+            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_program_library(True):
                 self.active_ui.deactivate()
                 self.program_ui.activate()
                 self.active_ui = self.program_ui
@@ -258,7 +258,7 @@ class PlayerTurn(pbge.widgets.Widget):
 
     def switch_usables(self, _button=None, _ev=None):
         if self.active_ui != self.usable_ui:
-            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library():
+            if self.camp.fight.cstat[self.pc].action_points > 0 and self.pc.get_usable_library(True):
                 self.active_ui.deactivate()
                 self.usable_ui.activate()
                 self.active_ui = self.usable_ui
@@ -408,7 +408,7 @@ class PlayerTurn(pbge.widgets.Widget):
         else:
             self.active_ui.update_nav()
 
-    def _get_skill_library(self):
+    def _get_skill_library(self, _in_combat=True):
         return self.pc.get_skill_library(True)
 
     def _builtin_responder(self, ev):

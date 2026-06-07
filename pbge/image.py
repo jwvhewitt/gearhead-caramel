@@ -33,16 +33,18 @@ class Image(object):
         if fname:
             self.bitmap = self.get_pre_loaded(fname, color, transparent)
             if not self.bitmap:
+                keyname = fname
                 if not os.path.exists(fname):
                     for p in search_path:
                         if os.path.exists(os.path.join(p, fname)):
                             fname = os.path.join(p, fname)
                             break
                 self.bitmap = pygame.image.load(fname).convert()
+                print(fname, color, transparent, my_state.anim_phase)
                 self.bitmap.set_colorkey((0, 0, 255), flags)
                 if color:
                     self.recolor(color)
-                self.record_pre_loaded(fname, color, self.bitmap, transparent)
+                self.record_pre_loaded(keyname, color, self.bitmap, transparent)
         else:
             self.bitmap = pygame.Surface((frame_width, frame_height))
             self.bitmap.fill((0, 0, 255))

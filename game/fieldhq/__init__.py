@@ -3,7 +3,7 @@ from game.fieldhq.fhqinfo import CharaFHQIP, MechaFHQIP, AssignMechaIP, PetFHQIP
 from pbge import widgets
 import pygame
 import gears
-from game import cosplay
+from game import cosplay, invoker
 from . import backpack
 from . import training
 from . import fhqinfo
@@ -257,7 +257,7 @@ class CharacterInfoWidget(widgets.Widget):
         training.TrainingMenu.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
  
     def open_backpack(self, _wid, _ev):
-        backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
+        backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc, on_invoke=self.fhq.on_invoke)
 
     def assign_mecha(self, _wid, _ev):
         mymenu = FHQPortraitMenu(self.portrait_view)
@@ -353,7 +353,7 @@ class MechaInfoWidget(widgets.Widget):
         self.fhq.active = True
 
     def open_backpack(self, _wid, _ev):
-        backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc)
+        backpack.BackpackWidget.push_state_and_instantiate(self.fhq, camp=self.camp, pc=self.pc, on_invoke=self.fhq.on_invoke)
 
     def change_colors(self, _wid, _ev):
         cosplay.ColorEditor.push_state_and_instantiate(
@@ -517,7 +517,7 @@ class FieldHQ(widgets.Widget):
     # To the right: The list of characters/mecha in the party
     TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
-    def __init__(self, camp):
+    def __init__(self, camp, on_invoke: invoker.On_Invoke):
         self._active_info = None
         super(FieldHQ, self).__init__(0, 0, 0, 0, tags={WTAG_FIELDHQ})
 
@@ -549,6 +549,14 @@ class FieldHQ(widgets.Widget):
             fhqinfo.RIGHT_COLUMN.dx + 64, fhqinfo.RIGHT_COLUMN.dy + fhqinfo.RIGHT_COLUMN.h + 20, 80, 0,
             text="Done", justify=0, on_click=self.done_button, draw_border=True
         ))
+
+        self.on_invoke = self.decorate_on_invoke(on_invoke)
+
+    def decorate_on_invoke(self, on_invoke_fun: invoker.On_Invoke):
+        def bp_on_invoke(*args, **kwargs):
+            on_invoke_fun(*args, **kwargs)
+            self.finished = True
+        return bp_on_invoke
 
     def _set_active_info(self, pc):
         if self._active_info:
@@ -613,6 +621,12 @@ class FieldHQ(widgets.Widget):
 
     def done_button(self, _wid, _ev):
         self.pop()
+
+    def update(self, delta):
+        if self.finished:
+            self.pop()
+        else:
+            return super().update(delta)
 
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:

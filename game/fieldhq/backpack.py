@@ -4,6 +4,7 @@ import gears
 import pygame
 
 from pbge import widgetmenu
+from game import invoker
 
 INFO_COLUMN = pbge.frects.Frect(-300, -200, 220, 300)
 EQUIPMENT_COLUMN = pbge.frects.Frect(-50, -200, 350, 155)
@@ -168,16 +169,17 @@ class PlayerCharacterSwitchPlusBPInfo(widgets.RowWidget):
 class BackpackWidget(widgets.Widget):
     TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
-    def __init__(self, camp, pc, **kwargs):
+    def __init__(self, camp, pc, on_invoke=None, **kwargs):
         """
 
         :type pc: gears.base.Character
         :type camp: gears.GearHeadCampaign
         """
-        super(BackpackWidget, self).__init__(0, 0, 0, 0, **kwargs)
+        super().__init__(0, 0, 0, 0, **kwargs)
 
         self.camp = camp
         self.pc = pc
+        self.on_invoke = self.decorate_on_invoke(on_invoke)
         self.info_cache = dict()
         self.active_item: pbge.widgets.Widget|None = None
         self._latest_item_to_open_menu = None
@@ -210,6 +212,12 @@ class BackpackWidget(widgets.Widget):
 
     def _activate_item(self, _col, colitem):
         self.active_item = colitem.data
+
+    def decorate_on_invoke(self, on_invoke_fun: invoker.On_Invoke):
+        def bp_on_invoke(*args, **kwargs):
+            on_invoke_fun(*args, **kwargs)
+            self.finished = True
+        return bp_on_invoke
 
     def set_pc(self, pc):
         self.pc = pc
@@ -335,6 +343,13 @@ class BackpackWidget(widgets.Widget):
         self.camp.party.append(item)
         self.update_selectors()
 
+    def _invoke_item(self, wid, _ev):
+        item = wid.data
+        invoker.InvocationUI.push_state_and_instantiate(
+            self, camp=self.camp, pc=self.pc, build_library_function=gears.geffects.SingleGearUsableLibrary(self.pc, item), 
+            on_invoke=self.on_invoke, auto_escape=True, name=str(item),
+        )
+
     def get_tiws_menu(self, current_menu_item: pbge.widgets.Widget|None=None) -> pbge.widgetmenu.MenuWidget:
         # Return a popup menu for this widget.
         if current_menu_item:
@@ -373,6 +388,8 @@ class BackpackWidget(widgets.Widget):
             _=mymenu.add_item("Reload {}".format(item), self._reload_gun, data=item)
 
         if self.pc.get_root() in self.camp.scene.contents:
+            if hasattr(item, "add_usable_invocations") and self.on_invoke:
+                _=mymenu.add_item("Use {}".format(item), self._invoke_item, data=item)
             _=mymenu.add_item("Drop {}".format(item), self._drop_item, data=item)
             if isinstance(self.pc.get_root(), gears.base.Character):
                 _=mymenu.add_item("Trade {}".format(item), self._trade_item, data=item)
@@ -391,11 +408,17 @@ class BackpackWidget(widgets.Widget):
     def finish(self, _wid, _ev):
         self.pop()
 
+    def update(self, delta):
+        if self.finished:
+            self.pop()
+        else:
+            return super().update(delta)
+
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
-                self.pop()
                 self.register_response()
+                self.pop()
 
 
 class ItemExchangeWidget(widgets.Widget):
@@ -486,6 +509,6 @@ class ItemExchangeWidget(widgets.Widget):
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
-                self.pop()
                 self.register_response()
+                self.pop()
 

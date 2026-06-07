@@ -8,6 +8,7 @@ from .enchantments import Enchantment, END_COMBAT, DISPEL_NEGATIVE_ELECTRONIC, O
 import math
 from . import base, tags
 import copy
+import collections
 
 
 MONSTER_LIST = ()
@@ -19,6 +20,7 @@ FX_PENETRATION = "FX_PENETRATION"
 #  *************************
 #  ***   Utility  Junk   ***
 #  *************************
+
 
 
 class AttackInvocation(effects.Invocation):
@@ -104,6 +106,23 @@ class InvoLibraryShelf(object):
 
     def __str__(self):
         return self.name
+
+
+class SingleGearUsableLibrary:
+    def __init__(self, pc, item):
+        self.pc = pc
+        self.item = item
+
+    def __call__(self, in_combat=True):
+        my_invo_dict = collections.defaultdict(list)
+        if self.item.is_operational() and hasattr(self.item, 'add_usable_invocations'):
+            self.item.add_usable_invocations(self.pc, my_invo_dict)
+        my_invos = list()
+        for k, v in list(my_invo_dict.items()):
+            p_list = InvoLibraryShelf(k, v)
+            if p_list.has_at_least_one_working_invo(self.pc, in_combat):
+                my_invos.append(p_list)
+        return my_invos
 
 
 class AttackData(object):

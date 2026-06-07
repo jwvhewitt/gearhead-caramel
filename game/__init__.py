@@ -87,6 +87,7 @@ class StartCampaignWidget(pbge.widgetmenu.MenuWidget):
                 camp.play(dest_wp=dest)
 
 
+PRELOAD_IMAGES = list()
 
 def init_game():
     content.backstory.init_backstory()
@@ -94,3 +95,7 @@ def init_game():
     scenariocreator.init_plotcreator()
     configedit.init_configedit()
     chargen.lifepath.init_lifepath()
+    PRELOAD_IMAGES.append(pbge.image.Image("sys_powerindicator.png"))
+    PRELOAD_IMAGES.append(pbge.image.Image("sys_armormobility.png"))
+    PRELOAD_IMAGES.append(pbge.image.Image("sys_modules.png"))
+

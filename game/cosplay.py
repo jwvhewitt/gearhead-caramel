@@ -125,5 +125,5 @@ class ColorEditor(pbge.widgets.Widget):
     def _builtin_responder(self, ev):
         if ev.type == pygame.KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
-                self.color_done(self, ev)
                 self.register_response()
+                self.color_done(self, ev)
