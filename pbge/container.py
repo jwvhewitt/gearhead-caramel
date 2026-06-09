@@ -142,6 +142,7 @@ class ContainerList(list,Container):
                 self._set_container(self[key])
                 raise
         list.__setitem__(self,key,value)
+
     def __delitem__(self, key):
         # FIXME: check slices work okay
         if isinstance(key, slice):
@@ -149,6 +150,7 @@ class ContainerList(list,Container):
         else:
             self._unset_container(self[key])
         list.__delitem__(self,key)
+
 
 class ContainerDict(dict,Container):
     """A ContainerDict is a dict whose children know they're in it.

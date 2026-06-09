@@ -35,14 +35,6 @@ class Egg(object):
         self.past_adventures = set()
         self.faction_scores = collections.defaultdict(int)
 
-    def __setstate__(self, state):
-        # For saves from V0.600 or earlier, make sure there's a faction_scores dict.
-        self.__dict__.update(state)
-        if "faction_scores" not in state:
-            self.faction_scores = collections.defaultdict(int)
-        if isinstance(self.dramatis_personae, list):
-            self.dramatis_personae = set(self.dramatis_personae)
-
     def _remove_container_for(self, thing, con_rec):
         if hasattr(thing, "container") and thing.container:
             con_rec[thing] = thing.container

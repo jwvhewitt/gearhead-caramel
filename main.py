@@ -59,8 +59,44 @@ import traceback
 VERSION = "v1.010beta"
 STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+class SpeedTest(pbge.widgets.Widget):
+    ITERATIONS = 10000
+    TAGS_TO_HIDE = {pbge.widgets.WTAG_TITLEMENU,}
+    ACTIVATE_IMMEDIATELY = True
 
-class DZDTitleScreenRedraw(object):
+    def __init__(self):
+        super().__init__(0, 0, 1280, 720)
+        self.sprite = pbge.image.Image("terrain_decor_bed.png")
+
+    def draw_individual(self):
+        mydest = pygame.Rect(0,360,64,64)
+        for t in range(self.ITERATIONS):
+            self.sprite.render(mydest)
+            mydest.x += 5
+            if mydest.x > 1260:
+                mydest.x = 0
+                mydest.y += 5
+
+    def draw_list(self):
+        mylist = [(self.sprite.bitmap, pygame.Rect(t%252*5, t//252*5, 64, 64)) for t in range(self.ITERATIONS)]
+        _=pbge.my_state.screen.blits(mylist, doreturn=0)
+
+    def _render(self, _delta):
+        self.draw_individual()
+        self.draw_list()
+
+    def _builtin_responder(self, ev):
+        if ev.type == pygame.MOUSEBUTTONUP:
+            if ev.button == 1:
+                self.register_response()
+                self.pop()
+
+        elif ev.type == pygame.KEYDOWN:
+            self.register_response()
+            self.pop()
+
+
+class DZDTitleScreenRedraw:
 
     TITLE_DEST = pbge.frects.Frect(-325, -175, 650, 100)
     MENU_DEST = pbge.frects.Frect(-150, 0, 300, 254)
@@ -446,7 +482,7 @@ class MainMenu(pbge.widgets.Widget):
         if quarantined_files:
             _=self._menu.add_item("Quarantined Saves", self._open_quarantine_viewer)
         if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-            _=self._menu.add_item("Edit Scenario", self._start_plot_creator)
+            _=self._menu.add_item("Do speed test", self._do_speed_test)
             _=self._menu.add_item("Compile Plot Bricks", self._compile_plot_bricks)
             #mymenu.add_item("Just Show Background", just_show_background)
             #mymenu.add_item("Test Adventure Generation", TestStartGame)
@@ -464,6 +500,9 @@ class MainMenu(pbge.widgets.Widget):
 
     def quit_game(self, *args, **kwargs):
         self.pop()
+
+    def _do_speed_test(self, _wid, _ev):
+        SpeedTest.push_state_and_instantiate()
 
     def _compile_plot_bricks(self, _wid, _ev):
         _=game.scenariocreator.PlotBrickCompiler()

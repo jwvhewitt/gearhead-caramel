@@ -23,10 +23,13 @@ class Grammar( collections.defaultdict ):
         for k,v in othergram.items():
             self[k] += v
 
-    def copy(self):
+    def __copy__(self):
         nume = Grammar()
         nume.update(self)
         return nume
+
+    def copy(self):
+        return self.__copy__()
 
 
 

@@ -1,3 +1,4 @@
+* PlacableThings container attribute is not pickled; restored when reloaded
 * Viewer redraw is very slightly faster
 * Random artifacts may now appear in dungeons
 * Info images preloaded correctly now

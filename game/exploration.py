@@ -545,6 +545,10 @@ class ExploCommandWidget(pbge.widgets.Widget):
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])
 
+                elif ev.unicode == "P":
+                    hed = self.camp.pc.sub_com[0]
+                    print(hed, hed.parent)
+
     def on_activate(self):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
             pbge.my_state.start_music(self.scene.exploration_music)

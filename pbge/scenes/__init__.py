@@ -157,6 +157,13 @@ class PlaceableThing(KeyObject):
     # Define an update_graphics method if you need to change this object's appearance
     # after invoking effects.
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove the unpicklable entries.
+        if "container" in state and isinstance(state["container"], container.Container):
+            del state['container']
+        return state
+
 
 from . import pathfinding
 from . import pfov
