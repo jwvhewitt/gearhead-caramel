@@ -23,6 +23,11 @@ class Grammar( collections.defaultdict ):
         for k,v in othergram.items():
             self[k] += v
 
+    def copy(self):
+        nume = Grammar()
+        nume.update(self)
+        return nume
+
 
 
 def expand_token( token_block, gramdb ):
