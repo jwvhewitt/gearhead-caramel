@@ -40,15 +40,17 @@ class Image(object):
                             fname = os.path.join(p, fname)
                             break
                 self.bitmap = pygame.image.load(fname).convert()
-                print(fname, color, transparent, my_state.anim_phase)
+                # print(fname, color, transparent, my_state.anim_phase)
                 self.bitmap.set_colorkey((0, 0, 255), flags)
                 if color:
                     self.recolor(color)
+                self.bitmap = self.bitmap.convert_alpha()
                 self.record_pre_loaded(keyname, color, self.bitmap, transparent)
         else:
             self.bitmap = pygame.Surface((frame_width, frame_height))
-            self.bitmap.fill((0, 0, 255))
+            _=self.bitmap.fill((0, 0, 255))
             self.bitmap.set_colorkey((0, 0, 255), flags)
+            self.bitmap = self.bitmap.convert()
 
         self.fname = fname
         self.transparent = transparent
@@ -56,7 +58,7 @@ class Image(object):
             alpha = int(transparent)
             if alpha <= 1:
                 alpha = 155
-            self.bitmap.set_alpha(alpha)
+            _=self.bitmap.set_alpha(alpha)
 
         if frame_width == 0:
             frame_width = self.bitmap.get_width()

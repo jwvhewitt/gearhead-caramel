@@ -86,6 +86,9 @@ class SceneView(object):
         self._focus_y = 0
         self.phase = 0
 
+        self.half_screen_width = 0
+        self.half_screen_height = 0
+
         # _mouse_tile contains the actual tile the mouse is hovering over. However, in most cases what we really want
         # is the location of the mouse cursor. Time to make a property!
         self._mouse_tile = (-1, -1)
@@ -261,6 +264,8 @@ class SceneView(object):
     # Half tile width and half tile height
     HTW = 32
     HTH = 16
+    FHTW = 32.0
+    FHTH = 16.0
 
     def relative_x_i(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
@@ -272,36 +277,50 @@ class SceneView(object):
 
     def relative_x(self, x, y):
         """Return the relative x position of this tile, ignoring offset."""
-        return int((x * float(self.HTW)) - (y * float(self.HTW)))
+        # Warning: the _screen_coords method replicates rather than calls this fn. See below.
+        return int((x * self.FHTW) - (y * self.FHTW))
 
     def relative_y(self, x, y):
         """Return the relative y position of this tile, ignoring offset."""
-        return int(y * float(self.HTH) + x * float(self.HTH))
+        # Warning: the _screen_coords method replicates rather than calls this fn. See below.
+        return int(y * self.FHTH + x * self.FHTH)
 
     def screen_offset(self):
+        # Warning: the _screen_coords method replicates rather than calls this fn. See below.
         return (my_state.screen.get_width() // 2 - self.relative_x(self._focus_x, self._focus_y),
                 my_state.screen.get_height() // 2 - self.relative_y(self._focus_x, self._focus_y) + self.HTH)
 
-    def screen_coords(self, x, y, extra_x_offset=0, extra_y_offset=0):
+    def _screen_coords(self, x, y, extra_x_offset=0, extra_y_offset=0):
         # Should point to the upper (northwest) corner of an isometric tile.
-        x_off, y_off = self.screen_offset()
-        return (self.relative_x(x, y) + x_off + extra_x_offset,
-                self.relative_y(x, y) + y_off + extra_y_offset)
+        # x_off, y_off = self.screen_offset()
+        # return (self.relative_x(x, y) + x_off + extra_x_offset,
+        #         self.relative_y(x, y) + y_off + extra_y_offset)
+
+        # ALERT: I have done a VERY BAD THING below!
+        # The version of the function you see commented out above is the GOOD version!
+        # But GOOD is slow and inefficient! EVIL is fast and liable to break sometime!
+        # The below equations are the above function calls flattened. This is a bad thing
+        # to do for a very large number of reasons. However, it also makes the game loop
+        # run slightly faster on slow computers, keeping the 30fps rate on a Raspberry Pi 5.
+        return (
+            int((x - y - self._focus_x + self._focus_y) * self.FHTW + self.half_screen_width + extra_x_offset),
+            int((y + x - self._focus_y - self._focus_x) * self.FHTH + self.half_screen_height + self.HTH + extra_y_offset)
+        )
 
     def foot_coords(self, x, y):
         # Models get moved down by half tile height so they appear in the center of a tile.
-        return self.screen_coords(x, y, extra_y_offset=self.HTH)
+        return self._screen_coords(x, y, extra_y_offset=self.HTH)
 
     def on_the_screen(self, x, y):
         screen_area = my_state.screen.get_rect()
-        return screen_area.collidepoint(self.screen_coords(x, y))
+        return screen_area.collidepoint(self._screen_coords(x, y))
     
     def _get_horizontal_line(self, x0, y0, line_number, visible_area):
         mylist = list()
         x = x0 + line_number // 2
         y = y0 + (line_number + 1) // 2
 
-        sx, sy = self.screen_coords(x, y)
+        sx, sy = self._screen_coords(x, y)
 
         if sy > visible_area.bottom:
             return None
@@ -473,6 +492,9 @@ class SceneView(object):
             self.update_tile_data()
 
         screen_area = my_state.screen.get_rect()
+        self.half_screen_width = screen_area.w//2
+        self.half_screen_height = screen_area.h//2
+
         mouse_x, mouse_y = my_state.mouse_pos
         my_state.screen.fill((0, 0, 0))
         visible_area = self._get_visible_area()
@@ -530,7 +552,7 @@ class SceneView(object):
                 for x, y in line_cache[current_line]:
                     if self.scene.get_visible(x, y):
                         dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
-                        mpos = self.screen_coords(x, y)
+                        mpos = self._screen_coords(x, y)
                         dest.center = mpos
 
                         self.scene._map[x][y].render_bottom(dest, self, x, y)
@@ -564,7 +586,7 @@ class SceneView(object):
                 # After drawing the terrain last time, draw any objects in the previous cell.
                 for x, y in line_cache[current_line - 2]:
                     if self.scene.get_visible(x, y):
-                        spos = self.screen_coords(x, y)
+                        spos = self._screen_coords(x, y)
                         dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
                         self.scene._map[x][y].render_top(dest, self, x, y)
@@ -573,7 +595,7 @@ class SceneView(object):
                 # After drawing the terrain last time, draw any objects in the previous cell.
                 for x, y in line_cache[current_line - 1]:
                     if self.scene.get_visible(x, y):
-                        spos = self.screen_coords(x, y)
+                        spos = self._screen_coords(x, y)
                         dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
 

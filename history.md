@@ -1,6 +1,7 @@
+* Viewer redraw is very slightly faster
 * Random artifacts may now appear in dungeons
 * Info images preloaded correctly now
-* Can invoke usable items from inventory
+* Can invoke usable items from backpack
 * Fixed abilities that work only outside of combat
 * Added skill manuals
 * Fixed WorldMapWar battle report crash

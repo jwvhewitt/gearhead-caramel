@@ -50,6 +50,5 @@ main.build
 main.dist
 main.onefile-build
 ghcaramel_user
-
-
+*.prof
 

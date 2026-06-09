@@ -536,11 +536,11 @@ class ExploCommandWidget(pbge.widgets.Widget):
                             print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
                                                             pc.relationship.can_do_development()))
 
-                elif ev.unicode == "B" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
-                    #print(hasattr(self.camp.pc, "mecha_theme"))
-                    myart = gears.artifacts.ArtifactBuilder(50, gears.scale.HumanScale, auto_generate=False)
-                    myart.generate_skill_manual()
-                    self.camp.pc.inv_com.append(myart.item)
+                # elif ev.unicode == "B" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                #     #print(hasattr(self.camp.pc, "mecha_theme"))
+                #     myart = gears.artifacts.ArtifactBuilder(50, gears.scale.HumanScale, auto_generate=False)
+                #     myart.generate_skill_manual()
+                #     self.camp.pc.inv_com.append(myart.item)
 
                 # elif ev.unicode == "F":
                 #    self.view.play_anims(*[gears.geffects.FleeAnim(pos=pc.pos) for pc in self.camp.get_active_party()])

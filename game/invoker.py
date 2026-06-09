@@ -36,6 +36,8 @@ class InvoMenuDesc(pbge.widgetmenu.DescBoxWidget):
         else:
             return "???"
 
+class LibraryRibbon(pbge.widgets.RowWidget):
+    pass
 
 class InvocationLibraryWidget(pbge.widgets.Widget):
     # This widget stores the invocation library and allows the player
