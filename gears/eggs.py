@@ -35,11 +35,6 @@ class Egg(object):
         self.past_adventures = set()
         self.faction_scores = collections.defaultdict(int)
 
-    def _remove_container_for(self, thing, con_rec):
-        if hasattr(thing, "container") and thing.container:
-            con_rec[thing] = thing.container
-            thing.container.remove(thing)
-
     def _remove_campdata_for(self, thing, cdat_rec):
         if thing:
             if hasattr(thing, "campdata"):
@@ -54,10 +49,6 @@ class Egg(object):
         if hasattr(thing, "hidden") and thing.hidden:
             hidden_rec.add(thing)
             thing.hidden = False
-
-    def _reset_container_for(self, thing, con_rec):
-        if thing in con_rec:
-            con_rec[thing].append(thing)
 
     def _reset_campdata_for(self, thing, cdat_rec):
         if thing:
@@ -74,30 +65,23 @@ class Egg(object):
 
     def write(self, f):
         # Save a record of all the containers.
-        con_rec = dict()
         cdat_rec = dict()
         hidden_rec = set()
-        self._remove_container_for(self.pc, con_rec)
-        self._remove_container_for(self.mecha, con_rec)
         self._remove_hidden_for(self.pc, hidden_rec)
         self._remove_hidden_for(self.mecha, hidden_rec)
         self._remove_campdata_for(self.pc, cdat_rec)
         self._remove_campdata_for(self.mecha, cdat_rec)
         for npc in list(self.dramatis_personae):
-            self._remove_container_for(npc, con_rec)
             self._remove_campdata_for(npc, cdat_rec)
             self._remove_hidden_for(npc, hidden_rec)
             if npc.is_destroyed():
                 self.dramatis_personae.remove(npc)
         pickle.dump(self, f, 4)
-        self._reset_container_for(self.pc, con_rec)
-        self._reset_container_for(self.mecha, con_rec)
         self._reset_campdata_for(self.pc, cdat_rec)
         self._reset_campdata_for(self.mecha, cdat_rec)
         self._reset_hidden_for(self.pc, hidden_rec)
         self._reset_hidden_for(self.mecha, hidden_rec)
         for npc in self.dramatis_personae:
-            self._reset_container_for(npc, con_rec)
             self._reset_campdata_for(npc, cdat_rec)
             self._reset_hidden_for(npc, hidden_rec)
 

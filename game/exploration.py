@@ -536,6 +536,9 @@ class ExploCommandWidget(pbge.widgets.Widget):
                             print("{} {} {} OK:{}".format(pc, pc.renown, pc.relationship.hilights(),
                                                             pc.relationship.can_do_development()))
 
+                # elif ev.unicode == "E" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
+                #     self.camp.eject()
+
                 # elif ev.unicode == "B" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                 #     #print(hasattr(self.camp.pc, "mecha_theme"))
                 #     myart = gears.artifacts.ArtifactBuilder(50, gears.scale.HumanScale, auto_generate=False)
