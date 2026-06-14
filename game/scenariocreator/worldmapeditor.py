@@ -370,7 +370,7 @@ class WorldMapEditor(pbge.widgets.Widget):
         self.world_map_viewer.render(self.active_entrance_uid, self.active_edge)
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.pop()
 

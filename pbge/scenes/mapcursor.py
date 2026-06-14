@@ -20,7 +20,7 @@ class MapCursor(object):
     def update(self, view, ev):
         if ev.type == pygame.MOUSEMOTION:
             self.set_position(view.scene, *view._mouse_tile)
-        elif ev.type == pygame.KEYDOWN:
+        elif ev.type == sdl2.SDL_KEYDOWN:
             if ev.key in my_state.get_keys_for("cursor_up"):
                 self.set_position(view.scene, self.x-1, self.y-1)
                 if util.config.getboolean("GENERAL", "auto_center_map_cursor") or not view.on_the_screen(self.x,self.y):

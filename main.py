@@ -45,7 +45,6 @@ else:
 
 
 import game
-import pygame
 import gears
 import random
 # import timeit
@@ -91,7 +90,7 @@ class SpeedTest(pbge.widgets.Widget):
                 self.register_response()
                 self.pop()
 
-        elif ev.type == pygame.KEYDOWN:
+        elif ev.type == sdl2.SDL_KEYDOWN:
             self.register_response()
             self.pop()
 
@@ -536,7 +535,7 @@ class MainMenu(pbge.widgets.Widget):
 
     def _builtin_responder(self, ev):
         if self._menu.active and self._menu.visible and not pbge.my_state.widget_responded:
-            if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit") and not pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen"):
+            if ev.type == sdl2.SDL_KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit") and not pbge.util.config.getboolean("GENERAL","no_escape_from_title_screen"):
                 self.pop()
 
 
@@ -567,8 +566,6 @@ def play_the_game():
     #gen_names(gears.selector.ORBITAL_NAMES)
     #print(os.getenv("APPDATA"))
 
-    # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
-    # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
     #fname = "cha_m_polic.png"
     #mypic = pbge.image.Image(fname, color=(gears.color.Cyan, gears.color.SteelBlue, gears.color.BlackRose, gears.color.Aquamarine, gears.color.Leather))

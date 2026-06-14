@@ -227,7 +227,7 @@ class MenuWidget(widgets.ColumnWidget):
                 break
 
     def _builtin_responder(self, ev):
-        if ((my_state.focused_widget is self.scroll_column) or self.scroll_column.focus_locked) and (ev.type == pygame.KEYDOWN):
+        if ((my_state.focused_widget is self.scroll_column) or self.scroll_column.focus_locked) and (ev.type == sdl2.SDL_KEYDOWN):
             if my_state.is_key_for_action(ev, "exit") and self.on_escape:
                 self.register_response()
                 self.on_escape(self, ev)

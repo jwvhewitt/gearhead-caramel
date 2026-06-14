@@ -75,7 +75,7 @@ class PCEditorWidget(widgets.Widget):
         self.portrait_view.render()
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self._apply_changes()
                 self.register_response()

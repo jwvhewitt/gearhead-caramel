@@ -107,7 +107,7 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
                 self.register_response()
             elif ev.button == 2:
                 self.pop_invo_menu()
-        elif ev.type == pygame.KEYDOWN:
+        elif ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "up"):
                 self.prev_shelf()
                 self.register_response()
@@ -579,7 +579,7 @@ class InvocationUI(pbge.widgets.Widget):
         if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
             self._click_left()
 
-        elif ev.type == pygame.KEYDOWN:
+        elif ev.type == sdl2.SDL_KEYDOWN:
             if ev.unicode == "r":
                 # self.camp.save(self.screen)
                 self.record = True

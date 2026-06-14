@@ -703,7 +703,7 @@ class SceneViewWidget(widgets.Widget):
     FOCUS_SHIFT = 0.5
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if my_state.is_key_for_action(ev, "scroll_map_north"):
                 self.scene_view.change_focus(0, -self.FOCUS_SHIFT)
             elif my_state.is_key_for_action(ev, "scroll_map_west"):

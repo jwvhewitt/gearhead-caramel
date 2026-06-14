@@ -134,7 +134,7 @@ class PlayerCharacterSwitch(widgets.RowWidget):
             self.update_pc()
 
     def _builtin_responder(self, ev):
-        if (ev.type == pygame.KEYDOWN):
+        if (ev.type == sdl2.SDL_KEYDOWN):
             if pbge.my_state.is_key_for_action(ev, "left"):
                 self.click_left(self, ev)
             elif pbge.my_state.is_key_for_action(ev, "right"):
@@ -415,7 +415,7 @@ class BackpackWidget(widgets.Widget):
             return super().update(delta)
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.register_response()
                 self.pop()
@@ -507,7 +507,7 @@ class ItemExchangeWidget(widgets.Widget):
             self.info_cache[self.active_item].render(mydest.x, mydest.y)
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.register_response()
                 self.pop()

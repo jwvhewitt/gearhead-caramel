@@ -30,7 +30,7 @@ class AbstractAlert(widgets.Widget):
             if self.on_close:
                 self.on_close(self, ev)
             my_state.update_alerts()
-        elif (ev.type == pygame.KEYDOWN):
+        elif (ev.type == sdl2.SDL_KEYDOWN):
             if my_state.is_key_for_action(ev, "exit") or my_state.is_key_for_action(ev, "select"):
                 self.register_response()
                 self.pop()

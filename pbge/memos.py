@@ -88,7 +88,7 @@ class MemoBrowser(widgets.Widget):
 
     def _builtin_responder(self, ev):
         # gdi is a pygame event.
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if my_state.is_key_for_action(ev, "left"):
                 self.register_response()
                 self.prev_memo()

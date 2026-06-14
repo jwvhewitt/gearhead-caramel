@@ -360,7 +360,7 @@ class PlayerTurn(pbge.widgets.Widget):
         )
 
     def _receive_hotkey(self, _wid, ev):
-        if ev.type == pygame.KEYDOWN and ev.unicode in self.ACCEPTABLE_HOTKEYS:
+        if ev.type == sdl2.SDL_KEYDOWN and ev.unicode in self.ACCEPTABLE_HOTKEYS:
             self.record_hotkey(ev.unicode)
 
     def _view_hotkeys_from_menu(self, _wid, _ev):
@@ -414,7 +414,7 @@ class PlayerTurn(pbge.widgets.Widget):
     def _builtin_responder(self, ev):
         if not self.actions:
             if self.camp.fight.still_fighting() and (self.pc in self.camp.scene.contents) and self.camp.fight.cstat[self.pc].can_act():
-                if ev.type == pygame.KEYDOWN:
+                if ev.type == sdl2.SDL_KEYDOWN:
                     if ev.unicode and ev.unicode in self.ACCEPTABLE_HOTKEYS and ev.mod & pygame.KMOD_ALT:
                         # Record a hotkey.
                         self.record_hotkey(ev.unicode)

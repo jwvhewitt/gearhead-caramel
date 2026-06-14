@@ -70,7 +70,7 @@ class MovementWidget(pbge.widgets.Widget):
             elif ev.button == 5:
                 self.next_shelf()
                 self.register_response()
-        elif ev.type == pygame.KEYDOWN:
+        elif ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "up"):
                 self.prev_shelf()
                 self.register_response()
@@ -362,7 +362,7 @@ class MovementUI(pbge.widgets.Widget):
             self.click_left()
             self.register_response()
 
-        elif ev.type == pygame.KEYDOWN:
+        elif ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "cursor_click") and not pbge.my_state.widget_responded:
                 self.click_left()
                 self.register_response()

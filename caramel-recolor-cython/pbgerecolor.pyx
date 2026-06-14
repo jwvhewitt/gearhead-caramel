@@ -27,8 +27,6 @@
 # cython: language_level=3
 
 
-import pygame
-
 import numpy as np
 
 # "cimport" is used to import special compile-time information

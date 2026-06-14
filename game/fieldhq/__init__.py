@@ -74,7 +74,7 @@ class NameChangeWidget(widgets.ColumnWidget):
         self.pop()
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.register_response()
                 self._check_name()
@@ -629,7 +629,7 @@ class FieldHQ(widgets.Widget):
             return super().update(delta)
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.register_response()
                 self.pop()

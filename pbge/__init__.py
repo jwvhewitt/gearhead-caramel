@@ -10,7 +10,8 @@
 # Word wrapper taken from the PyGame wiki plus
 # the list-printer from Anne Archibald's GearHead Prime demo.
 
-import pygame
+import sdl2
+from sdl2 import ext, sdlmixer
 from itertools import chain
 from . import util
 import glob
@@ -305,23 +306,6 @@ class GameState(object):
                 elif k == ukey:
                     return op
 
-    def resize_stretchy_layers(self, w, h):
-        for sl in self.stretchy_layers:
-            sl.resize_layer(w, h)
-
-    def resize_stretchy(self):
-        w, h = self.physical_screen.get_size()
-        self.screen = pygame.Surface((max(800, 600 * w // h), 600))
-        self.resize_stretchy_layers(w, h)
-
-    def set_size(self, w, h):
-        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
-            self.physical_screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
-            self.resize_stretchy()
-        else:
-            self.screen = pygame.display.set_mode((max(w, 800), max(h, 600)), pygame.RESIZABLE)
-            self.resize_stretchy_layers(*self.screen.get_size())
-
     def get_window_config(self):
         myconfig = util.config.get("GENERAL", "window_size")
         ws, hs = myconfig.split("x")
@@ -341,12 +325,6 @@ class GameState(object):
         else:
             return 0,0
 
-    def default_to_stretchy_windowed(self):
-        my_state.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
-        util.config.set("GENERAL", "fullscreen", "False")
-        with open(util.user_dir("config.cfg"), "wt") as f:
-            util.config.write(f)
-
     def default_to_windowed(self):
         my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
         util.config.set("GENERAL", "fullscreen", "False")
@@ -354,25 +332,13 @@ class GameState(object):
             util.config.write(f)
 
     def reset_screen(self):
-        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
-            if util.config.getboolean("GENERAL", "fullscreen"):
-                try:
-                    self.physical_screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
-                except:
-                    self.default_to_stretchy_windowed()
-            else:
-                # my_state.physical_screen = pygame.display.set_mode((800, 600), WINDOWED_FLAGS)
-                self.physical_screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
-            self.resize_stretchy()
+        if util.config.getboolean("GENERAL", "fullscreen"):
+            try:
+                self.screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
+            except:
+                self.default_to_windowed()
         else:
-            if util.config.getboolean("GENERAL", "fullscreen"):
-                try:
-                    self.screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
-                except:
-                    self.default_to_windowed()
-            else:
-                self.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
-            self.resize_stretchy_layers(*self.screen.get_size())
+            self.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
 
     def update_mouse_pos(self):
         if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
@@ -520,7 +486,7 @@ class GameState(object):
                     self.got_quit = True
                 elif ev.type == pygame.MOUSEMOTION:
                     self.update_mouse_pos()
-                elif ev.type == pygame.KEYDOWN:
+                elif ev.type == sdl2.SDL_KEYDOWN:
                     if ev.key == pygame.K_PRINT:
                         pygame.image.save(my_state.screen, util.user_dir("out.png"))
                     elif self.is_key_for_action(ev, "next_widget"):
@@ -541,7 +507,7 @@ class GameState(object):
                             break
 
                 if not self.widget_responded:
-                    if ev.type == pygame.KEYDOWN:
+                    if ev.type == sdl2.SDL_KEYDOWN:
                         if self.is_key_for_action(ev, "up"):
                             self.activate_up_widget()
                         elif self.is_key_for_action(ev, "down"):
@@ -578,45 +544,6 @@ class GameState(object):
         print("Top Level Widgets")
         print("\n".join(["{}: {}".format(w, w.active) for w in self.widgets]))
 
-
-class StretchyLayer():
-    # A layer that is guaranteed to fill the screen, even though its height is hard coded
-    # to 600. Basically a way to make sure graphics created for the original 800x600 window
-    # still fill the screen appropriately at higher modern resolutions.
-    def __init__(self):
-        w, h = my_state.screen.get_size()
-        self.surf: pygame.Surface = None
-        self.resize_layer(w,h)
-        my_state.stretchy_layers.add(self)
-
-    def resize_layer(self, w, h):
-        # w and h are the width and height of the physical screen.
-        if util.config.getboolean("TROUBLESHOOTING", "disable_scaling"):
-            self.surf = pygame.Surface((w, 600), flags=pygame.SRCALPHA).convert_alpha()
-        else:
-            self.surf = pygame.Surface((max(800, 600 * w // h), 600), flags=pygame.SRCALPHA).convert_alpha()
-        self.clear()
-
-    def get_height(self):
-        return self.surf.get_height()
-
-    def get_width(self):
-        return self.surf.get_width()
-
-    def get_size(self):
-        return self.surf.get_size()
-
-    def render(self):
-        w, h = my_state.screen.get_size()
-        if util.config.getboolean("TROUBLESHOOTING", "disable_scaling"):
-            _=my_state.screen.blit(self.surf, pygame.Rect(0,h//2 - 300,w,600))
-        else:
-            bigsurf = pygame.transform.smoothscale(self.surf, (w, h))
-            #bigsurf.set_colorkey((0,0,255))
-            _=my_state.screen.blit(bigsurf, pygame.Rect(0,0,800,600))
-
-    def clear(self):
-        _=self.surf.fill((0,0,0,0))
 
 
 
@@ -828,32 +755,9 @@ from . import alerts
 # PG2 Change
 # FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED
 # WINDOWED_FLAGS = pygame.RESIZABLE | pygame.SCALED
-FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.DOUBLEBUF
-WINDOWED_FLAGS = pygame.RESIZABLE
+FULLSCREEN_FLAGS = sdl2.SDL_WINDOW_SHOWN | sdl2.SDL_WINDOW_FULLSCREEN
+WINDOWED_FLAGS = sdl2.SDL_WINDOW_SHOWN
 
-
-class LeadingFont(pygame.font.Font):
-    # Lead as in the metal, not as in leadership. Look it up on Wikipedia.
-    def __init__(self, filename, size, leading=0):
-        super().__init__(filename, size)
-        self._leading = leading
-
-    def render(self, text, antialias=True, color=TEXT_COLOR, background=None):
-        my_image = super().render(text, antialias, color, background).convert_alpha()
-        my_rect = my_image.get_rect()
-        my_rect.y -= self._leading
-        my_rect.h += self._leading
-        return my_image.subsurface(my_rect)
-
-    def size(self, text):
-        w, h = super().size(text)
-        return (w, h + self._leading)
-
-    def get_linesize(self):
-        return super().get_linesize() + self._leading
-
-    def get_height(self):
-        return super().get_height() + self._leading
 
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",
@@ -868,23 +772,18 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         POSTERS += glob.glob(util.image_dir(poster_pattern))
 
         if start_gfx:
-            pygame.init()
+            ext.common.init()
             my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
             if my_state.audio_enabled:
-                try:
-                    pygame.mixer.init()
-                except pygame.error:
-                    my_state.audio_enabled = False
-                    print("Error: pygame.mixer failed to load.")
-            pygame.display.set_caption(winname, appname)
-            pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
+                sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
+            # pygame.display.set_caption(winname, appname)
+            # pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
             # Set the screen size.
             my_state.reset_screen()
 
             if my_state.audio_enabled:
-                pygame.mixer.set_reserved(2)
-                my_state.music_channels.append(pygame.mixer.Channel(0))
-                my_state.music_channels.append(pygame.mixer.Channel(1))
+                sdlmixer.Mix_ReserveChannels(2)
+                my_state.music_channels = [0,1]
                 soundlib.init_sound(gamedir, util.music_dir(""))
 
             global INPUT_CURSOR
@@ -929,8 +828,5 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
 
             global FPS
             FPS = util.config.getint("GENERAL", "frames_per_second")
-
-            # Set key repeat.
-            pygame.key.set_repeat(300, 100)
 
         INIT_DONE = True

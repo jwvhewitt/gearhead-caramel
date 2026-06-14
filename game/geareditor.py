@@ -704,7 +704,7 @@ class PartAcceptCancelWidget(PartSelectorWidget):
         self.on_selection(None)
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+        if ev.type == sdl2.SDL_KEYDOWN and ev.key == pygame.K_ESCAPE:
             self.cancel(self, ev)
             pbge.my_state.widget_responded = True
 
@@ -973,7 +973,7 @@ class GearEditor(pbge.widgets.Widget):
         self.parts_widget.refresh_gear_list()
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+        if ev.type == sdl2.SDL_KEYDOWN and ev.key == pygame.K_ESCAPE:
             self.pop()
             self.register_response()
 

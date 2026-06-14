@@ -467,7 +467,7 @@ class OkapiPuzzleWidget(widgets.ColumnWidget):
         self.camp.check_trigger(MYSTERY_SOLVED, self.mystery)
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if my_state.is_key_for_action(ev, "exit"):
                 self.pop()
                 self.register_response()

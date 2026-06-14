@@ -349,7 +349,7 @@ class SkillTrainerWidget(pbge.widgets.ColumnWidget):
         self.children.append(pbge.widgets.LabelWidget(95,210,80,16,text="Done",justify=0,on_click=self._done_button,draw_border=True))
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.pop()
 

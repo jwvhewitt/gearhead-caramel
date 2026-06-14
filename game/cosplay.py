@@ -1,6 +1,6 @@
 import pbge
 import gears
-import pygame
+import sdl2
 
 
 # The color selector for the GearHead games has been called Cosplay since forever.
@@ -123,7 +123,7 @@ class ColorEditor(pbge.widgets.Widget):
         self.display_view.render()
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.KEYDOWN:
+        if ev.type == sdl2.SDL_KEYDOWN:
             if pbge.my_state.is_key_for_action(ev, "exit"):
                 self.register_response()
                 self.color_done(self, ev)

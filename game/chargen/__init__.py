@@ -92,7 +92,7 @@ class PortraitBitSelector(pbge.widgets.RowWidget):
         return self.should_hilight(self)
 
     def _builtin_responder(self, ev):
-        if self.should_hilight(self) and (ev.type == pygame.KEYDOWN):
+        if self.should_hilight(self) and (ev.type == sdl2.SDL_KEYDOWN):
             if pbge.my_state.is_key_for_action(ev, "left"):
                 self.on_prev_bit(self, ev)
                 self.register_response()
@@ -200,7 +200,7 @@ class PortraitEditorW(pbge.widgets.Widget):
 
     def _builtin_responder(self, ev):
         if self.active and self.visible and not pbge.my_state.widget_responded:
-            if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
+            if ev.type == sdl2.SDL_KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
                 self.done_button(self, ev)
                 self.register_response()
 
@@ -313,7 +313,7 @@ class StatEditorWidget(pbge.widgets.RowWidget):
         self.stat_plus = cgen.stat_plus
 
     def _builtin_responder(self, ev):
-        if self.should_hilight(self) and (ev.type == pygame.KEYDOWN):
+        if self.should_hilight(self) and (ev.type == sdl2.SDL_KEYDOWN):
             if pbge.my_state.is_key_for_action(ev, "left"):
                 self.stat_minus(self, ev)
                 self.register_response()
@@ -569,7 +569,7 @@ class CharacterGeneratorW(pbge.widgets.Widget):
 
     def _builtin_responder(self, ev):
         if self.active and self.visible and not pbge.my_state.widget_responded:
-            if ev.type == pygame.KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
+            if ev.type == sdl2.SDL_KEYDOWN and pbge.my_state.is_key_for_action(ev, "exit"):
                 self.pop()
                 self.register_response()
 

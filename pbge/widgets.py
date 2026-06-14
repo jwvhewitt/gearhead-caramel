@@ -317,7 +317,7 @@ class Widget(frects.Frect):
                     if self.on_leave:
                         self.on_leave(self)
             if self.should_hilight(self) and not my_state.widget_responded and not my_state.widget_responded:
-                if self.on_click and (ev.type == pygame.KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
+                if self.on_click and (ev.type == sdl2.SDL_KEYDOWN) and my_state.is_key_for_action(ev, "click_widget"):
                     self.register_response()
                     self.on_click(self, ev)
             if not my_state.widget_responded:
@@ -853,7 +853,7 @@ class ScrollColumnWidget(Widget):
                 self.scroll_up()
             elif (ev.button == 5):
                 self.scroll_down()
-        elif ((my_state.focused_widget is self) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
+        elif ((my_state.focused_widget is self) or self.focus_locked) and (ev.type == sdl2.SDL_KEYDOWN):
             #if my_state.is_key_for_action(ev, "click_widget"):
             #    if self.selected_widget_id < len(self._interior_widgets):
             #        mybutton = self._interior_widgets[self.selected_widget_id]
@@ -1011,7 +1011,7 @@ class TextEntryWidget(Widget):
                     if self.on_change:
                         self.on_change(self, ev)
                     self.register_response()
-            elif ev.type == pygame.KEYDOWN:
+            elif ev.type == sdl2.SDL_KEYDOWN:
                 if my_state.is_key_for_action(ev, "backspace"):
                     if (len(self.char_list) > 0) and self.cursor_i > 0:
                         del self.char_list[self.cursor_i - 1]
@@ -1193,7 +1193,7 @@ class TextEditorPanel(ScrollColumnWidget):
                 self.scroll_down()
             self.register_response()
 
-        elif ((my_state.focused_widget in self._interior_widgets) or self.focus_locked) and (ev.type == pygame.KEYDOWN):
+        elif ((my_state.focused_widget in self._interior_widgets) or self.focus_locked) and (ev.type == sdl2.SDL_KEYDOWN):
             if my_state.is_key_for_action(ev, "up") and self.selected_widget_id > 0:
                 cursor_i = self._interior_widgets[self.selected_widget_id].cursor_i
                 self.selected_widget_id -= 1
