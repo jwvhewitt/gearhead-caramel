@@ -23,6 +23,7 @@ from game import configedit, geareditor, mechabrowser
 import pbge
 import sys
 import os
+import sdl2
 
 #from pbge.widgets import On_Click
 
@@ -556,45 +557,6 @@ def play_the_game():
 
     logging.basicConfig(level=logging.DEBUG, filename=pbge.util.user_dir("errors.log"))
 
-    #pbge.namegen.KoreanNameGen.generate_library2(pbge.util.data_dir("KoreanNames.txt"), pbge.util.data_dir("ng_korean2.json"))
-    #mynamegen = gears.selector.LUNA_NAMES
-    #for t in range(200):
-    #    print(mynamegen.gen_word())
-    #gen_names(gears.selector.LUNA_NAMES)
-    #gen_names(gears.selector.EARTH_NAMES)
-    #gen_names(gears.selector.MARS_NAMES)
-    #gen_names(gears.selector.ORBITAL_NAMES)
-    #print(os.getenv("APPDATA"))
-
-
-    #fname = "cha_m_polic.png"
-    #mypic = pbge.image.Image(fname, color=(gears.color.Cyan, gears.color.SteelBlue, gears.color.BlackRose, gears.color.Aquamarine, gears.color.Leather))
-    #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
-    #mydest.fill((0, 0, 255))
-    #mypic.render((0,0),dest_surface=mydest)
-    #pygame.image.save(mydest, pbge.util.user_dir("out_"+fname))
-
-    #a = gears.base.Treasure(value=1000)
-    #b = gears.base.Treasure(value=100000, material=gears.materials.Advanced)
-    #c = gears.base.Treasure(value=10000000)
-    #print(a, a.cost, a.shop_rank())
-    #print(b, b.cost, b.shop_rank())
-    #print(c, c.cost, c.shop_rank())
-
-    # mypor = gears.portraits.Portrait()
-    # mypor.bits = ["FBA NoBody","Haywire B3 Head"]
-    # mypic = mypor.build_portrait(None,False,True)
-    # pygame.image.save(mypic.bitmap, pbge.util.user_dir("out.png"))
-
-    #for t in range(100):
-    #    test = gears.artifacts.ArtifactBuilder(50)
-    #    print("{}: {}".format(test.item.get_full_name(), str(test.item.material)))
-    #    print(test.item.desc)
-    #    print(test.item.get_text_desc())
-    #    print()
-
-    #gears.champions.GrizzlyTheme.test_weapon_lists()
-
     try:
         mymenu = MainMenu()
         pbge.my_state.widgets.append(mymenu)
@@ -616,7 +578,8 @@ if __name__ == "__main__":
     pbge.please_stand_by()
 
     play_the_game()
-    pygame.quit()
+
+    pbge.quit()
     # Been getting some problems with the program continuing to run sometimes after pygame.quit().
     # StackExchange suggested the following... I figure it couldn't hurt.
     sys.exit()

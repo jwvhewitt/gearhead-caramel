@@ -1,4 +1,6 @@
-pygame
+pysdl2
+pysdl2-dll
 yapf
 numpy
 Cython
+setuptools

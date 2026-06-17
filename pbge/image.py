@@ -1,15 +1,16 @@
 # Load one image file, use it for multiple images.
 
-import pygame
+import sdl2
+from sdl2 import ext
 import weakref
-from . import my_state, render_text, TEXT_COLOR
+from . import my_state, render_text, TEXT_COLOR, frects
 import os.path
 import glob
 
 import pbgerecolor
-import numpy
-from pbgerecolor import Gradient
+from pbgerecolor import Gradient  # pyright: ignore[reportUnusedImport]
 
+from ctypes import c_uint8
 
 # Keep a list of already-loaded images, to save memory when multiple objects
 # need to use the same image file.
@@ -26,31 +27,86 @@ def glob_images(pattern):
     return mylist
 
 
-class Image(object):
-    def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
-                 flags=0, transparent=False):
-        """Load image file, or create blank image, at frame size"""
-        if fname:
-            self.bitmap = self.get_pre_loaded(fname, color, transparent)
-            if not self.bitmap:
-                keyname = fname
-                if not os.path.exists(fname):
-                    for p in search_path:
-                        if os.path.exists(os.path.join(p, fname)):
-                            fname = os.path.join(p, fname)
-                            break
-                self.bitmap = pygame.image.load(fname).convert()
-                # print(fname, color, transparent, my_state.anim_phase)
-                self.bitmap.set_colorkey((0, 0, 255), flags)
-                if color:
-                    self.recolor(color)
-                self.bitmap = self.bitmap.convert_alpha()
-                self.record_pre_loaded(keyname, color, self.bitmap, transparent)
+class ProtoImage:
+    # An image with no image data... just the measurements for cutting up an image.
+    def __init__(self, size, frame_width=0, frame_height=0, custom_frames=None):
+        self.size = size
+
+        if frame_width == 0:
+            frame_width = self.size[0]
+        if frame_height == 0:
+            frame_height = self.size[1]
+
+        if frame_width > self.size[0]:
+            frame_width = self.size[0]
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+
+        self.custom_frames = custom_frames
+        self.frames_per_row = self.size[0] // self.frame_width
+
+    def _get_frame_area(self, frame):
+        if self.custom_frames and frame < len(self.custom_frames):
+            area = sdl2.SDL_Rect(self.custom_frames[frame])
         else:
-            self.bitmap = pygame.Surface((frame_width, frame_height))
-            _=self.bitmap.fill((0, 0, 255))
-            self.bitmap.set_colorkey((0, 0, 255), flags)
-            self.bitmap = self.bitmap.convert()
+            area_x = (frame % self.frames_per_row) * self.frame_width
+            area_y = (frame // self.frames_per_row) * self.frame_height
+            area = sdl2.SDL_Rect(area_x, area_y, self.frame_width, self.frame_height)
+        return area
+
+    def get_rect(self, frame):
+        # Return a rect of the correct size for this frame.
+        if self.custom_frames and frame < len(self.custom_frames):
+            return frects.PyRect(0, 0, self.custom_frames[frame][2], self.custom_frames[frame][3])
+        else:
+            return frects.PyRect(0, 0, self.frame_width, self.frame_height)
+
+
+class SurfImage(ProtoImage):
+    """A wrapper for SDL surfaces. Used for editing and compositing an image before converting it into a texture."""
+    def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
+                 transparent=False):
+        if fname:
+            if not os.path.exists(fname):
+                for p in search_path:
+                    if os.path.exists(os.path.join(p, fname)):
+                        fname = os.path.join(p, fname)
+                        break
+
+            self.bitmap: sdl2.SDL_Surface = ext.image.load_img(fname)
+
+            if color:
+                self.recolor(self.bitmap, color)
+        super().__init__((self.bitmap.w, self.bitmap.h), frame_width, frame_height, custom_frames)
+
+    @staticmethod
+    def recolor(bitmap: sdl2.SDL_Surface, color_channels):
+        # Uses the pbgerecolor extension module.
+        data = ext.pixelaccess.pixels2d(bitmap)
+        
+        pbgerecolor.recolor(data, list(color_channels))
+        
+        sdl2.SDL_UnlockSurface(bitmap)
+
+    def __del__(self):
+        sdl2.SDL_FreeSurface(self.bitmap)
+
+
+class Image(ProtoImage):
+    def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
+                 transparent=False):
+        """Load image file or create an image from an existing surface"""
+        if fname:
+            self.texture = self.get_pre_loaded(fname, color, transparent)
+            if not self.texture:
+                surfer = SurfImage(fname, frame_width, frame_height, color, custom_frames, transparent)
+                # Convert to texture
+                self.texture = ext.renderer.Texture(my_state.screen, surfer.bitmap)
+
+                self.record_pre_loaded(fname, color, self.texture, transparent)
+                del surfer
+
+        super().__init__(self.texture.size, frame_width, frame_height, custom_frames)
 
         self.fname = fname
         self.transparent = transparent
@@ -58,20 +114,9 @@ class Image(object):
             alpha = int(transparent)
             if alpha <= 1:
                 alpha = 155
-            _=self.bitmap.set_alpha(alpha)
-
-        if frame_width == 0:
-            frame_width = self.bitmap.get_width()
-        if frame_height == 0:
-            frame_height = self.bitmap.get_height()
-
-        if frame_width > self.bitmap.get_width():
-            frame_width = self.bitmap.get_width()
-        self.fname = fname
-        self.frame_width = frame_width
-        self.frame_height = frame_height
-
-        self.custom_frames = custom_frames
+            elif alpha > 255:
+                alpha = 255
+            sdl2.render.SDL_SetTextureAlphaMod(self.texture, c_uint8(alpha))
 
     @staticmethod
     def get_pre_loaded(ident, colorset, transparent):
@@ -81,85 +126,59 @@ class Image(object):
     def record_pre_loaded(ident, colorset, bitmap, transparent=False):
         pre_loaded_images[(ident, repr(colorset), transparent)] = bitmap
 
-    def _get_frame_area(self, frame):
-        if self.custom_frames and frame < len(self.custom_frames):
-            area = pygame.Rect(self.custom_frames[frame])
-        else:
-            frames_per_row = self.bitmap.get_width() // self.frame_width
-            area_x = (frame % frames_per_row) * self.frame_width
-            area_y = (frame // frames_per_row) * self.frame_height
-            area = pygame.Rect(area_x, area_y, self.frame_width, self.frame_height)
-        return area
-
-    def render(self, dest=(0, 0), frame=0, dest_surface=None ) -> None:
+    def render(self, dest=(0, 0, 0, 0), frame=0, colormod: tuple[int, int, int]|None=None) -> None:
         # Render this Image onto the provided surface.
+        # colormod is an r,g,b tuple for modifying the color of the render
         # Start by determining the correct sub-area of the image.
-        area = self._get_frame_area(frame)
-        dest_surface = dest_surface or my_state.screen
-        _=dest_surface.blit(self.bitmap, dest, area)
+        if colormod:
+            sdl2.SDL_SetTextureColorMod(self.texture.tx, *colormod)
+        else:
+            sdl2.SDL_SetTextureColorMod(self.texture.tx, 255, 255, 255)
+        source_rect = self._get_frame_area(frame)
 
-    def render_c(self, dest=(0, 0), frame=0, dest_surface=None ) -> None:
+        _=my_state.screen.copy(self.texture, dstrect=dest, srcrect=source_rect)
+
+    def render_c(self, dest: tuple[int,int]=(0, 0), frame=0 ) -> None:
         # As above, but the dest coordinates point to the center of the image.
-        area = self._get_frame_area(frame)
+        source_rect = self._get_frame_area(frame)
         dest_c = self.get_rect(frame)
         dest_c.center = dest
-        dest_surface = dest_surface or my_state.screen
-        _=dest_surface.blit(self.bitmap, dest_c, area)
+        _=my_state.screen.copy(self.texture, dstrect=dest_c, srcrect=source_rect)
 
-    def render_montage(self, dest=(0, 0), h_frames=1, v_frames=1, dest_surface=None ) -> None:
+    def render_montage(self, dest, h_frames=1, v_frames=1 ) -> None:
         # Render a section of this spritesheet.
-        area = pygame.Rect(0, 0, h_frames*self.frame_width, v_frames*self.frame_height)
-        dest_surface = dest_surface or my_state.screen
-        _=dest_surface.blit(self.bitmap, dest, area)
-
-    def get_subsurface(self, frame):
-        # Return one of the frames as a pygame subsurface.
-        area = self._get_frame_area(frame)
-        return self.bitmap.subsurface(area)
-
-    def get_rect(self, frame):
-        # Return a rect of the correct size for this frame.
-        if self.custom_frames and frame < len(self.custom_frames):
-            return pygame.Rect(0, 0, self.custom_frames[frame][2], self.custom_frames[frame][3])
-        else:
-            return pygame.Rect(0, 0, self.frame_width, self.frame_height)
+        mydest = dest.copy()
+        area = sdl2.SDL_Rect(0, 0, h_frames*self.frame_width, v_frames*self.frame_height)
+        mydest.area = area.w, area.h
+        _=my_state.screen.copy(self.texture, dstrect=mydest, srcrect=area)
 
     def num_frames(self):
         if self.custom_frames:
             return len(self.custom_frames)
         else:
-            frames_per_row = self.bitmap.get_width() // self.frame_width
-            frames_per_column = self.bitmap.get_height() // self.frame_height
+            frames_per_row = self.size[0] // self.frame_width
+            frames_per_column = self.size[1] // self.frame_height
             return frames_per_row * frames_per_column
-
-    def recolor(self, color_channels):
-        # Uses the pbgerecolor extension module.
-        dims = (self.bitmap.get_width(), self.bitmap.get_height())
-        data = numpy.zeros(dims, numpy.uint32)
-        pygame.pixelcopy.surface_to_array(data, self.bitmap)
-        pbgerecolor.recolor(data, list(color_channels))
-        pygame.pixelcopy.array_to_surface(self.bitmap, data)
 
     def __reduce__(self):
         # Rather than trying to save the bitmap image, just save the filename.
         return Image, (self.fname, self.frame_width, self.frame_height)
 
-    def tile(self, dest=None, frame=0, dest_surface=None, x_offset=0, y_offset=0):
-        dest_surface = dest_surface or my_state.screen
+    def tile(self, dest=None, frame=0, x_offset=0, y_offset=0):
         if not dest:
             dest = my_state.screen.get_rect()
         grid_w = dest.w // self.frame_width + 2
         grid_h = dest.h // self.frame_height + 2
-        dest_surface.set_clip(dest)
-        my_rect = pygame.Rect(0, 0, 0, 0)
+        sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, dest)
+        my_rect = self.get_rect(frame)
 
         for x in range(-1, grid_w):
             my_rect.x = dest.x + x * self.frame_width +x_offset
             for y in range(-1, grid_h):
                 my_rect.y = dest.y + y * self.frame_height +y_offset
-                self.render(my_rect, frame, dest_surface)
+                self.render(my_rect, frame)
 
-        dest_surface.set_clip(None)
+        sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, None)
 
     def copy(self,ident=None):
         nu_sprite = Image(frame_height=self.frame_height,frame_width=self.frame_width,)
@@ -167,6 +186,9 @@ class Image(object):
         if ident:
             self.record_pre_loaded(ident, None, nu_sprite.bitmap)
         return nu_sprite
+
+    def __del__(self):
+        _=self.texture.destroy()
 
 
 class TextImage(Image):

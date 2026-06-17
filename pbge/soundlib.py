@@ -1,7 +1,7 @@
-import functools
 import os
-import pygame
+from sdl2 import sdlmixer
 import glob
+import collections
 
 
 search_path = list()
@@ -9,7 +9,8 @@ proprietary_search_path = list()    # Contains music files released under a non-
                                     # the Scenario Creator sound selection menus.
 
 SOUND_FX_LIBRARY = dict()
-CACHED_MUSIC = dict()
+CACHED_MUSIC = collections.OrderedDict()
+MUSIC_CACHE_SIZE = 10
 
 
 def glob_sounds(pattern, include_proprietary=False):
@@ -34,14 +35,19 @@ def find_music_file(fname):
     return fname
 
 
-@functools.lru_cache(maxsize=23)
 def load_cached_sound(fname):
     if fname in CACHED_MUSIC:
+        CACHED_MUSIC.move_to_end(fname)
         return CACHED_MUSIC[fname]
 
-    fname = find_music_file(fname)
+    full_fname = find_music_file(fname)
+    if full_fname:
+        while len(CACHED_MUSIC) >= MUSIC_CACHE_SIZE:
+            _k, v = CACHED_MUSIC.popitem()
+            sdlmixer.Mix_FreeMusic(v)
+        CACHED_MUSIC[fname] = sdlmixer.Mix_LoadMUS(bytes(full_fname, "UTF8"))
 
-    return pygame.mixer.Sound(fname)
+    return CACHED_MUSIC[fname]
 
 
 def init_sound(game_dir, def_music_folder):
@@ -50,14 +56,14 @@ def init_sound(game_dir, def_music_folder):
     # pre-load all sound effects.
     myglob = glob.glob(os.path.join(game_dir, "soundfx", "*.ogg"))
     for fname in myglob:
-        SOUND_FX_LIBRARY[os.path.basename(fname)] = pygame.mixer.Sound(fname)
-
-    pygame.mixer.set_num_channels(16)
+        SOUND_FX_LIBRARY[os.path.basename(fname)] = sdlmixer.Mix_LoadWAV(bytes(fname, "UTF8"))
 
 
-def preload_all_music():
-    for folder in search_path + proprietary_search_path:
-        myglob = glob.glob(os.path.join(folder, "*.ogg"))
-        for fname in myglob:
-            CACHED_MUSIC[os.path.basename(fname)] = pygame.mixer.Sound(fname)
+def quit():
+    for v in SOUND_FX_LIBRARY.values():
+        sdlmixer.Mix_FreeChunk(v)
+    for v in CACHED_MUSIC.values():
+        sdlmixer.Mix_FreeMusic(v)
+
+
 

@@ -11,7 +11,7 @@
 # the list-printer from Anne Archibald's GearHead Prime demo.
 
 import sdl2
-from sdl2 import ext, sdlmixer
+from sdl2 import ext, sdlmixer, sdlimage
 from itertools import chain
 from . import util
 import glob
@@ -136,9 +136,10 @@ ENEMY_RED = (250, 50, 0)
 
 
 class GameState(object):
-    def __init__(self, screen=None):
-        self.screen: pygame.Surface = screen
-        self.physical_screen: pygame.Surface = None
+    def __init__(self):
+        self.title = "PBGE Game"
+        self.screen: ext.renderer.Renderer = None   # pyright: ignore[reportAttributeAccessIssue]
+        self.window: ext.Window = None              # pyright: ignore[reportAttributeAccessIssue]
         self.view = None
         self.got_quit = False
         self.widgets = list()
@@ -326,7 +327,7 @@ class GameState(object):
             return 0,0
 
     def default_to_windowed(self):
-        my_state.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+        self.window = ext.window.Window(self.title, self.get_window_config(), flags=WINDOWED_FLAGS)
         util.config.set("GENERAL", "fullscreen", "False")
         with open(util.user_dir("config.cfg"), "wt") as f:
             util.config.write(f)
@@ -334,20 +335,19 @@ class GameState(object):
     def reset_screen(self):
         if util.config.getboolean("GENERAL", "fullscreen"):
             try:
-                self.screen = pygame.display.set_mode(self.get_resolution_config(), FULLSCREEN_FLAGS)
+                self.window = ext.window.Window(self.title, self.get_resolution_config(), flags=FULLSCREEN_FLAGS)
             except:
                 self.default_to_windowed()
         else:
-            self.screen = pygame.display.set_mode(self.get_window_config(), WINDOWED_FLAGS)
+            self.window = ext.window.Window(self.title, self.get_window_config(), flags=WINDOWED_FLAGS)
+        winwidth, winheight = self.window.size
+        self.screen = ext.renderer.Renderer(
+            self.window, logical_size=((max(800, 600 * winwidth // winheight), 600)), 
+            flags=sdl2.SDL_RENDERER_ACCELERATED
+        )
 
-    def update_mouse_pos(self):
-        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
-            x, y = pygame.mouse.get_pos()
-            w1, h1 = self.physical_screen.get_size()
-            w2, h2 = self.screen.get_size()
-            self.mouse_pos = (x * w2 // w1, y * h2 // h1)
-        else:
-            self.mouse_pos = pygame.mouse.get_pos()
+    def _update_mouse_pos(self):
+        self.mouse_pos = ext.mouse.mouse_coords()
 
     MESSAGE_LOG_LENGTH = 100
     def record_message(self, msg):
@@ -485,7 +485,7 @@ class GameState(object):
                 if ev.type == pygame.QUIT:
                     self.got_quit = True
                 elif ev.type == pygame.MOUSEMOTION:
-                    self.update_mouse_pos()
+                    self._update_mouse_pos()
                 elif ev.type == sdl2.SDL_KEYDOWN:
                     if ev.key == pygame.K_PRINT:
                         pygame.image.save(my_state.screen, util.user_dir("out.png"))
@@ -771,8 +771,11 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         global POSTERS
         POSTERS += glob.glob(util.image_dir(poster_pattern))
 
+        my_state.title = winname
+
         if start_gfx:
             ext.common.init()
+            sdlimage.IMG_Init(sdlimage.IMG_INIT_PNG)
             my_state.audio_enabled = not util.config.getboolean("TROUBLESHOOTING", "disable_audio_entirely")
             if my_state.audio_enabled:
                 sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
@@ -782,8 +785,11 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             my_state.reset_screen()
 
             if my_state.audio_enabled:
-                sdlmixer.Mix_ReserveChannels(2)
-                my_state.music_channels = [0,1]
+                # Initialize a 44.1 kHz 16-bit stereo mixer with a 1024-byte buffer size
+                ret = sdlmixer.Mix_OpenAudio(44100, sdl2.AUDIO_S16SYS, 2, 1024)
+                if ret < 0:
+                    err = sdlmixer.Mix_GetError().decode("utf8")
+                    raise RuntimeError("Error initializing the mixer: {0}".format(err))
                 soundlib.init_sound(gamedir, util.music_dir(""))
 
             global INPUT_CURSOR
@@ -830,3 +836,12 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             FPS = util.config.getint("GENERAL", "frames_per_second")
 
         INIT_DONE = True
+
+def quit():
+    my_state.screen.destroy()
+    my_state.window.close()
+    sdlimage.IMG_Quit()
+    soundlib.quit()
+    sdlmixer.Mix_Quit()
+    ext.common.quit()
+    
