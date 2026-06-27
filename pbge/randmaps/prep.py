@@ -79,9 +79,9 @@ class GradientPrep( object ):
 
         for n, band in enumerate(self.bands):
             if self.vertical:
-                mydest = pygame.Rect(0, band_start, mapgen.width, band_stops[n] - band_start)
+                mydest = pbge.frects.PyRect(0, band_start, mapgen.width, band_stops[n] - band_start)
             else:
-                mydest = pygame.Rect(band_start, 0, band_stops[n] - band_start, mapgen.height)
+                mydest = pbge.frects.PyRect(band_start, 0, band_stops[n] - band_start, mapgen.height)
             if band is self.bands[-1]:
                 # Error check- we want to make sure the map is completely filled! So, if this is the last band, make
                 # sure that it reaches the bottom right corner of the map.

@@ -63,7 +63,6 @@ class ConvoVisualizer(object):
             self.pc = pc.get_pilot()
         else:
             self.pc = None
-        self.sl = pbge.StretchyLayer()
 
         self.is_rolling_out = do_rollout
         self.rollout_timer = 0
@@ -73,11 +72,11 @@ class ConvoVisualizer(object):
             mydest = self.npc_sprite.get_rect(0)
             mydest.midbottom = (self.sl.surf.get_width()//2-170,self.sl.surf.get_height())
         else:
-            return pygame.Rect(self.sl.surf.get_width()//2-370,0,400,600)
+            return pbge.frects.PyRect(self.sl.surf.get_width()//2-370,0,400,600)
         return mydest
     
     def get_pilot_area(self):
-        return pygame.Rect(self.sl.surf.get_width()//2-350,50,100,100)
+        return pbge.frects.PyRect(self.sl.surf.get_width()//2-350,50,100,100)
 
     def render(self, delta):
         self.sl.clear()
@@ -90,7 +89,7 @@ class ConvoVisualizer(object):
                 self.rollout_timer = 499
                 self.is_rolling_out = False
             tile_w = (w * self.rollout_timer)//500
-            self.bottom_sprite.tile(pygame.Rect(w-tile_w,h-200,tile_w,200), dest_surface=self.sl.surf)
+            self.bottom_sprite.tile(pbge.frects.PyRect(w-tile_w,h-200,tile_w,200), dest_surface=self.sl.surf)
 
             rollrect = self.get_portrait_area()
             rollrect.x = -400 + (rollrect.x + 400) * self.rollout_timer//500
@@ -100,7 +99,7 @@ class ConvoVisualizer(object):
             self.sl.render()
 
         else:
-            self.bottom_sprite.tile(pygame.Rect(0,h-200,w,200), dest_surface=self.sl.surf)
+            self.bottom_sprite.tile(pbge.frects.PyRect(0,h-200,w,200), dest_surface=self.sl.surf)
             if self.npc_sprite:
                 self.npc_sprite.render(self.get_portrait_area(), dest_surface=self.sl.surf)
             if self.pilot_sprite:

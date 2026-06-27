@@ -55,15 +55,15 @@ class Plasma( object ):
     def draw( self, screen ):
         for x in range( self.width ):
             for y in range( self.height ):
-                pygame.draw.rect(screen,(255*self.map[x][y],255*self.map[x][y],127+128*self.map[x][y]),pygame.Rect(x*2,y*2,2,2) )
+                pygame.draw.rect(screen,(255*self.map[x][y],255*self.map[x][y],127+128*self.map[x][y]),pbge.frects.PyRect(x*2,y*2,2,2) )
 
     def draw_layers( self, screen, w_el=0.3, l_el=0.5 ):
         for x in range( self.width ):
             for y in range( self.height ):
                 if self.map[x][y] < w_el:
-                    pygame.draw.rect(screen,(0,0,150),pygame.Rect(x*2,y*2,2,2) )
+                    pygame.draw.rect(screen,(0,0,150),pbge.frects.PyRect(x*2,y*2,2,2) )
                 elif self.map[x][y] < l_el:
-                    pygame.draw.rect(screen,(150,200,0),pygame.Rect(x*2,y*2,2,2) )
+                    pygame.draw.rect(screen,(150,200,0),pbge.frects.PyRect(x*2,y*2,2,2) )
                 else:
-                    pygame.draw.rect(screen,(50,250,100),pygame.Rect(x*2,y*2,2,2) )
+                    pygame.draw.rect(screen,(50,250,100),pbge.frects.PyRect(x*2,y*2,2,2) )
 

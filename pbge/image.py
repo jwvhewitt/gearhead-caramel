@@ -2,8 +2,10 @@
 
 import sdl2
 from sdl2 import ext
+from sdl2.ext import compat
 import weakref
-from . import my_state, render_text, TEXT_COLOR, frects
+
+from . import my_state, fontstyles, frects
 import os.path
 import glob
 
@@ -94,7 +96,7 @@ class SurfImage(ProtoImage):
 
 class Image(ProtoImage):
     def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
-                 transparent=False):
+                 transparent=False, surf: sdl2.SDL_Surface|SurfImage|None=None):
         """Load image file or create an image from an existing surface"""
         if fname:
             self.texture = self.get_pre_loaded(fname, color, transparent)
@@ -105,18 +107,28 @@ class Image(ProtoImage):
 
                 self.record_pre_loaded(fname, color, self.texture, transparent)
                 del surfer
+        elif surf:
+            if isinstance(surf, SurfImage):
+                self.texture = ext.renderer.Texture(my_state.screen, surf.bitmap)
+            else:
+                self.texture = ext.renderer.Texture(my_state.screen, surf)
+        else:
+            raise ValueError("Image can be created from either a filename or a surface. You provided neither. This is a message to Joe, probably not you the user.")
 
         super().__init__(self.texture.size, frame_width, frame_height, custom_frames)
 
         self.fname = fname
         self.transparent = transparent
         if transparent:
-            alpha = int(transparent)
-            if alpha <= 1:
-                alpha = 155
-            elif alpha > 255:
-                alpha = 255
-            sdl2.render.SDL_SetTextureAlphaMod(self.texture, c_uint8(alpha))
+            self.set_alpha(transparent)
+
+    def set_alpha(self, alpha=155):
+        alpha = int(alpha)
+        if alpha <= 1:
+            alpha = 155
+        elif alpha > 255:
+            alpha = 255
+        sdl2.render.SDL_SetTextureAlphaMod(self.texture.tx, c_uint8(alpha))
 
     @staticmethod
     def get_pre_loaded(ident, colorset, transparent):
@@ -126,7 +138,7 @@ class Image(ProtoImage):
     def record_pre_loaded(ident, colorset, bitmap, transparent=False):
         pre_loaded_images[(ident, repr(colorset), transparent)] = bitmap
 
-    def render(self, dest=(0, 0, 0, 0), frame=0, colormod: tuple[int, int, int]|None=None) -> None:
+    def render(self, dest=(0, 0), frame=0, colormod: tuple[int, int, int]|None=None) -> None:
         # Render this Image onto the provided surface.
         # colormod is an r,g,b tuple for modifying the color of the render
         # Start by determining the correct sub-area of the image.
@@ -136,7 +148,12 @@ class Image(ProtoImage):
             sdl2.SDL_SetTextureColorMod(self.texture.tx, 255, 255, 255)
         source_rect = self._get_frame_area(frame)
 
-        _=my_state.screen.copy(self.texture, dstrect=dest, srcrect=source_rect)
+        if compat.isiterable(dest) and len(dest) == 2:
+            dest = frects.PyRect(dest[0], dest[1], source_rect.w, source_rect.h)
+
+        sdl2.SDL_RenderCopy(my_state.screen.renderer, self.texture.tx, source_rect, dest)
+
+        #_=my_state.screen.copy(self.texture, dstrect=dest, srcrect=source_rect)
 
     def render_c(self, dest: tuple[int,int]=(0, 0), frame=0 ) -> None:
         # As above, but the dest coordinates point to the center of the image.
@@ -188,22 +205,20 @@ class Image(ProtoImage):
         return nu_sprite
 
     def __del__(self):
-        _=self.texture.destroy()
+        if self.texture not in pre_loaded_images.values():
+            _=self.texture.destroy()
 
 
 class TextImage(Image):
-    def __init__(self, txt='?????', frame_width=128, color=None, font=None):
+    def __init__(self, txt='?????', frame_width=128, style: fontstyles.FontStyle|None=None, color=None, align=fontstyles.ALIGN_LEFT):
         """Create an image of the provided text"""
-        if not font:
-            font = my_state.anim_font
-        if not color:
-            color = TEXT_COLOR
+        if not style:
+            style = fontstyles.ANIMFONT
 
         self.txt = txt
-        self.bitmap = render_text(font, txt, frame_width, color, justify=0, antialias=False)
-        self.frame_width = self.bitmap.get_width()
-        self.frame_height = self.bitmap.get_height()
-        self.custom_frames = None
+        bitmap = style.render_text( txt, frame_width, align=align, color=color)
+        super().__init__(surf=bitmap)
+        sdl2.SDL_FreeSurface(bitmap)
 
     def __reduce__(self):
         # Rather than trying to save the bitmap image, just save the filename.

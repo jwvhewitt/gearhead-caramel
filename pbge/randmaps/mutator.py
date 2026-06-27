@@ -34,7 +34,7 @@ class CellMutator(object):
                     return True
 
     def carve_noise(self, gb, area):
-        myrect = pygame.Rect(0, 0, 5, 5)
+        myrect = pbge.frects.PyRect(0, 0, 5, 5)
         for t in range(gb.width * gb.height // self.noise_throttle):
             myrect.x = random.choice(list(range(area.x + 1, area.x + area.width - myrect.width - 1)))
             myrect.y = random.choice(list(range(area.y + 1, area.y + area.height - myrect.height - 1)))

@@ -27,7 +27,7 @@ class BioBlock( object ):
         self.height = self.image.get_height()
 
     def render(self,x,y):
-        _=pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+        _=pbge.my_state.screen.blit(self.image,pbge.frects.PyRect(x,y,self.width,self.height))
 
 class CGNonComSkillBlock(object):
     def __init__(self,lpath: "Lifepath",width=220,skill_font=None,**kwargs):
@@ -43,7 +43,7 @@ class CGNonComSkillBlock(object):
         self.image = pbge.render_text(self.font, 'Skills: {}'.format(', '.join(skillz or ["None"])), self.width, justify=-1)
 
     def render(self,x,y):
-        _=pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+        _=pbge.my_state.screen.blit(self.image,pbge.frects.PyRect(x,y,self.width,self.height))
 
 
 class LifePathStatusPanel(gears.info.InfoPanel):

@@ -69,7 +69,7 @@ class SpeedTest(pbge.widgets.Widget):
         self.sprite = pbge.image.Image("terrain_decor_bed.png")
 
     def draw_individual(self):
-        mydest = pygame.Rect(0,360,64,64)
+        mydest = pbge.frects.PyRect(0,360,64,64)
         for t in range(self.ITERATIONS):
             self.sprite.render(mydest)
             mydest.x += 5
@@ -78,7 +78,7 @@ class SpeedTest(pbge.widgets.Widget):
                 mydest.y += 5
 
     def draw_list(self):
-        mylist = [(self.sprite.bitmap, pygame.Rect(t%252*5, t//252*5, 64, 64)) for t in range(self.ITERATIONS)]
+        mylist = [(self.sprite.bitmap, pbge.frects.PyRect(t%252*5, t//252*5, 64, 64)) for t in range(self.ITERATIONS)]
         _=pbge.my_state.screen.blits(mylist, doreturn=0)
 
     def _render(self, _delta):
@@ -86,7 +86,7 @@ class SpeedTest(pbge.widgets.Widget):
         self.draw_list()
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.MOUSEBUTTONUP:
+        if ev.type == sdl2.SDL_MOUSEBUTTONUP:
             if ev.button == 1:
                 self.register_response()
                 self.pop()
@@ -118,8 +118,8 @@ class DZDTitleScreenRedraw:
         self.sl.clear()
 
         w, h = self.sl.get_size()
-        bigrect = pygame.Rect(0, 0, w, h)
-        rubblerect = pygame.Rect(0, h - self.rubble.frame_height, w, self.rubble.frame_height)
+        bigrect = pbge.frects.PyRect(0, 0, w, h)
+        rubblerect = pbge.frects.PyRect(0, h - self.rubble.frame_height, w, self.rubble.frame_height)
 
         self.sky.tile(bigrect, x_offset=self.sky_x, dest_surface=self.sl.surf)
         self.sky_x += 1
@@ -195,7 +195,7 @@ class StartGameMenuWidget(pbge.widgetmenu.MenuWidget):
         if menu_item and menu_item.data:
             self.sl.clear()
             myimage = self.myportraits[menu_item.data]
-            portrait_area = pygame.Rect(self.sl.get_width()//2 - 400, 0, 400, 600)
+            portrait_area = pbge.frects.PyRect(self.sl.get_width()//2 - 400, 0, 400, 600)
             myimage.render(portrait_area, dest_surface=self.sl.surf)
             self.sl.render()
         super()._render(delta)
@@ -290,13 +290,13 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
         check_rpg_saves()
         super().__init__(
             self.MENU_COLUMN.dx, self.MENU_COLUMN.dy, self.MENU_COLUMN.w, self.MENU_COLUMN.h,
-            on_escape=self.cancel_load, font=pbge.HUGEFONT, activate_child_on_enter=True
+            on_escape=self.cancel_load, font=pbge.fontstyles.HUGEFONT, activate_child_on_enter=True
         )
         self.myportraits = dict()
         self.current_version = self._string_to_major_version(VERSION)
 
         rc = pygame.image.load(pbge.util.image_dir("sys_roundedcorners.png"))
-        rcdest = pygame.Rect(0,0,480,360)
+        rcdest = pbge.frects.PyRect(0,0,480,360)
 
         for fname, args in minimal_saves.items():
             _=self.add_item(args[1].pc.name, on_click=self.load_game, data=fname, desc=args)
@@ -359,10 +359,10 @@ class LoadGameMenuWidget(pbge.widgetmenu.MenuWidget):
             self.sl.clear()
             w = self.sl.get_width()
             if menu_item.desc[2]:
-                mydest = pygame.Rect(w//2-390, 100, 480, 360)
+                mydest = pbge.frects.PyRect(w//2-390, 100, 480, 360)
                 _ = self.sl.surf.blit(menu_item.desc[2], mydest)
             myimage = self.myportraits[menu_item.desc]
-            portrait_area = pygame.Rect(w//2 - 400, 0, 400, 600)
+            portrait_area = pbge.frects.PyRect(w//2 - 400, 0, 400, 600)
             myimage.render(portrait_area, dest_surface=self.sl.surf)
             self.sl.render()
             save_version = self._string_to_major_version(menu_item.desc[0])

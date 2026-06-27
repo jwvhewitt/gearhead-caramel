@@ -207,7 +207,7 @@ class BuildingSet( TerrSet ):
                 mydecor = random.choice(self.decor_options)
                 self.install_decor(mydecor)
 
-        self.footprint = pygame.Rect(self.area.right - dimx, self.area.bottom - dimy, dimx-1, dimy-1)
+        self.footprint = pbge.frects.PyRect(self.area.right - dimx, self.area.bottom - dimy, dimx-1, dimy-1)
 
     def install_decor(self,decortype):
         possible_points = [p for p in self.decor_tiles if decortype.is_legal_point(self,p)]

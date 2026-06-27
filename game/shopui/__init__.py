@@ -141,7 +141,7 @@ class CostBlock(object):
 
     def render(self, x, y):
         _=my_state.screen.blit(
-            self.image, pygame.Rect(x, y, self.width, self.height)
+            self.image, pbge.frects.PyRect(x, y, self.width, self.height)
         )
 
 

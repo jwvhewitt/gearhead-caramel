@@ -918,7 +918,7 @@ class WinterHighwaySceneGen(pbge.randmaps.SceneGenerator):
 
         room = connected[0]
         if room.anchor:
-            mydest = pygame.Rect(0, 0, 3, 3)
+            mydest = pbge.frects.PyRect(0, 0, 3, 3)
             room.anchor(self.area, mydest)
             self.draw_direct_connection(gb, room.area.centerx, room.area.centery, mydest.centerx, mydest.centery, archi)
 
@@ -930,7 +930,7 @@ class WinterHighwaySceneGen(pbge.randmaps.SceneGenerator):
                                         archi)
             connected.append(room)
             if room.anchor:
-                mydest = pygame.Rect(0, 0, 3, 3)
+                mydest = pbge.frects.PyRect(0, 0, 3, 3)
                 room.anchor(self.area, mydest)
                 self.draw_direct_connection(gb, room.area.centerx, room.area.centery, mydest.centerx, mydest.centery,
                                             archi)
@@ -938,7 +938,7 @@ class WinterHighwaySceneGen(pbge.randmaps.SceneGenerator):
     def draw_direct_connection(self, gb, x1, y1, x2, y2, archi):
         path = pbge.scenes.animobs.get_line(x1, y1, x2, y2)
         for p in path:
-            gb.fill(pygame.Rect(p[0] - 1, p[1] - 1, 3, 3), floor=WinterMochaPavement, wall=None)
+            gb.fill(pbge.frects.PyRect(p[0] - 1, p[1] - 1, 3, 3), floor=WinterMochaPavement, wall=None)
 
 
 class MochaMissionBattleBuilder(Plot):

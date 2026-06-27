@@ -1,6 +1,5 @@
-import pygame
 import random
-from .. import scenes
+from .. import scenes, frects
 
 from . import plasma
 from . import anchors
@@ -49,7 +48,7 @@ class SceneGenerator(Room):
     def __init__(self, myscene, archi, default_room=None, gapfill=None, mutate=None, decorate=None, **kwargs):
         super(SceneGenerator, self).__init__(myscene.width, myscene.height, **kwargs)
         self.gb = myscene
-        self.area = pygame.Rect(0, 0, myscene.width, myscene.height)
+        self.area = frects.PyRect(0, 0, myscene.width, myscene.height)
         self.archi = archi
         self.contents = myscene.contents
         if default_room:
@@ -114,7 +113,7 @@ class SceneGenerator(Room):
             try:
                 for r in self.all_rooms():
                     r.area = None
-                self.area = pygame.Rect(0, 0, self.gb.width, self.gb.height)
+                self.area = frects.PyRect(0, 0, self.gb.width, self.gb.height)
 
                 prepped_rooms = self.archi.prepare(self) or ()  # Only the scene generator gets to prepare
                 self.step_two(self.gb)  # Arrange contents for self, then children
@@ -161,7 +160,7 @@ class CityGridGenerator(SceneGenerator):
         # Add rooms with defined anchors next
         for r in self.contents:
             if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
-                myrect = pygame.Rect(0, 0, r.width, r.height)
+                myrect = frects.PyRect(0, 0, r.width, r.height)
                 r.anchor(self.area, myrect)
                 if myrect.collidelist(closed_area) == -1:
                     r.area = myrect
@@ -174,7 +173,7 @@ class CityGridGenerator(SceneGenerator):
         x = random.randint(2, 4)
         while x < (self.width - self.road_thickness):
             # Draw a N-S road here.
-            self.fill(self.gb, pygame.Rect(x, 0, self.road_thickness, self.height), floor=self.road_terrain, wall=None)
+            self.fill(self.gb, frects.PyRect(x, 0, self.road_thickness, self.height), floor=self.road_terrain, wall=None)
             room_width = random.randint(7, 12)
             if x + room_width + self.road_thickness < self.width:
                 column_info.append((x + self.road_thickness, room_width))
@@ -183,11 +182,11 @@ class CityGridGenerator(SceneGenerator):
         y = random.randint(2, 4)
         while y < (self.height - self.road_thickness - 7):
             # Draw a W-E road here.
-            self.fill(self.gb, pygame.Rect(0, y, self.width, self.road_thickness), floor=self.road_terrain, wall=None)
+            self.fill(self.gb, frects.PyRect(0, y, self.width, self.road_thickness), floor=self.road_terrain, wall=None)
             room_height = random.randint(7, 12)
             # Add the rooms.
             for col_x, col_width in column_info:
-                myroom = pygame.Rect(col_x, y + self.road_thickness, col_width, room_height)
+                myroom = frects.PyRect(col_x, y + self.road_thickness, col_width, room_height)
                 if self.area.contains(myroom):
                     blocks.append(myroom)
             y += self.road_thickness + room_height
@@ -231,7 +230,7 @@ class PartlyUrbanGenerator(SceneGenerator):
             self.urban_area = urban_area
             self.contents.append(urban_area)
             if not (hasattr(urban_area, "area") and urban_area.area):
-                self.urban_area.area = pygame.Rect(0, 0, urban_area.width, urban_area.height)
+                self.urban_area.area = frects.PyRect(0, 0, urban_area.width, urban_area.height)
                 self.urban_area.area.center = self.area.center
 
         self.done_rooms = list()
@@ -247,7 +246,7 @@ class PartlyUrbanGenerator(SceneGenerator):
         # Add rooms with defined anchors next
         for r in self.contents:
             if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
-                myrect = pygame.Rect(0, 0, r.width, r.height)
+                myrect = frects.PyRect(0, 0, r.width, r.height)
                 r.anchor(self.area, myrect)
                 if myrect.collidelist(closed_area) == -1:
                     r.area = myrect
@@ -296,7 +295,7 @@ class PartlyUrbanGenerator(SceneGenerator):
     def draw_road_segment(self, gb, x1, y1, x2, y2):
         path = scenes.animobs.get_line(x1, y1, x2, y2)
         for p in path:
-            mydest = pygame.Rect(0,0,self.road_thickness, self.road_thickness)
+            mydest = frects.PyRect(0,0,self.road_thickness, self.road_thickness)
             mydest.center = p
             self.fill(gb, mydest, floor=self.road_terrain, wall=None, decor=None)
 
@@ -340,7 +339,7 @@ class PackedBuildingGenerator(SceneGenerator):
         # Add rooms with defined anchors next
         for r in self.contents:
             if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
-                myrect = pygame.Rect(0, 0, r.width, r.height)
+                myrect = frects.PyRect(0, 0, r.width, r.height)
                 r.anchor(self.area, myrect)
                 if myrect.collidelist(closed_area) == -1:
                     r.area = myrect
@@ -351,7 +350,7 @@ class PackedBuildingGenerator(SceneGenerator):
         rooms_to_add = [r for r in self.contents if hasattr(r, "area") and not r.area]
         random.shuffle(rooms_to_add)
         for r in rooms_to_add:
-            myrect = pygame.Rect(0, 0, r.width, r.height)
+            myrect = frects.PyRect(0, 0, r.width, r.height)
             candidates = list()
             for croom in closed_area:
                 for dirf in positions:
@@ -397,26 +396,26 @@ class HallwayBuildingGenerator(SceneGenerator):
         super().__init__(myscene, archi, **kwargs)
         self.hall_terrain = hall_terrain
 
-    def divide(self, myrect: pygame.Rect):
+    def divide(self, myrect: frects.PyRect):
         if myrect.w >= 19 and (random.randint(1,2) == 1 or myrect.h < 19):
             # Divide horizontally.
             x = random.randint(7, myrect.w-12)
-            self.gb.fill(pygame.Rect(myrect.x+1, myrect.y, 3, myrect.h), floor=self.hall_terrain, wall=None)
-            return self.divide(pygame.Rect(myrect.x, myrect.y, x, myrect.h)) + \
-                   self.divide(pygame.Rect(myrect.x+x+5, myrect.y, myrect.w-x-5, myrect.h))
+            self.gb.fill(frects.PyRect(myrect.x+1, myrect.y, 3, myrect.h), floor=self.hall_terrain, wall=None)
+            return self.divide(frects.PyRect(myrect.x, myrect.y, x, myrect.h)) + \
+                   self.divide(frects.PyRect(myrect.x+x+5, myrect.y, myrect.w-x-5, myrect.h))
 
         elif myrect.h >= 19:
             # Divide vertically.
             y = random.randint(7, myrect.h-12)
-            self.gb.fill(pygame.Rect(myrect.x, myrect.y+y, myrect.w, 3), floor=self.hall_terrain, wall=None)
-            return self.divide(pygame.Rect(myrect.x, myrect.y, myrect.w, y)) + \
-                   self.divide(pygame.Rect(myrect.x, myrect.y+y+5, myrect.w, myrect.h-y-5))
+            self.gb.fill(frects.PyRect(myrect.x, myrect.y+y, myrect.w, 3), floor=self.hall_terrain, wall=None)
+            return self.divide(frects.PyRect(myrect.x, myrect.y, myrect.w, y)) + \
+                   self.divide(frects.PyRect(myrect.x, myrect.y+y+5, myrect.w, myrect.h-y-5))
 
         else:
             # No divisions possible.
             return [myrect]
 
-    def connect_to_hallway(self, myrect: pygame.Rect):
+    def connect_to_hallway(self, myrect: frects.PyRect):
         possible_exits = list()
         for x in range(myrect.left+1, myrect.right):
             if self.gb.on_the_map(x, myrect.top-2) and not self.gb.get_wall(x, myrect.top-2):
@@ -453,7 +452,7 @@ class HallwayBuildingGenerator(SceneGenerator):
         # Rooms with defined anchors? Do exist. Stick them in the closest room possible.
         for r in self.contents:
             if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
-                myrect = pygame.Rect(0, 0, r.width, r.height)
+                myrect = frects.PyRect(0, 0, r.width, r.height)
                 r.anchor(self.area, myrect)
                 for rarea in rooms:
                     if rarea.colliderect(myrect):

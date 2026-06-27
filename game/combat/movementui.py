@@ -63,7 +63,7 @@ class MovementWidget(pbge.widgets.Widget):
 
     def _builtin_responder(self, ev):
         # Respond to keyboard and mouse scroll events.
-        if ev.type == pygame.MOUSEBUTTONDOWN:
+        if ev.type == sdl2.SDL_MOUSEBUTTONDOWN:
             if ev.button == 4:
                 self.prev_shelf()
                 self.register_response()
@@ -358,7 +358,7 @@ class MovementUI(pbge.widgets.Widget):
         ):
             self.camp.fight.cstat[self.mover].end_turn()
 
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
+        elif ev.type == sdl2.SDL_MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
             self.click_left()
             self.register_response()
 

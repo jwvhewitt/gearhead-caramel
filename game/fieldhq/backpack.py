@@ -23,7 +23,7 @@ class SwitchNameBlock(object):
         return len(pbge.wrapline(str(self.switch.pc), self.font, self.width)) * self.font.get_linesize()
 
     def render(self, x, y):
-        mydest = pygame.Rect(x, y, self.width, self.height)
+        mydest = pbge.frects.PyRect(x, y, self.width, self.height)
         pbge.draw_text(self.font, str(self.switch.pc), mydest, pbge.WHITE, justify=0)
 
 
@@ -41,7 +41,7 @@ class SwitchEncumberanceBlock(object):
             return self.font.get_linesize()
 
     def render(self, x, y):
-        mydest = pygame.Rect(x, y, self.width, self.height)
+        mydest = pbge.frects.PyRect(x, y, self.width, self.height)
         mymass = self.switch.pc.get_inv_mass()
         mycolor = pbge.INFO_GREEN
         if hasattr(self.switch.pc, "carrying_capacity"):

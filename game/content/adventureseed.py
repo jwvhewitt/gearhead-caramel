@@ -202,7 +202,7 @@ class ObjectivesInfo(object):
             return pbge.TEXT_COLOR
 
     def render(self,x,y):
-        mydest = pygame.Rect(x, y, self.width, self.height)
+        mydest = pbge.frects.PyRect(x, y, self.width, self.height)
         for obj,img in list(self.images.items()):
             pbge.my_state.screen.blit(img, mydest)
             mydest.y += img.get_height() + self.PADDING
@@ -218,7 +218,7 @@ class ResultsInfo(object):
         self.image = pbge.render_text(pbge.BIGFONT,'\n '.join(['{}: {}'.format(*rew) for rew in self.mission_seed.results]),self.width,justify=0,color=pbge.INFO_HILIGHT)
         self.height = self.image.get_height()
     def render(self,x,y):
-        pbge.my_state.screen.blit(self.image,pygame.Rect(x,y,self.width,self.height))
+        pbge.my_state.screen.blit(self.image,pbge.frects.PyRect(x,y,self.width,self.height))
 
 
 class CombatMissionDisplay(gears.info.InfoPanel):

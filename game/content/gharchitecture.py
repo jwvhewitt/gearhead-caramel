@@ -494,15 +494,15 @@ class DeadZoneHighwaySceneGen(pbge.randmaps.SceneGenerator):
     DO_DIRECT_CONNECTIONS = True
 
     def build(self, gb, archi):
-        self.fill(gb, pygame.Rect(0, gb.height // 2 - 2, gb.width, 5), wall=None)
+        self.fill(gb, pbge.frects.PyRect(0, gb.height // 2 - 2, gb.width, 5), wall=None)
 
     def DECORATE(self, gb, scenegen, archi):
         """
         :type gb: gears.GearHeadScene
         """
         # Draw a gret big highway going from west to east.
-        self.fill(gb, pygame.Rect(0, gb.height // 2 - 2, gb.width, 5), floor=self.archi.DEFAULT_FLOOR_TERRAIN)
-        self.fill(gb, pygame.Rect(0, gb.height // 2 - 1, gb.width, 3), floor=ghterrain.Pavement)
+        self.fill(gb, pbge.frects.PyRect(0, gb.height // 2 - 2, gb.width, 5), floor=self.archi.DEFAULT_FLOOR_TERRAIN)
+        self.fill(gb, pbge.frects.PyRect(0, gb.height // 2 - 1, gb.width, 3), floor=ghterrain.Pavement)
 
 
 class VerticalHighwaySceneGen(pbge.randmaps.SceneGenerator):
@@ -510,7 +510,7 @@ class VerticalHighwaySceneGen(pbge.randmaps.SceneGenerator):
     DO_DIRECT_CONNECTIONS = True
 
     def _get_rect(self, gb):
-        return pygame.Rect(gb.width//2-2,  0,  5,  gb.height)
+        return pbge.frects.PyRect(gb.width//2-2,  0,  5,  gb.height)
 
     def build(self, gb, archi):
         gb.fill(self._get_rect(gb), wall=None)

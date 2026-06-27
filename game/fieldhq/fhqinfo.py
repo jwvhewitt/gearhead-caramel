@@ -37,7 +37,7 @@ class MechasPilotBlock(object):
                                           color=pbge.INFO_HILIGHT)
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(x, y, self.width, self.height))
 
 
 class ItemsOwnerBlock(object):
@@ -62,7 +62,7 @@ class ItemsOwnerBlock(object):
 
     def render(self, x, y):
         if self.image:
-            pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+            pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(x, y, self.width, self.height))
 
 
 class PilotsMechaBlock(object):
@@ -84,7 +84,7 @@ class PilotsMechaBlock(object):
             self.image = pbge.render_text(self.font, 'Mecha: None', self.width, justify=-1, color=pbge.INFO_HILIGHT)
 
     def render(self, x, y):
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(x, y, self.width, self.height))
 
 
 class TrainerBlock(object):
@@ -103,7 +103,7 @@ class TrainerBlock(object):
 
     def render(self, x, y):
         self.update()
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(x, y, self.width, self.height))
 
 
 class RenownBlock(object):
@@ -134,7 +134,7 @@ class RenownBlock(object):
 
     def render(self, x, y):
         self.update()
-        pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(x, y, self.width, self.height))
 
 
 class CharaFHQIP(gears.info.InfoPanel):

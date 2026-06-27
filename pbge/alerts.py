@@ -1,9 +1,11 @@
-import pygame
-from . import widgets, my_state, render_text, default_border, frects
+import sdl2
+
+from pbge import fontstyles
+from . import widgets, my_state, image, default_border, frects
 
 
 WTAG_ALERT = "WTAG_ALERT"
-ALERT_EVENT = pygame.event.custom_type()
+ALERT_EVENT = sdl2.SDL_RegisterEvents(1)
 
 # Alerts are meant to display narration and other info for the player.
 # Often we want to display several alerts in a row, as in when NPCs are speaking
@@ -24,7 +26,7 @@ class AbstractAlert(widgets.Widget):
     TAGS_TO_DEACTIVATE = {widgets.WTAG_WIDGET,}
 
     def _builtin_responder(self, ev):
-        if (ev.type == pygame.MOUSEBUTTONUP):
+        if (ev.type == sdl2.SDL_MOUSEBUTTONUP):
             self.register_response()
             self.pop()
             if self.on_close:
@@ -43,18 +45,18 @@ class AbstractAlert(widgets.Widget):
 
 
 class TextAlert(AbstractAlert):
-    def __init__(self, text, font=None, justify=-1, **kwargs):
+    def __init__(self, text, font=None,  align=fontstyles.ALIGN_CENTER, **kwargs):
         super().__init__(**kwargs)
         if not font:
-            font = my_state.medium_font
-        self.text_surf = render_text(font, text, 400, justify=justify)
-        w,h = self.text_surf.get_size()
+            font = fontstyles.MEDIUMFONT
+        self.text_image = image.TextImage(text, frame_width=400, style=font, align=align)
+        w,h = self.text_image.size
         self.dest = frects.Frect(-w/2, -h/2, w, h)
 
     def _render(self, _delta):
         mydest = self.dest.get_rect()
         default_border.render(mydest)
-        _=my_state.screen.blit(self.text_surf, mydest)
+        self.text_image.render(mydest)
 
 
 class FunAlert(AbstractAlert):
@@ -88,7 +90,7 @@ class AnimAlert(AbstractAlert):
                 self.register_response()
                 self.pop()
                 if self.on_close:
-                    self.on_close(self, pygame.event.Event(ALERT_EVENT, {}))
+                    self.on_close(self, sdl2.SDL_Event(ALERT_EVENT, {}))
                 my_state.update_alerts()
 
     def _builtin_responder(self, ev):

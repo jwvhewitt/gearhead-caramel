@@ -26,7 +26,7 @@ class RoomFiller(object):
         for t in range(random.randint(5, 20)):
             myroomclass = random.choice(self.room_types)
             myroom = myroomclass()
-            myrect = pygame.Rect(0, 0, myroom.width, myroom.height)
+            myrect = pbge.frects.PyRect(0, 0, myroom.width, myroom.height)
             count = 0
             while (count < 100) and not myroom.area:
                 myrect.x = random.choice(list(range(room.area.x, room.area.x + room.area.width - myroom.width)))
@@ -71,7 +71,7 @@ class MonsterFiller(object):
         for t in range(random.randint(self.min_mz, self.max_mz)):
             myroom = rclass()
             myroom.DECORATE = decor.MonsterDec()
-            myrect = pygame.Rect(0, 0, myroom.width, myroom.height)
+            myrect = pbge.frects.PyRect(0, 0, myroom.width, myroom.height)
             count = 0
             while (count < 100) and not myroom.area:
                 myrect.x = random.choice(list(range(room.area.x, room.area.x + room.area.width - myroom.width)))

@@ -464,7 +464,7 @@ class Scene:
             self.container.remove(self)
 
     def get_rect(self):
-        return pygame.Rect(0, 0, self.width, self.height)
+        return pbge.frects.PyRect(0, 0, self.width, self.height)
 
     def clamp_pos(self, pos):
         nupos = list(pos)

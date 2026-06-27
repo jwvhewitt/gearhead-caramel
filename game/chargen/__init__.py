@@ -50,7 +50,7 @@ class LifepathChooserW(pbge.widgets.Widget):
         pbge.default_border.render(self.DESC_ZONE.get_rect())
         pbge.default_border.render(self.MENU_ZONE.get_rect())
         if self.title:
-            pbge.draw_text(pbge.HUGEFONT,self.title,self.PROMPT_ZONE.get_rect(),pbge.WHITE,justify=0)
+            pbge.draw_text(pbge.fontstyles.HUGEFONT,self.title,self.PROMPT_ZONE.get_rect(),pbge.WHITE,justify=0)
 
     def update_menu(self):
         if self.cgen.lp.stages:
@@ -188,7 +188,7 @@ class PortraitEditorW(pbge.widgets.Widget):
 
     def _render(self, delta):
         self.sl.clear()
-        mydest = pygame.Rect(self.sl.get_width()//2-400, 0, 600, 600)
+        mydest = pbge.frects.PyRect(self.sl.get_width()//2-400, 0, 600, 600)
         self.portrait.render(mydest, 0, dest_surface=self.sl.surf)
         self.portrait.render(mydest, 2, dest_surface=self.sl.surf)
         self.sl.render()

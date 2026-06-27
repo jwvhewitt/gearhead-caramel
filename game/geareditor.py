@@ -732,7 +732,7 @@ class CommonHeader(pbge.widgets.Widget):
         _=mybmp.fill((0, 0, 255))
         mybmp.set_colorkey((0, 0, 255), pygame.RLEACCEL)
         myimg = sprite
-        myimg.render(dest_surface=mybmp, dest=pygame.Rect(0, 0, 64, 64), frame=frame)
+        myimg.render(dest_surface=mybmp, dest=pbge.frects.PyRect(0, 0, 64, 64), frame=frame)
         return pygame.transform.scale2x(mybmp)
 
     def _render(self, delta):
@@ -783,8 +783,8 @@ class MechaStatsHeader(CommonHeader):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
-        self.bg.render(pygame.Rect(mydest.x+16, mydest.y, 136, 136), 0)
-        _=pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
+        self.bg.render(pbge.frects.PyRect(mydest.x+16, mydest.y, 136, 136), 0)
+        _=pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(mydest.x + 20, mydest.y + 4, 128, 128))
 
         pbge.draw_text(
             pbge.MEDIUMFONT,
@@ -819,7 +819,7 @@ class CharacterHeader(CommonHeader):
         mydest = self.get_rect()
         pbge.default_border.render(mydest)
 
-        _=pbge.my_state.screen.blit(self.image, pygame.Rect(mydest.x + 20, mydest.y + 4, 128, 128))
+        _=pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(mydest.x + 20, mydest.y + 4, 128, 128))
 
         pbge.draw_text(
             pbge.MEDIUMFONT,

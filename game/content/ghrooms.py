@@ -79,9 +79,9 @@ class LakeRoom(FuzzyRoom):
                 x = random.randint(self.area.left + 3, self.area.right - 4)
                 y = random.randint(self.area.top + 3, self.area.bottom - 4)
                 s = random.randint(3, 5)
-                gb.fill_blob(pygame.Rect(x - 1, y - 1, s, s), floor=ghterrain.Water)
+                gb.fill_blob(pbge.frects.PyRect(x - 1, y - 1, s, s), floor=ghterrain.Water)
         else:
-            mydest = pygame.Rect(0, 0, 3, 3)
+            mydest = pbge.frects.PyRect(0, 0, 3, 3)
             mydest.center = self.area.center
             gb.fill(mydest, floor=ghterrain.Water)
 
@@ -107,14 +107,14 @@ class MSRuinsRoom(FuzzyRoom):
             for t in range(random.randint(3, 8)):
                 x = random.randint(self.area.left + 3, self.area.right - 4)
                 y = random.randint(self.area.top + 3, self.area.bottom - 4)
-                myroomdest = pygame.Rect(0, 0, random.randint(2, 4), random.randint(2, 4))
+                myroomdest = pbge.frects.PyRect(0, 0, random.randint(2, 4), random.randint(2, 4))
                 myroomdest.center = (x, y)
                 myroomdest = myroomdest.clamp(safe_area)
                 if myroomdest.inflate(2, 2).collidelist(ruin_list) == -1:
                     gb.fill(myroomdest, wall=ghterrain.MSRuinedWall)
                     ruin_list.append(myroomdest)
         else:
-            mydest = pygame.Rect(0, 0, 3, 3)
+            mydest = pbge.frects.PyRect(0, 0, 3, 3)
             mydest.center = self.area.center
             gb.fill(mydest, wall=ghterrain.MSRuinedWall)
 
@@ -173,11 +173,11 @@ class LongVehicleRoom(pbge.randmaps.rooms.Room):
         archi = self.archi or archi
         # self.dont_touch_edge(gb)
 
-        self.cabin1 = pygame.Rect(0, 0, 6, 3)
+        self.cabin1 = pbge.frects.PyRect(0, 0, 6, 3)
         self.cabin1.midleft = self.area.midleft
         self.cabin1.y -= 1
         gb.fill(self.cabin1, floor=archi.floor_terrain, wall=None)
-        self.cabin2 = pygame.Rect(self.cabin1.x + 1, self.cabin1.y - 1, 2, 5)
+        self.cabin2 = pbge.frects.PyRect(self.cabin1.x + 1, self.cabin1.y - 1, 2, 5)
         gb.fill(self.cabin2, floor=archi.floor_terrain, wall=None)
 
         gb.set_decor(self.cabin1.x, self.cabin1.top, ghterrain.KenneyChairWest)
@@ -204,7 +204,7 @@ class LongVehicleRoom(pbge.randmaps.rooms.Room):
                 x_off = 1 - x_off
                 gb.set_decor(self.cabin2.x + x_off, self.cabin2.bottom - 1, ghterrain.KenneyChairSouth)
 
-        self.body_area: pygame.Rect = self.area.inflate(-4, 0)
+        self.body_area: pbge.frects.PyRect = self.area.inflate(-4, 0)
         self.body_area.x += 2
         self.body_area.h -= 1
         # body.width -= 4

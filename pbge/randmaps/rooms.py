@@ -102,7 +102,7 @@ class Room(object):
         raise RoomError("ROOM ERROR: {}:{} isn't big enough".format(str(self), str(self.__class__)), self)
 
     def find_spot_for_room(self, closed_area, myroom):
-        myrect = pygame.Rect(0, 0, myroom.width, myroom.height)
+        myrect = pbge.frects.PyRect(0, 0, myroom.width, myroom.height)
         count = 0
         if self.area.width <= myroom.width or self.area.height <= myroom.height:
             self._expand()
@@ -138,7 +138,7 @@ class Room(object):
         # Add rooms with defined anchors next
         for r in self.contents:
             if hasattr(r, "anchor") and r.anchor and hasattr(r, "area"):
-                myrect = pygame.Rect(0, 0, r.width, r.height)
+                myrect = pbge.frects.PyRect(0, 0, r.width, r.height)
                 r.anchor(self.area, myrect)
                 if myrect.collidelist(closed_area) == -1:
                     r.area = myrect
@@ -248,7 +248,7 @@ class Room(object):
             if hasattr(i, "place"):
                 if not (hasattr(i, "pos") and i.pos):
                     if hasattr(i, "anchor"):
-                        myrect = pygame.Rect(0, 0, 1, 1)
+                        myrect = pbge.frects.PyRect(0, 0, 1, 1)
                         i.anchor(self.area, myrect)
                         i.place(gb, (myrect.x, myrect.y))
                         if (myrect.x, myrect.y) in good_walls:
@@ -430,19 +430,19 @@ class MostlyOpenRoom(OpenRoom):
         gb.fill(self.area, floor=archi.floor_terrain, wall=None)
         if self.area.x == 0:
             # Draw a west wall.
-            gb.fill(pygame.Rect(0, self.area.y, 0, self.area.y + self.area.height - 1), wall=archi.wall_terrain)
+            gb.fill(pbge.frects.PyRect(0, self.area.y, 0, self.area.y + self.area.height - 1), wall=archi.wall_terrain)
         elif self.area.right == gb.width:
             # Draw an east wall.
             gb.fill(
-                pygame.Rect(self.area.right - 1, self.area.y, self.area.right - 1, self.area.y + self.area.height - 1),
+                pbge.frects.PyRect(self.area.right - 1, self.area.y, self.area.right - 1, self.area.y + self.area.height - 1),
                 wall=archi.wall_terrain)
 
         if self.area.y == 0:
             # Draw a north wall.
-            gb.fill(pygame.Rect(self.area.x, 0, self.area.x + self.area.width - 1, 0), wall=archi.wall_terrain)
+            gb.fill(pbge.frects.PyRect(self.area.x, 0, self.area.x + self.area.width - 1, 0), wall=archi.wall_terrain)
         elif self.area.bottom == gb.width:
             # Draw an south wall.
-            gb.fill(pygame.Rect(self.area.x, self.area.bottom - 1, self.area.right - 1, self.area.bottom - 1),
+            gb.fill(pbge.frects.PyRect(self.area.x, self.area.bottom - 1, self.area.right - 1, self.area.bottom - 1),
                     wall=archi.wall_terrain)
 
     def get_west_north_wall_points(self, gb):
@@ -575,9 +575,9 @@ class ClumpyRoom(FuzzyRoom):
             for t in range(random.randint(max_clumps//4,max_clumps)):
                 x = random.randint(self.area.left+1,self.area.right-2)
                 y = random.randint(self.area.top+1,self.area.bottom-2)
-                gb.fill(pygame.Rect(x-1,y-1,random.randint(1,3),random.randint(1,3)),floor=self.CLUMP_FLOOR, wall=self.CLUMP_WALL, decor=self.CLUMP_DECOR)
+                gb.fill(pbge.frects.PyRect(x-1,y-1,random.randint(1,3),random.randint(1,3)),floor=self.CLUMP_FLOOR, wall=self.CLUMP_WALL, decor=self.CLUMP_DECOR)
         else:
-            mydest = pygame.Rect(0,0,3,3)
+            mydest = pbge.frects.PyRect(0,0,3,3)
             mydest.center = self.area.center
             gb.fill(mydest,floor=self.CLUMP_FLOOR, wall=self.CLUMP_WALL, decor=self.CLUMP_DECOR)
 
@@ -620,7 +620,7 @@ class MiniCityRoom(FuzzyRoom):
         # Draw a monkey line connecting the two monkey nodes.
         x1, y1 = self.mnode_to_map(mx1, my1)
         x2, y2 = self.mnode_to_map(mx2, my2)
-        gb.fill(pygame.Rect(x1 - self.MONKEY_HALL_WIDTH//2, y1 - self.MONKEY_HALL_WIDTH//2, x2-x1+self.MONKEY_HALL_WIDTH, y2-y1+self.MONKEY_HALL_WIDTH), floor=self.ROAD_TERRAIN, wall=None)
+        gb.fill(pbge.frects.PyRect(x1 - self.MONKEY_HALL_WIDTH//2, y1 - self.MONKEY_HALL_WIDTH//2, x2-x1+self.MONKEY_HALL_WIDTH, y2-y1+self.MONKEY_HALL_WIDTH), floor=self.ROAD_TERRAIN, wall=None)
         for x in range(mx1, mx2+1):
             for y in range(my1, my2+1):
                 self._connected_monkey_nodes.add((x,y))

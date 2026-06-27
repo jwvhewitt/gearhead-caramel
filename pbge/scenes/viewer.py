@@ -1,8 +1,9 @@
 import collections
 import weakref
-from .. import my_state, WHITE, wrap_multi_line, widgets
+from .. import my_state, fontstyles, widgets
 from .. import util, image
-import pygame
+import sdl2
+from sdl2 import ext
 from . import waypoints, terrain
 import random
 import math
@@ -31,12 +32,15 @@ class TextTicker(object):
         self.dy_off = 0
 
     def add(self, text, dy_off=0):
-        pad = (self.counter // my_state.anim_font.get_linesize() - len(self.text_images))
+        pad = (self.counter // fontstyles.ANIMFONT.get_font_spacing() - len(self.text_images))
         if pad > 0:
             for t in range(pad):
                 self.text_images.append(None)
-        newlines = wrap_multi_line(text, my_state.anim_font, 128)
-        self.text_images += [my_state.anim_font.render(l, False, WHITE) for l in newlines]
+        newlines = fontstyles.ANIMFONT.wrapline(text, 128)
+        for l in newlines:
+            tsurf = fontstyles.ANIMFONT.render_text(l, None, color=fontstyles.WHITE)
+            self.text_images.append(ext.renderer.Texture(my_state.screen, tsurf))
+            sdl2.SDL_FreeSurface(tsurf)
         self.dy_off = dy_off
 
     def tick(self, view, x, y):
@@ -46,10 +50,11 @@ class TextTicker(object):
             if img:
                 mydest = img.get_rect(midbottom=(x, y))
                 my_state.screen.blit(img, mydest)
-            y += my_state.anim_font.get_linesize()
+            y += fontstyles.ANIMFONT.get_font_spacing()
         if self.counter >= self.height:
-            self.counter = self.height - my_state.anim_font.get_linesize()
-            self.text_images.pop(0)
+            self.counter = self.height - fontstyles.ANIMFONT.get_font_spacing()
+            ti = self.text_images.pop(0)
+            ti.destroy()
 
     def needs_deletion(self):
         return not self.text_images
@@ -171,7 +176,7 @@ class SceneView(object):
                 spr = self.darksprite.get((fname, colors))
                 if not spr:
                     spr = self.get_named_sprite(fname, transparent=transparent, colors=colors).copy()
-                    spr.bitmap.set_at((0, 0), pygame.Color(0, 0, 255))
+                    spr.bitmap.set_at((0, 0), sdl2.SDL_Color(0, 0, 255))
                     spr.bitmap.fill((190, 180, 200), special_flags=pygame.BLEND_MULT)
                     spr.bitmap.set_colorkey(spr.bitmap.get_at((0, 0)))
                     self.darksprite[(fname, colors)] = spr
@@ -392,7 +397,8 @@ class SceneView(object):
     def draw_caption(self, center, txt):
         myimage = my_state.tiny_font.render(txt, True, (240, 240, 240))
         mydest = myimage.get_rect(center=center)
-        myfill = pygame.Rect(mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2)
+        myfill = sdl2.SDL_Rect(mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2)
+        bork
         _=my_state.screen.fill((36, 37, 36), myfill)
         _=my_state.screen.blit(myimage, mydest)
 
@@ -551,7 +557,7 @@ class SceneView(object):
             if line_cache[current_line]:
                 for x, y in line_cache[current_line]:
                     if self.scene.get_visible(x, y):
-                        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         mpos = self._screen_coords(x, y)
                         dest.center = mpos
 
@@ -565,7 +571,7 @@ class SceneView(object):
                                 mx, my = m.pos
                                 footpos = self.foot_coords(mx, my)
                                 y_alt = self.scene.model_altitude(m, x, y)
-                                mdest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
+                                mdest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
                                 mdest.midbottom = footpos
                                 mdest.y -= y_alt
                                 m.render(mdest, self)
@@ -587,7 +593,7 @@ class SceneView(object):
                 for x, y in line_cache[current_line - 2]:
                     if self.scene.get_visible(x, y):
                         spos = self._screen_coords(x, y)
-                        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
                         self.scene._map[x][y].render_top(dest, self, x, y)
 
@@ -596,7 +602,7 @@ class SceneView(object):
                 for x, y in line_cache[current_line - 1]:
                     if self.scene.get_visible(x, y):
                         spos = self._screen_coords(x, y)
-                        dest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
 
                         if self.overlays.get((x, y), None):
@@ -629,7 +635,7 @@ class SceneView(object):
                                 mx, my = m.pos
                                 footpos = self.foot_coords(mx, my)
                                 y_alt = self.scene.model_altitude(m, x, y)
-                                mdest = pygame.Rect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
+                                mdest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
                                 mdest.midbottom = footpos
                                 mdest.y -= y_alt
                                 m.render(mdest, self)

@@ -149,7 +149,7 @@ class _MedicalCommentaryBlock( object ):
 
     def render(self, x, y):
         _=pbge.my_state.screen.blit( self._image
-                                 , pygame.Rect(x, y, self.width, self.height)
+                                 , pbge.frects.PyRect(x, y, self.width, self.height)
                                  )
 
 class _MedicalCommentaryPanel(gears.info.InfoPanel):

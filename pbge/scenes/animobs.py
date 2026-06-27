@@ -112,7 +112,7 @@ class AnimOb:
 
     def render(self, foot_pos, view):
         if not self.delay:
-            mydest = pygame.Rect(0, 0, self.sprite.frame_width, self.sprite.frame_height)
+            mydest = pbge.frects.PyRect(0, 0, self.sprite.frame_width, self.sprite.frame_height)
             mydest.midbottom = foot_pos
             mydest.x += self.x_off
             mydest.y += self.y_off

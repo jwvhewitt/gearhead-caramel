@@ -98,7 +98,7 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
 
     def _builtin_responder(self, ev):
         # Respond to keyboard and mouse scroll events.
-        if ev.type == pygame.MOUSEBUTTONDOWN:
+        if ev.type == sdl2.SDL_MOUSEBUTTONDOWN:
             if ev.button == 4:
                 self.prev_shelf()
                 self.register_response()
@@ -576,7 +576,7 @@ class InvocationUI(pbge.widgets.Widget):
             self._click_left()
 
     def _builtin_responder(self, ev):
-        if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
+        if ev.type == sdl2.SDL_MOUSEBUTTONUP and ev.button == 1 and not pbge.my_state.widget_responded:
             self._click_left()
 
         elif ev.type == sdl2.SDL_KEYDOWN:

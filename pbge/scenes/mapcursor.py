@@ -1,5 +1,5 @@
-import pygame
-from pbge import my_state, util
+from pbge import my_state, util, frects
+import sdl2
 
 class MapCursor(object):
     def __init__(self, x, y, image, frame=0, visible=True):
@@ -9,7 +9,7 @@ class MapCursor(object):
         self.frame = frame
         self.visible = visible
 
-    def render(self, dest: pygame.Rect):
+    def render(self, dest: frects.PyRect):
         if self.visible:
             self.image.render(dest, self.frame)
 
@@ -18,7 +18,7 @@ class MapCursor(object):
             self.x, self.y = scene.clamp_pos((x, y))
 
     def update(self, view, ev):
-        if ev.type == pygame.MOUSEMOTION:
+        if ev.type == sdl2.SDL_MOUSEMOTION:
             self.set_position(view.scene, *view._mouse_tile)
         elif ev.type == sdl2.SDL_KEYDOWN:
             if ev.key in my_state.get_keys_for("cursor_up"):

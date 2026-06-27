@@ -156,7 +156,7 @@ class BAM_ToTheOtherSide(Plot):
     def t_PCMOVE(self, camp: gears.GearHeadCampaign):
         in_end_zone = list()
         outta_end_zone = list()
-        end_zone: pygame.Rect = self.elements["DESTINATION"].area
+        end_zone: pbge.frects.PyRect = self.elements["DESTINATION"].area
         for pc in camp.get_active_party():
             if end_zone.collidepoint(*pc.pos):
                 in_end_zone.append(pc)
@@ -262,7 +262,7 @@ class BAM_TimedDefense(Plot):
         if not self.combat_started:
             in_dest_zone = list()
             outta_dest_zone = list()
-            dest_zone: pygame.Rect = self.elements["CENTER_ROOM"].area
+            dest_zone: pbge.frects.PyRect = self.elements["CENTER_ROOM"].area
             for pc in camp.get_active_party():
                 if dest_zone.collidepoint(*pc.pos):
                     in_dest_zone.append(pc)
@@ -296,13 +296,13 @@ class BAM_TimedDefense(Plot):
         if self.combat_started:
             myteam = self.elements["_bunkerteam"]
             if len(myteam.get_members_in_play(camp)) < 1:
-                pbge.alerts.TextAlert("Buildings Destroyed".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
+                pbge.alerts.TextAlert("Buildings Destroyed".format(self.round_counter), font=pbge.fontstyles.HUGEFONT, align=pbge.fontstyles.ALIGN_CENTER)
                 self.obj.failed = True
                 camp.check_trigger("FORCE_EXIT")
 
             else:
                 self.round_counter += 1
-                pbge.alerts.TextAlert("Survived Round {}".format(self.round_counter), font=pbge.HUGEFONT, justify=0)
+                pbge.alerts.TextAlert("Survived Round {}".format(self.round_counter), font=pbge.fontstyles.HUGEFONT, align=pbge.fontstyles.ALIGN_CENTER)
                 if self.round_counter >= self.round_target:
                     # Victory!
                     self.obj.win(camp, 100)
@@ -399,7 +399,7 @@ class BAM_EscortShip(Plot):
     def t_COMBATROUND(self, camp: gears.GearHeadCampaign):
         myprop = self.elements["SHIP"]
         if not myprop.get_members_in_play(camp):
-            _=pbge.alerts.TextAlert("Ship Destroyed", font=pbge.HUGEFONT, justify=0)
+            _=pbge.alerts.TextAlert("Ship Destroyed", font=pbge.fontstyles.HUGEFONT, align=pbge.fontstyles.ALIGN_CENTER)
             self.obj.failed = True
             camp.check_trigger("FORCE_EXIT")
         else:

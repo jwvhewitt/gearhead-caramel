@@ -536,7 +536,7 @@ class GearHeadCampaign(pbge.campaign.Campaign):
             pickle.dump(self, f, 4)
 
         # Also save a thumbnail.
-        mythumbarea: pygame.Rect = pbge.my_state.screen.get_rect()
+        mythumbarea: pbge.frects.PyRect = pbge.my_state.screen.get_rect()
         mythumbarea.w = min(mythumbarea.h*4//3, mythumbarea.w)
         mythumbarea.center = pbge.my_state.screen.get_rect().center
         mythumb = pygame.transform.smoothscale(pbge.my_state.screen.subsurface(mythumbarea),(480,360))

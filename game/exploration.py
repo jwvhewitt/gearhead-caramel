@@ -500,7 +500,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
 
     def _builtin_responder(self, ev):
         if not self.order:
-            if ev.type == pygame.MOUSEBUTTONUP:
+            if ev.type == sdl2.SDL_MOUSEBUTTONUP:
                 if ev.button == 1:
                     self.click_left()
                     self.register_response()

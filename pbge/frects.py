@@ -21,9 +21,9 @@ class PyRect(sdl2.SDL_Rect):
     def inflate_ip(self, x, y):
         """grow or shrink the rectangle size, in place"""
         self.x -= x//2
-        self.w += (x+1)//2
+        self.w += x
         self.y -= y//2
-        self.h += (y+1)//2
+        self.h += y
 
     def inflate(self, x , y):
         """grow or shrink the rectangle size"""

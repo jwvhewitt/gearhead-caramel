@@ -150,8 +150,8 @@ class Portrait(object):
         if not self.bits:
             self.random_portrait(pc,form_tags=form_tags)
 
-        portrait_bm = porimage.bitmap.subsurface(pygame.Rect(FRAMES[0]))
-        avatar_bm = porimage.bitmap.subsurface(pygame.Rect(FRAMES[2]))
+        portrait_bm = porimage.bitmap.subsurface(pbge.frects.PyRect(FRAMES[0]))
+        avatar_bm = porimage.bitmap.subsurface(pbge.frects.PyRect(FRAMES[2]))
 
         layers = list()
         avatar_layers = list()
@@ -187,14 +187,14 @@ class Portrait(object):
             pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap, transparent=False)
 
             # Create the mini-portrait.
-            myrect = pygame.Rect(100,200,200,200)
+            myrect = pbge.frects.PyRect(100,200,200,200)
             myoffset = anchors.get("head",(10,-137))
             myrect.left += myoffset[0]
             myrect.top += myoffset[1]
-            myrect.clamp_ip(pygame.Rect(FRAMES[0]))
+            myrect.clamp_ip(pbge.frects.PyRect(FRAMES[0]))
             mini_por_source = porimage.bitmap.subsurface(myrect)
             mini_por_bm = pygame.transform.scale(mini_por_source,(100,100))
-            porimage.bitmap.blit(mini_por_bm,pygame.Rect(0,600,100,100))
+            porimage.bitmap.blit(mini_por_bm,pbge.frects.PyRect(0,600,100,100))
             # Interesting bug- saving the image messes up the alpha.
             #pygame.image.save(porimage.bitmap,pbge.util.user_dir('testportrait.png'))
 

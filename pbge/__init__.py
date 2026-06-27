@@ -13,7 +13,7 @@
 import sdl2
 from sdl2 import ext, sdlmixer, sdlimage
 from itertools import chain
-from . import util
+from . import util, clock
 import glob
 import random
 import weakref
@@ -75,7 +75,7 @@ class Border(object):
         self.r = r
         self.transparent = transparent
 
-    def render(self, dest, dest_surface=None):
+    def render(self, dest):
         """Draw this decorative border at dest on screen."""
         # We're gonna draw a decorative border to surround the provided area.
         if self.border == None:
@@ -83,37 +83,34 @@ class Border(object):
         if self.tex_name and not self.tex:
             self.tex = image.Image(self.tex_name, self.tex_width, self.tex_width)
             if self.transparent:
-                _=self.tex.bitmap.set_alpha(224)
-
-        if not dest_surface:
-            dest_surface = my_state.screen
+                self.tex.set_alpha(224)
 
         # Draw the backdrop.
         if self.tex:
-            self.tex.tile(dest.inflate(self.padding, self.padding), dest_surface=dest_surface)
+            self.tex.tile(dest.inflate(self.padding, self.padding))
 
         # Expand the dimensions to their complete size.
         # The method inflate_ip doesn't seem to be working... :(
         fdest = dest.inflate(self.padding, self.padding)
 
-        self.border.render((fdest.x - self.border_width // 2, fdest.y - self.border_width // 2), self.tl, dest_surface=dest_surface)
-        self.border.render((fdest.x - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.bl, dest_surface=dest_surface)
-        self.border.render((fdest.x + fdest.width - self.border_width // 2, fdest.y - self.border_width // 2), self.tr, dest_surface=dest_surface)
+        self.border.render((fdest.x - self.border_width // 2, fdest.y - self.border_width // 2), self.tl)
+        self.border.render((fdest.x - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.bl)
+        self.border.render((fdest.x + fdest.width - self.border_width // 2, fdest.y - self.border_width // 2), self.tr)
         self.border.render(
-            (fdest.x + fdest.width - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.br, dest_surface=dest_surface)
+            (fdest.x + fdest.width - self.border_width // 2, fdest.y + fdest.height - self.border_width // 2), self.br)
 
         fdest = dest.inflate(self.padding - self.border_width, self.padding + self.border_width)
-        _=dest_surface.set_clip(fdest)
+        sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, fdest)
         for x in range(0, fdest.w // self.border_width + 2):
-            self.border.render((fdest.x + x * self.border_width, fdest.y), self.t, dest_surface=dest_surface)
-            self.border.render((fdest.x + x * self.border_width, fdest.y + fdest.height - self.border_width), self.b, dest_surface=dest_surface)
+            self.border.render((fdest.x + x * self.border_width, fdest.y), self.t)
+            self.border.render((fdest.x + x * self.border_width, fdest.y + fdest.height - self.border_width), self.b)
 
         fdest = dest.inflate(self.padding + self.border_width, self.padding - self.border_width)
-        _=dest_surface.set_clip(fdest)
+        sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, fdest)
         for y in range(0, fdest.h // self.border_width + 2):
-            self.border.render((fdest.x, fdest.y + y * self.border_width), self.l, dest_surface=dest_surface)
-            self.border.render((fdest.x + fdest.width - self.border_width, fdest.y + y * self.border_width), self.r, dest_surface=dest_surface)
-        _=dest_surface.set_clip(None)
+            self.border.render((fdest.x, fdest.y + y * self.border_width), self.l)
+            self.border.render((fdest.x + fdest.width - self.border_width, fdest.y + y * self.border_width), self.r)
+        sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, None)
 
 
 # Monkey Type these definitions to fit your game/assets.
@@ -243,7 +240,7 @@ class GameState(object):
             my_sound = soundlib.SOUND_FX_LIBRARY.get(sound_fx_name, None)
             if my_sound and allow_multiple_copies or my_sound.get_num_channels() < 1:
                 my_sound.set_volume(util.config.getfloat("GENERAL", "sound_volume"))
-                return my_sound.play(loops=loops)
+                sdlmixer.Mix_PlayChannel(-1, my_sound, loops)
 
     def resume_music(self):
         if self.music_name:
@@ -416,29 +413,28 @@ class GameState(object):
         x, y = self.mouse_pos
         x += 16
         y += 16
-        if x + 200 > self.screen.get_width():
+        if x + 200 > self.screen.logical_size[0]:
             x -= 200
-        myimage = render_text(self.small_font, self.widget_tooltip, 200)
-        myrect = myimage.get_rect(topleft=(x, y))
+        myimage = image.TextImage(self.widget_tooltip, 200, fontstyles.SMALLFONT)
+        myrect = myimage.get_rect(0)
+        myrect.x = x
+        myrect.y = y
         default_border.render(myrect)
-        _=self.screen.blit(myimage, myrect)
+        myimage.render(myrect)
 
     def ui_is_active(self):
         # Return True if there are any active UI elements.
         return any([w.active for w in self.widgets]) or self.alert_queue or self.deployment_queue or self.trigger_queue
 
     def flip(self):
-        if util.config.getboolean("ACCESSIBILITY", "stretchy_screen"):
-            w, h = self.physical_screen.get_size()
-            _=pygame.transform.smoothscale(self.screen, (w, h), self.physical_screen)
-        pygame.display.flip()
+        self.screen.present()
 
     def update_alerts(self):
         if self.alert_queue:
             if not any(alerts.WTAG_ALERT in w.tags for w in self.widgets):
                 aw = self.alert_queue.pop(0)
                 aw.deploy_to_main()
-                pygame.event.clear()
+                sdl2.SDL_FlushEvents(0, 65535)
 
     @property
     def widgets_active(self):
@@ -471,7 +467,7 @@ class GameState(object):
 
     def play(self):
         # A nonblocking game loop.
-        myclock = pygame.time.Clock()
+        myclock = clock.Clock()
         delta = 1000.0 / float(FPS)
 
         while self.widgets and not self.got_quit:
@@ -480,21 +476,16 @@ class GameState(object):
 
             # poll for events
             # pygame.QUIT event means the user clicked X to close your window
-            pygame.event.pump()
-            for ev in pygame.event.get(pump=False):
-                if ev.type == pygame.QUIT:
+            for ev in ext.common.get_events():
+                if ev.type == sdl2.SDL_QUIT:
                     self.got_quit = True
-                elif ev.type == pygame.MOUSEMOTION:
+                elif ev.type == sdl2.SDL_MOUSEMOTION:
                     self._update_mouse_pos()
                 elif ev.type == sdl2.SDL_KEYDOWN:
-                    if ev.key == pygame.K_PRINT:
-                        pygame.image.save(my_state.screen, util.user_dir("out.png"))
-                    elif self.is_key_for_action(ev, "next_widget"):
-                        self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
-                    elif ev.key == pygame.K_F10:
+                    if self.is_key_for_action(ev, "next_widget"):
+                        self.activate_next_widget(ev.mod & sdl2.keycode.KMOD_SHIFT)
+                    elif ev.key == sdl2.keycode.SDLK_F10:
                         self.print_widgets()
-                elif ev.type == pygame.VIDEORESIZE:
-                    self.set_size(max(ev.w, 800), max(ev.h, 600))
 
                 # Inform any interested widgets of the event.
                 self.widget_responded = False
@@ -503,7 +494,6 @@ class GameState(object):
                         if not self.widget_responded:
                             w.respond_event(ev)
                         else:
-                            pygame.event.clear()
                             break
 
                 if not self.widget_responded:
@@ -524,6 +514,7 @@ class GameState(object):
                     w.launch()
 
             # Rendering happens here.
+            self.screen.fill((0,0,self.screen.logical_size[0], self.screen.logical_size[1]))
             self.anim_phase = (self.anim_phase + 1) % 6000
             self.widget_tooltip = None
             for w in self.widgets:
@@ -548,15 +539,7 @@ class GameState(object):
 
 
 INPUT_CURSOR = None
-SMALLFONT = None
-TINYFONT = None
-ITALICFONT = None
-MEDIUM_DISPLAY_FONT = None
-BIGFONT = None
-HUGEFONT = None
-ANIMFONT = None
-MEDIUMFONT = None
-ALTTEXTFONT = None  # Use this instead of MEDIUMFONT when you want to shake things up a bit.
+
 POSTERS = list()
 my_state = GameState()
 
@@ -568,124 +551,46 @@ FPS = 30
 INIT_DONE = False
 
 
-def truncline(text, font, maxwidth):
-    real = len(text)
-    stext = text
-    l = font.size(text)[0]
-    cut = 0
-    a = 0
-    done = 1
-    old = None
-    while l > maxwidth:
-        a = a + 1
-        n = text.rsplit(None, a)[0]
-        if stext == n:
-            cut += 1
-            stext = n[:-cut]
-        else:
-            stext = n
-        l = font.size(stext)[0]
-        real = len(stext)
-        done = 0
-    return real, done, stext
-
-
-def wrapline(text, font, maxwidth):
-    done = 0
-    wrapped = []
-
-    while not done:
-        nl, done, stext = truncline(text, font, maxwidth)
-        wrapped.append(stext.strip())
-        text = text[nl:]
-    return wrapped
-
-
-def wrap_with_records(fulltext, font, maxwidth):
-    # Do a word wrap, but also return the length of each line including whitespace and newlines.
-    done = 0
-    wrapped = list()
-    line_lengths = list()
-
-    for text in fulltext.splitlines(True):
-        done = 0
-        while not done:
-            nl, done, stext = truncline(text, font, maxwidth)
-            wrapped.append(stext.lstrip())
-            # wrapped.append(stext)
-            line_lengths.append(nl + 1)
-            text = text[nl:]
-    return wrapped, line_lengths
-
-
-def wrap_multi_line(text, font, maxwidth):
-    """ returns text taking new lines into account.
-    """
-    lines = chain(*(wrapline(line, font, maxwidth) for line in text.splitlines()))
-    return list(lines)
-
-
-def render_text(font, text, width, color=TEXT_COLOR, justify=-1, antialias=True):
-    # Return an image with prettyprinted text.
-    lines = wrap_multi_line(text, font, width)
-
-    imgs = [font.render(l, antialias, color) for l in lines]
-    h = sum(i.get_height() for i in imgs)
-    s = pygame.surface.Surface((width, h))
-    _=s.fill((0, 0, 0))
-    o = 0
-    for i in imgs:
-        if justify == 0:
-            x = width // 2 - i.get_width() // 2
-        elif justify > 0:
-            x = width - i.get_width()
-        else:
-            x = 0
-        _=s.blit(i, (x, o))
-        o += i.get_height()
-    s.set_colorkey((0, 0, 0), pygame.RLEACCEL)
-    return s
-
-
-def draw_text(font, text, rect, color=TEXT_COLOR, justify=-1, antialias=True, dest_surface=None, vjustify=-1):
-    # Draw some text to the screen with the provided options.
-    dest_surface = dest_surface or my_state.screen
-    myimage = render_text(font, text, rect.width, color, justify, antialias)
-    if justify == 0:
-        myrect = myimage.get_rect(midtop=rect.midtop)
-    elif justify > 0:
-        myrect = myimage.get_rect(topleft=rect.topleft)
-    else:
-        myrect = rect
-    if vjustify == 0:
-        myrect.centery = rect.centery
-    elif vjustify > 0:
-        myrect.bottom = rect.bottom
-    _=dest_surface.set_clip(rect)
-    _=dest_surface.blit(myimage, myrect)
-    _=dest_surface.set_clip(None)
-
-
 def please_stand_by(caption=None):
     if not my_state.standing_by:
-        img = pygame.image.load(random.choice(POSTERS)).convert()
-        w, h = my_state.screen.get_size()
-        bigsurf = pygame.transform.smoothscale(img, (img.get_width()*h//img.get_height(), h))
+        img: sdl2.SDL_Surface = ext.image.load_img(random.choice(POSTERS))
+        w, h = my_state.screen.logical_size
 
-        dest = bigsurf.get_rect(center=(my_state.screen.get_width() // 2, my_state.screen.get_height() // 2))
-        _=my_state.screen.fill((0, 0, 0))
-        _=my_state.screen.blit(bigsurf, dest)
-        if caption:
-            mytext = BIGFONT.render(caption, True, TEXT_COLOR)
-            dest2 = mytext.get_rect(topleft=(dest.x + 32, dest.y + 32))
-            default_border.render(dest2)
-            _=my_state.screen.blit(mytext, dest2)
+        dest = frects.PyRect(0,0,int(img.w * h//img.h),h)
+        dest.centerx = w//2
+        tex = ext.renderer.Texture(my_state.screen, img)
+        sdl2.SDL_FreeSurface(img)
+
+        my_state.screen.clear()
+        my_state.screen.copy(tex, dstrect=dest)
+        tex.destroy()
+
         my_state.standing_by = True
-        pygame.event.clear()
-        pygame.display.flip()
+        my_state.screen.present()
 
 
-from . import frects
+from . import frects, ttfhelper
+from . import fontstyles
+
+VALIGN_TOP = -1
+VALIGN_CENTER = 0
+VALIGN_BOTTOM = 1
+
+def draw_text(style: fontstyles.FontStyle, text, dest: frects.PyRect, color=None, align=fontstyles.ALIGN_LEFT, vjustify=VALIGN_TOP):
+    # Draw some text to the screen with the provided options.
+    myimage = style.render_text(text, dest.width, align=align, color=color)
+    if myimage.h < dest.h:
+        if vjustify == 0:
+            dest.y += (dest.h - myimage.h)//2
+        elif vjustify > 0:
+            dest.y += dest.h - myimage.h
+    sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, dest)
+    texture = ext.renderer.Texture(my_state.screen, myimage)
+    sdl2.SDL_FreeSurface(myimage)
+    dest.size = texture.size
+    _=my_state.screen.copy(texture, dstrect=dest)
+    texture.destroy()
+    sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, None)
 
 
 class BasicNotification(frects.Frect):
@@ -694,12 +599,12 @@ class BasicNotification(frects.Frect):
     IP_DEFLATE = 2
     IP_DONE = 3
 
-    def __init__(self, text, font=None, dx=16, dy=16, w=256, h=10, anchor=frects.ANCHOR_UPPERLEFT,
+    def __init__(self, text, style=None, dx=16, dy=16, w=256, h=10, anchor=frects.ANCHOR_UPPERLEFT,
                  border=default_border, count=60, **kwargs):
-        font = font or my_state.big_font
-        w = min(w, font.size(text)[0])
-        self.text_bitmap = render_text(font, text, w)
-        h = max(h, self.text_bitmap.get_height())
+        style = style or fontstyles.BIGFONT
+        w = min(w, style.linesize(text)[0])
+        self.text_image = image.TextImage(text, w, style)
+        h = max(h, self.text_image.size[1])
         super().__init__(dx, dy, w, h, anchor, **kwargs)
         self.border = border
         self.count = count
@@ -718,8 +623,9 @@ class BasicNotification(frects.Frect):
             if self._inflation_count >= 5:
                 self._inflation_phase = self.IP_DISPLAY
         elif self._inflation_phase == self.IP_DISPLAY and self.count > 0:
-            self.border.render(self.get_rect())
-            my_state.screen.blit(self.text_bitmap, self.get_rect())
+            mydest = self.get_rect()
+            self.border.render(mydest)
+            self.text_image.render(mydest)
             self.count -= 1
         else:
             mydest = self.get_rect()
@@ -752,16 +658,20 @@ from . import internationalization
 from . import widgetmenu
 from . import alerts
 
-# PG2 Change
-# FULLSCREEN_FLAGS = pygame.FULLSCREEN | pygame.SCALED
-# WINDOWED_FLAGS = pygame.RESIZABLE | pygame.SCALED
+
+
+
+
+
 FULLSCREEN_FLAGS = sdl2.SDL_WINDOW_SHOWN | sdl2.SDL_WINDOW_FULLSCREEN
 WINDOWED_FLAGS = sdl2.SDL_WINDOW_SHOWN
 
 
 
 def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_*.png",
-         display_font="Atan.ttf", start_gfx=True):
+         display_font="Atan.ttf", text_font="SourceHanSans-Heavy.ttc", 
+         bold_font="SourceHanSans-Bold.ttc", italic_font="SourceHanSans-Heavy.ttc", 
+         start_gfx=True):
     global INIT_DONE
     if not INIT_DONE:
         util.init(appname, gamedir)
@@ -783,6 +693,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             # pygame.display.set_icon(pygame.image.load(util.image_dir(icon)))
             # Set the screen size.
             my_state.reset_screen()
+            ext.renderer.set_texture_scale_quality("best")
 
             if my_state.audio_enabled:
                 # Initialize a 44.1 kHz 16-bit stereo mixer with a 1024-byte buffer size
@@ -795,42 +706,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             global INPUT_CURSOR
             INPUT_CURSOR = image.Image("sys_textcursor.png", 8, 16)
 
-            global SMALLFONT
-            SMALLFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
-            my_state.small_font = SMALLFONT
-
-            global TINYFONT
-            TINYFONT = pygame.font.Font(util.image_dir("SourceHanSans-Heavy.ttc"), 10)
-            my_state.tiny_font = TINYFONT
-
-            global ANIMFONT
-            ANIMFONT = LeadingFont(util.image_dir("SourceHanSans-Bold.ttc"), 16, -2)
-            my_state.anim_font = ANIMFONT
-
-            global MEDIUMFONT
-            MEDIUMFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
-            my_state.medium_font = MEDIUMFONT
-
-            global ALTTEXTFONT
-
-            ALTTEXTFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 14, -2)
-            ALTTEXTFONT.set_italic(True)
-            my_state.alt_text_font = ALTTEXTFONT
-
-            global ITALICFONT
-            ITALICFONT = LeadingFont(util.image_dir("SourceHanSans-Heavy.ttc"), 12, -1)
-            ITALICFONT.set_italic(True)
-
-            global MEDIUM_DISPLAY_FONT
-            MEDIUM_DISPLAY_FONT = pygame.font.Font(util.image_dir(display_font), 14)
-
-            global BIGFONT
-            BIGFONT = pygame.font.Font(util.image_dir(display_font), 17)
-            my_state.big_font = BIGFONT
-
-            global HUGEFONT
-            my_state.huge_font = pygame.font.Font(util.image_dir(display_font), 24)
-            HUGEFONT = my_state.huge_font
+            fontstyles.init_fonts(display_font, text_font, bold_font, italic_font)
 
             global FPS
             FPS = util.config.getint("GENERAL", "frames_per_second")
@@ -838,6 +714,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
         INIT_DONE = True
 
 def quit():
+    fontstyles.quit()
     my_state.screen.destroy()
     my_state.window.close()
     sdlimage.IMG_Quit()

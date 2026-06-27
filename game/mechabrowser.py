@@ -13,7 +13,7 @@ class MSRPBlock(object):
         self.height = self.image.get_height()
 
     def render(self, x, y):
-        _=pbge.my_state.screen.blit(self.image, pygame.Rect(x, y, self.width, self.height))
+        _=pbge.my_state.screen.blit(self.image, pbge.frects.PyRect(x, y, self.width, self.height))
 
 
 class MechaBrowseIP(gears.info.InfoPanel):

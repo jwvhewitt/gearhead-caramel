@@ -12,6 +12,7 @@ from . import movementui, usableui
 from . import targetingui
 from . import programsui
 from .. import configedit, invoker
+import sdl2
 
 
 class BonusActionWidget(pbge.widgets.ButtonWidget):
@@ -200,7 +201,7 @@ class PlayerTurn(pbge.widgets.Widget):
 
         # Right before starting the player's turn, if announce_pc_turn_start is turned on, announce it.
         if pbge.util.config.getboolean("GENERAL", "announce_pc_turn_start"):
-            _=pbge.alerts.TextAlert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, justify=0)
+            _=pbge.alerts.TextAlert("{}'s Turn".format(self.pc.get_pilot()), font=pbge.BIGFONT, align=pbge.fontstyles.ALIGN_CENTER)
 
         self.actions = list()
 
@@ -435,7 +436,7 @@ class PlayerTurn(pbge.widgets.Widget):
                         self.register_response()
                     elif ev.unicode == "_" and pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                         self.camp.check_trigger("CHEATINGFUCKINGBASTARD")
-                elif ev.type == pygame.MOUSEBUTTONUP:
+                elif ev.type == sdl2.SDL_MOUSEBUTTONUP:
                     if ev.button == 3 and not pbge.my_state.widget_responded:
                         self.pop_menu()
                         self.register_response()

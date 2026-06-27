@@ -98,7 +98,7 @@ class MemoBrowser(widgets.Widget):
             elif my_state.is_key_for_action(ev, "exit"):
                 self.register_response()
                 self.pop()
-        elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 3:
+        elif ev.type == sdl2.SDL_MOUSEBUTTONUP and ev.button == 3:
             self.register_response()
             self.pop()
 

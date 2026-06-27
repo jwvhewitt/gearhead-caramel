@@ -1,8 +1,7 @@
-import pbge
+import sdl2
 from . import WHITE, frects
-from . import my_state, draw_text, TEXT_COLOR, Border, default_border, wrap_multi_line, wrapline
-import pygame
-from . import image
+from . import my_state, draw_text, TEXT_COLOR, Border, default_border
+from . import image, fontstyles
 import weakref
 from collections.abc import Callable
 
@@ -174,7 +173,7 @@ class FrozenUIState:
         return self is my_state.ui_stack[-1] and not my_state.alert_queue and not my_state.deployment_queue and not my_state.trigger_queue
 
 
-type On_Click = Callable[[Widget, pygame.event.Event], None]|None
+type On_Click = Callable[[Widget, sdl2.SDL_Event], None]|None
 
 
 class WidgetLauncher:
@@ -298,10 +297,10 @@ class Widget(frects.Frect):
             for c in list(self.children):
                 c.respond_event(ev)
             if self.get_rect().collidepoint(my_state.mouse_pos):
-                if self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
+                if self.active and (ev.type == sdl2.SDL_MOUSEBUTTONUP) and (
                         ev.button == 1) and not my_state.widget_responded:
                     self.manual_click(ev)
-                elif self.active and (ev.type == pygame.MOUSEBUTTONUP) and (
+                elif self.active and (ev.type == sdl2.SDL_MOUSEBUTTONUP) and (
                         ev.button == 3) and self.on_right_click and not my_state.widget_responded:
                     if not my_state.widget_responded:
                         my_state.focused_widget = self
@@ -351,7 +350,7 @@ class Widget(frects.Frect):
             return self is my_state.focused_widget
 
     def _default_flash(self):
-        _=pygame.draw.rect(my_state.screen, ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)], self.get_rect(), 1)
+        my_state.screen.draw_rect(self.get_rect(), color=ACTIVE_FLASH[my_state.anim_phase % len(ACTIVE_FLASH)])
 
     def _render(self, _delta):
         pass
@@ -445,7 +444,7 @@ class ButtonWidget(Widget):
 
 class SurfaceWidget(Widget):
     # Like a button, but just contains a raw PyGame Surface instead of a pbge Image.
-    def __init__(self, dx, dy, surf: pygame.Surface, **kwargs):
+    def __init__(self, dx, dy, surf: sdl2.SDL_Surface, **kwargs):
         super().__init__(dx, dy, surf.get_width(), surf.get_height(), **kwargs)
         self.surf = surf
 
@@ -458,16 +457,19 @@ class SurfaceWidget(Widget):
 
 
 class LabelWidget(Widget):
-    def __init__(self, dx, dy, w=0, h=0, text='***', color=None, font=None, justify=-1, draw_border=False,
-                 border=widget_border_off, text_fun=None, alt_smaller_fonts=(), focus_color=None,
-                 focus_border=widget_border_on, **kwargs):
+    def __init__(
+        self, dx, dy, w=0, h=0, text='***', color=None, font: fontstyles.FontStyle|None=None, 
+        justify=fontstyles.ALIGN_LEFT, draw_border=False,
+        border=widget_border_off, text_fun=None, alt_smaller_fonts=(), focus_color=None,
+        focus_border=widget_border_on, **kwargs
+    ):
         # text_fun is a callable with signature (widget). It returns the text to display.
         super().__init__(dx, dy, w, h, **kwargs)
         self._text = text
         self.text = text
         self.color = color or TEXT_COLOR
         self.focus_color = focus_color or WHITE
-        self.font = font or my_state.small_font
+        self.font: fontstyles.FontStyle = font or fontstyles.SMALLFONT
         self.draw_border = draw_border
         self.text_fun = text_fun
         self.confirm_dimensions()
@@ -478,12 +480,12 @@ class LabelWidget(Widget):
 
     def confirm_dimensions(self):
         if self.w == 0:
-            self.w = self.font.size(self.text)[0]
+            self.w = self.font.linesize(self.text)[0]
             if self.draw_border:
                 self.w += 16
                 self.dx -= 8
         if self.h == 0:
-            self.h = len(wrap_multi_line(self.text, self.font, self.w)) * self.font.get_linesize()
+            self.h = self.font.textheight(self.text, self.w)
 
     def _render(self, delta):
         if self.w == 0 or self.h == 0:
@@ -497,10 +499,10 @@ class LabelWidget(Widget):
                 self.border.render(self.get_rect())
             color = self.color
 
-        if self.alt_smaller_fonts and len(wrap_multi_line(self.text, self.font, self.w)) * self.font.get_linesize() > self.h:
+        if self.alt_smaller_fonts and self.font.textheight(self.text, self.w) > self.h:
             myfont = self.alt_smaller_fonts[-1]
             for f in self.alt_smaller_fonts[:-1]:
-                if len(wrap_multi_line(self.text, f, self.w)) * f.get_linesize() <= self.h:
+                if self.font.textheight(self.text, self.w) <= self.h:
                     myfont = f
                     break
         else:
@@ -564,7 +566,7 @@ class TextTabsWidget(Widget):
     def __init__(self, dx, dy, w, h, buttons=(), spacing=12, font=None, **kwargs):
         # Basically radio buttons, but with text labels.
         # buttons is a list of dicts possibly containing: text, on_right_click, tooltip
-        self.font = font or pbge.MEDIUMFONT
+        self.font = font or fontstyles.MEDIUMFONT
         super().__init__(dx, dy, w, max(h, self.font.get_linesize() + 8), **kwargs)
         self.buttons = list()
         self.spacing = spacing
@@ -574,7 +576,7 @@ class TextTabsWidget(Widget):
                 ddx, 0, text=b.get("text", "Tab"),
                 tooltip=b.get("tooltip", None),
                 on_click=self.click_radio, data=b.get("on_click", None), draw_border=True,
-                on_right_click=b.get("on_right_click", None), font=self.font, color=pbge.GREY,
+                on_right_click=b.get("on_right_click", None), font=self.font, color=fontstyles.GREY,
                 parent=self, anchor=frects.ANCHOR_UPPERLEFT, border=widget_border_off
             )
             self.buttons.append(mylabel)
@@ -848,7 +850,7 @@ class ScrollColumnWidget(Widget):
         self.selected_widget_id = n
 
     def _builtin_responder(self, ev):
-        if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
+        if (ev.type == sdl2.SDL_MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
             if (ev.button == 4):
                 self.scroll_up()
             elif (ev.button == 5):
@@ -973,7 +975,7 @@ class TextEntryWidget(Widget):
         self.text_input_on = False
 
     def get_text_rect(self, w, h, mydest):
-        myrect = pygame.Rect(0, 0, w, h)
+        myrect = frects.PyRect(0, 0, w, h)
         if self.justify == -1:
             myrect.midleft = mydest.midleft
         elif self.justify == 1:
@@ -1004,7 +1006,7 @@ class TextEntryWidget(Widget):
 
     def _builtin_responder(self, ev):
         if self.should_hilight(self):
-            if ev.type == pygame.TEXTINPUT:
+            if ev.type == sdl2.SDL_TEXTINPUT:
                 if len(ev.text) > 0:
                     self.char_list.insert(max(self.cursor_i, 0), ev.text)
                     self.cursor_i += len(ev.text)
@@ -1034,7 +1036,7 @@ class TextEntryWidget(Widget):
                     elif self.on_right_at_end:
                         self.on_right_at_end()
                     self.register_response()
-        if ev.type == pygame.MOUSEBUTTONUP and ev.button == 1 and self.get_rect().collidepoint(my_state.mouse_pos):
+        if ev.type == sdl2.SDL_MOUSEBUTTONUP and ev.button == 1 and self.get_rect().collidepoint(my_state.mouse_pos):
             mytext = self.text
             mydest = self.get_rect()
             w, h = self.font.size(mytext)
@@ -1071,7 +1073,7 @@ class TextEditorPanel(ScrollColumnWidget):
         if not text:
             text = ''
         self.color = color or TEXT_COLOR
-        self.font = font or my_state.medium_font
+        self.font = font or fontstyles.MEDIUMFONT
         self.justify = justify
 
         self.update_text(text)
@@ -1097,7 +1099,7 @@ class TextEditorPanel(ScrollColumnWidget):
         self.clear()
         if not text:
             text = ' '.join(mylines)
-        mylines = wrapline(text, self.font, self.w)
+        mylines = self.font.wrapline(text, self.w)
         has_set_active = False
         for n, line in enumerate(mylines):
             textwidget = TextEntryWidget(0, 0, self.w - 8, 0, line, font=self.font, color=self.color,
@@ -1186,7 +1188,7 @@ class TextEditorPanel(ScrollColumnWidget):
     text = property(_get_text, _set_text)
 
     def _builtin_responder(self, ev):
-        if (ev.type == pygame.MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
+        if (ev.type == sdl2.SDL_MOUSEBUTTONDOWN) and self.get_rect().collidepoint(my_state.mouse_pos):
             if (ev.button == 4):
                 self.scroll_up()
             elif (ev.button == 5):
