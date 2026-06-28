@@ -1,7 +1,7 @@
 import collections
 import weakref
 from .. import my_state, fontstyles, widgets
-from .. import util, image
+from .. import util, image, frects
 import sdl2
 from sdl2 import ext
 from . import waypoints, terrain
@@ -167,22 +167,10 @@ class SceneView(object):
         return spr
 
     def get_terrain_sprite(self, fname, pos, transparent=False, colors=None):
+        # TODO: Replace the in_sight bit below with a proper SDL2 thing.
         if colors:
             colors = tuple(colors)
-        if self.scene.in_sight:
-            if pos in self.scene.in_sight:
-                return self.get_named_sprite(fname, transparent=transparent, colors=colors)
-            else:
-                spr = self.darksprite.get((fname, colors))
-                if not spr:
-                    spr = self.get_named_sprite(fname, transparent=transparent, colors=colors).copy()
-                    spr.bitmap.set_at((0, 0), sdl2.SDL_Color(0, 0, 255))
-                    spr.bitmap.fill((190, 180, 200), special_flags=pygame.BLEND_MULT)
-                    spr.bitmap.set_colorkey(spr.bitmap.get_at((0, 0)))
-                    self.darksprite[(fname, colors)] = spr
-                return spr
-        else:
-            return self.get_named_sprite(fname, transparent=transparent, colors=colors)
+        return self.get_named_sprite(fname, transparent=transparent, colors=colors)
 
     def get_pseudo_random(self, x, y):
         # self.seed = ( 73 * x + 101 * y + x * y ) % 1024
@@ -292,8 +280,8 @@ class SceneView(object):
 
     def screen_offset(self):
         # Warning: the _screen_coords method replicates rather than calls this fn. See below.
-        return (my_state.screen.get_width() // 2 - self.relative_x(self._focus_x, self._focus_y),
-                my_state.screen.get_height() // 2 - self.relative_y(self._focus_x, self._focus_y) + self.HTH)
+        return (my_state.screen.logical_size[0] // 2 - self.relative_x(self._focus_x, self._focus_y),
+                my_state.screen.logical_size[1] // 2 - self.relative_y(self._focus_x, self._focus_y) + self.HTH)
 
     def _screen_coords(self, x, y, extra_x_offset=0, extra_y_offset=0):
         # Should point to the upper (northwest) corner of an isometric tile.
@@ -398,7 +386,7 @@ class SceneView(object):
         myimage = my_state.tiny_font.render(txt, True, (240, 240, 240))
         mydest = myimage.get_rect(center=center)
         myfill = sdl2.SDL_Rect(mydest.x - 2, mydest.y - 1, mydest.width + 4, mydest.height + 2)
-        bork
+        #bork
         _=my_state.screen.fill((36, 37, 36), myfill)
         _=my_state.screen.blit(myimage, mydest)
 
@@ -484,7 +472,7 @@ class SceneView(object):
         # The visible area describes the region of the map we need to draw.
         # It is bigger than the physical screen
         # because we probably have to draw cells that are not fully on the map.
-        visible_area = my_state.screen.get_rect()
+        visible_area = frects.PyRect(0,0,*my_state.screen.logical_size)
 
         # - temp disabled inflate op. (web ctx issues)20
         visible_area.inflate_ip(self.HTW * 2, self.HTH * 2)
@@ -497,12 +485,11 @@ class SceneView(object):
         if self.needs_update:
             self.update_tile_data()
 
-        screen_area = my_state.screen.get_rect()
+        screen_area = frects.PyRect(0,0,*my_state.screen.logical_size)
         self.half_screen_width = screen_area.w//2
         self.half_screen_height = screen_area.h//2
 
         mouse_x, mouse_y = my_state.mouse_pos
-        my_state.screen.fill((0, 0, 0))
         visible_area = self._get_visible_area()
 
         # Check for map scrolling, depending on mouse position.
@@ -557,7 +544,7 @@ class SceneView(object):
             if line_cache[current_line]:
                 for x, y in line_cache[current_line]:
                     if self.scene.get_visible(x, y):
-                        dest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest = frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         mpos = self._screen_coords(x, y)
                         dest.center = mpos
 
@@ -571,7 +558,7 @@ class SceneView(object):
                                 mx, my = m.pos
                                 footpos = self.foot_coords(mx, my)
                                 y_alt = self.scene.model_altitude(m, x, y)
-                                mdest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
+                                mdest = frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
                                 mdest.midbottom = footpos
                                 mdest.y -= y_alt
                                 m.render(mdest, self)
@@ -593,7 +580,7 @@ class SceneView(object):
                 for x, y in line_cache[current_line - 2]:
                     if self.scene.get_visible(x, y):
                         spos = self._screen_coords(x, y)
-                        dest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest = frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
                         self.scene._map[x][y].render_top(dest, self, x, y)
 
@@ -602,7 +589,7 @@ class SceneView(object):
                 for x, y in line_cache[current_line - 1]:
                     if self.scene.get_visible(x, y):
                         spos = self._screen_coords(x, y)
-                        dest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
+                        dest = frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_WIDTH)
                         dest.center = spos
 
                         if self.overlays.get((x, y), None):
@@ -635,7 +622,7 @@ class SceneView(object):
                                 mx, my = m.pos
                                 footpos = self.foot_coords(mx, my)
                                 y_alt = self.scene.model_altitude(m, x, y)
-                                mdest = pbge.frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
+                                mdest = frects.PyRect(0, 0, self.TILE_WIDTH, self.TILE_HEIGHT)
                                 mdest.midbottom = footpos
                                 mdest.y -= y_alt
                                 m.render(mdest, self)

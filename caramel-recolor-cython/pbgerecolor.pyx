@@ -83,21 +83,22 @@ def recolor( np.ndarray[DTYPE_t, ndim=2] par,color_channels):
     for y in range(height):
         for x in range(width):
 
-            r = 0xFF & ( par[x, y] >> 16)
-            g = 0xFF & ( par[x, y] >> 8)
+            r = 0xFF & (par[x, y] >> 16)
+            g = 0xFF & (par[x, y] >> 8)
             b = 0xFF &  par[x, y]
+            a = 0xFF & (par[x,y] >> 24)
 
 
             if (r > 0) and (g == 0) and (b == 0):
-                par[x, y] = red_channel.generate_color(r)
+                par[x, y] = red_channel.generate_color(r) | (a<<24)
                 # par[x,y] = cls.generate_color(red_channel,c.r)
             elif (r > 0) and (g > 0) and (b == 0):
-                par[x, y] = yellow_channel.generate_color(r)
+                par[x, y] = yellow_channel.generate_color(r) | (a<<24)
             elif (r > 0) and (g == 0) and (b > 0):
-                par[x, y] = magenta_channel.generate_color(r)
+                par[x, y] = magenta_channel.generate_color(r) | (a<<24)
             elif (r == 0) and (g > 0) and (b == 0):
-                par[x, y] = green_channel.generate_color(g)
+                par[x, y] = green_channel.generate_color(g) | (a<<24)
             elif (r == 0) and (g > 0) and (b > 0):
-                par[x, y] = cyan_channel.generate_color(g)
+                par[x, y] = cyan_channel.generate_color(g) | (a<<24)
 
 

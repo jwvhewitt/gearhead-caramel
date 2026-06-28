@@ -6,7 +6,6 @@ import random
 from . import stats
 
 import pbge
-import pygame
 from . import color
 from . import colorstyle
 
@@ -133,7 +132,7 @@ class Portrait(object):
         pc.mecha_colors = mekcolors
 
     def build_portrait(self,pc,add_color=True,force_rebuild=False,form_tags=()):
-        porimage = pbge.image.Image(frame_width=400, frame_height=700)
+        porimage = pbge.image.SurfImage(frame_width=400, frame_height=700)
         porimage.custom_frames = FRAMES
 
         if pc and not form_tags:
@@ -195,8 +194,6 @@ class Portrait(object):
             mini_por_source = porimage.bitmap.subsurface(myrect)
             mini_por_bm = pygame.transform.scale(mini_por_source,(100,100))
             porimage.bitmap.blit(mini_por_bm,pbge.frects.PyRect(0,600,100,100))
-            # Interesting bug- saving the image messes up the alpha.
-            #pygame.image.save(porimage.bitmap,pbge.util.user_dir('testportrait.png'))
 
         #print anchors
         return porimage

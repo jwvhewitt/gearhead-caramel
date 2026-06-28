@@ -137,6 +137,7 @@ class GameState(object):
         self.title = "PBGE Game"
         self.screen: ext.renderer.Renderer = None   # pyright: ignore[reportAttributeAccessIssue]
         self.window: ext.Window = None              # pyright: ignore[reportAttributeAccessIssue]
+        self.target_texture: sdl2.SDL_Texture = None
         self.view = None
         self.got_quit = False
         self.widgets = list()
@@ -330,6 +331,8 @@ class GameState(object):
             util.config.write(f)
 
     def reset_screen(self):
+        # TODO: SDL_SetWindowFullscreen is probably a better way to switch screen.
+        # This function sets up the window, renderer, and target texture.
         if util.config.getboolean("GENERAL", "fullscreen"):
             try:
                 self.window = ext.window.Window(self.title, self.get_resolution_config(), flags=FULLSCREEN_FLAGS)
@@ -338,10 +341,16 @@ class GameState(object):
         else:
             self.window = ext.window.Window(self.title, self.get_window_config(), flags=WINDOWED_FLAGS)
         winwidth, winheight = self.window.size
+        if self.screen:
+            self.screen.destroy()
         self.screen = ext.renderer.Renderer(
             self.window, logical_size=((max(800, 600 * winwidth // winheight), 600)), 
-            flags=sdl2.SDL_RENDERER_ACCELERATED
+            flags=sdl2.SDL_RENDERER_ACCELERATED | sdl2.SDL_RENDERER_TARGETTEXTURE
         )
+        if self.target_texture:
+            sdl2.SDL_DestroyTexture(self.target_texture)
+        self.target_texture = sdl2.SDL_CreateTexture(self.screen.renderer, sdl2.SDL_PIXELFORMAT_RGBA8888, sdl2.SDL_TEXTUREACCESS_TARGET, *self.screen.logical_size)
+
 
     def _update_mouse_pos(self):
         self.mouse_pos = ext.mouse.mouse_coords()
@@ -464,7 +473,6 @@ class GameState(object):
                     done.add(item)
                 camp.process_trigger(*item)
 
-
     def play(self):
         # A nonblocking game loop.
         myclock = clock.Clock()
@@ -514,7 +522,10 @@ class GameState(object):
                     w.launch()
 
             # Rendering happens here.
-            self.screen.fill((0,0,self.screen.logical_size[0], self.screen.logical_size[1]))
+            sdl2.SDL_SetRenderTarget(self.screen.renderer, self.target_texture)
+            sdl2.SDL_RenderClear(self.screen.renderer)
+            
+            #self.screen.fill((0,0,self.screen.logical_size[0], self.screen.logical_size[1]))
             self.anim_phase = (self.anim_phase + 1) % 6000
             self.widget_tooltip = None
             for w in self.widgets:
@@ -526,7 +537,11 @@ class GameState(object):
             self.update_trigger_queue()
 
             # flip() the display to put your work on screen
-            self.flip()
+            sdl2.SDL_SetRenderTarget(self.screen.renderer, None)
+            sdl2.SDL_RenderClear(self.screen.renderer)
+            sdl2.SDL_RenderCopy(self.screen.renderer, self.target_texture, None, None)
+            self.screen.present()
+            #self.flip()
 
             delta = myclock.tick(FPS)
             self.standing_by = False
@@ -694,6 +709,7 @@ def init(winname, appname, gamedir, icon="sys_icon.png", poster_pattern="poster_
             # Set the screen size.
             my_state.reset_screen()
             ext.renderer.set_texture_scale_quality("best")
+            #sdl2.SDL_RenderSetIntegerScale(my_state.screen.renderer, sdl2.SDL_TRUE)
 
             if my_state.audio_enabled:
                 # Initialize a 44.1 kHz 16-bit stereo mixer with a 1024-byte buffer size

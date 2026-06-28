@@ -67,8 +67,12 @@ class ProtoImage:
 class SurfImage(ProtoImage):
     """A wrapper for SDL surfaces. Used for editing and compositing an image before converting it into a texture."""
     def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
-                 transparent=False):
-        if fname:
+                 transparent=False, surface: sdl2.SDL_Surface|None=None):
+        if surface:
+            self.bitmap: sdl2.SDL_Surface = surface
+            if color:
+                self.recolor(self.bitmap, color)
+        elif fname:
             if not os.path.exists(fname):
                 for p in search_path:
                     if os.path.exists(os.path.join(p, fname)):
@@ -76,10 +80,26 @@ class SurfImage(ProtoImage):
                         break
 
             self.bitmap: sdl2.SDL_Surface = ext.image.load_img(fname)
-
+            sdl2.SDL_SetColorKey(self.bitmap, sdl2.SDL_TRUE, sdl2.SDL_MapRGB(self.bitmap.format, 0,0,255))
             if color:
                 self.recolor(self.bitmap, color)
+        elif frame_width and frame_height:
+            self.bitmap: sdl2.SDL_Surface = sdl2.SDL_CreateRGBSurfaceWithFormat(0, frame_width, frame_height, 32, sdl2.SDL_PIXELFORMAT_RGBA8888)
+            sdl2.SDL_FillRect(self.bitmap, None, sdl2.SDL_MapRGBA(self.bitmap.format, 0,0,0,0))
+
+        else:
+            raise ValueError("SurfImage can be created from either a filename or a framewidth+frameheight. You provided neither. This is a message to Joe, probably not you the user.")
+
         super().__init__((self.bitmap.w, self.bitmap.h), frame_width, frame_height, custom_frames)
+
+    def render(self, dest_surface, dest=(0, 0), frame=0 ):
+        # Render this Image onto the provided surface.
+        # Start by determining the correct sub-area of the image.
+        source_rect = self._get_frame_area(frame)
+        if compat.isiterable(dest) and len(dest) == 2:
+            dest = frects.PyRect(dest[0], dest[1], source_rect.w, source_rect.h)
+
+        dest_surface.blit(self.bitmap, dest, source_rect)
 
     @staticmethod
     def recolor(bitmap: sdl2.SDL_Surface, color_channels):
@@ -89,6 +109,13 @@ class SurfImage(ProtoImage):
         pbgerecolor.recolor(data, list(color_channels))
         
         sdl2.SDL_UnlockSurface(bitmap)
+
+    def copy(self, color=None):
+        new_bitmap = sdl2.SDL_ConvertSurfaceFormat(self.bitmap, sdl2.SDL_PIXELFORMAT_RGBA8888, 0)
+        return SurfImage(
+            frame_width=self.frame_width, frame_height=self.frame_height, color=color,
+            custom_frames=self.custom_frames, surface=new_bitmap
+        )
 
     def __del__(self):
         sdl2.SDL_FreeSurface(self.bitmap)
@@ -177,13 +204,13 @@ class Image(ProtoImage):
             frames_per_column = self.size[1] // self.frame_height
             return frames_per_row * frames_per_column
 
-    def __reduce__(self):
-        # Rather than trying to save the bitmap image, just save the filename.
-        return Image, (self.fname, self.frame_width, self.frame_height)
+    # def __reduce__(self):
+    #     # Rather than trying to save the bitmap image, just save the filename.
+    #     return Image, (self.fname, self.frame_width, self.frame_height)
 
     def tile(self, dest=None, frame=0, x_offset=0, y_offset=0):
         if not dest:
-            dest = my_state.screen.get_rect()
+            dest = frects.PyRect(0, 0, my_state.screen.logical_size[0], my_state.screen.logical_size[1])
         grid_w = dest.w // self.frame_width + 2
         grid_h = dest.h // self.frame_height + 2
         sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, dest)
@@ -197,15 +224,8 @@ class Image(ProtoImage):
 
         sdl2.SDL_RenderSetClipRect(my_state.screen.sdlrenderer, None)
 
-    def copy(self,ident=None):
-        nu_sprite = Image(frame_height=self.frame_height,frame_width=self.frame_width,)
-        nu_sprite.bitmap = self.bitmap.copy()
-        if ident:
-            self.record_pre_loaded(ident, None, nu_sprite.bitmap)
-        return nu_sprite
-
     def __del__(self):
-        if self.texture not in pre_loaded_images.values():
+        if hasattr(self, "texture") and self.texture and self.texture not in pre_loaded_images.values():
             _=self.texture.destroy()
 
 

@@ -1,5 +1,5 @@
 import sdl2
-from sdl2 import sdlttf, ext
+from sdl2 import sdlttf
 from . import TEXT_COLOR, util, ttfhelper
 
 ALIGN_LEFT = "left"

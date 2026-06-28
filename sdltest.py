@@ -2,19 +2,8 @@ import pbge
 import sdl2
 from sdl2 import ext
 import os
-
-gamedir = os.path.dirname(__file__)
-
-pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
-pbge.please_stand_by()
-
-myrect = pbge.frects.PyRect(50,50,100,100)
-
-mybutton = pbge.widgets.LabelWidget(-100,-50,200,100,"Testing the label widget", draw_border=True)
-mybutton.activate()
-
-pbge.my_state.widgets.append(mybutton)
-mybutton.activate()
+import gears
+import game
 
 class SpeedTest(pbge.widgets.Widget):
     ITERATIONS = 10000
@@ -47,23 +36,38 @@ class SpeedTest(pbge.widgets.Widget):
             self.register_response()
             self.pop()
 
-pbge.my_state.widgets.append(SpeedTest())
+gamedir = os.path.dirname(__file__)
+
+pbge.init('GearHead Caramel', 'ghcaramel', gamedir, poster_pattern='eyecatch_*.png')
+pbge.please_stand_by()
+gears.init_gears()
+game.init_game()
+pbge.cutscene.init_cutscenes(pbge.util.data_dir("cspt_*.json"))
+pbge.cutscene.OPPOSITE_TAGS.update({
+    gears.personality.Sociable: gears.personality.Shy,
+    gears.personality.Shy: gears.personality.Sociable,
+    gears.personality.Cheerful: gears.personality.Grim,
+    gears.personality.Grim: gears.personality.Cheerful,
+    gears.personality.Easygoing: gears.personality.Passionate,
+    gears.personality.Passionate: gears.personality.Easygoing
+})
+
+camp = gears.GearHeadCampaign.load(pbge.util.user_dir("rpg_Holgar.sav"))[3]
+
+
+print(sdl2.dll.version)
+
+myrect = pbge.frects.PyRect(50,50,100,100)
+
+mybutton = pbge.widgets.LabelWidget(-100,-50,200,100,"Testing the label widget", draw_border=True)
+pbge.my_state.widgets.append(mybutton)
+mybutton.activate()
+
+
+pbge.my_state.widgets.append(pbge.scenes.viewer.SceneViewWidget(pbge.scenes.viewer.SceneView(camp.scene)))
 
 
 pbge.my_state.play()
-
-
-# running = True
-# while running:
-#     events = sdl2.ext.get_events()
-#     for event in events:
-#         if event.type == sdl2.SDL_QUIT:
-#             running = False
-#             break
-#     ext.fill(window.get_surface(), ext.color.Color(0, 0, 0))
-#     sdl2.SDL_FillRect(mysurf, myrect, sdl2.SDL_MapRGB(mysurf.format, 0,200,255))
-#     window.refresh()
-
 
 
 pbge.quit()
