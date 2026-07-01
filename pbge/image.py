@@ -49,7 +49,7 @@ class ProtoImage:
 
     def _get_frame_area(self, frame):
         if self.custom_frames and frame < len(self.custom_frames):
-            area = sdl2.SDL_Rect(self.custom_frames[frame])
+            area = sdl2.SDL_Rect(*self.custom_frames[frame])
         else:
             area_x = (frame % self.frames_per_row) * self.frame_width
             area_y = (frame // self.frames_per_row) * self.frame_height
@@ -67,7 +67,9 @@ class ProtoImage:
 class SurfImage(ProtoImage):
     """A wrapper for SDL surfaces. Used for editing and compositing an image before converting it into a texture."""
     def __init__(self, fname=None, frame_width=0, frame_height=0, color=None, custom_frames=None,
-                 transparent=False, surface: sdl2.SDL_Surface|None=None):
+                 transparent=False, surface: sdl2.SDL_Surface|None=None, parent=None):
+        # if parent is not None, this image is a subsurface of parent's surface. We record the parent to keep
+        # the parent surface live until all children have been disposed of.
         if surface:
             self.bitmap: sdl2.SDL_Surface = surface
             if color:
@@ -80,16 +82,18 @@ class SurfImage(ProtoImage):
                         break
 
             self.bitmap: sdl2.SDL_Surface = ext.image.load_img(fname)
-            sdl2.SDL_SetColorKey(self.bitmap, sdl2.SDL_TRUE, sdl2.SDL_MapRGB(self.bitmap.format, 0,0,255))
+            #sdl2.SDL_SetColorKey(self.bitmap, sdl2.SDL_TRUE, sdl2.SDL_MapRGB(self.bitmap.format, 0,0,255))
             if color:
                 self.recolor(self.bitmap, color)
         elif frame_width and frame_height:
-            self.bitmap: sdl2.SDL_Surface = sdl2.SDL_CreateRGBSurfaceWithFormat(0, frame_width, frame_height, 32, sdl2.SDL_PIXELFORMAT_RGBA8888)
+            self.bitmap: sdl2.SDL_Surface = sdl2.SDL_CreateRGBSurface(0, frame_width, frame_height, 32, 0xff0000, 0xff00, 0xff, 0xff000000).contents
+            sdl2.SDL_SetSurfaceBlendMode(self.bitmap, sdl2.SDL_BLENDMODE_BLEND)
             sdl2.SDL_FillRect(self.bitmap, None, sdl2.SDL_MapRGBA(self.bitmap.format, 0,0,0,0))
 
         else:
             raise ValueError("SurfImage can be created from either a filename or a framewidth+frameheight. You provided neither. This is a message to Joe, probably not you the user.")
 
+        self.parent = parent
         super().__init__((self.bitmap.w, self.bitmap.h), frame_width, frame_height, custom_frames)
 
     def render(self, dest_surface, dest=(0, 0), frame=0 ):
@@ -99,7 +103,19 @@ class SurfImage(ProtoImage):
         if compat.isiterable(dest) and len(dest) == 2:
             dest = frects.PyRect(dest[0], dest[1], source_rect.w, source_rect.h)
 
-        dest_surface.blit(self.bitmap, dest, source_rect)
+        _=sdl2.SDL_BlitSurface(self.bitmap, source_rect, dest_surface.bitmap, dest)
+
+    def render_scaled(self, dest_surface, dest, frame=0):
+        source_rect = self._get_frame_area(frame)
+        _=sdl2.SDL_BlitScaled(self.bitmap, source_rect, dest_surface.bitmap, dest)
+
+    def subsurface(self, frame=None, source_rect=None):
+        if frame is not None:
+            source_rect = self._get_frame_area(frame)
+        elif not source_rect:
+            raise ValueError("Subsurface needs either frame number or source rect")
+        mysurf = ext.surface.subsurface(self.bitmap, source_rect)
+        return SurfImage(surface=mysurf, parent=self)
 
     @staticmethod
     def recolor(bitmap: sdl2.SDL_Surface, color_channels):
@@ -116,6 +132,18 @@ class SurfImage(ProtoImage):
             frame_width=self.frame_width, frame_height=self.frame_height, color=color,
             custom_frames=self.custom_frames, surface=new_bitmap
         )
+
+    def convert_to_image(self, color=None):
+        if color:
+            self.recolor(self.bitmap, color)
+        return Image(
+            frame_width=self.frame_width, frame_height=self.frame_height, custom_frames=self.custom_frames,
+            surf=self.bitmap
+        )
+
+    def copy_to_image(self, color=None):
+        mycopy = self.copy(color=color)
+        return mycopy.convert_to_image()
 
     def __del__(self):
         sdl2.SDL_FreeSurface(self.bitmap)
@@ -175,12 +203,10 @@ class Image(ProtoImage):
             sdl2.SDL_SetTextureColorMod(self.texture.tx, 255, 255, 255)
         source_rect = self._get_frame_area(frame)
 
-        if compat.isiterable(dest) and len(dest) == 2:
+        if (not isinstance(dest, sdl2.SDL_Rect)) and compat.isiterable(dest) and len(dest) == 2:
             dest = frects.PyRect(dest[0], dest[1], source_rect.w, source_rect.h)
 
         sdl2.SDL_RenderCopy(my_state.screen.renderer, self.texture.tx, source_rect, dest)
-
-        #_=my_state.screen.copy(self.texture, dstrect=dest, srcrect=source_rect)
 
     def render_c(self, dest: tuple[int,int]=(0, 0), frame=0 ) -> None:
         # As above, but the dest coordinates point to the center of the image.

@@ -9,12 +9,17 @@ import pbge
 from . import color
 from . import colorstyle
 
+import weakref
+
 PORTRAIT_BITS = dict()
 PORTRAIT_BITS_BY_TYPE = collections.defaultdict(list)
 
 FRAMES = ((0, 0, 400, 600), (0, 600, 100, 100), (100, 600, 64, 64))
 
 TAG_COMMON = "Common"
+
+PORTRAIT_CACHE = weakref.WeakValueDictionary()
+
 
 class Portrait(object):
     def __init__(self, color_channels=color.CHARACTER_COLOR_CHANNELS):
@@ -131,26 +136,21 @@ class Portrait(object):
         pc.colors = mycolors
         pc.mecha_colors = mekcolors
 
-    def build_portrait(self,pc,add_color=True,force_rebuild=False,form_tags=()):
-        porimage = pbge.image.SurfImage(frame_width=400, frame_height=700)
-        porimage.custom_frames = FRAMES
+    def build_portrait_surf(self, pc, add_color=True, form_tags=()) -> pbge.image.SurfImage:
+        porsurf = pbge.image.SurfImage(frame_width=400, frame_height=700)
+        porsurf.custom_frames = FRAMES
 
         if pc and not form_tags:
             form_tags = self.get_form_tags(pc)
 
         self.verify(pc, form_tags)
 
-        # Check first to see if the portrait already exists.
-        if add_color and (self,repr(pc.colors)) in pbge.image.pre_loaded_images and not force_rebuild:
-            porimage.bitmap = pbge.image.pre_loaded_images[(self,repr(pc.colors))]
-            return porimage
-
         # If the portrait has not been generated yet, generate it now.
         if not self.bits:
             self.random_portrait(pc,form_tags=form_tags)
 
-        portrait_bm = porimage.bitmap.subsurface(pbge.frects.PyRect(FRAMES[0]))
-        avatar_bm = porimage.bitmap.subsurface(pbge.frects.PyRect(FRAMES[2]))
+        portrait_bm = porsurf.subsurface(frame=0)
+        avatar_bm = porsurf.subsurface(frame=2)
 
         layers = list()
         avatar_layers = list()
@@ -166,37 +166,45 @@ class Portrait(object):
 
 
         for l in layers:
-            mysprite = pbge.image.Image(l.fname, frame_width=l.frame_width, frame_height=l.frame_height,
+            mysprite = pbge.image.SurfImage(l.fname, frame_width=l.frame_width, frame_height=l.frame_height,
                                         custom_frames=l.custom_frames)
             mydest = l.get_rect(mysprite, portrait_bm, anchors)
-            mysprite.render(mydest, l.frame, portrait_bm)
+            mysprite.render(portrait_bm, mydest, l.frame)
 
         for l in avatar_layers:
-            mysprite = pbge.image.Image(l.fname, frame_width=l.frame_width, frame_height=l.frame_height,
+            mysprite = pbge.image.SurfImage(l.fname, frame_width=l.frame_width, frame_height=l.frame_height,
                                         custom_frames=l.custom_frames)
             mydest = l.get_rect(mysprite, avatar_bm, anchors)
-            mysprite.render(mydest, l.frame, avatar_bm)
+            mysprite.render(avatar_bm, mydest, l.frame)
 
         if add_color:
             if not pc.colors:
                 # Generate random colors for this character.
                 self.generate_random_colors(pc)
 
-            porimage.recolor(pc.colors)
-            pbge.image.Image.record_pre_loaded(self,pc.colors,porimage.bitmap, transparent=False)
+            porsurf.recolor(porsurf.bitmap, pc.colors)
 
-            # Create the mini-portrait.
-            myrect = pbge.frects.PyRect(100,200,200,200)
-            myoffset = anchors.get("head",(10,-137))
-            myrect.left += myoffset[0]
-            myrect.top += myoffset[1]
-            myrect.clamp_ip(pbge.frects.PyRect(FRAMES[0]))
-            mini_por_source = porimage.bitmap.subsurface(myrect)
-            mini_por_bm = pygame.transform.scale(mini_por_source,(100,100))
-            porimage.bitmap.blit(mini_por_bm,pbge.frects.PyRect(0,600,100,100))
+        # Create the mini-portrait.
+        myrect = pbge.frects.PyRect(100,200,200,200)
+        myoffset = anchors.get("head",(10,-137))
+        myrect.left += myoffset[0]
+        myrect.top += myoffset[1]
+        myrect.clamp_ip(pbge.frects.PyRect(*FRAMES[0]))
+        mini_por_source = porsurf.subsurface(source_rect=myrect)
+        mini_por_source.render_scaled(porsurf, pbge.frects.PyRect(0,600,100,100))
 
         #print anchors
+        return porsurf
+
+    def build_portrait(self,pc,add_color=True,force_rebuild=False,form_tags=()) -> pbge.image.Image:
+        # Check first to see if the portrait already exists.
+        if add_color and (self,repr(pc.colors)) in PORTRAIT_CACHE and not force_rebuild:
+            return PORTRAIT_CACHE[(self,repr(pc.colors))]
+        porsurf = self.build_portrait_surf(pc, add_color, form_tags)
+        porimage = porsurf.convert_to_image()
+        PORTRAIT_CACHE[(self,repr(pc.colors))] = porimage
         return porimage
+
 
 class PortraitLayer(object):
     def __init__(self, fname=None, depth=0, frame=0, frame_width=0, frame_height=0, custom_frames=None, anchor="center",
@@ -218,13 +226,13 @@ class PortraitLayer(object):
     def get_rect(self, limage, canvas, anchors):
         mydest = limage.get_rect(self.frame)
         if self.anchor == "midbottom":
-            mydest.midbottom = canvas.get_rect().midbottom
+            mydest.midbottom = canvas.get_rect(0).midbottom
         elif self.anchor == "center":
-            mydest.center = canvas.get_rect().center
+            mydest.center = canvas.get_rect(0).center
         elif self.anchor == "topleft":
-            mydest.center = canvas.get_rect().topleft
+            mydest.center = canvas.get_rect(0).topleft
         elif self.anchor in anchors:
-            mydest.center = canvas.get_rect().center
+            mydest.center = canvas.get_rect(0).center
             mydest.right += anchors[self.anchor][0]
             mydest.top += anchors[self.anchor][1]
             if self.anchor in self.LAYER_OFFSETS and self.LAYER_OFFSETS[self.anchor] in anchors:

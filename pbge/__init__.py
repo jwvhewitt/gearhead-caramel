@@ -345,7 +345,7 @@ class GameState(object):
             self.screen.destroy()
         self.screen = ext.renderer.Renderer(
             self.window, logical_size=((max(800, 600 * winwidth // winheight), 600)), 
-            flags=sdl2.SDL_RENDERER_ACCELERATED | sdl2.SDL_RENDERER_TARGETTEXTURE
+            flags=sdl2.SDL_RENDERER_ACCELERATED | sdl2.SDL_RENDERER_TARGETTEXTURE | sdl2.SDL_RENDERER_PRESENTVSYNC
         )
         if self.target_texture:
             sdl2.SDL_DestroyTexture(self.target_texture)

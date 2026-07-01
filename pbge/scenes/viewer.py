@@ -72,7 +72,7 @@ class SceneView(object):
         self.undermap = collections.defaultdict(list)
         self.waypointmap = collections.defaultdict(list)
         self.fieldmap = dict()
-        self.modelsprite = weakref.WeakKeyDictionary()
+        self.modelsprite = dict()
         self.namedsprite = dict()
         self.darksprite = dict()
 
@@ -439,7 +439,7 @@ class SceneView(object):
 
     SCROLL_AREA = 15
 
-    def update_camera(self, screen_area, mouse_x, mouse_y):
+    def update_camera(self, screen_area, mouse_x, mouse_y, delta):
         # Check for map scrolling, depending on mouse position.
         if mouse_x < self.SCROLL_AREA:
             dx = 0
@@ -456,7 +456,7 @@ class SceneView(object):
             dy = 1
 
         nux, nuy = self.CAMERA_MOVES[dx + dy * 3]
-        self.focus(float(self._focus_x) + nux, float(self._focus_y) + nuy)
+        self.focus(float(self._focus_x) + nux * 20 * delta/1000.0, float(self._focus_y) + nuy * 20 * delta/1000.0)
 
     def get_floor_borders(self, x0, y0, center_floor):
         # Return a list of floor terrain with borders to draw on this tile, in order of border_priority
@@ -480,7 +480,7 @@ class SceneView(object):
 
         return visible_area
 
-    def __call__(self):
+    def __call__(self, delta):
         """Draws this mapview to the provided screen."""
         if self.needs_update:
             self.update_tile_data()
@@ -494,7 +494,7 @@ class SceneView(object):
 
         # Check for map scrolling, depending on mouse position.
         if util.config.getboolean("GENERAL", "mouse_scroll_at_map_edges"):
-            self.update_camera(screen_area, mouse_x, mouse_y)
+            self.update_camera(screen_area, mouse_x, mouse_y, delta)
 
         x, y = self.map_x(0, 0) - 2, self.map_y(0, 0) - 1
         x0, y0 = x, y
@@ -683,7 +683,7 @@ class SceneViewWidget(widgets.Widget):
             self.showing_animation = False
             my_state.widgets_active = True
 
-        self.scene_view()
+        self.scene_view(delta)
 
         if DEBUG_ON:
             self._num_renders += 1
