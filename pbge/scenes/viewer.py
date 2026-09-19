@@ -23,6 +23,21 @@ PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
 DEBUG_ON = False
 
 
+# Standard overlay sprite frames
+MC_VOIDCURSOR = 0
+MC_GOCURSOR = 1
+MC_AOE = 2
+MC_CURSOR = 3
+MC_ORIGIN = 4
+MC_ENDCURSOR = 5
+MC_TRAILMARKER = 6
+MC_ENEMYCURSOR = 12
+MC_GOODTARGET = 13
+MC_VOIDENEMYCURSOR = 14
+MC_VOIDGOODTARGET = 15
+
+
+
 class TextTicker(object):
     def __init__(self):
         self.text_images = list()
@@ -100,9 +115,18 @@ class SceneView(object):
         self.party_indicator = image.Image(party_indicator_spritename, self.TILE_WIDTH, self.TILE_HEIGHT,
                                            transparent=True)
 
+        self.map_cursor_image = image.Image(self.scene.map_cursor_sprite, self.TILE_WIDTH, self.TILE_HEIGHT)
+
         self.needs_update = True
     
         my_state.view = self
+
+        # Testing to see how much memory a tile cache would use. I think it's manageable? Cacheing the tile layers
+        # should speed up rendering by a lot. Profiling indicated that the big issue was the number of blit operations.
+        # Seems like memory use should be ok? I'm going to give it a try.
+        # self.tile_cache = list()
+        # for _ in range(50*50*8//25):
+        #     self.tile_cache.append(image.Image(frame_width=25*64, frame_height=64))
 
     def update_tile_data(self):
         self.floor_border_data.clear()
@@ -445,7 +469,7 @@ class SceneView(object):
 
     SCROLL_AREA = 15
 
-    def update_camera(self, screen_area, mouse_x, mouse_y):
+    def update_camera(self, screen_area, mouse_x, mouse_y, delta):
         # Check for map scrolling, depending on mouse position.
         if mouse_x < self.SCROLL_AREA:
             dx = 0
@@ -462,7 +486,7 @@ class SceneView(object):
             dy = 1
 
         nux, nuy = self.CAMERA_MOVES[dx + dy * 3]
-        self.focus(float(self._focus_x) + nux, float(self._focus_y) + nuy)
+        self.focus(float(self._focus_x) + nux * delta * 0.03, float(self._focus_y) + nuy * delta * 0.03)
 
     def get_floor_borders(self, x0, y0, center_floor):
         # Return a list of floor terrain with borders to draw on this tile, in order of border_priority
@@ -486,7 +510,7 @@ class SceneView(object):
 
         return visible_area
 
-    def __call__(self):
+    def __call__(self, delta=30):
         """Draws this mapview to the provided screen."""
         if self.needs_update:
             self.update_tile_data()
@@ -501,7 +525,7 @@ class SceneView(object):
 
         # Check for map scrolling, depending on mouse position.
         if util.config.getboolean("GENERAL", "mouse_scroll_at_map_edges"):
-            self.update_camera(screen_area, mouse_x, mouse_y)
+            self.update_camera(screen_area, mouse_x, mouse_y, delta)
 
         x, y = self.map_x(0, 0) - 2, self.map_y(0, 0) - 1
         x0, y0 = x, y
@@ -619,7 +643,7 @@ class SceneView(object):
                             c_dest = dest.copy()
                             if self.scene.tile_altitude(x, y) > 0:
                                 c_dest.y -= self.scene.tile_altitude(x, y)
-                            self.cursor.render(c_dest)
+                            self.cursor.render_cursor(self.map_cursor_image, c_dest)
 
                         mlist = self.uppermap.get((x, y))
                         if mlist:
@@ -690,7 +714,7 @@ class SceneViewWidget(widgets.Widget):
             self.showing_animation = False
             my_state.widgets_active = True
 
-        self.scene_view()
+        self.scene_view(delta)
 
         if DEBUG_ON:
             self._num_renders += 1

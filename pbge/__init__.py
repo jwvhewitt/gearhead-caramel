@@ -507,6 +507,7 @@ class GameState(object):
         # A nonblocking game loop.
         myclock = pygame.time.Clock()
         delta = 1000.0 / float(FPS)
+        MAX_DELTA = delta * 2
 
         while self.widgets and not self.got_quit:
             # BEFORE polling for events, check for alerts!
@@ -571,7 +572,7 @@ class GameState(object):
             # flip() the display to put your work on screen
             self.flip()
 
-            delta = myclock.tick(FPS)
+            delta = min(myclock.tick(FPS), MAX_DELTA)
             self.standing_by = False
 
     def print_widgets(self):

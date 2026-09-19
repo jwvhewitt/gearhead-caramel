@@ -186,7 +186,12 @@ class MenuWidget(widgets.ColumnWidget):
 
     @active_index.setter
     def active_index(self, nuval):
-        self.scroll_column.scroll_to_index(nuval)
+        # Wait, what?! Why did Past Joe write the following code? Surely goodness
+        # the correct way for this function to act is to call the selected_widget_id
+        # of the scroll column, which should handle scrolling and whatever itself.
+        # self.scroll_column.scroll_to_index(nuval)
+        # self.scroll_column.selected_widget_id = nuval
+        # Leaving this comment and code commented out just in case "fixing" the problem causes bugs.
         self.scroll_column.selected_widget_id = nuval
 
     def is_in_menu(self, other_widget):
@@ -455,5 +460,19 @@ class TitleMenuWidget(MenuWidget):
         )
         super()._render(delta)
 
+
+class RibbonMenu(widgets.RowWidget):
+    def __init__(
+        self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
+        off_border=widget_menu_border_off, activate_child_on_enter=True,
+        on_activate_item=None, center_interior=True, padding=5,
+        item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
+        font=None, item_class: type[widgets.Widget]=widgets.LabelWidget, item_data=None, 
+        on_click_child: widgets.On_Click=None, pop_when_clicked=False,
+        on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
+        auto_escape=False, style=DEFAULT_STYLE,
+        **kwargs
+    ):
+        super().__init__(dx, dy, w, h, **kwargs)
 
  

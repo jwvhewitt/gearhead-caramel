@@ -2,16 +2,15 @@ import pygame
 from pbge import my_state, util
 
 class MapCursor(object):
-    def __init__(self, x, y, image, frame=0, visible=True):
+    def __init__(self, x, y, frame=0, visible=True):
         self.x = x
         self.y = y
-        self.image = image
         self.frame = frame
         self.visible = visible
 
-    def render(self, dest: pygame.Rect):
+    def render_cursor(self, img, dest: pygame.Rect):
         if self.visible:
-            self.image.render(dest, self.frame)
+            img.render(dest, self.frame)
 
     def set_position(self, scene, x, y, must_be_visible=True):
         if scene.on_the_map(x, y) and (scene.get_visible(x, y) or not must_be_visible):

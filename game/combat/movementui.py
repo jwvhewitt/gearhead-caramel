@@ -4,6 +4,7 @@ import gears
 from game import traildrawer
 import pygame
 from . import actions
+from pbge.scenes.viewer import MC_ORIGIN, MC_CURSOR, MC_VOIDCURSOR, MC_TRAILMARKER, MC_ENEMYCURSOR, MC_GOCURSOR
 
 
 class MovementWidget(pbge.widgets.Widget):
@@ -182,15 +183,6 @@ class MovementWidget(pbge.widgets.Widget):
 class MovementUI(pbge.widgets.Widget):
     # This UI more or less follows the same patterns as the invoker since it's used alongside a bunch of
     # invokers in the player turn UI.
-    SC_ORIGIN = 4
-    SC_GOCURSOR = 1
-    SC_AOE = 2
-    SC_CURSOR = 3
-    SC_VOIDCURSOR = 0
-    SC_ENDCURSOR = 5
-    SC_TRAILMARKER = 6
-    SC_ZEROCURSOR = 7
-    SC_ENEMYCURSOR = 12
 
     def __init__(self, camp, mover, on_move, on_switch_to_attack, top_shelf_fun=None, bottom_shelf_fun=None, name="movement", clock=None, **kwargs):
         # on_move is a callable which accepts a list of actions
@@ -201,7 +193,7 @@ class MovementUI(pbge.widgets.Widget):
         self.origin = mover.pos
         self.name = name
 
-        self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
+        self.cursor_sprite = pbge.my_state.view.map_cursor_image
         self.my_widget = MovementWidget(camp, mover, self.change_movemode, top_shelf_fun=top_shelf_fun,
                                         bottom_shelf_fun=bottom_shelf_fun)
         self.selected_mmode = mover.mmode
@@ -225,31 +217,31 @@ class MovementUI(pbge.widgets.Widget):
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, None
+                                   , MC_TRAILMARKER, None
                                    , mypath
                                    )
             self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[pbge.my_state.view.mouse_tile])
-            pbge.my_state.view.cursor.frame = self.SC_GOCURSOR
+            pbge.my_state.view.cursor.frame = MC_GOCURSOR
         elif pbge.my_state.view.mouse_tile in self.reachable_waypoints:
             _wp, pos = self.reachable_waypoints[pbge.my_state.view.mouse_tile]
             mypath = self.nav.get_path(pos)
 
             # Draw the trail, highlighting where one action point ends and the next begins.
             traildrawer.draw_trail(self.cursor_sprite
-                                   , self.SC_TRAILMARKER, None
+                                   , MC_TRAILMARKER, None
                                    , mypath
                                    )
             self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[mypath[-1]])
-            pbge.my_state.view.cursor.frame = self.SC_CURSOR
+            pbge.my_state.view.cursor.frame = MC_CURSOR
 
         else:
-            #pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_VOIDCURSOR)
+            #pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, MC_VOIDCURSOR)
             self.clock.indicate_mp_cost()
             pbge.my_state.view.cursor.frame = self.get_blocked_cursor()
 
     def _render_jumping_movemode(self):
         if pbge.my_state.view.mouse_tile in self.jumpable_points:
-            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.SC_GOCURSOR)
+            pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, MC_GOCURSOR)
             self.clock.indicate_mp_cost(99999999)
         else:
             pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = (self.cursor_sprite, self.get_blocked_cursor())
@@ -259,9 +251,9 @@ class MovementUI(pbge.widgets.Widget):
         # Movement to this tile is blocked. Still, if there's an enemy in the tile, we want to display that visually.
         mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if self.camp.scene.is_an_actor(m) and m.is_operational()]
         if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
-            return self.SC_ENEMYCURSOR
+            return MC_ENEMYCURSOR
         else:
-            return self.SC_VOIDCURSOR
+            return MC_VOIDCURSOR
 
     def change_movemode(self, new_mm):
         self.selected_mmode = new_mm
@@ -332,7 +324,7 @@ class MovementUI(pbge.widgets.Widget):
         if self.origin != self.mover.pos:
             self.update_tiles()
         pbge.my_state.view.overlays.clear()
-        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, self.SC_ORIGIN)
+        pbge.my_state.view.overlays[self.origin] = (self.cursor_sprite, MC_ORIGIN)
 
         # Drawing the path is different for jumping and everything else.
         if self.selected_mmode is gears.tags.Jumping:
@@ -382,5 +374,5 @@ class MovementUI(pbge.widgets.Widget):
 
     def deactivate(self):
         self.visible = False
-        pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
+        pbge.my_state.view.cursor.frame = MC_VOIDCURSOR
 

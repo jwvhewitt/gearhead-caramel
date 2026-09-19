@@ -349,7 +349,7 @@ class ShopUI(pbge.widgets.Widget):
                     )
                 )
         self._sell_list_widget.sort(key=lambda a: str(a))
-        self._sell_list_widget.active_index = active_index
+        self._sell_list_widget.set_item_by_position(active_index)
 
     def _build_buy_list(self):
         if self._special_wares:
@@ -373,7 +373,7 @@ class ShopUI(pbge.widgets.Widget):
         _=self._buy_list_widget.add_item(
             "[Done]", on_click=self._return_to_regular_menu
         )
-        self._buy_list_widget.active_index = active_index
+        self._buy_list_widget.set_item_by_position(active_index)
 
     def _build_regular_buy_list(self):
         active_index = self._buy_list_widget.active_index
@@ -428,7 +428,7 @@ class ShopUI(pbge.widgets.Widget):
                         )
 
         self._buy_list_widget.sort(key=lambda a: a.data.sort_order)
-        self._buy_list_widget.active_index = active_index
+        self._buy_list_widget.set_item_by_position(active_index)
 
     def _return_to_regular_menu(self, *etc):
         self._special_wares.clear()

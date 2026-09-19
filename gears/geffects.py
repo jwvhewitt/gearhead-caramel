@@ -2614,10 +2614,11 @@ class AmmoPrice(object):
         self.ammo_amount = ammo_amount
 
     def pay(self, chara):
-        self.ammo_source.spent += self.ammo_amount
+        if self.ammo_source:
+            self.ammo_source.spent += self.ammo_amount
 
     def can_pay(self, chara):
-        return self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
+        return self.ammo_source and self.ammo_source.quantity >= (self.ammo_source.spent + self.ammo_amount)
 
 
 class ChemPrice(object):
@@ -2626,10 +2627,11 @@ class ChemPrice(object):
         self.chem_amount = chem_amount
 
     def pay(self, chara):
-        self.chem_source.spent += self.chem_amount
+        if self.chem_source:
+            self.chem_source.spent += self.chem_amount
 
     def can_pay(self, chara):
-        return self.chem_source.quantity >= (self.chem_source.spent + self.chem_amount)
+        return self.chem_source and self.chem_source.quantity >= (self.chem_source.spent + self.chem_amount)
 
     @classmethod
     def describe(cls, prices):

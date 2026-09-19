@@ -672,7 +672,7 @@ class ScrollColumnWidget(Widget):
         self.border = border
         self._interior_widgets = list()
         self.padding = padding
-        self.top_widget = 0
+        self.first_visible_widget = 0
         self.up_button = up_button
         self.up_button.on_click = self.scroll_up
         self.up_button.kbhandler = self
@@ -772,7 +772,7 @@ class ScrollColumnWidget(Widget):
             self._interior_widgets.remove(w)
             self.children.remove(w)
         self.selected_widget_id = 0
-        self.top_widget = 0
+        self.first_visible_widget = 0
 
     def remove(self, other_widget):
         if other_widget in self._interior_widgets:
@@ -785,7 +785,7 @@ class ScrollColumnWidget(Widget):
         for w in self._interior_widgets:
             w.visible = False
         dy = 0
-        n = self.top_widget
+        n = self.first_visible_widget
         if n >= len(self._interior_widgets):
             n = 0
         while (dy < self.h) and (n < len(self._interior_widgets)):
@@ -796,7 +796,7 @@ class ScrollColumnWidget(Widget):
             dy += widg.h + self.padding
             n += 1
         # Activate or deactivate the up/down buttons.
-        if self.top_widget > 0:
+        if self.first_visible_widget > 0:
             self.up_button.frame = self.up_button.on_frame
         else:
             self.up_button.frame = self.up_button.off_frame
@@ -805,25 +805,25 @@ class ScrollColumnWidget(Widget):
         else:
             self.down_button.frame = self.down_button.off_frame
 
-        if self._selected_widget_id < self.top_widget:
-            self._selected_widget_id = self.top_widget
+        if self._selected_widget_id < self.first_visible_widget:
+            self._selected_widget_id = self.first_visible_widget
         elif self._selected_widget_id >= (n - 1):
             self._selected_widget_id = max(n - 2, 0)
 
     def scroll_up(self, *_args):
-        if self.top_widget > 0:
-            self.top_widget -= 1
+        if self.first_visible_widget > 0:
+            self.first_visible_widget -= 1
             self._position_contents()
 
     def scroll_down(self, *_args):
         if self._interior_widgets and not self._interior_widgets[-1].visible:
-            self.top_widget += 1
+            self.first_visible_widget += 1
             self._position_contents()
 
     def scroll_to_index(self, index):
         '''Programmatic access to ensure a particular list item is shown'''
         if index < len(self._interior_widgets) and not self._interior_widgets[index].visible:
-            self.top_widget = index
+            self.first_visible_widget = index
             self._position_contents()
             self.selected_widget_id = index
 
@@ -873,6 +873,40 @@ class ScrollColumnWidget(Widget):
                 self.focus_border.render(self.get_rect())
             else:
                 self.border.render(self.get_rect())
+
+class ScrollRowWidget(ScrollColumnWidget):
+    def __init__(self, dx, dy, w, h, up_button, down_button, **kwargs):
+        super().__init__(dx, dy, w, h, up_button, down_button, **kwargs)
+
+    def _position_contents(self):
+        # Disable all interior widgets, except those currently visible.
+        for w in self._interior_widgets:
+            w.visible = False
+        dy = 0
+        n = self.first_visible_widget
+        if n >= len(self._interior_widgets):
+            n = 0
+        while (dy < self.h) and (n < len(self._interior_widgets)):
+            widg = self._interior_widgets[n]
+            widg.dy = dy
+            if (dy == 0) or (dy + widg.h + self.padding <= self.h):
+                widg.visible = True
+            dy += widg.h + self.padding
+            n += 1
+        # Activate or deactivate the up/down buttons.
+        if self.first_visible_widget > 0:
+            self.up_button.frame = self.up_button.on_frame
+        else:
+            self.up_button.frame = self.up_button.off_frame
+        if self._interior_widgets and not self._interior_widgets[-1].visible:
+            self.down_button.frame = self.down_button.on_frame
+        else:
+            self.down_button.frame = self.down_button.off_frame
+
+        if self._selected_widget_id < self.first_visible_widget:
+            self._selected_widget_id = self.first_visible_widget
+        elif self._selected_widget_id >= (n - 1):
+            self._selected_widget_id = max(n - 2, 0)
 
 
 class RowWidget(Widget):

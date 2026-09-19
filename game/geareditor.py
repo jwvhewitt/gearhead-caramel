@@ -502,8 +502,10 @@ class PartsTreeWidget(pbge.widgets.ColumnWidget):
         self.refresh_gear_list()
 
     def refresh_gear_list(self):
+        n = self.scroll_column.selected_widget_id
         self.scroll_column.clear()
         self.add_gear(self.mygear)
+        self.scroll_column.set_item_by_position(n)
 
     def add_gear(self,part,prefix='',indent=0):
         self.scroll_column.add_interior(PartsNodeWidget(part,prefix,indent,self.editor,on_click=self.editor.click_part))
@@ -532,10 +534,12 @@ class PartsListWidget(pbge.widgets.ColumnWidget):
         self.refresh_gear_list()
 
     def refresh_gear_list(self):
+        n = self.scroll_column.selected_widget_id
         self.scroll_column.clear()
         for part in self.part_list:
             self.scroll_column.add_interior(
                 PartsNodeWidget(part, '', 0, self.editor, on_click=self.editor.click_part))
+        self.scroll_column.set_item_by_position(n)
 
 
 #   *******************************
