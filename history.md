@@ -1,3 +1,5 @@
+* Keyboard bounce bug fixed
+* Different map cursor colors/styles can be set for different scenes
 * Decreased the volume of chem
 * Fixed pet personality crash
 * FIxed hidden PCs walking into threat area crash

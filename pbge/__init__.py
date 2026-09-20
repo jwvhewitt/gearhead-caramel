@@ -10,6 +10,8 @@
 # Word wrapper taken from the PyGame wiki plus
 # the list-printer from Anne Archibald's GearHead Prime demo.
 
+import collections
+
 import pygame
 from itertools import chain
 from . import util
@@ -508,10 +510,14 @@ class GameState(object):
         myclock = pygame.time.Clock()
         delta = 1000.0 / float(FPS)
         MAX_DELTA = delta * 2
+        key_bounce_checker = collections.defaultdict(int)
 
         while self.widgets and not self.got_quit:
             # BEFORE polling for events, check for alerts!
             self.update_alerts()
+            for k,v in key_bounce_checker.items():
+                if v > 0:
+                    key_bounce_checker[k] -= 1
 
             # poll for events
             # pygame.QUIT event means the user clicked X to close your window
@@ -522,6 +528,14 @@ class GameState(object):
                 elif ev.type == pygame.MOUSEMOTION:
                     self.update_mouse_pos()
                 elif ev.type == pygame.KEYDOWN:
+                    # On some computers, specifically this Sansung Galaxy Note that I am using until I can get
+                    # a proper laptop, key repeat will cause multiple erronious keypresses to be sent immediately.
+                    # This check causes repeated keypresses that arrive faster than should be possible to get
+                    # ignored.
+                    if key_bounce_checker[ev.key] > 0:
+                        continue
+                    else:
+                        key_bounce_checker[ev.key] = 2
                     if ev.key == pygame.K_PRINT:
                         pygame.image.save(my_state.screen, util.user_dir("out.png"))
                     elif self.is_key_for_action(ev, "next_widget"):
