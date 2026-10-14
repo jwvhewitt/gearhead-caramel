@@ -129,6 +129,7 @@ class BanditsPalooza(DZDREProppStarterPlot):
 
 class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
     LABEL = "DZD_ROADEDGE_YELLOW"
+    #LABEL = "TEST_LOCAL_PROBLEM"
     UNIQUE = True
 
     GOOD_ENEMIES = (
@@ -137,9 +138,9 @@ class BlackMarketBluesStarter(DZDREBasicPlotWithEncounterStuff):
     )
 
     def custom_init(self, nart):
-        super().custom_init(nart)
+        _=super().custom_init(nart)
         myedge = self.elements["DZ_EDGE"]
-        self.register_element("FACTION", self.get_enemy_faction(nart))
+        _=self.register_element("FACTION", self.get_enemy_faction(nart))
         self.add_sub_plot(nart, "DZRE_BLACKMARKETBLUES", ident="MISSION", spstate=PlotState(elements={"METRO":myedge.start_node.destination.metrodat,"METROSCENE":myedge.start_node.destination,"MISSION_GATE":myedge.start_node.entrance}).based_on(self))
         return True
 

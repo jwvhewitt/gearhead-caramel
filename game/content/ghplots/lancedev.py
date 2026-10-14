@@ -3119,7 +3119,8 @@ class DDLD_LackingVirtue(LMPlot):
     def get_missing_virtues(self, camp: gears.GearHeadCampaign):
         virtues = set(personality.VIRTUES)
         for pc in camp.get_active_party():
-            virtues = virtues.difference(pc.personality)
+            if isinstance(pc, gears.base.Character):
+                virtues = virtues.difference(pc.personality)
         return virtues
 
     def METROSCENE_ENTER(self, camp):

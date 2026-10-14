@@ -14,6 +14,9 @@ from . import movement
 import weakref
 
 
+MAP_CURSOR_SPRITE = "sys_mapcursor.png"
+
+
 class Tile:
     def __init__(self, floor=None, wall=None, decor=None, visible=False):
         self.floor = floor
@@ -177,6 +180,7 @@ from . import mapcursor
 from . import areaenchant
 
 
+
 class TeamDictionary(weakref.WeakKeyDictionary):
     # It's like a regular WeakKeyDictionary but it pickles.
     def __getstate__(self):
@@ -198,7 +202,9 @@ class Scene:
     # New in v0.952
     is_temporary = False
 
-    def __init__(self, width=128, height=128, name="", player_team=None, exit_scene_wp=None, wrap_x=False, wrap_y=False):
+    map_cursor_sprite = MAP_CURSOR_SPRITE
+
+    def __init__(self, width=128, height=128, name="", player_team=None, exit_scene_wp=None, wrap_x=False, wrap_y=False, map_cursor_sprite=MAP_CURSOR_SPRITE):
         self.name = name
         self.width = width
         self.height = height
@@ -223,6 +229,8 @@ class Scene:
 
         self.wrap_x = wrap_x
         self.wrap_y = wrap_y
+
+        self.map_cursor_sprite = map_cursor_sprite
 
     def init_map(self):
         self._map = [[Tile()

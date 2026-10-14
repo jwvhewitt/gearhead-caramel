@@ -419,7 +419,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
                             if not pc.hidden:
                                 in_sight = True
                                 break
-                            elif self.time % 75 == 0 and self.CASUAL_SEARCH_CHECK.handle_effect(self.camp, {}, npc,
+                            elif pbge.my_state.anim_phase % 75 == 0 and self.CASUAL_SEARCH_CHECK.handle_effect(self.camp, {}, npc,
                                                                                                 pc.pos, list()):
                                 pc.hidden = False
                                 pbge.my_state.view.anim_list.append(geffects.SmokePoof(pos=pc.pos))
@@ -555,7 +555,7 @@ class ExploCommandWidget(pbge.widgets.Widget):
     def on_activate(self):
         if hasattr(self.scene, 'exploration_music')and not self.camp.fight:
             pbge.my_state.start_music(self.scene.exploration_music)
-        pbge.my_state.view.cursor.frame = invoker.InvocationUI.SC_VOIDCURSOR
+        pbge.my_state.view.cursor.frame = pbge.scenes.viewer.MC_VOIDCURSOR
         self.update_npcs(False)
 
 
@@ -575,10 +575,10 @@ class Explorer(pbge.campaign.ExploPrototype):
         if party and party[0].pos:
             pc = party[0]
             mycursor = pbge.scenes.mapcursor.MapCursor(
-                pc.pos[0], pc.pos[1], pbge.image.Image('sys_mapcursor.png', 64, 64)
+                pc.pos[0], pc.pos[1]
             )
         else:
-            mycursor = pbge.scenes.mapcursor.MapCursor(0, 0, pbge.image.Image('sys_mapcursor.png', 64, 64))
+            mycursor = pbge.scenes.mapcursor.MapCursor(0, 0)
         self.view = scenes.viewer.SceneView(camp.scene, cursor=mycursor)
         self.children.append(pbge.scenes.viewer.SceneViewWidget(self.view))
         self.thirty_second_timer = 0

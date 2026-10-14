@@ -10,6 +10,8 @@
 # Word wrapper taken from the PyGame wiki plus
 # the list-printer from Anne Archibald's GearHead Prime demo.
 
+import collections
+
 import sdl2
 from sdl2 import ext, sdlmixer, sdlimage
 from itertools import chain
@@ -477,22 +479,29 @@ class GameState(object):
         # A nonblocking game loop.
         myclock = clock.Clock()
         delta = 1000.0 / float(FPS)
+        MAX_DELTA = delta * 2
+        key_bounce_checker = collections.defaultdict(int)
 
         while self.widgets and not self.got_quit:
             # BEFORE polling for events, check for alerts!
             self.update_alerts()
+            for k,v in key_bounce_checker.items():
+                if v > 0:
+                    key_bounce_checker[k] -= 1
 
             # poll for events
             # pygame.QUIT event means the user clicked X to close your window
             for ev in ext.common.get_events():
                 if ev.type == sdl2.SDL_QUIT:
                     self.got_quit = True
-                elif ev.type == sdl2.SDL_MOUSEMOTION:
-                    self._update_mouse_pos()
-                elif ev.type == sdl2.SDL_KEYDOWN:
-                    if self.is_key_for_action(ev, "next_widget"):
-                        self.activate_next_widget(ev.mod & sdl2.keycode.KMOD_SHIFT)
-                    elif ev.key == sdl2.keycode.SDLK_F10:
+                elif ev.type == pygame.MOUSEMOTION:
+                    self.update_mouse_pos()
+                elif ev.type == pygame.KEYDOWN:
+                    if ev.key == pygame.K_PRINT:
+                        pygame.image.save(my_state.screen, util.user_dir("out.png"))
+                    elif self.is_key_for_action(ev, "next_widget"):
+                        self.activate_next_widget(ev.mod & pygame.KMOD_SHIFT)
+                    elif ev.key == pygame.K_F10:
                         self.print_widgets()
 
                 # Inform any interested widgets of the event.
@@ -543,7 +552,7 @@ class GameState(object):
             self.screen.present()
             #self.flip()
 
-            delta = myclock.tick(FPS)
+            delta = min(myclock.tick(FPS), MAX_DELTA)
             self.standing_by = False
 
     def print_widgets(self):

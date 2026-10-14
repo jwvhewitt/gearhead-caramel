@@ -24,6 +24,21 @@ PARTY_INDICATOR_SPRITE = "sys_partyindicator.png"
 DEBUG_ON = False
 
 
+# Standard overlay sprite frames
+MC_VOIDCURSOR = 0
+MC_GOCURSOR = 1
+MC_AOE = 2
+MC_CURSOR = 3
+MC_ORIGIN = 4
+MC_ENDCURSOR = 5
+MC_TRAILMARKER = 6
+MC_ENEMYCURSOR = 12
+MC_GOODTARGET = 13
+MC_VOIDENEMYCURSOR = 14
+MC_VOIDGOODTARGET = 15
+
+
+
 class TextTicker(object):
     def __init__(self):
         self.text_images = list()
@@ -58,6 +73,24 @@ class TextTicker(object):
 
     def needs_deletion(self):
         return not self.text_images
+
+
+class AreaCacheImage(object):
+    def __init__(self, x0, y0, viewer: "SceneView"):
+        self.x0 = x0
+        self.y0 = y0
+        self.scene = viewer.scene
+        self.viewer = viewer
+        self.surf = image.Image(frame_width=viewer.TILE_WIDTH*self.length(), frame_height=viewer.TILE_HEIGHT)
+        self.water_blocks = list()
+        self.anim_tiles = list()
+
+    def length(self):
+        return min(self.y0 + 1, self.scene.width - self.x0, 20)
+
+    @classmethod
+    def create_area_cache(cls, view: "SceneView"):
+        pass
 
 
 class SceneView(object):
@@ -105,9 +138,20 @@ class SceneView(object):
         self.party_indicator = image.Image(party_indicator_spritename, self.TILE_WIDTH, self.TILE_HEIGHT,
                                            transparent=True)
 
+        self.map_cursor_image = image.Image(self.scene.map_cursor_sprite, self.TILE_WIDTH, self.TILE_HEIGHT)
+
+        self.area_cache = dict()
         self.needs_update = True
+        self.visible_area = set()
     
         my_state.view = self
+
+        # Testing to see how much memory a tile cache would use. I think it's manageable? Cacheing the tile layers
+        # should speed up rendering by a lot. Profiling indicated that the big issue was the number of blit operations.
+        # Seems like memory use should be ok? I'm going to give it a try.
+        # self.tile_cache = list()
+        # for _ in range(50*50*8//25):
+        #     self.tile_cache.append(image.Image(frame_width=25*64, frame_height=64))
 
     def update_tile_data(self):
         self.floor_border_data.clear()
@@ -456,7 +500,7 @@ class SceneView(object):
             dy = 1
 
         nux, nuy = self.CAMERA_MOVES[dx + dy * 3]
-        self.focus(float(self._focus_x) + nux * 20 * delta/1000.0, float(self._focus_y) + nuy * 20 * delta/1000.0)
+        self.focus(float(self._focus_x) + nux, float(self._focus_y) + nuy)
 
     def get_floor_borders(self, x0, y0, center_floor):
         # Return a list of floor terrain with borders to draw on this tile, in order of border_priority
@@ -480,7 +524,7 @@ class SceneView(object):
 
         return visible_area
 
-    def __call__(self, delta):
+    def __call__(self):
         """Draws this mapview to the provided screen."""
         if self.needs_update:
             self.update_tile_data()
@@ -612,7 +656,7 @@ class SceneView(object):
                             c_dest = dest.copy()
                             if self.scene.tile_altitude(x, y) > 0:
                                 c_dest.y -= self.scene.tile_altitude(x, y)
-                            self.cursor.render(c_dest)
+                            self.cursor.render_cursor(self.map_cursor_image, c_dest)
 
                         mlist = self.uppermap.get((x, y))
                         if mlist:

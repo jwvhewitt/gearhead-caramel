@@ -282,7 +282,7 @@ class FrozenHotSpringCity(Plot):
     def custom_init(self, nart):
         """Create map, fill with city + services."""
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(60, 60, "Mauna", player_team=team1, scale=gears.scale.HumanScale)
+        myscene = gears.GearHeadScene(60, 60, "Mauna", player_team=team1, scale=gears.scale.HumanScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myscene.exploration_music = 'Doctor_Turtle_-_04_-_Lets_Just_Get_Through_Christmas.ogg'
 
         myfilter = pbge.randmaps.converter.BasicConverter(WinterMochaSnowdrift)
@@ -952,14 +952,14 @@ class MochaMissionBattleBuilder(Plot):
            encounters, a recharge, and two choices at the end. The choices
            will handle their own scenes."""
         team1 = teams.Team(name="Player Team")
-        myscene1 = gears.GearHeadScene(30, 60, "Near Mauna", player_team=team1, scale=gears.scale.MechaScale)
+        myscene1 = gears.GearHeadScene(30, 60, "Near Mauna", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
         myscenegen1 = WinterHighwaySceneGen(myscene1, myarchi)
 
-        myscene2 = gears.GearHeadScene(30, 60, "Gyori Highway", player_team=team1, scale=gears.scale.MechaScale)
+        myscene2 = gears.GearHeadScene(30, 60, "Gyori Highway", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myscenegen2 = WinterHighwaySceneGen(myscene2, myarchi)
 
         self.register_scene(nart, myscene1, myscenegen1, ident="FIRST_PART")
@@ -2615,7 +2615,7 @@ class FinalBattleAgainstSynths(Plot):
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
@@ -2652,7 +2652,7 @@ class FinalBattleAgainstBase(Plot):
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
@@ -2691,7 +2691,7 @@ class FinalBattleAgainstTrucks(Plot):
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
@@ -2734,7 +2734,7 @@ class FinalBattleAgainstBoss(Plot):
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
@@ -2775,7 +2775,7 @@ class FinalBattleAgainstBossInWoods(Plot):
 
     def custom_init(self, nart):
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(30, 30, "Boss Battle", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()
         myarchi = pbge.randmaps.architect.Architecture(ghterrain.Snow, myfilter, mutate=mymutate)
@@ -2839,7 +2839,7 @@ class WinterBattle(Plot):
            encounters, a recharge, and two choices at the end. The choices
            will handle their own scenes."""
         team1 = teams.Team(name="Player Team")
-        myscene = gears.GearHeadScene(60, 60, "Near Mauna", player_team=team1, scale=gears.scale.MechaScale)
+        myscene = gears.GearHeadScene(60, 60, "Near Mauna", player_team=team1, scale=gears.scale.MechaScale, map_cursor_sprite=gears.MAP_CURSOR_WINTER)
 
         myfilter = pbge.randmaps.converter.BasicConverter(ghterrain.Forest)
         mymutate = pbge.randmaps.mutator.CellMutator()

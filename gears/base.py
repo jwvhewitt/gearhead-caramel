@@ -3000,7 +3000,7 @@ class Chem(BaseGear, Stackable, StandardDamageHandler, Restoreable):
         mult = 1.0
         for aa in self.attributes:
             mult *= aa.VOLUME_MODIFIER
-        return int((mult * 5 * self.quantity + 49) // 50)
+        return max(int((mult * 3 * self.quantity + 49) // 50), 1)
 
     @property
     def base_cost(self):
@@ -3551,6 +3551,10 @@ class MF_Tail(ModuleForm):
     @classmethod
     def is_legal_sub_com(cls, part):
         return isinstance(part, (Weapon, Launcher, Armor, MovementSystem, Mount, Sensor, PowerSource, Usable, EWSystem))
+
+    @classmethod
+    def is_legal_inv_com(cls, part):
+        return isinstance(part, Shield)
 
 
 class MF_Storage(ModuleForm):

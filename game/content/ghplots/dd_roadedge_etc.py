@@ -50,7 +50,7 @@ class BlackMarketBluesMain(Plot):
         self.black_market_entry_status = 0
 
         # Generate the boss of the black market.
-        self.register_element("NPC", gears.selector.random_character(
+        _=self.register_element("NPC", gears.selector.random_character(
             self.rank+25, local_tags=self.elements["METROSCENE"].attributes,
             camp=nart.camp, faction=gears.factions.TreasureHunters, combatant=True
         ))
@@ -67,14 +67,14 @@ class BlackMarketBluesMain(Plot):
             door_sign=(ghterrain.CrossedSwordsTerrainEast, ghterrain.CrossedSwordsTerrainSouth),
             tags=[pbge.randmaps.CITY_GRID_ROAD_OVERLAP]
         ), dident="BLACK_MARKET")
-        plotutility.TownBuildingConnection(
+        _=plotutility.TownBuildingConnection(
             nart, self, self.elements["BLACK_MARKET"], tgsp.elements["INTERIOR"],
             room2=tgsp.elements["_introom"], door2=tgsp.elements["EXIT"], move_door2=False,
             door1=exterior.waypoints["DOOR"], move_door1=False)
 
         # Add the rules sign.
-        myroom = self.register_element("_skullroom", pbge.randmaps.rooms.OpenRoom(5,5), dident="BLACK_MARKET")
-        self.register_element("SKULL_SIGN",ghwaypoints.SkullTownSign(
+        _=self.register_element("_skullroom", pbge.randmaps.rooms.OpenRoom(5,5), dident="BLACK_MARKET")
+        _=self.register_element("SKULL_SIGN",ghwaypoints.SkullTownSign(
             name="Skull Sign", anchor=pbge.randmaps.anchors.middle,
             desc="Rules of {BLACK_MARKET} as decreed and enforced by {NPC} of {GUILD}:\n-No fighting within the market.\n-No mecha combat within the market.\n-No attacking a rival gang's safehouse.\n-No raiding within 100km of {METROSCENE}.\n-Biomonsters to be leashed at all times.\n-Bounty hunters to be shot on sight.".format(**self.elements),
             plot_locked=True
@@ -228,7 +228,7 @@ class BlackMarketBluesMain(Plot):
 
     def _reveal_bandit_base(self, camp):
         self.bandit_base_found = True
-        missionbuilder.NewMissionNotification("Attack {} Base".format(self.elements["FACTION"]),
+        _=missionbuilder.NewMissionNotification("Attack {} Base".format(self.elements["FACTION"]),
                                               self.elements["MISSION_GATE"])
 
 

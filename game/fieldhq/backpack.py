@@ -213,7 +213,9 @@ class BackpackWidget(widgets.Widget):
     def _activate_item(self, _col, colitem):
         self.active_item = colitem.data
 
-    def decorate_on_invoke(self, on_invoke_fun: invoker.On_Invoke):
+    def decorate_on_invoke(self, on_invoke_fun: invoker.On_Invoke|None):
+        if not on_invoke_fun:
+            return None
         def bp_on_invoke(*args, **kwargs):
             on_invoke_fun(*args, **kwargs)
             self.finished = True
@@ -248,10 +250,14 @@ class BackpackWidget(widgets.Widget):
         menu_widget.sort(key=lambda w: w.text)
 
     def update_selectors(self):
+        n = self.inventory_selector.active_index
         self.inventory_selector.clear()
         self.build_inventory_menu(self.pc, self.inventory_selector)
+        self.inventory_selector.set_item_by_position(n)
+        n = self.equipment_selector.active_index
         self.equipment_selector.clear()
         self.build_equipment_menu(self.equipment_selector)
+        self.equipment_selector.set_item_by_position(n)
         self.active_item = None
 
     def _unequip_item(self, wid, _ev):
@@ -475,10 +481,14 @@ class ItemExchangeWidget(widgets.Widget):
         menu_widget.sort(key=lambda w: str(w))
 
     def update_selectors(self):
+        n = self.inventory_selector.active_index
         self.inventory_selector.clear()
         self.build_inventory_menu(self.pc.inv_com, self.inventory_selector, self.trade_to_crate)
+        self.inventory_selector.set_item_by_position(n)
+        n = self.crate_selector.active_index
         self.crate_selector.clear()
         self.build_inventory_menu(self.conlist, self.crate_selector, self.trade_to_pc)
+        self.crate_selector.set_item_by_position(n)
         self.active_item = None
 
     def trade_to_crate(self, wid, _ev):

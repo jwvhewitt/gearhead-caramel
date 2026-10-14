@@ -5,6 +5,7 @@ from game import traildrawer
 from gears import info
 import pygame
 from collections.abc import Callable
+from pbge.scenes.viewer import MC_ENEMYCURSOR, MC_AOE, MC_CURSOR, MC_GOODTARGET, MC_ORIGIN, MC_TRAILMARKER, MC_VOIDCURSOR, MC_VOIDENEMYCURSOR, MC_VOIDGOODTARGET
 
 
 # Shelf needs name, desc properties & __str__ method.
@@ -36,8 +37,46 @@ class InvoMenuDesc(pbge.widgetmenu.DescBoxWidget):
         else:
             return "???"
 
+
+class InvocationButton(pbge.widgets.ColumnWidget):
+    def __init__(self, camp, pc, invo, **kwargs):
+        super().__init__(0, 0, 48, 64, center_interior=True, on_click=self._click_me, **kwargs)
+        self.camp = camp
+        self.pc = pc
+        self.invo = invo
+        self.button = pbge.widgets.ButtonWidget(0, 0, 32, 32, invo.data.attack_icon)
+        self.add_interior(self.button)
+
+    def update_button(self):
+        if not self.invo.can_be_invoked(self.pc, self.camp.fight):
+            self.button.frame = self.invo.data.disabled_frame
+        elif self.should_hilight(self):
+            self.button.frame = self.invo.data.active_frame
+        else:
+            self.button.frame = self.invo.data.inactive_frame
+
+    def _click_me(self, _wid, _ev):
+        pass
+
+
 class LibraryRibbon(pbge.widgets.RowWidget):
-    pass
+    def __init__(
+            self, camp, pc, build_library_function, update_callback, start_source=None,
+            top_shelf_fun=None, bottom_shelf_fun=None, auto_launch_fun=None, **kwargs
+    ):
+        # This widget holds the attack library and determines what invocation
+        # from the library is going to be used.
+        # build_library_function is a function that builds the library. Duh.
+        # update_callback is a function that gets called when the invocation
+        #   is changed. It passes the new invocation as a parameter.
+        # top_shelf_fun and bottom_shelf_fun are functions called when the user
+        #   tries to scroll above the top item or below the bottom item. If None,
+        #   this widget will just loop around to the other end of the list.
+        super().__init__(-300, -100, 600, 80, draw_border=True, anchor=pbge.frects.ANCHOR_BOTTOM, **kwargs)
+        self.camp = camp
+        self.pc = pc
+        self.build_library_function = build_library_function
+
 
 class InvocationLibraryWidget(pbge.widgets.Widget):
     # This widget stores the invocation library and allows the player
@@ -352,17 +391,6 @@ class DataGatheringWidget(pbge.widgets.Widget):
 class InvocationUI(pbge.widgets.Widget):
     # This is an invisible widget; it handles targeting with the currently selected invocation.
     # The library widget is the visible part which lets the player choose an invocation to use.
-    SC_ORIGIN = 4
-    SC_AOE = 2
-    SC_CURSOR = 3
-    SC_VOIDCURSOR = 0
-    SC_ENDCURSOR = 5
-    SC_TRAILMARKER = 6
-    SC_ZEROCURSOR = 7
-    SC_ENEMYCURSOR = 12
-    SC_GOODTARGET = 13
-    SC_VOIDENEMYCURSOR = 14
-    SC_VOIDGOODTARGET = 15
     LIBRARY_WIDGET: type[InvocationLibraryWidget] = InvocationLibraryWidget
 
     TAGS_TO_DEACTIVATE = {pbge.widgets.WTAG_EXPLORATIONMODE,}
@@ -376,7 +404,7 @@ class InvocationUI(pbge.widgets.Widget):
         self.camp = camp
         self.pc = pc
         # self.change_invo(invo)
-        self.cursor_sprite = pbge.image.Image('sys_mapcursor.png', 64, 64)
+        self.cursor_sprite = pbge.my_state.view.map_cursor_image
         self.invo: pbge.effects.Invocation|None = None
         self.data = dict()
 
@@ -459,29 +487,29 @@ class InvocationUI(pbge.widgets.Widget):
         # Find out what mecha are in the targeted tile.
         mmecha = [m for m in pbge.my_state.view.modelmap.get(pbge.my_state.view.mouse_tile, ()) if self.camp.scene.is_an_actor(m) and m.is_operational()]
         if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
-            pbge.my_state.view.cursor.frame = self.SC_ENEMYCURSOR
+            pbge.my_state.view.cursor.frame = MC_ENEMYCURSOR
         elif mmecha and self.invo and self.invo.ai_tar and self.invo.ai_tar.is_potential_target(self.camp, self.pc, mmecha[0]):
-            pbge.my_state.view.cursor.frame = self.SC_GOODTARGET
+            pbge.my_state.view.cursor.frame = MC_GOODTARGET
         else:
-            pbge.my_state.view.cursor.frame = self.SC_CURSOR
+            pbge.my_state.view.cursor.frame = MC_CURSOR
 
-        pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, self.SC_ORIGIN)
+        pbge.my_state.view.overlays[self.pc.pos] = (self.cursor_sprite, MC_ORIGIN)
 
         if self.invo and self.invo.area.AUTOMATIC:
             aoe = self.invo.area.get_area(self.camp, self.pc.pos, pbge.my_state.view.mouse_tile)
             for p in aoe:
-                pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
+                pbge.my_state.view.overlays[p] = (self.cursor_sprite, MC_AOE)
         else:
             if self.invo and pbge.my_state.view.mouse_tile in self.legal_tiles:
                 aoe = self.invo.area.get_area(self.camp, self.pc.pos, pbge.my_state.view.mouse_tile)
                 for p in aoe:
-                    pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
+                    pbge.my_state.view.overlays[p] = (self.cursor_sprite, MC_AOE)
                 pbge.my_state.view.overlays[pbge.my_state.view.mouse_tile] = None
             if self.invo and self.targets:
                 for t in self.targets:
                     aoe = self.invo.area.get_area(self.camp, self.pc.pos, t)
                     for p in aoe:
-                        pbge.my_state.view.overlays[p] = (self.cursor_sprite, self.SC_AOE)
+                        pbge.my_state.view.overlays[p] = (self.cursor_sprite, MC_AOE)
         firing_pos = self.pc.pos
         if pbge.my_state.view.mouse_tile in self.legal_tiles:
             if self.clock:
@@ -490,18 +518,18 @@ class InvocationUI(pbge.widgets.Widget):
             if self.camp.fight and self.clock:
                 self.clock.indicate_mp_cost(mp_to_spend=self.nav.cost_to_tile[self.mypath[-1]])
             traildrawer.draw_trail( self.cursor_sprite
-                                  , self.SC_TRAILMARKER, None
+                                  , MC_TRAILMARKER, None
                                   , self.mypath + [pbge.my_state.view.mouse_tile]
                                   )
             firing_pos = self.mypath[-1]
         else:
             if mmecha and self.camp.scene.is_hostile_to_player(mmecha[0]):
-                pbge.my_state.view.cursor.frame = self.SC_VOIDENEMYCURSOR
+                pbge.my_state.view.cursor.frame = MC_VOIDENEMYCURSOR
             elif mmecha and self.invo and self.invo.ai_tar and self.invo.ai_tar.is_potential_target(self.camp, self.pc,
                                                                                                     mmecha[0]):
-                pbge.my_state.view.cursor.frame = self.SC_VOIDGOODTARGET
+                pbge.my_state.view.cursor.frame = MC_VOIDGOODTARGET
             else:
-                pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
+                pbge.my_state.view.cursor.frame = MC_VOIDCURSOR
             if self.clock:
                 self.clock.indicate_mp_cost()
 
@@ -610,7 +638,7 @@ class InvocationUI(pbge.widgets.Widget):
         self.visible = False
         self.my_widget.help_on = False
         self.tidy()
-        pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
+        pbge.my_state.view.cursor.frame = MC_VOIDCURSOR
 
     def update_nav(self):
         if self.camp.fight:
@@ -647,7 +675,7 @@ class InvocationUI(pbge.widgets.Widget):
         return op_list
 
     def tidy(self):
-        pbge.my_state.view.cursor.frame = self.SC_VOIDCURSOR
+        pbge.my_state.view.cursor.frame = MC_VOIDCURSOR
         pbge.my_state.view.overlays.clear()
 
     def find_shelf_invo(self, op_list):

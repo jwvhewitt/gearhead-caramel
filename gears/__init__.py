@@ -225,6 +225,7 @@ class MetroData(object):
         if "city_leader" not in state:
             self.city_leader = None
 
+MAP_CURSOR_WINTER = "sys_mapcursor_winter.png"
 
 class GearHeadScene(pbge.scenes.Scene):
     def __init__(self, width=128, height=128, name="", player_team=None, civilian_team=None, faction=None,

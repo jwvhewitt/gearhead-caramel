@@ -1,3 +1,17 @@
+v1.020 October 14, 2026
+* Fixed world map war ending
+* Ammo check bug for weapons with no installed ammo fixed
+* Added warning message to debug option that breaks campaign
+* Added RibbonMenuWidget
+* WidgetMenu is now derived from Widget instead of ColumnWidget
+* Keyboard bounce bug fixed
+* Different map cursor colors/styles can be set for different scenes
+* Decreased the volume of chem
+* Fixed pet personality crash
+* FIxed hidden PCs walking into threat area crash
+* Tails can now mount shields, as in previous GearHead games
+* Maybe fixed bug with MenuWidget active_index property
+* Backpack, Gear Editor, Shop don't reset menu position every time
 * PlacableThings container attribute is not pickled; restored when reloaded
 * Viewer redraw is very slightly faster
 * Random artifacts may now appear in dungeons
