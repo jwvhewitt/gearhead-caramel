@@ -1,3 +1,9 @@
+v1.020 October 14, 2026
+* Fixed world map war ending
+* Ammo check bug for weapons with no installed ammo fixed
+* Added warning message to debug option that breaks campaign
+* Added RibbonMenuWidget
+* WidgetMenu is now derived from Widget instead of ColumnWidget
 * Keyboard bounce bug fixed
 * Different map cursor colors/styles can be set for different scenes
 * Decreased the volume of chem

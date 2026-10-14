@@ -455,7 +455,7 @@ class Plot(object):
             mygram.update(ogram)
         return mygram
 
-    def _get_dialogue_grammar(self, npc, camp):
+    def _get_dialogue_grammar(self, npc, camp) -> None|dict:
         # The secret private function that returns custom grammar.
         return None
 

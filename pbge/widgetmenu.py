@@ -42,23 +42,23 @@ class MenuStyle:
         )
         return (up_arrow, down_arrow)
 
-    def arrange_widgets(self, menu: "MenuWidget", scroll_column, up_arrow, down_arrow):
+    def arrange_widgets(self, container: widgets.ColumnWidget, scroll_column, up_arrow, down_arrow):
         if self.corner_arrows:
-            menu.children.append(up_arrow)
-            menu.super_add_interior(scroll_column)
-            menu.children.append(down_arrow)
-            up_arrow.parent = menu
+            container.children.append(up_arrow)
+            container.add_interior(scroll_column)
+            container.children.append(down_arrow)
+            up_arrow.parent = container
             up_arrow.dx, up_arrow.dy = -5, -up_arrow.h//2
             up_arrow.anchor = frects.ANCHOR_UPPERRIGHT
-            down_arrow.parent = menu
+            down_arrow.parent = container
             down_arrow.dx, down_arrow.dy = -5, -down_arrow.h//2
             down_arrow.anchor = frects.ANCHOR_LOWERRIGHT
 
         else:
-            menu.super_add_interior(up_arrow)
+            container.add_interior(up_arrow)
             scroll_column.h = scroll_column.h - up_arrow.h * 2
-            menu.super_add_interior(scroll_column)
-            menu.super_add_interior(down_arrow)
+            container.add_interior(scroll_column)
+            container.add_interior(down_arrow)
 
 
 DEFAULT_STYLE = MenuStyle(
@@ -67,7 +67,10 @@ DEFAULT_STYLE = MenuStyle(
 WIDE_ARROW_STYLE = MenuStyle()
 
 
-class MenuWidget(widgets.ColumnWidget):
+class MenuWidget(widgets.Widget):
+    CONTAINER_TYPE = widgets.ColumnWidget
+    SCROLLER_TYPE = widgets.ScrollColumnWidget
+    DEFAULT_STYLE = DEFAULT_STYLE
     def __init__(
         self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
         off_border=widget_menu_border_off, activate_child_on_enter=True,
@@ -76,7 +79,7 @@ class MenuWidget(widgets.ColumnWidget):
         font=None, item_class: type[widgets.Widget]=widgets.LabelWidget, item_data=None, 
         on_click_child: widgets.On_Click=None, pop_when_clicked=False,
         on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
-        auto_escape=False, style=DEFAULT_STYLE,
+        auto_escape=False, style=None, anchor=frects.ANCHOR_CENTER, parent=None,
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
@@ -87,20 +90,25 @@ class MenuWidget(widgets.ColumnWidget):
         # on_escape: callable with signature (widget, event) called when escape key pressed
         #   Does not actually close menu; exact workings are up to whoever created this menu.
         # auto_escape allows this menu to pop without an on_escape function; can ***ONLY BE SET FOR A TOP LEVEL WIDGET!!!***
-        super().__init__(dx, dy, w, h, draw_border=draw_border, border=border, center_interior=center_interior,
-                         **kwargs)
+        super().__init__(dx, dy, w, h, anchor=anchor, parent=parent)
+        self.draw_border=draw_border
+        self.border=border
         self.off_border = off_border
+        style = style or self.DEFAULT_STYLE
+
+        self.container_widget = self.CONTAINER_TYPE(0, 0, w, h, anchor=frects.ANCHOR_UPPERLEFT, parent=self, center_interior=center_interior, draw_border=False, **kwargs)
+        self.children.append(self.container_widget)
 
         self.up_arrow, self.down_arrow = style.get_up_down_widgets()
 
-        self.scroll_column = widgets.ScrollColumnWidget(
+        self.scroll_column = self.SCROLLER_TYPE(
             0, 0, w, h, self.up_arrow, self.down_arrow, padding = padding,
             on_enter=self._enter_column, activate_child_on_enter=activate_child_on_enter,
             on_activate_child=on_activate_item, on_click_child=self._click_child_wrapper,
             immediately_on_click=self._immediately_on_click
         )
 
-        style.arrange_widgets(self, self.scroll_column, self.up_arrow, self.down_arrow)
+        style.arrange_widgets(self.container_widget, self.scroll_column, self.up_arrow, self.down_arrow)
 
         self.item_data = dict()
         if font:
@@ -148,10 +156,6 @@ class MenuWidget(widgets.ColumnWidget):
             or self.up_arrow is my_state.focused_widget
             or self.down_arrow is my_state.focused_widget
         )
-
-    # Utility function to access the menu's column contents
-    def super_add_interior(self, other_w):
-        super().add_interior(other_w)
 
     # Some utility functions to access the scroll column's contents directly.
     def add_interior(self, other_w, pos=None):
@@ -461,18 +465,7 @@ class TitleMenuWidget(MenuWidget):
         super()._render(delta)
 
 
-class RibbonMenu(widgets.RowWidget):
-    def __init__(
-        self, dx, dy, w, h, draw_border=True, border=widget_menu_border_on,
-        off_border=widget_menu_border_off, activate_child_on_enter=True,
-        on_activate_item=None, center_interior=True, padding=5,
-        item_color=MENU_ITEM_COLOR, selected_item_color=MENU_SELECT_COLOR,
-        font=None, item_class: type[widgets.Widget]=widgets.LabelWidget, item_data=None, 
-        on_click_child: widgets.On_Click=None, pop_when_clicked=False,
-        on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
-        auto_escape=False, style=DEFAULT_STYLE,
-        **kwargs
-    ):
-        super().__init__(dx, dy, w, h, **kwargs)
-
- 
+class RibbonMenu(MenuWidget):
+    CONTAINER_TYPE = widgets.RowWidget
+    SCROLLER_TYPE = widgets.ScrollRowWidget
+    DEFAULT_STYLE = None

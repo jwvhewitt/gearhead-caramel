@@ -229,7 +229,7 @@ class DZDIntro_GetInTheMekShimli(Plot):
         thingmenu.desc = "This boarding chute leads to\n your {}.".format(camp.get_pc_mecha(camp.pc).get_full_name())
         thingmenu.add_item("Board mecha",self._start_mission, data=camp)
         if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
-            thingmenu.add_item("Don't panic and go to Wujung",self._skip_first_mission, data=camp)
+            thingmenu.add_item("Don't panic and go to Wujung (*breaks campaign*)",self._skip_first_mission, data=camp)
         if pbge.util.config.getboolean( "GENERAL", "dev_mode_on"):
             thingmenu.add_item("Test mission",self._test_mission(camp), data=camp)
 

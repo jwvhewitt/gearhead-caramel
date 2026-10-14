@@ -874,10 +874,8 @@ class ScrollColumnWidget(Widget):
             else:
                 self.border.render(self.get_rect())
 
-class ScrollRowWidget(ScrollColumnWidget):
-    def __init__(self, dx, dy, w, h, up_button, down_button, **kwargs):
-        super().__init__(dx, dy, w, h, up_button, down_button, **kwargs)
 
+class ScrollRowWidget(ScrollColumnWidget):
     def _position_contents(self):
         # Disable all interior widgets, except those currently visible.
         for w in self._interior_widgets:
@@ -934,6 +932,11 @@ class RowWidget(Widget):
         # Set the position of other_w inside this widget.
         other_w.parent = self
         self._position_contents()
+
+    def add_interior(self, other_w):
+        # A synonym for the use of the menuwidget unit.
+        self.add_center(other_w)
+
 
     def add_right(self, other_w):
         self.children.append(other_w)

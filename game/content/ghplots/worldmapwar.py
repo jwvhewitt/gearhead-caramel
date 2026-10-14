@@ -763,10 +763,14 @@ class WorldMapWarHandler(Plot):
 
     def handle_war_round(self, camp):
         if self.world_map_war.ready_for_next_round and not self.current_round:
-            self.current_round = WorldMapWarRound(self.world_map_war, camp)
-            self.world_map_war.ready_for_next_round = False
+            self.check_war_status(camp)
+            if self.active:
+                self.current_round = WorldMapWarRound(self.world_map_war, camp)
+                self.world_map_war.ready_for_next_round = False
         if self.current_round and self.active and self.current_round.keep_going():
-            self.current_round.perform_turn(self.war_turn_callback)
+            self.check_war_status(camp)
+            if self.active:
+                self.current_round.perform_turn(self.war_turn_callback)
 
 
     def t_START(self, camp: gears.GearHeadCampaign):

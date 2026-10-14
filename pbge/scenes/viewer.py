@@ -70,6 +70,24 @@ class TextTicker(object):
         return not self.text_images
 
 
+class AreaCacheImage(object):
+    def __init__(self, x0, y0, viewer: "SceneView"):
+        self.x0 = x0
+        self.y0 = y0
+        self.scene = viewer.scene
+        self.viewer = viewer
+        self.surf = image.Image(frame_width=viewer.TILE_WIDTH*self.length(), frame_height=viewer.TILE_HEIGHT)
+        self.water_blocks = list()
+        self.anim_tiles = list()
+
+    def length(self):
+        return min(self.y0 + 1, self.scene.width - self.x0, 20)
+
+    @classmethod
+    def create_area_cache(cls, view: "SceneView"):
+        pass
+
+
 class SceneView(object):
     def __init__(self, scene, postfx=None, cursor=None, party_indicator_spritename=PARTY_INDICATOR_SPRITE):
         self.overlays = dict()
@@ -117,7 +135,9 @@ class SceneView(object):
 
         self.map_cursor_image = image.Image(self.scene.map_cursor_sprite, self.TILE_WIDTH, self.TILE_HEIGHT)
 
+        self.area_cache = dict()
         self.needs_update = True
+        self.visible_area = set()
     
         my_state.view = self
 

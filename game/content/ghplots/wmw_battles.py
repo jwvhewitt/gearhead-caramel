@@ -105,8 +105,8 @@ class WMWDefaultRepairNode(multimission.MultiMissionNodePlot):
     OBJECTIVES = (missionbuilder.BAMO_RECOVER_CARGO, missionbuilder.BAMO_CAPTURE_BUILDINGS)
 
     def _on_win(self, camp: gears.GearHeadCampaign):
-        pbge.alerts.TextAlert("Using the captured supplies, you are able to return your mecha to full fighting strength.")
-        camp.totally_restore_party()
+        _=pbge.alerts.TextAlert("Using the captured supplies, you are able to return your mecha to full fighting strength.")
+        _=camp.totally_restore_party()
         super()._on_win(camp)
 
 
