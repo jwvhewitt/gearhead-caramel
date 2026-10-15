@@ -96,9 +96,12 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
 
     def _delete_op(self,_wid,_ev):
         if self.ops_taken:
-            mymenu = pbge.widgetmenu.PopupMenuWidget.push_state_and_instantiate(on_click_child=self._delete_this_option)
+            mymenu = pbge.widgetmenu.PopupMenuWidget(on_click_child=self._delete_this_option, auto_escape=True)
             for p in self.ops_taken:
-                mymenu.add_item(str(p), None, data=p)
+                _=mymenu.add_item(str(p), None, data=p)
+            if mymenu.is_empty():
+                _=mymenu.add_item("[CANCEL]", None)
+            mymenu.deploy_to_main()
 
     def _delete_this_option(self, wid, _ev):
         delete_this_one = wid.data
@@ -111,10 +114,13 @@ class AddRemoveOptionsWidget(pbge.widgets.ColumnWidget,WidgetThatChangesSomethin
 
     def _add_op(self,widg,ev):
         if self.max_ops > len(self.ops_taken):
-            mymenu = pbge.widgetmenu.PopupMenuWidget.push_state_and_instantiate(on_click_child=self._add_this_option)
+            mymenu = pbge.widgetmenu.PopupMenuWidget(on_click_child=self._add_this_option, auto_escape=True)
             for p in self.op_candidates:
                 if p not in self.ops_taken:
                     _=mymenu.add_item(str(p), None, data=p)
+            if mymenu.is_empty():
+                _=mymenu.add_item("[CANCEL]", None)
+            mymenu.deploy_to_main()
 
     def _add_this_option(self,wid,ev):
         add_this_one = wid.data
@@ -908,7 +914,7 @@ class GearEditor(pbge.widgets.Widget):
         gears.selector.DESIGN_BY_NAME[save_version.get_full_name()] = save_version
 
     def _add_subcom(self,widj,ev):
-        _ = PartAcceptCancelWidget.push_state_and_instantiate(
+        PartAcceptCancelWidget.push_state_and_instantiate(
             sources=self.sources, filter_fun=self._check_can_install, on_selection=self._return_add_subcom
         )
 
@@ -919,7 +925,7 @@ class GearEditor(pbge.widgets.Widget):
         return self.active_part.can_install(gear)
 
     def _add_invcom(self,widj,ev):
-        _ = PartAcceptCancelWidget.push_state_and_instantiate(
+        PartAcceptCancelWidget.push_state_and_instantiate(
             sources=self.sources, filter_fun=self.active_part.can_equip, on_selection=self._return_add_invcom
         )
 

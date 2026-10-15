@@ -56,7 +56,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v1.020"
+VERSION = "v1.021"
 STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 class SpeedTest(pbge.widgets.Widget):
@@ -597,6 +597,11 @@ def play_the_game():
     #    print()
 
     #gears.champions.GrizzlyTheme.test_weapon_lists()
+
+    # all_meks = [m for m in gears.selector.DESIGN_LIST if isinstance(m, gears.base.Mecha)]
+    # for t in range(10000):
+    #     mymek = copy.deepcopy(random.choice(all_meks))
+    #     gears.champions.upgrade_to_champion(mymek, points=random.randint(5,50))
 
     try:
         mymenu = MainMenu()

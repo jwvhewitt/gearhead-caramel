@@ -59,7 +59,7 @@ class SessionMonitor(widgets.Widget):
     def play_campaign(self):
         widgets.Widget.close_widgets_with_tag(WTAG_SCENEHANDLER)
         self.camp.update_plots()
-        _exp: ExploPrototype = self.camp.scene_handler.push_state_and_instantiate(self, camp=self.camp)
+        self.camp.scene_handler.push_state_and_instantiate(self, camp=self.camp)
 
 
 class Campaign(object):

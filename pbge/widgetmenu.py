@@ -80,6 +80,7 @@ class MenuWidget(widgets.Widget):
         on_click_child: widgets.On_Click=None, pop_when_clicked=False,
         on_escape: Callable[[widgets.Widget, pygame.event.Event], None]|None=None,
         auto_escape=False, style=None, anchor=frects.ANCHOR_CENTER, parent=None,
+        tags=(),
         **kwargs
     ):
         # on_activate_item is a callable with signature (column, colitem). colitem may be None.
@@ -90,7 +91,7 @@ class MenuWidget(widgets.Widget):
         # on_escape: callable with signature (widget, event) called when escape key pressed
         #   Does not actually close menu; exact workings are up to whoever created this menu.
         # auto_escape allows this menu to pop without an on_escape function; can ***ONLY BE SET FOR A TOP LEVEL WIDGET!!!***
-        super().__init__(dx, dy, w, h, anchor=anchor, parent=parent)
+        super().__init__(dx, dy, w, h, anchor=anchor, parent=parent, tags=tags)
         self.draw_border=draw_border
         self.border=border
         self.off_border = off_border

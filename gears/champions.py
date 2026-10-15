@@ -1,5 +1,4 @@
 import random
-import math
 import copy
 import pbge
 import gears
@@ -156,7 +155,7 @@ class UpgradeTheme(pbge.Singleton):
             if isinstance(w, needed_class) and cls.THEME_TAG in w.shop_tags:
                 if w.cost > old_cost and (not candidate_weapon or w.cost < candidate_weapon.cost):
                     candidate_weapon = w
-        return candidate_weapon
+        return copy.deepcopy(candidate_weapon)
 
     @classmethod
     def upgrade_weapon(cls, weapon):
@@ -184,8 +183,9 @@ class UpgradeTheme(pbge.Singleton):
                 nupart = base.HighPerformanceEngine(size=part.size, scale=part.scale, material=part.material)
             else:
                 nupart = base.HighOutputEngine(size=part.size, scale=part.scale, material=part.material)
-            cls.replace_part(part, nupart)
-            return nupart
+            if cls.change_is_okay(part, nupart):
+                cls.replace_part(part, nupart)
+                return nupart
         new_size = min(part.size + random.randint(1,4) * 50, part.MAX_SIZE)
         nupart = part.__class__(size=new_size, scale=part.scale, material=part.material)
         if new_size > part.size and cls.change_is_okay(part, nupart):
@@ -269,10 +269,10 @@ class UpgradeTheme(pbge.Singleton):
                         candidates.append(nupart)
                         random.shuffle(candidates)
 
-            if empty_holders and random.randint(1,23)==5 or not candidates:
+            if empty_holders and (random.randint(1,23)==5 or not candidates):
                 part = empty_holders.pop()
                 nupart = cls.get_new_weapon(None)
-                if nupart:
+                if nupart and part.can_equip(nupart):
                     points -= 1
                     part.inv_com.append(nupart)
                     candidates.append(nupart)
@@ -593,14 +593,14 @@ def upgrade_a_weapon(wep, theme: None|type[UpgradeTheme] = None):
         return theme.create_upgraded_weapon(wep)
 
 
-def upgrade_to_champion(mek, theme: None|type[UpgradeTheme] = None):
+def upgrade_to_champion(mek, theme: None|type[UpgradeTheme] = None, points=5):
     if not theme:
         if random.randint(1,5) == 5:
             theme = random.choice(THEMES)
         else:
             theme = UpgradeTheme
     # First upgrade the engines.
-    theme.upgrade_mecha(mek, 5)
+    theme.upgrade_mecha(mek, points)
 
 
 def choose_theme(npc: base.Character) -> type[UpgradeTheme]:

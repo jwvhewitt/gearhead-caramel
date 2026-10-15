@@ -1,5 +1,5 @@
 from typing import override
-from pbge.plots import Plot, Rumor, PlotState, Adventure
+from pbge.plots import Plot, Rumor, PlotState
 import gears
 import pbge
 from game.ghdialogue import context
@@ -54,7 +54,7 @@ class TalkRelay(Plot):
 
     @staticmethod
     def is_bad_character(plot, camp, npc):
-        return bool(npc.faction and camp.are_faction_allies(npc, plot.elements.get("ENEMY_FACTION"))) or npc.scene.get_metro_scene() is not plot.elements["METROSCENE"]
+        return bool(npc.faction and camp.are_faction_allies(npc, plot.elements.get("ENEMY_FACTION"))) or (npc.scene and npc.scene.get_metro_scene() is not plot.elements["METROSCENE"])
 
     RUMOR = Rumor(
         "{NPC} knows something about {INFO}",
@@ -141,7 +141,6 @@ class TalkRelay(Plot):
             if not myanchor:
                 myanchor = pbge.randmaps.anchors.east
             myrank = self.rank
-            dest_metro = dest_scene.get_metro_scene()
             myadv = missionbuilder.BuildAMissionSeed(
                 camp, "{} Ambush".format(dest_scene), metroscene, return_wp,
                 enemy_faction=self.elements.get("ENEMY_FACTION"), rank=myrank,

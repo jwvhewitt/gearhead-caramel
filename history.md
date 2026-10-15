@@ -1,3 +1,11 @@
+v1.021 October 15, 2026
+* Fixed bugs with mecha editor attributes menus
+* Fixed several tricky bugs in the customization code
+* Maybe fixed bug with empty invoker interface? Hard to say.
+* Fixed error when mecha customization happens while pilot inside mecha
+* Fixed menu tag error
+* Fixed bug with TalkRelay plot
+
 v1.020 October 14, 2026
 * Fixed world map war ending
 * Ammo check bug for weapons with no installed ammo fixed

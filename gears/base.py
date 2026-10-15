@@ -862,7 +862,7 @@ class BaseGear(scenes.PlaceableThing):
         else:
             return self
 
-    def get_scene(self):
+    def get_scene(self) -> pbge.scenes.Scene | None:
         # Return the scene this gear is in, if it can be found. None otherwise.
         rgear = self.get_root()
         if rgear and hasattr(rgear, "container") and rgear.container:
@@ -883,7 +883,7 @@ class BaseGear(scenes.PlaceableThing):
         return parent and hasattr(parent, "inv_com") and self in parent.inv_com
 
     @property
-    def scene(self):
+    def scene(self) -> pbge.scenes.Scene|None:
         return self.get_scene()
 
     def get_module(self):

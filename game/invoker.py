@@ -342,13 +342,14 @@ class InvocationLibraryWidget(pbge.widgets.Widget):
             return self.shelf.invo_list[self.invo]
 
     def update_buttons(self):
-        if not self.shelf.invo_list[self.invo].can_be_invoked(self.pc, bool(self.camp.fight)):
-            if self.shelf.has_at_least_one_working_invo(self.pc, bool(self.camp.fight)):
-                self.set_shelf_invo(self.shelf, self.shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
+        if self.shelf:
+            if not self.shelf.invo_list[self.invo].can_be_invoked(self.pc, bool(self.camp.fight)):
+                if self.shelf.has_at_least_one_working_invo(self.pc, bool(self.camp.fight)):
+                    self.set_shelf_invo(self.shelf, self.shelf.get_first_working_invo(self.pc, bool(self.camp.fight)))
+                else:
+                    self.select_first_usable_invo()
             else:
-                self.select_first_usable_invo()
-        else:
-            self.set_shelf_invo(self.shelf, self.shelf.invo_list[self.invo])
+                self.set_shelf_invo(self.shelf, self.shelf.invo_list[self.invo])
 
     def on_activate(self):
         self.update_buttons()
