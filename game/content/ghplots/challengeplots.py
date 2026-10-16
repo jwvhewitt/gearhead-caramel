@@ -728,14 +728,14 @@ class EBInformationBroker(ChallengePlot):
                 data={"reply": "[ICANDOTHAT] (pay ${DONATION:,})".format(**self.elements)}
             ))
 
-        ghdialogue.SkillBasedPartyReply(Offer(
+        _=ghdialogue.SkillBasedPartyReply(Offer(
             "[HOLD_ON] I'll tell you everything I know... {ENEMY_FACTION}'s {BASE_NAME} is somewhere near these coordinates. You'll need to find out the exact location on your own.".format(**self.elements),
             ContextTag([context.CUSTOMREPLY]), effect=self._win_by_intimidation,
             subject=mysubject,
             data={"reply": "Why don't you just tell me and [intimidation_concession]?".format(**self.elements)}
         ), camp, mylist, gears.stats.Ego, gears.stats.Negotiation, self.rank, difficulty=gears.stats.DIFFICULTY_HARD)
 
-        ghdialogue.TagBasedPartyReply(Offer(
+        _=ghdialogue.TagBasedPartyReply(Offer(
             "It's a fair cop. [LISTEN_TO_MY_INFO] {ENEMY_FACTION}'s {BASE_NAME} is somewhere near these coordinates. You'll need to find out the exact location on your own.".format(**self.elements),
             ContextTag([context.CUSTOMREPLY]), effect=self._win_by_police,
             subject=mysubject,
@@ -1291,7 +1291,7 @@ class DonationPRChallenge(ChallengePlot):
                 data={"reply": "[ICANDOTHAT] (pay ${DONATION:,})".format(**self.elements)}
             ))
             if camp.credits >= self.elements["DONATION"] * 2:
-                ghdialogue.TagBasedPartyReply(Offer(
+                _=ghdialogue.TagBasedPartyReply(Offer(
                         "I can't believe your generosity! Everyone in {METROSCENE} knows that the new {PLACE_TO_IMPROVE} is because of {KEY}!".format(**self.elements),
                         ContextTag([context.CUSTOMREPLY]), effect=self._double_the_offer,
                         subject="maybe you could do something to help us",

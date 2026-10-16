@@ -757,7 +757,7 @@ class AssassinForHire(Plot):
         self.hire_cost = lancemates.get_hire_cost(camp,npc)
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
-                mylist.append(Offer("You can hire me for ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                mylist.append(Offer("You can hire me for ${:,}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
                                     context=ContextTag((context.PROPOSAL, context.JOIN)),
                                     data={"subject": "joining my lance"},
                                     subject=self, subject_start=True,

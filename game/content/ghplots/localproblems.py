@@ -200,7 +200,7 @@ class TheNightStalker(Plot):
 
     def METROSCENE_ENTER(self, camp):
         if self.defeated_monster and not self.got_ending_message:
-            pbge.alerts.TextAlert("In thanks for defeating the night stalker, the people of {METROSCENE} present you with ${REWARD:,}.".format(**self.elements))
+            _=pbge.alerts.TextAlert("In thanks for defeating the night stalker, the people of {METROSCENE} present you with ${REWARD:,}.".format(**self.elements))
             self.elements["METRO"].local_reputation += 5
             self.got_ending_message = True
             self.end_plot(camp)

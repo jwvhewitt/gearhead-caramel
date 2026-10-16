@@ -49,7 +49,7 @@ class RecoveringCavalier(Plot):
                                         effect=self._join_lance
                                         ))
                 else:
-                    mylist.append(Offer("My regular signing rate is ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                    mylist.append(Offer("My regular signing rate is ${:,}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
                                         context=ContextTag((context.PROPOSAL, context.JOIN)),
                                         data={"subject": "joining my lance"},
                                         subject=self, subject_start=True,
@@ -337,7 +337,7 @@ class MeanLookingMercenary(Plot):
 
         if gears.relationships.RT_LANCEMATE not in npc.relationship.tags:
             if camp.can_add_lancemate():
-                mylist.append(Offer("I'll join your lance for a mere ${}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
+                mylist.append(Offer("I'll join your lance for a mere ${:,}. [DOYOUACCEPTMYOFFER]".format(self.hire_cost),
                                     context=ContextTag((context.PROPOSAL, context.JOIN)),
                                     data={"subject": "joining my lance"},
                                     subject=self, subject_start=True,

@@ -492,7 +492,7 @@ class EnterTownLanceRecovery(object):
         creds = camp.totally_restore_party()
         self.did_recovery = False
         if creds > 0:
-            pbge.alerts.TextAlert("Repair/Reload: ${}".format(creds))
+            _=pbge.alerts.TextAlert("Repair/Reload: ${:,}".format(creds))
             camp.credits -= creds
             camp.time += 1
         if camp.incapacitated_party or camp.dead_party or any(

@@ -56,7 +56,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v1.021"
+VERSION = "v1.022"
 STRIPPED_VERSION = VERSION.rstrip("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 class SpeedTest(pbge.widgets.Widget):

@@ -1,3 +1,9 @@
+v1.022 October 16, 2026
+* Fixed WorldMapWar get_defense_missionseed bug
+* Added workaround for pygame.event.get SystemError bug 4568
+* All cash values should now use a comma separator
+* Fixed problem with some plus/minus widgets
+
 v1.021 October 15, 2026
 * Fixed bugs with mecha editor attributes menus
 * Fixed several tricky bugs in the customization code

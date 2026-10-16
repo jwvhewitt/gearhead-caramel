@@ -18,7 +18,7 @@ WORLD_MAP_LEGEND = "WORLD_MAP_LEGEND"
 WORLD_MAP_WAR = "WORLD_MAP_WAR"
 
 
-type WarCallback = Callable[[pbge.campaign.Campaign, missionbuilder.BuildAMissionSeed|None], None]
+type WarCallback = Callable[[gears.GearHeadCampaign, missionbuilder.BuildAMissionSeed|None], None]
 
 
 class WarStats:
@@ -472,10 +472,12 @@ class WorldMapWarTurn:
 
     def get_defense_missionseed(self, target_node):
         sgen, archi = gharchitecture.get_mecha_encounter_scenegen_and_architecture(target_node.destination)
+        num_attackers = self.world_map_war.get_attack_strength(self.fac)
+        num_defenders = self.world_map_war.get_defense_strength(target_node)
         my_adv = missionbuilder.BuildAMissionSeed(
             self.camp, "Defend {}".format(target_node), target_node.destination, target_node.entrance,
             self.fac, target_node.destination.faction,
-            self.world_map_war.rank + self.num_attackers * 3 - self.num_defenders * 3,
+            self.world_map_war.rank + num_attackers * 3 - num_defenders * 3,
             objectives=random.sample(self.DEFENSE_OBJECTIVES, 2), scenegen=sgen, architecture=archi,
             on_win=DefenderWinsEffect(self.fac, target_node, self.world_map_war,
                                       False),

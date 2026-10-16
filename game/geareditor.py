@@ -227,12 +227,12 @@ class ComponentEditWidget(PartEditWidget):
 class ArmorEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.update,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.refresh,active=editor.mode==MODE_CREATIVE))
 
 class ShieldEditWidget(PartEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.update,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.refresh,active=editor.mode==MODE_CREATIVE))
         self.add_interior(PlusMinusWidget(mygear,"bonus",mygear.MIN_BONUS,mygear.MAX_BONUS,None,active=editor.mode==MODE_CREATIVE))
 
 class EngineEditWidget(ComponentEditWidget):
@@ -243,12 +243,12 @@ class EngineEditWidget(ComponentEditWidget):
 class SensorEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.update,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",mygear.MIN_SIZE,mygear.MAX_SIZE,editor.refresh,active=editor.mode==MODE_CREATIVE))
 
 class MoveSysEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
         super().__init__(mygear, editor, **kwargs)
-        self.add_interior(PlusMinusWidget(mygear,"size",1,25,editor.update,active=editor.mode==MODE_CREATIVE))
+        self.add_interior(PlusMinusWidget(mygear,"size",1,25,editor.refresh,active=editor.mode==MODE_CREATIVE))
 
 class PowerSourceEditWidget(ComponentEditWidget):
     def __init__(self, mygear, editor, **kwargs):
@@ -798,7 +798,7 @@ class MechaStatsHeader(CommonHeader):
 
         pbge.draw_text(
             pbge.MEDIUMFONT,
-             "Cost: ${}\n Mass: {:.1f} tons\n Armor: {}\n Mobility: {}\n Speed: {}\n Sensor Range: {}\n E-War Progs: {}\n OK: {}".format(
+             "Cost: ${:,}\n Mass: {:.1f} tons\n Armor: {}\n Mobility: {}\n Speed: {}\n Sensor Range: {}\n E-War Progs: {}\n OK: {}".format(
                 self.mecha.cost,
                  self.mecha.mass / 10000.0,
                  self.mecha.calc_average_armor(),

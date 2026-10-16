@@ -512,6 +512,12 @@ class GameState(object):
         MAX_DELTA = delta * 2
         key_bounce_checker = collections.defaultdict(int)
 
+        # Workaround for the pygame.event.get SystemError, issue #4568 on PyGame
+        try:
+            _=pygame.event.get(pump=True)
+        except SystemError:
+            print("pygame.event.get is being a naughty jerk again...")
+
         while self.widgets and not self.got_quit:
             # BEFORE polling for events, check for alerts!
             self.update_alerts()
